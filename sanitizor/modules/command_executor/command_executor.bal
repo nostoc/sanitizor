@@ -1,3 +1,4 @@
+import ballerina/file;
 import ballerina/io;
 import ballerina/log;
 import ballerina/os;
@@ -39,7 +40,6 @@ public type CommandResult record {|
 |};
 
 # Execute shell commands and capture results
-#
 # + command - Command to execute
 # + workingDir - working directory for command execution
 # + return - `CommandResult` with all execution details
@@ -57,49 +57,72 @@ function executeCommand(string command, string workingDir) returns CommandResult
         stderr = "Empty command string";
         exitCode = 1;
     } else {
-        // Construct command with working directory change if needed
-        string fullCommand = command;
+        // Create working directory if it doesn't exist
         if workingDir.trim().length() > 0 {
-            fullCommand = string `cd "${workingDir}" && ${command}`;
-        }
-
-        os:Command cmd = {value: fullCommand};
-        os:Process|error proc = os:exec(cmd);
-        if proc is os:Process {
-            // Wait for process to finish and get exit code
-            int|error exitResult = proc.waitForExit();
-            if exitResult is int {
-                exitCode = exitResult;
-                success = exitCode == 0;
-
-                // Get stdout
-                byte[]|error stdoutBytes = proc.output();
-                if stdoutBytes is byte[] {
-                    string|error stdoutResult = string:fromBytes(stdoutBytes);
-                    stdout = stdoutResult is string ? stdoutResult : stdoutResult.toString();
+            boolean|error dirExists = file:test(workingDir, file:EXISTS);
+            if dirExists is error || !dirExists {
+                error? createResult = file:createDir(workingDir, file:RECURSIVE);
+                if createResult is error {
+                    stderr = string `Failed to create working directory: ${createResult.toString()}`;
+                    exitCode = 1;
+                    success = false;
                 } else {
-                    stdout = "";
+                    log:printInfo("Created working directory", workingDir = workingDir);
                 }
-
-                // Get stderr  
-                byte[]|error stderrBytes = proc.output(io:stderr);
-                if stderrBytes is byte[] {
-                    string|error stderrResult = string:fromBytes(stderrBytes);
-                    stderr = stderrResult is string ? stderrResult : stderrResult.toString();
-                } else {
-                    stderr = "";
-                }
-            } else {
-                stderr = exitResult.toString();
-                exitCode = 1;
             }
-        } else {
-            stderr = proc.toString();
-            exitCode = 1;
         }
-    }
 
-    time:Utc endTime = time:utcNow();
+        if stderr == "" { // Only execute if directory creation succeeded
+            // Parse command into executable and arguments
+            string[] commandParts = regex:split(command, " ");
+            if commandParts.length() == 0 {
+                stderr = "Empty command";
+                exitCode = 1;
+            } else {
+                string executable = commandParts[0];
+                string[] arguments = commandParts.slice(1);
+                
+                os:Command cmd = {
+                    value: executable,
+                    arguments: arguments
+                };
+                
+                os:Process|error proc = os:exec(cmd, env = {}, dir = workingDir);
+                if proc is os:Process {
+                    // Wait for process to finish and get exit code
+                    int|error exitResult = proc.waitForExit();
+                    if exitResult is int {
+                        exitCode = exitResult;
+                        success = exitCode == 0;
+                        
+                        // Get stdout
+                        byte[]|error stdoutBytes = proc.output();
+                        if stdoutBytes is byte[] {
+                            string|error stdoutResult = string:fromBytes(stdoutBytes);
+                            stdout = stdoutResult is string ? stdoutResult : stdoutResult.toString();
+                        } else {
+                            stdout = "";
+                        }
+                        
+                        // Get stderr  
+                        byte[]|error stderrBytes = proc.output(io:stderr);
+                        if stderrBytes is byte[] {
+                            string|error stderrResult = string:fromBytes(stderrBytes);
+                            stderr = stderrResult is string ? stderrResult : stderrResult.toString();
+                        } else {
+                            stderr = "";
+                        }
+                    } else {
+                        stderr = exitResult.toString();
+                        exitCode = 1;
+                    }
+                } else {
+                    stderr = proc.toString();
+                    exitCode = 1;
+                }
+            }
+        }
+    }    time:Utc endTime = time:utcNow();
     decimal executionTime = <decimal>(endTime[0] - startTime[0]);
 
     if (!success) {
@@ -228,7 +251,7 @@ public function getErrorSummary(CompilationError[] errors) returns string {
 # + return - `CommandResult` with execution details
 public function executeBalFlatten(string inputPath, string outputPath) returns CommandResult {
     string command = string `bal openapi flatten -i ${inputPath} -o ${outputPath}`;
-    return executeCommand(command, getDirectoryPath(outputPath));
+    return executeCommand(command, ".");
 }
 
 # Execute `bal openapi align` command
@@ -237,8 +260,8 @@ public function executeBalFlatten(string inputPath, string outputPath) returns C
 # + outputPath - Path to output directory
 # + return - `CommandResult` with execution details
 public function executeBalAlign(string inputPath, string outputPath) returns CommandResult {
-    string command = string `bal openapi align -i ${inputPath} -o {outputPath}`;
-    return executeCommand(command, getDirectoryPath(outputPath));
+    string command = string `bal openapi align -i ${inputPath} -o ${outputPath}`;
+    return executeCommand(command, ".");
 }
 
 # Execute bal openapi client generation command
@@ -247,12 +270,11 @@ public function executeBalAlign(string inputPath, string outputPath) returns Com
 # + outputPath - Path to output directory for generated ballerina client
 # + return - `CommandResult` with execution details
 public function executeBalClientGenerate(string inputPath, string outputPath) returns CommandResult {
-    string command = string `bal openapi -i ${inputPath} --mode client -o {outputPath}`;
+    string command = string `bal openapi -i ${inputPath} --mode client -o ${outputPath}`;
     return executeCommand(command, getDirectoryPath(outputPath));
 }
 
 # Execute bal build command
-#
 # + projectPath - Path to Ballerina project directory
 # + return - CommandResult with execution details and compilation errors
 public function executeBalBuild(string projectPath) returns CommandResult {

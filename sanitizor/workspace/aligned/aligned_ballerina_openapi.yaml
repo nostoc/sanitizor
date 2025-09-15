@@ -1,0 +1,387 @@
+openapi: 3.0.0
+info:
+  title: Sample API
+  description: A simple sample API for testing
+  contact:
+    name: API Support
+    email: support@example.com
+  version: 1.0.0
+servers:
+- url: https://api.example.com/v1
+  description: Production server
+- url: https://staging-api.example.com/v1
+  description: Staging server
+paths:
+  /users:
+    get:
+      summary: Get all users
+      description: Retrieve a list of all users
+      operationId: getUsers
+      parameters:
+      - name: limit
+        in: query
+        description: Maximum number of users to return
+        required: false
+        style: form
+        explode: true
+        schema:
+          maximum: 100
+          minimum: 1
+          type: integer
+          default: 10
+      - name: offset
+        in: query
+        description: Number of users to skip
+        required: false
+        style: form
+        explode: true
+        schema:
+          minimum: 0
+          type: integer
+          default: 0
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InlineResponse200'
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      summary: Create a new user
+      description: Create a new user in the system
+      operationId: createUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserRequest'
+        required: true
+      responses:
+        "201":
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /users/{userId}:
+    get:
+      summary: Get user by ID
+      description: Retrieve a specific user by their ID
+      operationId: getUserById
+      parameters:
+      - name: userId
+        in: path
+        description: The ID of the user to retrieve
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        "404":
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      summary: Update user
+      description: Update an existing user
+      operationId: updateUser
+      parameters:
+      - name: userId
+        in: path
+        description: The ID of the user to update
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserRequest'
+        required: true
+      responses:
+        "200":
+          description: User updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "404":
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      summary: Delete user
+      description: Delete a user from the system
+      operationId: deleteUser
+      parameters:
+      - name: userId
+        in: path
+        description: The ID of the user to delete
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "204":
+          description: User deleted successfully
+        "404":
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  schemas:
+    UserPreferences:
+      type: object
+      properties:
+        theme:
+          type: string
+          description: UI theme preference
+          default: auto
+          enum:
+          - light
+          - dark
+          - auto
+        language:
+          type: string
+          description: Preferred language
+          default: en
+        notifications:
+          $ref: '#/components/schemas/UserPreferencesNotifications'
+    User:
+      required:
+      - email
+      - firstName
+      - id
+      - lastName
+      type: object
+      properties:
+        firstName:
+          maxLength: 50
+          minLength: 1
+          type: string
+          description: User's first name
+        lastName:
+          maxLength: 50
+          minLength: 1
+          type: string
+          description: User's last name
+        createdAt:
+          type: string
+          description: When the user was created
+          format: date-time
+        preferences:
+          $ref: '#/components/schemas/UserPreferences'
+        phoneNumber:
+          pattern: "^[+]?[1-9]\\d{1,14}$"
+          type: string
+          description: User's phone number
+        address:
+          $ref: '#/components/schemas/Address'
+        dateOfBirth:
+          type: string
+          description: User's date of birth
+          format: date
+        id:
+          type: string
+          description: Unique identifier for the user
+          format: uuid
+        email:
+          type: string
+          description: User's email address
+          format: email
+        updatedAt:
+          type: string
+          description: When the user was last updated
+          format: date-time
+    Address:
+      type: object
+      properties:
+        country:
+          type: string
+          description: Country name
+        city:
+          type: string
+          description: City name
+        street:
+          type: string
+          description: Street address
+        postalCode:
+          type: string
+          description: Postal or ZIP code
+        state:
+          type: string
+          description: State or province
+    UserPreferencesNotifications:
+      type: object
+      properties:
+        sms:
+          type: boolean
+          default: false
+        email:
+          type: boolean
+          default: true
+        push:
+          type: boolean
+          default: false
+    Error:
+      required:
+      - code
+      - message
+      type: object
+      properties:
+        code:
+          type: string
+          description: Error code
+        details:
+          type: object
+          description: Additional error details
+        message:
+          type: string
+          description: Error message
+        timestamp:
+          type: string
+          description: When the error occurred
+          format: date-time
+    InlineResponse200:
+      type: object
+      properties:
+        total:
+          type: integer
+          description: Total number of users
+        offset:
+          type: integer
+        limit:
+          type: integer
+        users:
+          type: array
+          items:
+            $ref: '#/components/schemas/User'
+    CreateUserRequest:
+      required:
+      - email
+      - firstName
+      - lastName
+      type: object
+      properties:
+        firstName:
+          maxLength: 50
+          minLength: 1
+          type: string
+          description: User's first name
+        lastName:
+          maxLength: 50
+          minLength: 1
+          type: string
+          description: User's last name
+        preferences:
+          $ref: '#/components/schemas/UserPreferences'
+        phoneNumber:
+          pattern: "^[+]?[1-9]\\d{1,14}$"
+          type: string
+          description: User's phone number
+        address:
+          $ref: '#/components/schemas/Address'
+        dateOfBirth:
+          type: string
+          description: User's date of birth
+          format: date
+        email:
+          type: string
+          description: User's email address
+          format: email
+    UpdateUserRequest:
+      type: object
+      properties:
+        firstName:
+          maxLength: 50
+          minLength: 1
+          type: string
+          description: User's first name
+        lastName:
+          maxLength: 50
+          minLength: 1
+          type: string
+          description: User's last name
+        preferences:
+          $ref: '#/components/schemas/UserPreferences'
+        phoneNumber:
+          pattern: "^[+]?[1-9]\\d{1,14}$"
+          type: string
+          description: User's phone number
+        address:
+          $ref: '#/components/schemas/Address'
+        dateOfBirth:
+          type: string
+          description: User's date of birth
+          format: date
+        email:
+          type: string
+          description: User's email address
+          format: email

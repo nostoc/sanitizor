@@ -68,7 +68,7 @@ Return only the description text, no JSON or extra formatting. Keep it professio
 # + errorMessages - Array of error messages
 # + codeContext - Ballerina code context
 # + return - Suggested fixes or error
-public function generateBallerinaDixSuggestions(string[] errorMessages, string codeContext) returns string[]|LLMServiceError {
+public function generateBallerinaFixSuggestions(string[] errorMessages, string codeContext) returns string[]|LLMServiceError {
     ai:ModelProvider? model = anthropicModel;
     if (model is ()) {
         return error LLMServiceError("LLM service not initialized");
