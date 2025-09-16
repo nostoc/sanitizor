@@ -1,5 +1,5 @@
 import sanitizor.command_executor;
-import sanitizor.error_registry;
+// import sanitizor.error_registry;
 import sanitizor.file_management;
 import sanitizor.llm_service;
 

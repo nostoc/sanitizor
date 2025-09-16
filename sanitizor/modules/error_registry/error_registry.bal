@@ -176,19 +176,49 @@ public function applyBatchFixes(command_executor:CompilationError[] errors, stri
     int fixedCount = 0;
     int failedCount = 0;
 
-    // Group errors by actual conflicting schema to avoid duplicate fixes
-    map<command_executor:CompilationError> uniqueSchemas = {};
+    // Group errors by record type for redeclared symbol errors, by individual errors for others
+    map<command_executor:CompilationError[]> groupedErrors = {};
 
     foreach command_executor:CompilationError err in errors {
         ErrorPattern? pattern = matchErrorPattern(err);
         if (pattern is ErrorPattern) {
-            // For redeclared symbol and undocumented field errors, identify the actual schema based on line analysis
-            if (pattern.patternId == "REDECLARED_SYMBOL" || pattern.patternId == "UNDOCUMENTED_FIELD") {
+            if (pattern.patternId == "REDECLARED_SYMBOL") {
+                // For redeclared symbol errors, group by the record type that contains the conflicting symbols
                 string typesFilePath = getTypesFilePathFromSpecPath(specFilePath);
                 string|ErrorRegistryError schemaResult = identifyConflictingSchemaFromSingleError(err, typesFilePath);
                 if (schemaResult is string) {
-                    // Use the schema name as the key to avoid duplicates
-                    uniqueSchemas[schemaResult] = err;
+                    log:printInfo(string `Grouped error at line ${err.line} under schema: ${schemaResult}`);
+                    // Group all redeclared symbol errors for the same record type together
+                    command_executor:CompilationError[]? existingErrors = groupedErrors[schemaResult];
+                    if (existingErrors is command_executor:CompilationError[]) {
+                        existingErrors.push(err);
+                    } else {
+                        groupedErrors[schemaResult] = [err];
+                    }
+                } else {
+                    log:printError(string `Failed to identify schema for line ${err.line}: ${schemaResult.message()}`);
+                    failedCount += 1;
+                    FixResult errorResult = {
+                        success: false,
+                        changesApplied: 0,
+                        fixDescription: string `Failed to identify schema for line ${err.line}`,
+                        errorMessage: schemaResult.message()
+                    };
+                    individualResults.push(errorResult);
+                }
+            } else if (pattern.patternId == "UNDOCUMENTED_FIELD") {
+                // For undocumented field errors, identify the field type for grouping
+                string typesFilePath = getTypesFilePathFromSpecPath(specFilePath);
+                string|ErrorRegistryError schemaResult = identifyConflictingSchemaFromSingleError(err, typesFilePath);
+                if (schemaResult is string) {
+                    string fieldName = extractTargetSymbol(err.message);
+                    string errorKey = schemaResult + ":" + fieldName; // Group by type and field name
+                    command_executor:CompilationError[]? existingErrors = groupedErrors[errorKey];
+                    if (existingErrors is command_executor:CompilationError[]) {
+                        existingErrors.push(err);
+                    } else {
+                        groupedErrors[errorKey] = [err];
+                    }
                 } else {
                     failedCount += 1;
                     FixResult errorResult = {
@@ -200,47 +230,57 @@ public function applyBatchFixes(command_executor:CompilationError[] errors, stri
                     individualResults.push(errorResult);
                 }
             } else {
-                // For other error types, use line number as key to ensure each error is processed
+                // For other error types, process each error individually
                 string errorKey = pattern.patternId + ":" + err.line.toString();
-                uniqueSchemas[errorKey] = err;
+                groupedErrors[errorKey] = [err];
             }
         }
     }
 
-    // Apply fixes for each unique schema
-    foreach string schemaName in uniqueSchemas.keys() {
-        command_executor:CompilationError? maybeErr = uniqueSchemas[schemaName];
-        if (maybeErr is command_executor:CompilationError) {
-            command_executor:CompilationError err = maybeErr;
-            ErrorPattern? pattern = matchErrorPattern(err);
-            if (pattern is ErrorPattern) {
-                string actualTargetSymbol = schemaName;
+    // Apply fixes for each group of errors
+    foreach string errorGroupKey in groupedErrors.keys() {
+        command_executor:CompilationError[]? maybeErrorGroup = groupedErrors[errorGroupKey];
+        if (maybeErrorGroup is command_executor:CompilationError[]) {
+            command_executor:CompilationError[] errorGroup = maybeErrorGroup;
+            if (errorGroup.length() > 0) {
+                command_executor:CompilationError firstErr = errorGroup[0];
+                ErrorPattern? pattern = matchErrorPattern(firstErr);
+                if (pattern is ErrorPattern) {
+                    string actualTargetSymbol = errorGroupKey;
 
-                // For undocumented field errors, use the field name from message (not the type schema)
-                // For other non-redeclared symbol errors, extract target symbol from message
-                if (pattern.patternId == "UNDOCUMENTED_FIELD") {
-                    actualTargetSymbol = extractTargetSymbol(err.message); // Use field name (e.g., createdAt, modifiedAt)
-                } else if (pattern.patternId != "REDECLARED_SYMBOL") {
-                    actualTargetSymbol = extractTargetSymbol(err.message);
-                }
+                    // For redeclared symbol errors, use the schema name directly
+                    if (pattern.patternId == "REDECLARED_SYMBOL") {
+                        actualTargetSymbol = errorGroupKey; // This is the schema name like "DiscussionCreateAllOf2"
+                        log:printInfo(string `Processing ${errorGroup.length()} redeclared symbol errors for schema: ${actualTargetSymbol}`);
+                    } else if (pattern.patternId == "UNDOCUMENTED_FIELD") {
+                        // For undocumented field errors, extract the field name from the key
+                        string[] keyParts = regex:split(errorGroupKey, ":");
+                        if (keyParts.length() >= 2) {
+                            actualTargetSymbol = keyParts[1]; // Use field name (e.g., createdAt, modifiedAt)
+                        }
+                    } else {
+                        // For other errors, extract target symbol from message
+                        actualTargetSymbol = extractTargetSymbol(firstErr.message);
+                    }
 
-                FixResult|ErrorRegistryError fixResult = applyFix(pattern, actualTargetSymbol, specFilePath);
-                if (fixResult is FixResult) {
-                    individualResults.push(fixResult);
-                    if (fixResult.success) {
-                        fixedCount += 1;
+                    FixResult|ErrorRegistryError fixResult = applyFix(pattern, actualTargetSymbol, specFilePath);
+                    if (fixResult is FixResult) {
+                        individualResults.push(fixResult);
+                        if (fixResult.success) {
+                            fixedCount += 1;
+                        } else {
+                            failedCount += 1;
+                        }
                     } else {
                         failedCount += 1;
+                        FixResult errorResult = {
+                            success: false,
+                            changesApplied: 0,
+                            fixDescription: "Failed to apply fix",
+                            errorMessage: fixResult.message()
+                        };
+                        individualResults.push(errorResult);
                     }
-                } else {
-                    failedCount += 1;
-                    FixResult errorResult = {
-                        success: false,
-                        changesApplied: 0,
-                        fixDescription: "Failed to apply fix",
-                        errorMessage: fixResult.message()
-                    };
-                    individualResults.push(errorResult);
                 }
             }
         }
@@ -294,9 +334,59 @@ function applyRemoveConflictingPropertyFix(string conflictingSchemaName, string 
 
                 log:printInfo(string `Found conflicting schema definition: ${conflictingSchemaName}`);
 
-                // Step 2: Find all $ref references to this schema and inline them
+                // Step 2: Find all $ref references to this schema and inline them by replacing the reference with the actual schema content
                 string schemaRef = string `#/components/schemas/${conflictingSchemaName}`;
-                changesCount += inlineSchemaReferences(schemas, schemaRef, conflictingSchemaDefinition);
+                log:printInfo(string `Looking for references to: ${schemaRef}`);
+
+                // Search through all schemas for any references to the conflicting schema
+                foreach string schemaName in schemas.keys() {
+                    json schema = schemas[schemaName];
+                    if (schema is map<json>) {
+
+                        // Check if this schema has allOf array
+                        json allOfArray = schema["allOf"];
+                        if (allOfArray is json[]) {
+                            // Check each item in allOf for the target reference
+                            foreach int i in 0 ..< allOfArray.length() {
+                                json allOfItem = allOfArray[i];
+                                if (allOfItem is map<json>) {
+                                    json refValue = allOfItem["$ref"];
+                                    if (refValue is string && refValue == schemaRef) {
+                                        // Found a reference to inline! Replace the $ref with the actual schema content
+                                        allOfArray[i] = conflictingSchemaDefinition;
+                                        changesCount += 1;
+                                        log:printInfo(string `Inlined schema '${conflictingSchemaName}' in '${schemaName}' allOf[${i}]`);
+                                    }
+                                }
+                            }
+                        }
+
+                        // Also check for direct $ref properties (not in allOf)
+                        json refValue = schema["$ref"];
+                        if (refValue is string && refValue == schemaRef) {
+                            // Replace the entire schema with the conflicting schema definition
+                            schemas[schemaName] = conflictingSchemaDefinition;
+                            changesCount += 1;
+                            log:printInfo(string `Replaced direct reference to '${conflictingSchemaName}' in schema '${schemaName}'`);
+                        }
+
+                        // Recursively check nested properties for $ref values
+                        json properties = schema["properties"];
+                        if (properties is map<json>) {
+                            foreach string propName in properties.keys() {
+                                json prop = properties[propName];
+                                if (prop is map<json>) {
+                                    json propRef = prop["$ref"];
+                                    if (propRef is string && propRef == schemaRef) {
+                                        properties[propName] = conflictingSchemaDefinition;
+                                        changesCount += 1;
+                                        log:printInfo(string `Inlined schema '${conflictingSchemaName}' in property '${propName}' of schema '${schemaName}'`);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
 
                 // Step 3: Remove the original schema definition to prevent future conflicts
                 if (schemas.hasKey(conflictingSchemaName)) {
@@ -528,10 +618,12 @@ function extractFieldTypeFromLine(string content, int lineNumber) returns string
 # + specFilePath - Path to the flattened OpenAPI spec
 # + return - Path to the corresponding types.bal file
 function getTypesFilePathFromSpecPath(string specFilePath) returns string {
-    // For path like "/path/to/flattened_openapi.json"
+    // For path like "/path/to/docs/spec/flattened_openapi.json"
     // Return "/path/to/ballerina/types.bal"
-    string directoryPath = getDirectoryPathFromFilePath(specFilePath);
-    return directoryPath + "/ballerina/types.bal";
+    string directoryPath = getDirectoryPathFromFilePath(specFilePath); // .../docs/spec
+    string parentPath = getDirectoryPathFromFilePath(directoryPath); // .../docs  
+    string rootPath = getDirectoryPathFromFilePath(parentPath); // .../temp-workspace
+    return rootPath + "/ballerina/types.bal";
 }
 
 # Helper function to extract directory path from file path
