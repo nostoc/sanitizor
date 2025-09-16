@@ -58,6 +58,7 @@ public function main(string... args) returns error? {
 
     // Step 4: Generate Ballerina client
     string clientOutputPath = outputDir + "/ballerina";
+    alignedSpecPath = alignedSpecPath + "/aligned_ballerina_openapi.json";
     command_executor:CommandResult generateResult = command_executor:executeBalClientGenerate(alignedSpecPath, clientOutputPath);
     if !command_executor:isCommandSuccessfull(generateResult) {
         log:printError("Client generation failed", result = generateResult);
