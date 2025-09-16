@@ -40,6 +40,7 @@ public type CommandResult record {|
 |};
 
 # Execute shell commands and capture results
+# 
 # + command - Command to execute
 # + workingDir - working directory for command execution
 # + return - `CommandResult` with all execution details
@@ -73,21 +74,28 @@ function executeCommand(string command, string workingDir) returns CommandResult
         }
 
         if stderr == "" { // Only execute if directory creation succeeded
+            // Create temporary files for stdout and stderr
+            string tempDir = "/tmp";
+            int timestamp = <int>time:utcNow()[0];
+            string stdoutFile = string `${tempDir}/bal_stdout_${timestamp}.txt`;
+            string stderrFile = string `${tempDir}/bal_stderr_${timestamp}.txt`;
+            
             // Parse command into executable and arguments
             string[] commandParts = regex:split(command, " ");
             if commandParts.length() == 0 {
                 stderr = "Empty command";
                 exitCode = 1;
             } else {
-                string executable = commandParts[0];
-                string[] arguments = commandParts.slice(1);
+                // Modify command to redirect stdout and stderr to files
+                // Use shell to execute: command > stdout.txt 2> stderr.txt
+                string redirectedCommand = string `cd "${workingDir}" && ${command} > "${stdoutFile}" 2> "${stderrFile}"`;
                 
                 os:Command cmd = {
-                    value: executable,
-                    arguments: arguments
+                    value: "sh",
+                    arguments: ["-c", redirectedCommand]
                 };
                 
-                os:Process|error proc = os:exec(cmd, env = {}, dir = workingDir);
+                os:Process|error proc = os:exec(cmd);
                 if proc is os:Process {
                     // Wait for process to finish and get exit code
                     int|error exitResult = proc.waitForExit();
@@ -95,22 +103,33 @@ function executeCommand(string command, string workingDir) returns CommandResult
                         exitCode = exitResult;
                         success = exitCode == 0;
                         
-                        // Get stdout
-                        byte[]|error stdoutBytes = proc.output();
-                        if stdoutBytes is byte[] {
-                            string|error stdoutResult = string:fromBytes(stdoutBytes);
-                            stdout = stdoutResult is string ? stdoutResult : stdoutResult.toString();
+                        // Read stdout from file
+                        string|io:Error stdoutContent = io:fileReadString(stdoutFile);
+                        if stdoutContent is string {
+                            stdout = stdoutContent;
                         } else {
                             stdout = "";
+                            log:printWarn("Failed to read stdout file", 'error = stdoutContent);
                         }
                         
-                        // Get stderr  
-                        byte[]|error stderrBytes = proc.output(io:stderr);
-                        if stderrBytes is byte[] {
-                            string|error stderrResult = string:fromBytes(stderrBytes);
-                            stderr = stderrResult is string ? stderrResult : stderrResult.toString();
+                        // Read stderr from file
+                        string|io:Error stderrContent = io:fileReadString(stderrFile);
+                        if stderrContent is string {
+                            stderr = stderrContent;
                         } else {
                             stderr = "";
+                            log:printWarn("Failed to read stderr file", 'error = stderrContent);
+                        }
+                        
+                        // Clean up temporary files
+                        file:Error? stdoutDeleteResult = file:remove(stdoutFile);
+                        if stdoutDeleteResult is file:Error {
+                            log:printWarn("Failed to delete stdout temp file", path = stdoutFile);
+                        }
+                        
+                        file:Error? stderrDeleteResult = file:remove(stderrFile);
+                        if stderrDeleteResult is file:Error {
+                            log:printWarn("Failed to delete stderr temp file", path = stderrFile);
                         }
                     } else {
                         stderr = exitResult.toString();
@@ -284,6 +303,11 @@ public function executeBalBuild(string projectPath) returns CommandResult {
     // Parse compilation errors from output
     string combinedOutput = result.stdout + "\n" + result.stderr;
     result.compilationErrors = parseCompilationErrors(combinedOutput);
+
+    // Override success if there are compilation errors
+    if result.compilationErrors.length() > 0 {
+        result.success = false;
+    }
 
     return result;
 }
