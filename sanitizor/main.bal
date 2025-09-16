@@ -123,12 +123,43 @@ function reprocessAfterFixes(string flattenedSpecPath, string outputDir) returns
     // Step 4: Check if there are still redeclared symbol errors to fix
     map<command_executor:CompilationError[]> categorizedErrors = error_registry:routeErrorsByStrategy(buildResult.compilationErrors);
     command_executor:CompilationError[]? redeclaredErrors = categorizedErrors["PROGRAMMATIC_SPEC_FIX"];
+    command_executor:CompilationError[]? userPromptRequiredErrors = categorizedErrors["USER_PROMPT_REQUIRED"];
+    command_executor:CompilationError[]? unsupportedErrors = categorizedErrors["UNSUPPORTED"];
 
     if redeclaredErrors is command_executor:CompilationError[] && redeclaredErrors.length() > 0 {
         io:println(string `Found ${redeclaredErrors.length()} more redeclared symbol errors. Continuing fixes...`);
         // Recursively continue fixing
         return processErrorCategories(categorizedErrors, flattenedSpecPath, outputDir);
-    } else {
+    } else if unsupportedErrors is command_executor:CompilationError[] && unsupportedErrors.length() > 0 {
+        io:println(string `Found ${unsupportedErrors.length()} unsupported compilation errors.`);
+        io:println("These errors cannot be fixed by modifying the OpenAPI specification.");
+        io:print("Would you like to attempt fixing these errors in the generated Ballerina code using AI? (y/n): ");
+
+        string? userInput = io:readln();
+        if userInput is string && userInput.trim().toLowerAscii() == "y" {
+            return processUnsupportedErrorsWithLLM(unsupportedErrors, outputDir);
+        } else {
+            io:println("Skipping LLM-based Ballerina code fixes.");
+            io:println(string `Summary: ${unsupportedErrors.length()} unsupported errors remain:`);
+            foreach int i in 0 ..< (unsupportedErrors.length() > 5 ? 5 : unsupportedErrors.length()) {
+                command_executor:CompilationError err = unsupportedErrors[i];
+                io:println(string `  • ${err.fileName}:${err.line}:${err.column} [${err.errorType}] ${err.message}`);
+            }
+            if unsupportedErrors.length() > 5 {
+                io:println(string `  ... and ${unsupportedErrors.length() - 5} more errors`);
+            }
+        }
+    } else if userPromptRequiredErrors is command_executor:CompilationError[] && userPromptRequiredErrors.length() > 0 {
+        io:println(string `Found ${userPromptRequiredErrors.length()} errors requiring user intervention:`);
+        foreach int i in 0 ..< (userPromptRequiredErrors.length() > 5 ? 5 : userPromptRequiredErrors.length()) {
+            command_executor:CompilationError err = userPromptRequiredErrors[i];
+            io:println(string `  • ${err.fileName}:${err.line}:${err.column} [${err.errorType}] ${err.message}`);
+        }
+        if userPromptRequiredErrors.length() > 5 {
+            io:println(string `  ... and ${userPromptRequiredErrors.length() - 5} more errors`);
+        }
+    }
+    else {
         io:println("No more redeclared symbol errors found.");
         io:println("All ERROR-level issues have been resolved!");
 
@@ -150,7 +181,7 @@ function reprocessAfterFixes(string flattenedSpecPath, string outputDir) returns
 }
 
 function processErrorCategories(map<command_executor:CompilationError[]> categorizedErrors, string flattenedSpecPath, string outputDir) returns error? {
-    // Process redeclared symbol errors programmatically in a loop
+    // Step 1: Process redeclared symbol errors programmatically first
     command_executor:CompilationError[]? redeclaredErrors = categorizedErrors["PROGRAMMATIC_SPEC_FIX"];
     if redeclaredErrors is command_executor:CompilationError[] && redeclaredErrors.length() > 0 {
         io:println(string `Fixing ${redeclaredErrors.length()} redeclared symbol errors programmatically...`);
@@ -168,8 +199,132 @@ function processErrorCategories(map<command_executor:CompilationError[]> categor
         }
     }
 
-    io:println("No redeclared symbol errors found to fix.");
+    // Step 3: Handle unsupported errors that require LLM Ballerina code fixes
+    command_executor:CompilationError[]? unsupportedErrors = categorizedErrors["UNSUPPORTED"];
+    if unsupportedErrors is command_executor:CompilationError[] && unsupportedErrors.length() > 0 {
+        io:println(string `Found ${unsupportedErrors.length()} unsupported compilation errors.`);
+        io:println("These errors cannot be fixed by modifying the OpenAPI specification.");
+        io:print("Would you like to attempt fixing these errors in the generated Ballerina code using AI? (y/n): ");
+
+        string? userInput = io:readln();
+        if userInput is string && userInput.trim().toLowerAscii() == "y" {
+            return processUnsupportedErrorsWithLLM(unsupportedErrors, outputDir);
+        } else {
+            io:println("Skipping LLM-based Ballerina code fixes.");
+            io:println(string `Summary: ${unsupportedErrors.length()} unsupported errors remain:`);
+            foreach int i in 0 ..< (unsupportedErrors.length() > 5 ? 5 : unsupportedErrors.length()) {
+                command_executor:CompilationError err = unsupportedErrors[i];
+                io:println(string `  • ${err.fileName}:${err.line}:${err.column} [${err.errorType}] ${err.message}`);
+            }
+            if unsupportedErrors.length() > 5 {
+                io:println(string `  ... and ${unsupportedErrors.length() - 5} more errors`);
+            }
+        }
+    }
+
+    // Step 2: Process undocumented field warnings with LLM
+    command_executor:CompilationError[]? undocumentedFieldErrors = categorizedErrors["LLM_SPEC_FIX"];
+    if undocumentedFieldErrors is command_executor:CompilationError[] && undocumentedFieldErrors.length() > 0 {
+        io:println(string `Found ${undocumentedFieldErrors.length()} undocumented field warnings. Processing with LLM...`);
+        // Apply LLM-based spec fixes for undocumented fields
+        error_registry:BatchFixResult|error_registry:ErrorRegistryError llmSpecResult = error_registry:applyBatchFixes(undocumentedFieldErrors, flattenedSpecPath);
+        if llmSpecResult is error_registry:BatchFixResult {
+            io:println(string `Fixed ${llmSpecResult.fixedErrors}/${llmSpecResult.totalErrors} undocumented field warnings`);
+            log:printInfo("LLM spec fixes applied", fixedCount = llmSpecResult.fixedErrors);
+
+            // Re-process after LLM spec fixes
+            return reprocessAfterFixes(flattenedSpecPath, outputDir);
+        } else {
+            log:printError("Failed to apply LLM spec fixes", 'error = llmSpecResult);
+            io:println("Failed to apply LLM spec fixes");
+        }
+    }
+
+    // If we reach here, no programmatic fixes were needed
+    io:println("No programmatic fixes needed.");
     log:printInfo("No programmatic fixes needed");
+    return;
+}
+
+function processUnsupportedErrorsWithLLM(command_executor:CompilationError[] unsupportedErrors, string outputDir) returns error? {
+    io:println("Attempting to fix unsupported errors with LLM...");
+
+    string clientOutputPath = outputDir + "/ballerina";
+    string[] ballerinaFiles = ["types.bal", "client.bal", "utils.bal"];
+
+    // Collect error messages for LLM
+    string[] errorMessages = [];
+    foreach command_executor:CompilationError err in unsupportedErrors {
+        string errorMsg = string `${err.fileName}:${err.line}:${err.column} [${err.errorType}] ${err.message}`;
+        errorMessages.push(errorMsg);
+    }
+
+    // Try to fix each Ballerina file that has errors
+    foreach string fileName in ballerinaFiles {
+        string filePath = clientOutputPath + "/" + fileName;
+
+        // Check if this file has errors
+        command_executor:CompilationError[] fileErrors = [];
+        foreach command_executor:CompilationError err in unsupportedErrors {
+            if err.fileName.endsWith(fileName) {
+                fileErrors.push(err);
+            }
+        }
+
+        if fileErrors.length() > 0 {
+            io:println(string `Fixing ${fileErrors.length()} errors in ${fileName}...`);
+
+            // Extract error messages for this file
+            string[] fileErrorMessages = [];
+            foreach command_executor:CompilationError err in fileErrors {
+                string errorMsg = string `Line ${err.line}: ${err.message}`;
+                fileErrorMessages.push(errorMsg);
+            }
+
+            // Apply LLM fixes
+            [boolean, string]|llm_service:LLMServiceError fixResult = llm_service:fixBallerinaCodeErrors(fileErrorMessages, filePath);
+            if fixResult is [boolean, string] {
+                io:println(string `✓ ${fixResult[1]}`);
+                log:printInfo("LLM Ballerina code fix applied", file = fileName, fixDescription = fixResult[1]);
+            } else {
+                io:println(string `✗ Failed to fix ${fileName}: ${fixResult.message()}`);
+                log:printError("LLM Ballerina code fix failed", file = fileName, 'error = fixResult);
+            }
+        }
+    }
+
+    // After applying LLM fixes, rebuild and check for remaining errors
+    io:println("Re-building project after LLM fixes...");
+    command_executor:CommandResult buildResult = command_executor:executeBalBuild(clientOutputPath);
+
+    if buildResult.compilationErrors.length() == 0 {
+        io:println("🎉 All compilation errors have been resolved with LLM fixes!");
+        log:printInfo("All errors resolved with LLM fixes");
+        return;
+    }
+
+    io:println(string `Found ${buildResult.compilationErrors.length()} remaining compilation errors after LLM fixes.`);
+    log:printInfo("Remaining errors after LLM fixes", errorCount = buildResult.compilationErrors.length());
+
+    // Check if we should iterate and try fixing again
+    map<command_executor:CompilationError[]> newCategorizedErrors = error_registry:routeErrorsByStrategy(buildResult.compilationErrors);
+    command_executor:CompilationError[]? newUnsupportedErrors = newCategorizedErrors["UNSUPPORTED"];
+
+    if newUnsupportedErrors is command_executor:CompilationError[] && newUnsupportedErrors.length() > 0 && newUnsupportedErrors.length() < unsupportedErrors.length() {
+        io:println("Some errors were fixed. Attempting another round of LLM fixes...");
+        return processUnsupportedErrorsWithLLM(newUnsupportedErrors, outputDir);
+    } else {
+        io:println("No further improvements possible with LLM fixes.");
+        io:println(string `Final summary: ${buildResult.compilationErrors.length()} errors remain:`);
+        foreach int i in 0 ..< (buildResult.compilationErrors.length() > 5 ? 5 : buildResult.compilationErrors.length()) {
+            command_executor:CompilationError err = buildResult.compilationErrors[i];
+            io:println(string `  • ${err.fileName}:${err.line}:${err.column} [${err.errorType}] ${err.message}`);
+        }
+        if buildResult.compilationErrors.length() > 5 {
+            io:println(string `  ... and ${buildResult.compilationErrors.length() - 5} more errors`);
+        }
+    }
+
     return;
 }
 

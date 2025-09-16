@@ -1,4 +1,5 @@
 import ballerina/ai;
+import ballerina/io;
 import ballerina/log;
 import ballerina/os;
 import ballerinax/ai.anthropic;
@@ -63,27 +64,41 @@ Return only the description text, no JSON or extra formatting. Keep it professio
     }
 }
 
-# Fix Ballerina compilation errors using LLM
+# Fix Ballerina compilation errors by directly modifying the code
 #
 # + errorMessages - Array of error messages
-# + codeContext - Ballerina code context
-# + return - Suggested fixes or error
-public function generateBallerinaFixSuggestions(string[] errorMessages, string codeContext) returns string[]|LLMServiceError {
+# + typesFilePath - Path to the types.bal file that needs fixing
+# + return - Success status and description of changes made
+public function fixBallerinaCodeErrors(string[] errorMessages, string typesFilePath) returns [boolean, string]|LLMServiceError {
     ai:ModelProvider? model = anthropicModel;
     if (model is ()) {
         return error LLMServiceError("LLM service not initialized");
     }
 
-    string errorsText = string:'join("\n", ...errorMessages);
-    string prompt = string `Fix these Ballerina compilation errors:
+    // Read the current types.bal file
+    string|error fileContent = io:fileReadString(typesFilePath);
+    if (fileContent is error) {
+        return error LLMServiceError("Failed to read types.bal file", fileContent);
+    }
 
-Errors:
+    string errorsText = string:'join("\n", ...errorMessages);
+    string prompt = string `You are a Ballerina programming expert. Fix the following compilation errors in the Ballerina code.
+
+ERRORS TO FIX:
 ${errorsText}
 
-Code context:
-${codeContext}
+CURRENT CODE:
+${fileContent}
 
-Provide specific fix suggestions, one per line. Be concise.`;
+INSTRUCTIONS:
+1. Analyze each error and determine the exact fix needed
+2. For field type conflicts, adjust the types to be compatible (e.g., use 'decimal' instead of 'int' if needed)
+3. For missing tokens, add the required syntax elements
+4. Return the COMPLETE fixed code for the entire file
+5. Preserve all existing code structure and only make minimal necessary changes
+6. Ensure all record types and field definitions are valid Ballerina syntax
+
+Return only the corrected Ballerina code without any explanations or markdown formatting.`;
 
     ai:ChatMessage[] messages = [
         {role: "user", content: prompt}
@@ -91,15 +106,20 @@ Provide specific fix suggestions, one per line. Be concise.`;
 
     ai:ChatAssistantMessage|error response = model->chat(messages);
     if (response is error) {
-        return error LLMServiceError("Failed to generate fixes", response);
+        return error LLMServiceError("Failed to generate code fixes", response);
     }
 
-    // For now, return the response as a single suggestion
-    string? content = response.content;
-    if (content is string) {
-        return [content];
-    } else {
+    string? fixedCode = response.content;
+    if (fixedCode is ()) {
         return error LLMServiceError("Empty response from LLM");
     }
+
+    // Write the fixed code back to the file
+    error? writeResult = io:fileWriteString(typesFilePath, fixedCode);
+    if (writeResult is error) {
+        return error LLMServiceError("Failed to write fixed code to file", writeResult);
+    }
+
+    return [true, string `Fixed ${errorMessages.length()} compilation errors in ${typesFilePath}`];
 }
 

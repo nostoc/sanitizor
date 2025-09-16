@@ -76,6 +76,62 @@ final readonly & ErrorPattern[] ERROR_PATTERNS = [
         description: "Field lacks documentation comments",
         fixStrategy: "ADD_FIELD_DOCUMENTATION",
         handlingStrategy: LLM_SPEC_FIX
+    },
+    {
+        patternId: "UNDEFINED_SYMBOL",
+        category: "SYMBOL_ERROR",
+        message: "undefined symbol",
+        description: "Reference to a symbol that doesn't exist",
+        fixStrategy: "LLM_BALLERINA_CODE_FIX",
+        handlingStrategy: UNSUPPORTED
+    },
+    {
+        patternId: "SYNTAX_ERROR",
+        category: "SYNTAX_ERROR",
+        message: "syntax error",
+        description: "Invalid Ballerina syntax in generated code",
+        fixStrategy: "LLM_BALLERINA_CODE_FIX",
+        handlingStrategy: UNSUPPORTED
+    },
+    {
+        patternId: "MISSING_TOKEN",
+        category: "SYNTAX_ERROR",
+        message: "missing",
+        description: "Missing required syntax tokens",
+        fixStrategy: "LLM_BALLERINA_CODE_FIX",
+        handlingStrategy: UNSUPPORTED
+    },
+    {
+        patternId: "INCLUDED_FIELD_CANNOT_BE_OVERIDDEN",
+        category: "SYNATX_ERROR",
+        message: "included field",
+        description: "synatx errors in generated code",
+        fixStrategy: "LLM_BALLERINA_CODE_FIX",
+        handlingStrategy: UNSUPPORTED
+    },
+    {
+        patternId: "INVALID_TOKEN",
+        category: "SYNTAX_ERROR",
+        message: "invalid token",
+        description: "Invalid tokens in generated Ballerina code",
+        fixStrategy: "LLM_BALLERINA_CODE_FIX",
+        handlingStrategy: UNSUPPORTED
+    },
+    {
+        patternId: "MISSING_HASH_TOKEN",
+        category: "SYNTAX_ERROR",
+        message: "missing hash token",
+        description: "Missing hash token in generated Ballerina code",
+        fixStrategy: "LLM_BALLERINA_CODE_FIX",
+        handlingStrategy: UNSUPPORTED
+    },
+    {
+        patternId: "FIELD_OVERRIDE_ERROR",
+        category: "TYPE_ERROR",
+        message: "cannot be overridden",
+        description: "Field type conflicts in record inheritance",
+        fixStrategy: "LLM_BALLERINA_CODE_FIX",
+        handlingStrategy: UNSUPPORTED
     }
 ];
 
@@ -103,11 +159,9 @@ public function classifyUnknownErrors(command_executor:CompilationError[] errors
     if (errors.length() == 0) {
         return UNSUPPORTED;
     }
-    // For now, all unknown errors require user prompt
-    // This could be enhanced with more sophisticated classification logic
-    log:printInfo(string `Found ${errors.length()} unknown errors - user prompt required`);
-    return USER_PROMPT_REQUIRED;
-
+    // All unknown errors are classified as UNSUPPORTED for LLM-based Ballerina code fixes
+    log:printInfo(string `Found ${errors.length()} unknown errors - classifying as UNSUPPORTED`);
+    return UNSUPPORTED;
 }
 
 # Route errors based on their patterns and handling strategies
