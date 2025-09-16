@@ -40,7 +40,7 @@ public type CommandResult record {|
 |};
 
 # Execute shell commands and capture results
-# 
+#
 # + command - Command to execute
 # + workingDir - working directory for command execution
 # + return - `CommandResult` with all execution details
@@ -79,7 +79,7 @@ function executeCommand(string command, string workingDir) returns CommandResult
             int timestamp = <int>time:utcNow()[0];
             string stdoutFile = string `${tempDir}/bal_stdout_${timestamp}.txt`;
             string stderrFile = string `${tempDir}/bal_stderr_${timestamp}.txt`;
-            
+
             // Parse command into executable and arguments
             string[] commandParts = regex:split(command, " ");
             if commandParts.length() == 0 {
@@ -89,12 +89,12 @@ function executeCommand(string command, string workingDir) returns CommandResult
                 // Modify command to redirect stdout and stderr to files
                 // Use shell to execute: command > stdout.txt 2> stderr.txt
                 string redirectedCommand = string `cd "${workingDir}" && ${command} > "${stdoutFile}" 2> "${stderrFile}"`;
-                
+
                 os:Command cmd = {
                     value: "sh",
                     arguments: ["-c", redirectedCommand]
                 };
-                
+
                 os:Process|error proc = os:exec(cmd);
                 if proc is os:Process {
                     // Wait for process to finish and get exit code
@@ -102,7 +102,7 @@ function executeCommand(string command, string workingDir) returns CommandResult
                     if exitResult is int {
                         exitCode = exitResult;
                         success = exitCode == 0;
-                        
+
                         // Read stdout from file
                         string|io:Error stdoutContent = io:fileReadString(stdoutFile);
                         if stdoutContent is string {
@@ -111,7 +111,7 @@ function executeCommand(string command, string workingDir) returns CommandResult
                             stdout = "";
                             log:printWarn("Failed to read stdout file", 'error = stdoutContent);
                         }
-                        
+
                         // Read stderr from file
                         string|io:Error stderrContent = io:fileReadString(stderrFile);
                         if stderrContent is string {
@@ -120,13 +120,13 @@ function executeCommand(string command, string workingDir) returns CommandResult
                             stderr = "";
                             log:printWarn("Failed to read stderr file", 'error = stderrContent);
                         }
-                        
+
                         // Clean up temporary files
                         file:Error? stdoutDeleteResult = file:remove(stdoutFile);
                         if stdoutDeleteResult is file:Error {
                             log:printWarn("Failed to delete stdout temp file", path = stdoutFile);
                         }
-                        
+
                         file:Error? stderrDeleteResult = file:remove(stderrFile);
                         if stderrDeleteResult is file:Error {
                             log:printWarn("Failed to delete stderr temp file", path = stderrFile);
@@ -141,7 +141,8 @@ function executeCommand(string command, string workingDir) returns CommandResult
                 }
             }
         }
-    }    time:Utc endTime = time:utcNow();
+    }
+    time:Utc endTime = time:utcNow();
     decimal executionTime = <decimal>(endTime[0] - startTime[0]);
 
     if (!success) {

@@ -1,5 +1,5 @@
 import sanitizor.command_executor;
-// import sanitizor.error_registry;
+import sanitizor.error_registry;
 import sanitizor.file_management;
 import sanitizor.llm_service;
 
@@ -78,142 +78,100 @@ public function main(string... args) returns error? {
     io:println(string `Found ${buildResult.compilationErrors.length()} compilation issues. Analyzing...`);
     log:printInfo("Found compilation errors", errorCount = buildResult.compilationErrors.length());
 
-    // // Step 6: Categorize and route errors
-    // map<command_executor:CompilationError[]> categorizedErrors = error_registry:routeErrorsByStrategy(buildResult.compilationErrors);
+    // Step 6: Categorize and route errors
+    map<command_executor:CompilationError[]> categorizedErrors = error_registry:routeErrorsByStrategy(buildResult.compilationErrors);
 
-    // return processErrorCategories(categorizedErrors, alignedSpecPath, clientOutputPath);
+    return processErrorCategories(categorizedErrors, flattenedSpecPath, outputDir);
 }
 
-// function processErrorCategories(map<command_executor:CompilationError[]> categorizedErrors, string alignedSpecPath, string clientOutputPath) returns error? {
-//     // Process redeclared symbol errors programmatically
-//     command_executor:CompilationError[]? redeclaredErrors = categorizedErrors["PROGRAMMATIC_SPEC_FIX"];
-//     if redeclaredErrors is command_executor:CompilationError[] && redeclaredErrors.length() > 0 {
-//         io:println(string `🔧 Fixing ${redeclaredErrors.length()} redeclared symbol errors programmatically...`);
-//         error_registry:BatchFixResult|error_registry:ErrorRegistryError batchResult = error_registry:applyBatchFixes(redeclaredErrors, alignedSpecPath);
-//         if batchResult is error_registry:BatchFixResult {
-//             io:println(string `Fixed ${batchResult.fixedErrors}/${batchResult.totalErrors} redeclared symbol errors`);
-//             log:printInfo("Programmatic fixes applied", fixedCount = batchResult.fixedErrors);
-//         } else {
-//             log:printError("Failed to apply programmatic fixes", 'error = batchResult);
-//             io:println("Failed to apply programmatic fixes");
-//         }
-//     }
+function reprocessAfterFixes(string flattenedSpecPath, string outputDir) returns error? {
+    io:println("Re-aligning spec after fixes...");
 
-//     // Process undocumented field warnings using LLM
-//     command_executor:CompilationError[]? undocumentedErrors = categorizedErrors["LLM_SPEC_FIX"];
-//     if undocumentedErrors is command_executor:CompilationError[] && undocumentedErrors.length() > 0 {
-//         io:println(string `Fixing ${undocumentedErrors.length()} undocumented field warnings using LLM...`);
-//         error_registry:BatchFixResult|error_registry:ErrorRegistryError llmBatchResult = error_registry:applyBatchFixes(undocumentedErrors, alignedSpecPath);
-//         if llmBatchResult is error_registry:BatchFixResult {
-//             io:println(string `Fixed ${llmBatchResult.fixedErrors}/${llmBatchResult.totalErrors} undocumented field warnings`);
-//             log:printInfo("LLM spec fixes applied", fixedCount = llmBatchResult.fixedErrors);
-//         } else {
-//             log:printError("Failed to apply LLM spec fixes", 'error = llmBatchResult);
-//             io:println("Failed to apply LLM spec fixes");
-//         }
-//     }
+    // Step 1: Re-align the fixed flattened spec
+    string alignedSpecPath = outputDir + "/docs/spec";
+    command_executor:CommandResult alignResult = command_executor:executeBalAlign(flattenedSpecPath, alignedSpecPath);
+    if !command_executor:isCommandSuccessfull(alignResult) {
+        log:printError("Re-align failed", result = alignResult);
+        return error("Re-align operation failed: " + alignResult.stderr);
+    }
+    log:printInfo("OpenAPI spec re-aligned successfully", outputPath = alignedSpecPath);
 
-//     // Handle other errors - prompt user
-//     command_executor:CompilationError[]? otherErrors = categorizedErrors["USER_PROMPT_REQUIRED"];
-//     if otherErrors is command_executor:CompilationError[] && otherErrors.length() > 0 {
-//         return handleOtherErrors(otherErrors, clientOutputPath);
-//     }
+    // Step 2: Re-generate Ballerina client
+    io:println("Re-generating client after fixes...");
+    string clientOutputPath = outputDir + "/ballerina";
+    alignedSpecPath = alignedSpecPath + "/aligned_ballerina_openapi.json";
+    command_executor:CommandResult generateResult = command_executor:executeBalClientGenerate(alignedSpecPath, clientOutputPath);
+    if !command_executor:isCommandSuccessfull(generateResult) {
+        log:printError("Client re-generation failed", result = generateResult);
+        return error("Client re-generation failed: " + generateResult.stderr);
+    }
+    log:printInfo("Ballerina client re-generated successfully", outputPath = clientOutputPath);
 
-//     // Rebuild after fixes
-//     io:println("🔨 Rebuilding after applying fixes...");
-//     command_executor:CommandResult finalBuildResult = command_executor:executeBalBuild(clientOutputPath);
+    // Step 3: Re-build and check for more errors
+    io:println("Re-building client to check for remaining errors...");
+    command_executor:CommandResult buildResult = command_executor:executeBalBuild(clientOutputPath);
 
-//     if finalBuildResult.compilationErrors.length() == 0 {
-//         io:println("All issues resolved! Build completed successfully.");
-//         log:printInfo("Final build successful - all errors resolved");
-//     } else {
-//         io:println(string `${finalBuildResult.compilationErrors.length()} issues remain after fixes.`);
-//         log:printWarn("Some errors remain after fixes", remainingErrors = finalBuildResult.compilationErrors.length());
-//     }
-// }
+    if buildResult.compilationErrors.length() == 0 {
+        io:println("All issues resolved! Build completed successfully.");
+        log:printInfo("All errors resolved - build successful");
+        return;
+    }
 
-// function handleOtherErrors(command_executor:CompilationError[] otherErrors, string clientOutputPath) returns error? {
-//     io:println(string `Found ${otherErrors.length()} other compilation errors that cannot be fixed in the OpenAPI spec.`);
-//     io:println("These errors need to be fixed in the generated Ballerina code.");
+    io:println(string `Found ${buildResult.compilationErrors.length()} remaining compilation issues.`);
+    log:printInfo("Found remaining compilation errors", errorCount = buildResult.compilationErrors.length());
 
-//     // Show a few sample errors
-//     int samplesToShow = otherErrors.length() > 3 ? 3 : otherErrors.length();
-//     io:println("\nSample errors:");
-//     foreach int i in 0 ..< samplesToShow {
-//         command_executor:CompilationError err = otherErrors[i];
-//         io:println(string `  • ${err.fileName}:${err.line}:${err.column} - ${err.message}`);
-//     }
+    // Step 4: Check if there are still redeclared symbol errors to fix
+    map<command_executor:CompilationError[]> categorizedErrors = error_registry:routeErrorsByStrategy(buildResult.compilationErrors);
+    command_executor:CompilationError[]? redeclaredErrors = categorizedErrors["PROGRAMMATIC_SPEC_FIX"];
 
-//     if otherErrors.length() > 3 {
-//         io:println(string `  ... and ${otherErrors.length() - 3} more errors`);
-//     }
+    if redeclaredErrors is command_executor:CompilationError[] && redeclaredErrors.length() > 0 {
+        io:println(string `Found ${redeclaredErrors.length()} more redeclared symbol errors. Continuing fixes...`);
+        // Recursively continue fixing
+        return processErrorCategories(categorizedErrors, flattenedSpecPath, outputDir);
+    } else {
+        io:println("No more redeclared symbol errors found.");
+        io:println("All ERROR-level issues have been resolved!");
 
-//     // Prompt user for confirmation
-//     io:println("\nWould you like to attempt automatic fixes to the Ballerina code using LLM? (y/n):");
-//     string? userInput = io:readln();
+        // Show summary of remaining issues (likely warnings)
+        if buildResult.compilationErrors.length() > 0 {
+            io:println(string `${buildResult.compilationErrors.length()} remaining issues (likely warnings):`);
+            int samplesToShow = buildResult.compilationErrors.length() > 5 ? 5 : buildResult.compilationErrors.length();
+            foreach int i in 0 ..< samplesToShow {
+                command_executor:CompilationError err = buildResult.compilationErrors[i];
+                io:println(string `  • ${err.fileName}:${err.line}:${err.column} [${err.errorType}] ${err.message}`);
+            }
+            if buildResult.compilationErrors.length() > 5 {
+                io:println(string `  ... and ${buildResult.compilationErrors.length() - 5} more issues`);
+            }
+        }
 
-//     if userInput is string && (userInput.trim().toLowerAscii() == "y" || userInput.trim().toLowerAscii() == "yes") {
-//         io:println("🤖 Attempting to fix Ballerina code errors using LLM...");
-//         return attemptLLMBallerintFixes(otherErrors, clientOutputPath);
-//     } else {
-//         io:println("Skipping automatic fixes. Please review and fix the errors manually.");
-//         log:printInfo("User declined automatic Ballerina fixes");
-//     }
-// }
+        log:printInfo("Redeclared symbol error fixing completed", remainingIssues = buildResult.compilationErrors.length());
+    }
+}
 
-// function attemptLLMBallerintFixes(command_executor:CompilationError[] errors, string clientOutputPath) returns error? {
-//     // Group errors by file for more efficient processing
-//     map<command_executor:CompilationError[]> errorsByFile = {};
+function processErrorCategories(map<command_executor:CompilationError[]> categorizedErrors, string flattenedSpecPath, string outputDir) returns error? {
+    // Process redeclared symbol errors programmatically in a loop
+    command_executor:CompilationError[]? redeclaredErrors = categorizedErrors["PROGRAMMATIC_SPEC_FIX"];
+    if redeclaredErrors is command_executor:CompilationError[] && redeclaredErrors.length() > 0 {
+        io:println(string `Fixing ${redeclaredErrors.length()} redeclared symbol errors programmatically...`);
+        error_registry:BatchFixResult|error_registry:ErrorRegistryError batchResult = error_registry:applyBatchFixes(redeclaredErrors, flattenedSpecPath);
+        if batchResult is error_registry:BatchFixResult {
+            io:println(string `Fixed ${batchResult.fixedErrors}/${batchResult.totalErrors} redeclared symbol errors`);
+            log:printInfo("Programmatic fixes applied", fixedCount = batchResult.fixedErrors);
 
-//     foreach command_executor:CompilationError err in errors {
-//         command_executor:CompilationError[]? existingErrors = errorsByFile[err.fileName];
-//         if existingErrors is () {
-//             errorsByFile[err.fileName] = [err];
-//         } else {
-//             existingErrors.push(err);
-//         }
-//     }
+            // After fixing errors in flattened spec, need to re-align, re-generate, and re-build
+            return reprocessAfterFixes(flattenedSpecPath, outputDir);
+        } else {
+            log:printError("Failed to apply programmatic fixes", 'error = batchResult);
+            io:println("Failed to apply programmatic fixes");
+            return batchResult;
+        }
+    }
 
-//     io:println(string `Processing errors in ${errorsByFile.keys().length()} files...`);
-
-//     foreach string fileName in errorsByFile.keys() {
-//         command_executor:CompilationError[]? fileErrors = errorsByFile[fileName];
-//         if fileErrors is command_executor:CompilationError[] {
-//             io:println(string `Fixing ${fileErrors.length()} errors in ${fileName}...`);
-
-//             // Read the file content for context
-//             string filePath = clientOutputPath + "/" + fileName;
-//             string|error fileContent = io:fileReadString(filePath);
-//             if fileContent is error {
-//                 log:printError("Failed to read file for LLM fixes", fileName = fileName, 'error = fileContent);
-//                 continue;
-//             }
-
-//             // Extract error messages
-//             string[] errorMessages = [];
-//             foreach command_executor:CompilationError err in fileErrors {
-//                 errorMessages.push(string `Line ${err.line}: ${err.message}`);
-//             }
-
-//             // Use LLM to generate fixes
-//             string[]|llm_service:LLMServiceError llmSuggestions = llm_service:generateBallerinaFixSuggestions(errorMessages, fileContent);
-//             if llmSuggestions is llm_service:LLMServiceError {
-//                 log:printError("LLM failed to generate fix suggestions", fileName = fileName, 'error = llmSuggestions);
-//                 io:println(string `Failed to generate fixes for ${fileName}`);
-//             } else {
-//                 io:println(string `Generated ${llmSuggestions.length()} fix suggestions for ${fileName}`);
-//                 // In a full implementation, you would apply these suggestions
-//                 // For now, just log them
-//                 foreach string suggestion in llmSuggestions {
-//                     log:printInfo("LLM fix suggestion", fileName = fileName, suggestion = suggestion);
-//                 }
-//             }
-//         }
-//     }
-
-//     io:println("LLM fix suggestions generated. Manual review and application required.");
-//     log:printInfo("LLM Ballerina fixes completed");
-// }
+    io:println("No redeclared symbol errors found to fix.");
+    log:printInfo("No programmatic fixes needed");
+    return;
+}
 
 function printUsage() {
     io:println("Usage: bal run -- <input-openapi-spec> <output-directory>");

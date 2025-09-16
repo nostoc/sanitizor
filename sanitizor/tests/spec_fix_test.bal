@@ -180,7 +180,6 @@ function testUndocumentedFieldFix() returns error? {
 
     // Create sample undocumented field errors
     command_executor:CompilationError[] errors = [
-        
 
     ];
 
