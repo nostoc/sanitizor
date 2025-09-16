@@ -134,7 +134,7 @@ function reprocessAfterFixes(string flattenedSpecPath, string outputDir) returns
 
         // Show summary of remaining issues (likely warnings)
         if buildResult.compilationErrors.length() > 0 {
-            io:println(string `${buildResult.compilationErrors.length()} remaining issues (likely warnings):`);
+            io:println(string `${buildResult.compilationErrors.length()} remaining errors:`);
             int samplesToShow = buildResult.compilationErrors.length() > 5 ? 5 : buildResult.compilationErrors.length();
             foreach int i in 0 ..< samplesToShow {
                 command_executor:CompilationError err = buildResult.compilationErrors[i];
