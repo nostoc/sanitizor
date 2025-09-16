@@ -7,8 +7,6 @@ import ballerina/test;
 @test:Config {}
 public function testLLM() returns error? {
     log:printInfo("Testing LLM service initialization...");
-    
-    // Check if API key is set
     string? apiKey = os:getEnv("ANTHROPIC_API_KEY");
     if (apiKey is ()) {
         io:println("ANTHROPIC_API_KEY environment variable not set");
@@ -16,8 +14,7 @@ public function testLLM() returns error? {
     } else {
         io:println("ANTHROPIC_API_KEY is set");
     }
-    
-    // Test LLM service initialization
+
     llm_service:LLMServiceError? initResult = llm_service:initLLMService();
     if (initResult is llm_service:LLMServiceError) {
         io:println("LLM service initialization failed:");
@@ -28,7 +25,6 @@ public function testLLM() returns error? {
         io:println("LLM service initialized successfully");
     }
     
-    // Test a simple field description generation
     io:println("Testing field description generation...");
     string|llm_service:LLMServiceError descResult = llm_service:generateFieldDescription(
         "userId", 

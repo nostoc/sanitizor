@@ -18,8 +18,7 @@ public function initLLMService() returns LLMServiceError? {
 
     ai:ModelProvider|error modelProvider = new anthropic:ModelProvider(
         apiKey,
-        anthropic:CLAUDE_SONNET_4_20250514,
-        "2023-06-01"
+        anthropic:CLAUDE_SONNET_4_20250514
     );
 
     if (modelProvider is error) {
@@ -47,7 +46,7 @@ ${schemaContext}
 
 Return only the description text, no JSON or extra formatting. Keep it professional and under 100 characters.`;
 
-    ai:ChatMessage[] messages = [
+    ai:ChatMessage[]|ai:ChatUserMessage messages = [
         {role: "user", content: prompt}
     ];
 
