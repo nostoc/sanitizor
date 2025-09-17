@@ -422,7 +422,7 @@ public function renameInlineResponseSchemas(string specFilePath) returns int|LLM
     // First, collect all existing schema names to ensure global uniqueness
     string[] allExistingNames = [];
     foreach string schemaName in schemas.keys() {
-        if (!schemaName.startsWith("InlineResponse20")) {
+        if (!schemaName.startsWith("InlineResponse")) {
             allExistingNames.push(schemaName);
         }
     }
@@ -432,7 +432,7 @@ public function renameInlineResponseSchemas(string specFilePath) returns int|LLM
     int renamedCount = 0;
     
     foreach string schemaName in schemas.keys() {
-        if (schemaName.startsWith("InlineResponse20")) {
+        if (schemaName.startsWith("InlineResponse")) {
             json|error schemaResult = schemas.get(schemaName);
             if (schemaResult is map<json>) {
                 map<json> schemaMap = <map<json>>schemaResult;
