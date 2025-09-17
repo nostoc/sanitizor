@@ -534,7 +534,7 @@ public function renameInlineResponseSchemas(string specFilePath) returns int|LLM
     
     // Apply the renaming
     if (nameMapping.length() > 0) {
-        // First, rename the schema definitions
+        // First, rename the schema definitions in the schemas map
         map<json> newSchemas = {};
         foreach string oldName in schemas.keys() {
             json|error schemaValue = schemas.get(oldName);
@@ -550,9 +550,12 @@ public function renameInlineResponseSchemas(string specFilePath) returns int|LLM
             }
         }
         
+        // Update the schemas in the components section
+        components["schemas"] = newSchemas;
+        specMap["components"] = components;
+        
         // Update all $ref references throughout the spec
-        // Instead of string replacement, update the JSON structure directly
-        json updatedSpecResult = updateSchemaReferences(specJson, nameMapping);
+        json updatedSpecResult = updateSchemaReferences(specMap, nameMapping);
         
         // Write the updated spec back to file
         error? writeResult = io:fileWriteJson(specFilePath, updatedSpecResult);
