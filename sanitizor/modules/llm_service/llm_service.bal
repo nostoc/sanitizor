@@ -2,6 +2,7 @@ import ballerina/ai;
 import ballerina/io;
 import ballerina/log;
 import ballerina/os;
+import ballerina/regex;
 import ballerinax/ai.anthropic;
 
 public type LLMServiceError distinct error;
@@ -67,104 +68,467 @@ Return only the description text, no JSON or extra formatting. Keep it professio
 #
 # + specFilePath - Path to the OpenAPI specification file
 # + return - Number of descriptions added or error
+// Enhanced function to add missing descriptions and fix $ref patterns
 public function addMissingDescriptions(string specFilePath) returns int|LLMServiceError {
-    ai:ModelProvider? model = anthropicModel;
-    if (model is ()) {
-        return error LLMServiceError("LLM service not initialized");
-    }
-
+    log:printInfo("Processing OpenAPI spec for missing descriptions", specPath = specFilePath);
+    
     // Read the OpenAPI spec file
-    string|error fileContent = io:fileReadString(specFilePath);
-    if (fileContent is error) {
-        return error LLMServiceError("Failed to read OpenAPI spec file", fileContent);
+    json|error specResult = io:fileReadJson(specFilePath);
+    if specResult is error {
+        return error LLMServiceError("Failed to read OpenAPI spec file", specResult);
     }
-
-    json|error jsonSpec = fileContent.fromJsonString();
-    if (jsonSpec is error) {
-        return error LLMServiceError("Failed to parse OpenAPI spec as JSON", jsonSpec);
-    }
-
+    
+    json specJson = specResult;
+    
+    // Track the number of descriptions added
     int descriptionsAdded = 0;
-    json updatedSpec = jsonSpec;
-
-    // Find all schemas with properties missing descriptions
-    json|error componentsResult = updatedSpec.components;
-    if (componentsResult is error) {
-        log:printWarn("No components section found in OpenAPI spec");
-        return 0;
+    
+    // Process components/schemas for missing descriptions
+    if specJson is map<json> {
+        json|error componentsResult = specJson.get("components");
+        if componentsResult is map<json> {
+            json|error schemasResult = componentsResult.get("schemas");
+            if schemasResult is map<json> {
+                map<json> schemas = <map<json>>schemasResult;
+                
+                // Process each schema
+                foreach string schemaName in schemas.keys() {
+                    json|error schemaResult = schemas.get(schemaName);
+                    if schemaResult is map<json> {
+                        map<json> schemaMap = <map<json>>schemaResult;
+                        
+                        // Check if schema itself needs description
+                        if !schemaMap.hasKey("description") {
+                            string context = string `Schema '${schemaName}' definition: ${schemaMap.toString()}`;
+                            string|LLMServiceError description = generateFieldDescription(schemaName, context);
+                            if description is string {
+                                schemaMap["description"] = description;
+                                descriptionsAdded += 1;
+                                log:printInfo("Added description to schema", schema = schemaName);
+                            } else {
+                                log:printError("Failed to generate description for schema", schema = schemaName, 'error = description);
+                            }
+                        }
+                        
+                        // Process properties within the schema
+                        json|error propertiesResult = schemaMap.get("properties");
+                        if propertiesResult is map<json> {
+                            map<json> properties = <map<json>>propertiesResult;
+                            descriptionsAdded += processSchemaProperties(properties, schemaName);
+                        }
+                        
+                        // Process allOf, oneOf, anyOf arrays
+                        descriptionsAdded += processNestedSchemas(schemaMap, schemaName);
+                    }
+                }
+                
+                // Update the spec with processed schemas
+                componentsResult["schemas"] = schemas;
+                specJson["components"] = componentsResult;
+            }
+        }
     }
-
-    json components = componentsResult;
-    json|error schemasResult = components.schemas;
-    if (schemasResult is error) {
-        log:printWarn("No schemas section found in OpenAPI spec");
-        return 0;
+    
+    // Write the updated spec back to file
+    error? writeResult = io:fileWriteJson(specFilePath, specJson);
+    if writeResult is error {
+        return error LLMServiceError("Failed to write updated OpenAPI spec", writeResult);
     }
+    
+    return descriptionsAdded;
+}
 
-    json schemas = schemasResult;
-
-    // Iterate through all schemas
-    if (schemas is map<json>) {
-        foreach string schemaName in schemas.keys() {
-            json|error schemaResult = schemas[schemaName];
-            if (schemaResult is error) {
+// Helper function to process schema properties recursively
+function processSchemaProperties(map<json> properties, string parentSchemaName) returns int {
+    int descriptionsAdded = 0;
+    
+    foreach string propertyName in properties.keys() {
+        json|error propertyResult = properties.get(propertyName);
+        if propertyResult is map<json> {
+            map<json> propertyMap = <map<json>>propertyResult;
+            
+            // Handle $ref with description pattern - convert to allOf
+            if propertyMap.hasKey("$ref") && propertyMap.hasKey("description") {
+                string refValue = <string>propertyMap.get("$ref");
+                string description = <string>propertyMap.get("description");
+                
+                // Convert to allOf format
+                map<json> newPropertyMap = {
+                    "description": description,
+                    "allOf": [{"$ref": refValue}]
+                };
+                
+                // Remove the original $ref
+                _ = propertyMap.removeIfHasKey("$ref");
+                
+                // Update the property with the new format
+                properties[propertyName] = newPropertyMap;
+                log:printInfo("Converted $ref with description to allOf format", 
+                             schema = parentSchemaName, property = propertyName);
                 continue;
             }
-
-            json schema = schemaResult;
-            json|error propertiesResult = schema.properties;
-            if (propertiesResult is error) {
-                continue; // Schema has no properties
+            
+            // Check if property needs description
+            if !propertyMap.hasKey("description") && !propertyMap.hasKey("$ref") {
+                string context = string `Property '${propertyName}' in schema '${parentSchemaName}'. Property definition: ${propertyMap.toString()}`;
+                string|LLMServiceError description = generateFieldDescription(propertyName, context);
+                if description is string {
+                    propertyMap["description"] = description;
+                    descriptionsAdded += 1;
+                    log:printInfo("Added description to property", schema = parentSchemaName, property = propertyName);
+                } else {
+                    log:printError("Failed to generate description for property", 
+                                  schema = parentSchemaName, property = propertyName, 'error = description);
+                }
             }
+            
+            // Recursively process nested properties
+            json|error nestedPropertiesResult = propertyMap.get("properties");
+            if nestedPropertiesResult is map<json> {
+                map<json> nestedProperties = <map<json>>nestedPropertiesResult;
+                descriptionsAdded += processSchemaProperties(nestedProperties, parentSchemaName + "." + propertyName);
+            }
+            
+            // Process items for arrays
+            json|error itemsResult = propertyMap.get("items");
+            if itemsResult is map<json> {
+                map<json> items = <map<json>>itemsResult;
+                json|error itemPropertiesResult = items.get("properties");
+                if itemPropertiesResult is map<json> {
+                    map<json> itemProperties = <map<json>>itemPropertiesResult;
+                    descriptionsAdded += processSchemaProperties(itemProperties, parentSchemaName + "." + propertyName + "[]");
+                }
+            }
+        }
+    }
+    
+    return descriptionsAdded;
+}
 
-            json properties = propertiesResult;
-            if (properties is map<json>) {
-                foreach string fieldName in properties.keys() {
-                    json|error fieldResult = properties[fieldName];
-                    if (fieldResult is error) {
-                        continue;
-                    }
-
-                    json fieldDef = fieldResult;
-
-                    // Check if description is missing
-                    json|error descResult = fieldDef.description;
-                    if (descResult is error) {
-                        // Description is missing, generate one
-                        string schemaContext = string `Schema: ${schemaName}
-Field: ${fieldName}
-Field Definition: ${fieldDef.toJsonString()}
-Schema Context: ${schema.toJsonString()}`;
-
-                        string|LLMServiceError generatedDesc = generateFieldDescription(fieldName, schemaContext);
-                        if (generatedDesc is LLMServiceError) {
-                            log:printError("Failed to generate description for field", fieldName = fieldName, 'error = generatedDesc);
-                            continue;
-                        }
-
-                        // Add the description to the field definition
-                        if (fieldDef is map<json>) {
-                            fieldDef["description"] = generatedDesc;
-                            descriptionsAdded += 1;
-                            log:printInfo("Added description for field", schemaName = schemaName, fieldName = fieldName, description = generatedDesc);
-                        }
+// Helper function to process nested schemas (allOf, oneOf, anyOf)
+function processNestedSchemas(map<json> schemaMap, string schemaName) returns int {
+    int descriptionsAdded = 0;
+    
+    string[] nestedTypes = ["allOf", "oneOf", "anyOf"];
+    
+    foreach string nestedType in nestedTypes {
+        json|error nestedResult = schemaMap.get(nestedType);
+        if nestedResult is json[] {
+            json[] nestedArray = nestedResult;
+            foreach int i in 0 ..< nestedArray.length() {
+                json nestedItem = nestedArray[i];
+                if nestedItem is map<json> {
+                    map<json> nestedItemMap = <map<json>>nestedItem;
+                    
+                    // Process properties in nested schemas
+                    json|error propertiesResult = nestedItemMap.get("properties");
+                    if propertiesResult is map<json> {
+                        map<json> properties = <map<json>>propertiesResult;
+                        descriptionsAdded += processSchemaProperties(properties, schemaName + "." + nestedType + "[" + i.toString() + "]");
                     }
                 }
             }
         }
     }
+    
+    return descriptionsAdded;
+}
 
-    // Write the updated content back to the file
-    if (descriptionsAdded > 0) {
-        string updatedContent = updatedSpec.toJsonString();
-        error? writeResult = io:fileWriteString(specFilePath, updatedContent);
-        if (writeResult is error) {
-            return error LLMServiceError("Failed to write updated OpenAPI spec to file", writeResult);
-        }
-        log:printInfo("Successfully added descriptions to OpenAPI spec", descriptionsAdded = descriptionsAdded);
+# Generate a meaningful name for an InlineResponse schema
+#
+# + schemaName - Original schema name (e.g., "InlineResponse20048")
+# + schemaDefinition - Schema definition as JSON string
+# + return - Generated meaningful name or error
+public function generateSchemaName(string schemaName, string schemaDefinition) returns string|LLMServiceError {
+    ai:ModelProvider? model = anthropicModel;
+    if (model is ()) {
+        return error LLMServiceError("LLM service not initialized");
     }
 
-    return descriptionsAdded;
+    string prompt = string `You are an API schema naming expert. Generate a meaningful, descriptive name for this OpenAPI schema that currently has a generic name "${schemaName}".
+
+SCHEMA DEFINITION:
+${schemaDefinition}
+
+NAMING GUIDELINES:
+CRITICAL: The generated schema names MUST be globally unique across the entire API specification.
+
+1. Use PascalCase (e.g., UserProfile, ContactList, AttachmentResponse)
+2. Make it descriptive but concise (2-4 words max)
+3. Indicate what the schema represents (e.g., Response, Request, List, Details, etc.)
+4. Consider the properties and their purpose
+5. If it's a response with "data" array, consider what type of data it contains
+6. If it uses allOf/oneOf, consider the combined meaning
+7. Avoid generic terms like "Object", "Item", "Thing"
+8. Avoid patterns that likely already exist like:
+   - Simple entity names: User, Group, Sheet, Report, Folder, Workspace
+   - Simple operations: Create, Delete, Update, Get, List
+   - Common combinations: UserCreate, GroupDelete, SheetUpdate, etc.
+   - Generic response names: Response, Result, Data
+9. Be more specific and descriptive to ensure uniqueness
+
+Examples of good UNIQUE names:
+- Schema with user data array -> "UserCollectionApiResponse"
+- Schema with attachment properties -> "AttachmentMetadataDetails" 
+- Schema combining results -> "SearchQueryResultsResponse"
+- Schema with proof attachments -> "ProofAttachmentListApiResponse"
+- Schema with webhook events -> "WebhookEventNotificationResponse"
+
+CRITICAL: Return ONLY the new schema name as a single word with no spaces, explanations, punctuation, or additional text. The name must be unique and specific enough to avoid conflicts.
+
+Your response:`;
+
+    ai:ChatMessage[] messages = [
+        {role: "user", content: prompt}
+    ];
+
+    ai:ChatAssistantMessage|error response = model->chat(messages);
+    if (response is error) {
+        return error LLMServiceError("Failed to generate schema name", response);
+    }
+
+    string? content = response.content;
+    if (content is string) {
+        // Clean up the response to ensure it's a valid identifier
+        string cleanName = content.trim();
+        
+        // Remove any quotes or extra characters
+        cleanName = regex:replaceAll(cleanName, "[\"'`]", "");
+        
+        // Handle cases where LLM returns explanatory text followed by the actual name
+        // Look for the last line that looks like a valid PascalCase identifier
+        string[] lines = regex:split(cleanName, "\n");
+        int i = lines.length() - 1;
+        while (i >= 0) {
+            string trimmedLine = lines[i].trim();
+            // Check if this line looks like a valid schema name (PascalCase, no spaces, reasonable length)
+            if (trimmedLine.length() > 0 && 
+                trimmedLine.length() < 50 && 
+                !trimmedLine.includes(" ") && 
+                !trimmedLine.includes(".") && 
+                !trimmedLine.includes(",") &&
+                !trimmedLine.includes("?") &&
+                !trimmedLine.includes("!") &&
+                regex:matches(trimmedLine, "[A-Z][a-zA-Z0-9]*")) {
+                return trimmedLine;
+            }
+            i = i - 1;
+        }
+        
+        // If no valid line found, try to extract the first valid identifier from the entire response
+        string[] words = regex:split(cleanName, "\\s+");
+        foreach string word in words {
+            string trimmedWord = word.trim();
+            if (trimmedWord.length() > 0 && 
+                trimmedWord.length() < 50 && 
+                !trimmedWord.includes(".") && 
+                !trimmedWord.includes(",") &&
+                !trimmedWord.includes("?") &&
+                !trimmedWord.includes("!") &&
+                regex:matches(trimmedWord, "[A-Z][a-zA-Z0-9]*")) {
+                return trimmedWord;
+            }
+        }
+        
+        // As a last resort, return a fallback name
+        return "GeneratedResponse";
+    } else {
+        return error LLMServiceError("Empty response from LLM");
+    }
+}
+
+// Helper function to validate if a generated name is safe for schema naming
+function isValidSchemaName(string name) returns boolean {
+    // Check basic requirements for a valid schema name
+    if (name.length() == 0 || name.length() > 100) {
+        return false;
+    }
+    
+    // Should not contain spaces, special characters that could break JSON
+    if (name.includes(" ") || name.includes("\n") || name.includes("\t") || 
+        name.includes("\"") || name.includes("'") || name.includes("`") ||
+        name.includes("{") || name.includes("}") || name.includes("[") || name.includes("]") ||
+        name.includes(",") || name.includes(":") || name.includes(";") || 
+        name.includes("?") || name.includes("!") || name.includes("\\") || 
+        name.includes("/") || name.includes("<") || name.includes(">")) {
+        return false;
+    }
+    
+    // Should start with uppercase letter (PascalCase)
+    string firstChar = name.substring(0, 1);
+    if (!(firstChar >= "A" && firstChar <= "Z")) {
+        return false;
+    }
+    
+    // Should only contain alphanumeric characters
+    return regex:matches(name, "[A-Z][a-zA-Z0-9]*");
+}
+
+// Helper function to check if a name is already taken
+function isNameTaken(string name, string[] existingNames, map<string> nameMapping) returns boolean {
+    // Check against existing schema names
+    foreach string existingName in existingNames {
+        if (existingName == name) {
+            return true;
+        }
+    }
+    
+    // Check against already mapped names
+    foreach string key in nameMapping.keys() {
+        string? mappedName = nameMapping[key];
+        if (mappedName is string && mappedName == name) {
+            return true;
+        }
+    }
+    
+    return false;
+}
+
+# Rename InlineResponse schemas to meaningful names in OpenAPI spec
+#
+# + specFilePath - Path to the OpenAPI specification file
+# + return - Number of schemas renamed or error
+public function renameInlineResponseSchemas(string specFilePath) returns int|LLMServiceError {
+    log:printInfo("Processing OpenAPI spec to rename InlineResponse schemas", specPath = specFilePath);
+    
+    // Read the OpenAPI spec file
+    json|error specResult = io:fileReadJson(specFilePath);
+    if specResult is error {
+        return error LLMServiceError("Failed to read OpenAPI spec file", specResult);
+    }
+    
+    json specJson = specResult;
+    
+    if !(specJson is map<json>) {
+        return error LLMServiceError("Invalid OpenAPI spec format");
+    }
+    
+    map<json> specMap = <map<json>>specJson;
+    
+    // Get components/schemas
+    json|error componentsResult = specMap.get("components");
+    if !(componentsResult is map<json>) {
+        return error LLMServiceError("No components section found in OpenAPI spec");
+    }
+    
+    map<json> components = <map<json>>componentsResult;
+    json|error schemasResult = components.get("schemas");
+    if !(schemasResult is map<json>) {
+        return error LLMServiceError("No schemas section found in components");
+    }
+    
+    map<json> schemas = <map<json>>schemasResult;
+    
+    // First, collect all existing schema names to ensure global uniqueness
+    string[] allExistingNames = [];
+    foreach string schemaName in schemas.keys() {
+        if (!schemaName.startsWith("InlineResponse20")) {
+            allExistingNames.push(schemaName);
+        }
+    }
+    
+    // Find all InlineResponse schemas and generate new names
+    map<string> nameMapping = {};
+    int renamedCount = 0;
+    
+    foreach string schemaName in schemas.keys() {
+        if (schemaName.startsWith("InlineResponse20")) {
+            json|error schemaResult = schemas.get(schemaName);
+            if (schemaResult is map<json>) {
+                map<json> schemaMap = <map<json>>schemaResult;
+                string schemaDefinition = schemaMap.toString();
+                
+                string|LLMServiceError newName = generateSchemaName(schemaName, schemaDefinition);
+                if (newName is string) {
+                    // Validate that the generated name is safe for JSON and schema naming
+                    if (isValidSchemaName(newName)) {
+                        // Ensure the new name doesn't conflict with ANY existing schema names
+                        string finalName = newName;
+                        int counter = 1;
+                        while (isNameTaken(finalName, allExistingNames, nameMapping)) {
+                            finalName = newName + counter.toString();
+                            counter += 1;
+                        }
+                        
+                        // Add the final name to our tracking list to prevent future conflicts
+                        allExistingNames.push(finalName);
+                        nameMapping[schemaName] = finalName;
+                        log:printInfo("Generated new name for schema", oldName = schemaName, newName = finalName);
+                        renamedCount += 1;
+                    } else {
+                        log:printWarn("Generated name is not valid, using fallback", 
+                                     schema = schemaName, invalidName = newName);
+                        string fallbackBaseName = "Schema" + schemaName.substring(14); // Remove "InlineResponse"
+                        string fallbackName = fallbackBaseName;
+                        int counter = 1;
+                        while (isNameTaken(fallbackName, allExistingNames, nameMapping)) {
+                            fallbackName = fallbackBaseName + counter.toString();
+                            counter += 1;
+                        }
+                        allExistingNames.push(fallbackName);
+                        nameMapping[schemaName] = fallbackName;
+                        renamedCount += 1;
+                    }
+                } else {
+                    log:printError("Failed to generate name for schema", schema = schemaName, 'error = newName);
+                }
+            }
+        }
+    }
+    
+    // Apply the renaming
+    if (nameMapping.length() > 0) {
+        // First, rename the schema definitions
+        map<json> newSchemas = {};
+        foreach string oldName in schemas.keys() {
+            json|error schemaValue = schemas.get(oldName);
+            if (schemaValue is json) {
+                if (nameMapping.hasKey(oldName)) {
+                    string? newNameResult = nameMapping[oldName];
+                    if (newNameResult is string) {
+                        newSchemas[newNameResult] = schemaValue;
+                    }
+                } else {
+                    newSchemas[oldName] = schemaValue;
+                }
+            }
+        }
+        
+        // Update all $ref references throughout the spec
+        string specJsonString = specJson.toString();
+        foreach string oldName in nameMapping.keys() {
+            string? newNameResult = nameMapping[oldName];
+            if (newNameResult is string) {
+                string oldRef = "#/components/schemas/" + oldName;
+                string newRef = "#/components/schemas/" + newNameResult;
+                
+                // Use precise replacement to avoid replacing parts of other schema names
+                // Look for the exact reference pattern with quotes
+                string quotedOldRef = "\"" + oldRef + "\"";
+                string quotedNewRef = "\"" + newRef + "\"";
+                specJsonString = regex:replaceAll(specJsonString, quotedOldRef, quotedNewRef);
+                
+                log:printInfo("Updated schema reference", oldRef = oldRef, newRef = newRef);
+            }
+        }
+        
+        // Parse the updated JSON back
+        json|error updatedSpecResult = specJsonString.fromJsonString();
+        io:println(updatedSpecResult);
+        if (updatedSpecResult is error) {
+            log:printError("JSON parsing failed after schema renaming", 'error = updatedSpecResult);
+            log:printDebug("First 500 chars of updated JSON", jsonStr = specJsonString.substring(0, 500));
+            return error LLMServiceError("Failed to parse updated spec after renaming", updatedSpecResult);
+        }
+        
+        // Write the updated spec back to file
+        error? writeResult = io:fileWriteJson(specFilePath, updatedSpecResult);
+        if (writeResult is error) {
+            return error LLMServiceError("Failed to write updated OpenAPI spec", writeResult);
+        }
+    }
+    
+    return renamedCount;
 }
 
 # Fix Ballerina compilation errors by directly modifying the code
