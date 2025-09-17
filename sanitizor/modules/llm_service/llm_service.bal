@@ -111,10 +111,12 @@ public function addMissingDescriptions(string specFilePath) returns int|LLMServi
                         }
                         
                         // Process properties within the schema
-                        json|error propertiesResult = schemaMap.get("properties");
-                        if propertiesResult is map<json> {
-                            map<json> properties = <map<json>>propertiesResult;
-                            descriptionsAdded += processSchemaProperties(properties, schemaName);
+                        if schemaMap.hasKey("properties") {
+                            json|error propertiesResult = schemaMap.get("properties");
+                            if propertiesResult is map<json> {
+                                map<json> properties = <map<json>>propertiesResult;
+                                descriptionsAdded += processSchemaProperties(properties, schemaName);
+                            }
                         }
                         
                         // Process allOf, oneOf, anyOf arrays
@@ -183,20 +185,26 @@ function processSchemaProperties(map<json> properties, string parentSchemaName) 
             }
             
             // Recursively process nested properties
-            json|error nestedPropertiesResult = propertyMap.get("properties");
-            if nestedPropertiesResult is map<json> {
-                map<json> nestedProperties = <map<json>>nestedPropertiesResult;
-                descriptionsAdded += processSchemaProperties(nestedProperties, parentSchemaName + "." + propertyName);
+            if propertyMap.hasKey("properties") {
+                json|error nestedPropertiesResult = propertyMap.get("properties");
+                if nestedPropertiesResult is map<json> {
+                    map<json> nestedProperties = <map<json>>nestedPropertiesResult;
+                    descriptionsAdded += processSchemaProperties(nestedProperties, parentSchemaName + "." + propertyName);
+                }
             }
             
             // Process items for arrays
-            json|error itemsResult = propertyMap.get("items");
-            if itemsResult is map<json> {
-                map<json> items = <map<json>>itemsResult;
-                json|error itemPropertiesResult = items.get("properties");
-                if itemPropertiesResult is map<json> {
-                    map<json> itemProperties = <map<json>>itemPropertiesResult;
-                    descriptionsAdded += processSchemaProperties(itemProperties, parentSchemaName + "." + propertyName + "[]");
+            if propertyMap.hasKey("items") {
+                json|error itemsResult = propertyMap.get("items");
+                if itemsResult is map<json> {
+                    map<json> items = <map<json>>itemsResult;
+                    if items.hasKey("properties") {
+                        json|error itemPropertiesResult = items.get("properties");
+                        if itemPropertiesResult is map<json> {
+                            map<json> itemProperties = <map<json>>itemPropertiesResult;
+                            descriptionsAdded += processSchemaProperties(itemProperties, parentSchemaName + "." + propertyName + "[]");
+                        }
+                    }
                 }
             }
         }
@@ -212,19 +220,23 @@ function processNestedSchemas(map<json> schemaMap, string schemaName) returns in
     string[] nestedTypes = ["allOf", "oneOf", "anyOf"];
     
     foreach string nestedType in nestedTypes {
-        json|error nestedResult = schemaMap.get(nestedType);
-        if nestedResult is json[] {
-            json[] nestedArray = nestedResult;
-            foreach int i in 0 ..< nestedArray.length() {
-                json nestedItem = nestedArray[i];
-                if nestedItem is map<json> {
-                    map<json> nestedItemMap = <map<json>>nestedItem;
-                    
-                    // Process properties in nested schemas
-                    json|error propertiesResult = nestedItemMap.get("properties");
-                    if propertiesResult is map<json> {
-                        map<json> properties = <map<json>>propertiesResult;
-                        descriptionsAdded += processSchemaProperties(properties, schemaName + "." + nestedType + "[" + i.toString() + "]");
+        if schemaMap.hasKey(nestedType) {
+            json|error nestedResult = schemaMap.get(nestedType);
+            if nestedResult is json[] {
+                json[] nestedArray = nestedResult;
+                foreach int i in 0 ..< nestedArray.length() {
+                    json nestedItem = nestedArray[i];
+                    if nestedItem is map<json> {
+                        map<json> nestedItemMap = <map<json>>nestedItem;
+                        
+                        // Process properties in nested schemas
+                        if nestedItemMap.hasKey("properties") {
+                            json|error propertiesResult = nestedItemMap.get("properties");
+                            if propertiesResult is map<json> {
+                                map<json> properties = <map<json>>propertiesResult;
+                                descriptionsAdded += processSchemaProperties(properties, schemaName + "." + nestedType + "[" + i.toString() + "]");
+                            }
+                        }
                     }
                 }
             }
@@ -384,6 +396,50 @@ function isNameTaken(string name, string[] existingNames, map<string> nameMappin
     return false;
 }
 
+// Helper function to update schema references throughout the JSON structure
+function updateSchemaReferences(json jsonData, map<string> nameMapping) returns json {
+    if (jsonData is map<json>) {
+        map<json> resultMap = {};
+        
+        foreach string key in jsonData.keys() {
+            json|error value = jsonData.get(key);
+            if (value is json) {
+                if (key == "$ref" && value is string) {
+                    // Update schema reference if it matches a renamed schema
+                    string refValue = <string>value;
+                    if (refValue.startsWith("#/components/schemas/")) {
+                        string schemaName = refValue.substring(21); // Remove "#/components/schemas/"
+                        string? newName = nameMapping[schemaName];
+                        if (newName is string) {
+                            string newRef = "#/components/schemas/" + newName;
+                            resultMap[key] = newRef;
+                            log:printInfo("Updated schema reference", oldRef = refValue, newRef = newRef);
+                        } else {
+                            resultMap[key] = value;
+                        }
+                    } else {
+                        resultMap[key] = value;
+                    }
+                } else {
+                    // Recursively process nested structures
+                    resultMap[key] = updateSchemaReferences(value, nameMapping);
+                }
+            }
+        }
+        
+        return resultMap;
+    } else if (jsonData is json[]) {
+        json[] resultArray = [];
+        foreach json item in jsonData {
+            resultArray.push(updateSchemaReferences(item, nameMapping));
+        }
+        return resultArray;
+    } else {
+        // Primitive values remain unchanged
+        return jsonData;
+    }
+}
+
 # Rename InlineResponse schemas to meaningful names in OpenAPI spec
 #
 # + specFilePath - Path to the OpenAPI specification file
@@ -495,31 +551,8 @@ public function renameInlineResponseSchemas(string specFilePath) returns int|LLM
         }
         
         // Update all $ref references throughout the spec
-        string specJsonString = specJson.toString();
-        foreach string oldName in nameMapping.keys() {
-            string? newNameResult = nameMapping[oldName];
-            if (newNameResult is string) {
-                string oldRef = "#/components/schemas/" + oldName;
-                string newRef = "#/components/schemas/" + newNameResult;
-                
-                // Use precise replacement to avoid replacing parts of other schema names
-                // Look for the exact reference pattern with quotes
-                string quotedOldRef = "\"" + oldRef + "\"";
-                string quotedNewRef = "\"" + newRef + "\"";
-                specJsonString = regex:replaceAll(specJsonString, quotedOldRef, quotedNewRef);
-                
-                log:printInfo("Updated schema reference", oldRef = oldRef, newRef = newRef);
-            }
-        }
-        
-        // Parse the updated JSON back
-        json|error updatedSpecResult = specJsonString.fromJsonString();
-        io:println(updatedSpecResult);
-        if (updatedSpecResult is error) {
-            log:printError("JSON parsing failed after schema renaming", 'error = updatedSpecResult);
-            log:printDebug("First 500 chars of updated JSON", jsonStr = specJsonString.substring(0, 500));
-            return error LLMServiceError("Failed to parse updated spec after renaming", updatedSpecResult);
-        }
+        // Instead of string replacement, update the JSON structure directly
+        json updatedSpecResult = updateSchemaReferences(specJson, nameMapping);
         
         // Write the updated spec back to file
         error? writeResult = io:fileWriteJson(specFilePath, updatedSpecResult);
@@ -531,62 +564,62 @@ public function renameInlineResponseSchemas(string specFilePath) returns int|LLM
     return renamedCount;
 }
 
-# Fix Ballerina compilation errors by directly modifying the code
-#
-# + errorMessages - Array of error messages
-# + typesFilePath - Path to the types.bal file that needs fixing
-# + return - Success status and description of changes made
-public function fixBallerinaCodeErrors(string[] errorMessages, string typesFilePath) returns [boolean, string]|LLMServiceError {
-    ai:ModelProvider? model = anthropicModel;
-    if (model is ()) {
-        return error LLMServiceError("LLM service not initialized");
-    }
+// # Fix Ballerina compilation errors by directly modifying the code
+// #
+// # + errorMessages - Array of error messages
+// # + typesFilePath - Path to the types.bal file that needs fixing
+// # + return - Success status and description of changes made
+// public function fixBallerinaCodeErrors(string[] errorMessages, string typesFilePath) returns [boolean, string]|LLMServiceError {
+//     ai:ModelProvider? model = anthropicModel;
+//     if (model is ()) {
+//         return error LLMServiceError("LLM service not initialized");
+//     }
 
-    // Read the current types.bal file
-    string|error fileContent = io:fileReadString(typesFilePath);
-    if (fileContent is error) {
-        return error LLMServiceError("Failed to read types.bal file", fileContent);
-    }
+//     // Read the current types.bal file
+//     string|error fileContent = io:fileReadString(typesFilePath);
+//     if (fileContent is error) {
+//         return error LLMServiceError("Failed to read types.bal file", fileContent);
+//     }
 
-    string errorsText = string:'join("\n", ...errorMessages);
-    string prompt = string `You are a Ballerina programming expert. Fix the following compilation errors in the Ballerina code.
+//     string errorsText = string:'join("\n", ...errorMessages);
+//     string prompt = string `You are a Ballerina programming expert. Fix the following compilation errors in the Ballerina code.
 
-ERRORS TO FIX:
-${errorsText}
+// ERRORS TO FIX:
+// ${errorsText}
 
-CURRENT CODE:
-${fileContent}
+// CURRENT CODE:
+// ${fileContent}
 
-INSTRUCTIONS:
-1. Analyze each error and determine the exact fix needed
-2. For field type conflicts, adjust the types to be compatible (e.g., use 'decimal' instead of 'int' if needed)
-3. For missing tokens, add the required syntax elements
-4. Return the COMPLETE fixed code for the entire file
-5. Preserve all existing code structure and only make minimal necessary changes
-6. Ensure all record types and field definitions are valid Ballerina syntax
+// INSTRUCTIONS:
+// 1. Analyze each error and determine the exact fix needed
+// 2. For field type conflicts, adjust the types to be compatible (e.g., use 'decimal' instead of 'int' if needed)
+// 3. For missing tokens, add the required syntax elements
+// 4. Return the COMPLETE fixed code for the entire file
+// 5. Preserve all existing code structure and only make minimal necessary changes
+// 6. Ensure all record types and field definitions are valid Ballerina syntax
 
-Return only the corrected Ballerina code without any explanations or markdown formatting.`;
+// Return only the corrected Ballerina code without any explanations or markdown formatting.`;
 
-    ai:ChatMessage[] messages = [
-        {role: "user", content: prompt}
-    ];
+//     ai:ChatMessage[] messages = [
+//         {role: "user", content: prompt}
+//     ];
 
-    ai:ChatAssistantMessage|error response = model->chat(messages);
-    if (response is error) {
-        return error LLMServiceError("Failed to generate code fixes", response);
-    }
+//     ai:ChatAssistantMessage|error response = model->chat(messages);
+//     if (response is error) {
+//         return error LLMServiceError("Failed to generate code fixes", response);
+//     }
 
-    string? fixedCode = response.content;
-    if (fixedCode is ()) {
-        return error LLMServiceError("Empty response from LLM");
-    }
+//     string? fixedCode = response.content;
+//     if (fixedCode is ()) {
+//         return error LLMServiceError("Empty response from LLM");
+//     }
 
-    // Write the fixed code back to the file
-    error? writeResult = io:fileWriteString(typesFilePath, fixedCode);
-    if (writeResult is error) {
-        return error LLMServiceError("Failed to write fixed code to file", writeResult);
-    }
+//     // Write the fixed code back to the file
+//     error? writeResult = io:fileWriteString(typesFilePath, fixedCode);
+//     if (writeResult is error) {
+//         return error LLMServiceError("Failed to write fixed code to file", writeResult);
+//     }
 
-    return [true, string `Fixed ${errorMessages.length()} compilation errors in ${typesFilePath}`];
-}
+//     return [true, string `Fixed ${errorMessages.length()} compilation errors in ${typesFilePath}`];
+// }
 
