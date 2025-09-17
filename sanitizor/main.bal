@@ -46,8 +46,9 @@ public function main(string... args) returns error? {
     }
     log:printInfo("OpenAPI spec flattened successfully", outputPath = flattenedSpecPath);
 
-    // Step 3: Execute OpenAPI align
-    flattenedSpecPath = flattenedSpecPath + "/flattened_openapi.json";
+    
+
+    // Step 4: Execute OpenAPI align
     string alignedSpecPath = outputDir + "/docs/spec";
     command_executor:CommandResult alignResult = command_executor:executeBalAlign(flattenedSpecPath, alignedSpecPath);
     if !command_executor:isCommandSuccessfull(alignResult) {
@@ -56,7 +57,22 @@ public function main(string... args) returns error? {
     }
     log:printInfo("OpenAPI spec aligned successfully", outputPath = alignedSpecPath);
 
-    // Step 4: Generate Ballerina client
+    // Step 3: Add missing descriptions to flattened spec
+    flattenedSpecPath = flattenedSpecPath + "/flattened_openapi.json";
+    int|llm_service:LLMServiceError descriptionsResult = llm_service:addMissingDescriptions(flattenedSpecPath);
+    if descriptionsResult is llm_service:LLMServiceError {
+        log:printWarn("Failed to add missing descriptions", 'error = descriptionsResult);
+        io:println("Warning: Could not add missing field descriptions. Proceeding with existing spec.");
+    } else if descriptionsResult is int {
+        if descriptionsResult > 0 {
+            io:println(string `Added descriptions to ${descriptionsResult} fields without documentation.`);
+            log:printInfo("Missing descriptions added", count = descriptionsResult);
+        } else {
+            log:printInfo("No missing descriptions found - all fields already documented");
+        }
+    }
+
+    // Step 5: Generate Ballerina client
     string clientOutputPath = outputDir + "/ballerina";
     alignedSpecPath = alignedSpecPath + "/aligned_ballerina_openapi.json";
     command_executor:CommandResult generateResult = command_executor:executeBalClientGenerate(alignedSpecPath, clientOutputPath);
@@ -66,7 +82,7 @@ public function main(string... args) returns error? {
     }
     log:printInfo("Ballerina client generated successfully", outputPath = clientOutputPath);
 
-    // Step 5: Build generated client and analyze errors
+    // Step 6: Build generated client and analyze errors
     command_executor:CommandResult buildResult = command_executor:executeBalBuild(clientOutputPath);
 
     if buildResult.compilationErrors.length() == 0 {
@@ -78,7 +94,7 @@ public function main(string... args) returns error? {
     io:println(string `Found ${buildResult.compilationErrors.length()} compilation issues. Analyzing...`);
     log:printInfo("Found compilation errors", errorCount = buildResult.compilationErrors.length());
 
-    // Step 6: Categorize and route errors
+    // Step 7: Categorize and route errors
     map<command_executor:CompilationError[]> categorizedErrors = error_registry:routeErrorsByStrategy(buildResult.compilationErrors);
 
     return processErrorCategories(categorizedErrors, flattenedSpecPath, outputDir);

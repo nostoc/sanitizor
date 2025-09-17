@@ -169,6 +169,7 @@ public type UpdaterequestsCreateHeaders record {
 };
 
 public type InlineResponse20088AllOf2 record {
+    # Contains workspace listing data returned by the API operation.
     WorkspaceListing result?;
 };
 
@@ -312,6 +313,7 @@ public type ReportPurge record {
 };
 
 public type InlineResponse2003AllOf2 record {
+    # Either a single Favorite object or an array of Favorite objects.
     Favorite|Favorite[] result?;
 };
 
@@ -519,6 +521,7 @@ public type Email record {
 public type ProjectSettings record {
     # Non-working days for a project sheet
     string[] nonWorkingDays?;
+    # Array of weekdays that are considered working days for the project schedule.
     ("MONDAY"|"TUESDAY"|"WEDNESDAY"|"THURSDAY"|"FRIDAY"|"SATURDAY"|"SUNDAY")[] workingDays?;
     # Length of a workday for a project sheet
     @constraint:Number {minValue: 1, maxValue: 24}
@@ -801,10 +804,15 @@ public type GetSheetQueries record {
 
 # All objects a user has access to, including dashboards, folders, reports, sheets, and templates
 public type Home record {
+    # Array of Report objects that the user has access to in their home workspace.
     Report[] reports?;
+    # Array of Sheet objects that the user has access to in their home workspace.
     Sheet[] sheets?;
+    # Array of Folder objects that the user has access to in their home workspace.
     Folder[] folders?;
+    # Array of Sight objects that the user has access to in their home workspace.
     Sight[] sights?;
+    # Array of Template objects that the user has access to in their home workspace.
     Template[] templates?;
 };
 
@@ -1764,6 +1772,7 @@ public type SummaryField record {
     ObjectValue objectValue?;
     # Arbitrary name, must be unique within summary
     string title?;
+    # Specifies the data type of the summary field, determining how values are stored and displayed.
     "ABSTRACT_DATETIME"|"CHECKBOX"|"CONTACT_LIST"|"DATE"|"DATETIME"|"DURATION"|"MULTI_CONTACT_LIST"|"MULTI_PICKLIST"|"PICKLIST"|"PREDECESSOR"|"TEXT_NUMBER" 'type?;
     # Visual representation of cell contents, as presented to the user in the UI
     string displayValue?;
@@ -1810,6 +1819,7 @@ public type Sheet record {
     # Array of Attachment objects.
     # Only returned if the [include](/api/smartsheet/openapi/sheets/getsheet) query string parameter contains **attachments**
     Attachment[] attachments?;
+    # Array of Column objects that define the structure and properties of each column in the sheet.
     Column[] columns?;
     Timestamp modifiedAt?;
     # Array of Discussion objects
@@ -1842,6 +1852,7 @@ public type Sheet record {
     AccessLevel accessLevel?;
     # Returned only if the sheet belongs to an expired trial (value = **true**)
     boolean readOnly?;
+    # Array of Row objects that contain the actual data and content within the sheet.
     Row[] rows?;
     # The Id of the template from which to create the sheet. This attribute can be specified in a request, but is never present in a response
     decimal fromId?;
@@ -2002,6 +2013,7 @@ public type FolderSaveAsNew record {
 public type AbstractDatetimeObjectValue record {
     # Datetime, in the **date-time** format defined by <a href="https://tools.ietf.org/html/rfc3339#section-5.6" target="_blank" rel="noopener noreferrer">RFC 3339, section 5.6</a>
     string value?;
+    # Type identifier that must be set to "ABSTRACT_DATETIME" for datetime objects.
     "ABSTRACT_DATETIME" objectType?;
 };
 
@@ -2119,6 +2131,7 @@ public type DeleteSummaryFieldsQueries record {
 public type DateObjectValue record {
     # Date in the **full-date** format defined by [(https://tools.ietf.org/html/rfc3339#section-5.6" target="_blank" rel="noopener noreferrer">RFC 3339, section 5.6]</a>
     string value?;
+    # Type identifier that must be set to "DATE" to indicate this object represents a date value.
     "DATE" objectType?;
 };
 
@@ -2305,6 +2318,7 @@ public type UpdateSightQueries record {
 };
 
 public type InlineResponse2002AllOf2 record {
+    # Array of favorite items returned in the response.
     Favorite[] data?;
 };
 
@@ -2376,6 +2390,7 @@ public type ImportSheetIntoWorkspaceHeaders record {
 };
 
 public type InlineResponse20021AllOf2 record {
+    # Array of search result items returned from the search operation.
     SearchResultItem[] result?;
 };
 
@@ -2525,6 +2540,7 @@ public type ShareSheetQueries record {
 public type ImageUrlMap record {
     # Milliseconds before the URLs within imageUrls expire
     decimal urlExpiresInMillis?;
+    # Array of image URL objects that expire after the time specified in urlExpiresInMillis.
     ImageUrl[] imageUrls?;
 };
 
@@ -2566,6 +2582,7 @@ public type ColumnObjectAttributes record {
     string description?;
     # Column title
     string title?;
+    # Specifies the data type of the column, determining what kind of values it can contain and how they are displayed.
     "ABSTRACT_DATETIME"|"CHECKBOX"|"CONTACT_LIST"|"DATE"|"DATETIME"|"DURATION"|"MULTI_CONTACT_LIST"|"MULTI_PICKLIST"|"PICKLIST"|"PREDECESSOR"|"TEXT_NUMBER" 'type?;
     # Read only. The level of the column type. Each element in the array is set to one of the following values:
     #  * **0**: TEXT_NUMBER, CONTACT_LIST, or PICKLIST
@@ -2576,6 +2593,7 @@ public type ColumnObjectAttributes record {
     decimal version?;
     # Object that describes how the the System Column type of "AUTO_NUMBER" is auto-generated
     AutoNumberFormat autoNumberFormat?;
+    # Array of selectable options available for PICKLIST and MULTI_PICKLIST column types.
     string[] options?;
     # Display width of the column in pixels
     decimal width?;
@@ -2689,6 +2707,7 @@ public type CopyWorkspaceQueries record {
 public type UserDeclineInviteAdditionalDetails record {
     # Email address of the user responsible for the event
     string emailAddress;
+    # The reason code indicating why a user invitation was declined or failed to be accepted.
     "ACCEPT_FAILED_REMOVED_FROM_ORG"|"ACCEPT_FAILED_IN_OTHER_ORG"|"ACCEPT_FAILED_IS_PAID_USER"|"ACCEPT_FAILED_NEEDS_LICENSE"|"ACCEPT_FAILED_INSUFFICIENT_LICENSES"|"ACCEPT_FAILED_NOT_ELIGIBLE_FOR_TRIAL"|"ACCEPT_FAILED"|"ACCEPT_FAILED_NEEDS_GROUP_ADMIN_ROLE"|"ACCEPT_FAILED_UAP_VIOLATION"|"DECLINE_SUCCESS" declineReason?;
 };
 
@@ -2731,6 +2750,7 @@ public type ListHomeContentsQueries record {
 };
 
 public type InlineResponse2006AllOf2 record {
+    # An array of Folder objects containing the query results.
     Folder[] result?;
 };
 
@@ -2827,6 +2847,7 @@ public type SummaryFieldAddImage record {
     decimal id?;
     # Arbitrary name, must be unique within summary
     string title?;
+    # Specifies the data type of the summary field, determining how values are stored and displayed.
     "ABSTRACT_DATETIME"|"CHECKBOX"|"CONTACT_LIST"|"DATE"|"DATETIME"|"DURATION"|"MULTI_CONTACT_LIST"|"MULTI_PICKLIST"|"PICKLIST"|"PREDECESSOR"|"TEXT_NUMBER" 'type?;
     # Indicates whether the field is locked
     boolean locked?;
@@ -2965,6 +2986,7 @@ public type AutomationrulesListQueries record {
 public type MultiContactObjectValue record {
     # List of Contacts
     ContactObjectValue[] value?;
+    # A string identifier that specifies this object contains multiple contacts, always set to "MULTI_CONTACT".
     "MULTI_CONTACT" objectType?;
 };
 
@@ -3020,6 +3042,7 @@ public type InlineResponse2005AllOf2 record {
 };
 
 public type InlineResponse2008AllOf2 record {
+    # The result of a sheet creation operation, either from scratch or from a template.
     SheetCreated|SheetCreatedFromTemplate result?;
 };
 
@@ -3111,6 +3134,7 @@ public type SheetCreateCellLink record {
 public type TimestampNumber decimal;
 
 public type InlineResponse2007AllOf2 record {
+    # A Folder object containing the requested folder information and metadata.
     Folder result?;
 };
 
@@ -3301,6 +3325,7 @@ public type ProofsGetAllProofsHeaders record {
 };
 
 public type InlineResponse20022AllOf2 record {
+    # An array of sheet objects containing the requested sheet data.
     SchemasSheet[] data?;
 };
 
@@ -3322,6 +3347,7 @@ public type RowsAddToSheetHeaders record {
 public type DurationObjectValue record {
     # Number of days
     float days?;
+    # Type identifier that must be set to "DURATION" for duration objects.
     "DURATION" objectType?;
 };
 
@@ -3390,21 +3416,33 @@ public type FormatTables record {
     string[] verticalAlign?;
     # The default setting is "none". Typically this is black text and a white background
     string[] color?;
+    # Array of available date format options for displaying dates in cells, including locale-based and specific patterns.
     string[] dateFormat?;
+    # Array of underline formatting options for text, with "none" for no underline and "on" to enable underline.
     string[] underline?;
+    # Array of bold formatting options for text, with "none" for regular weight and "on" to enable bold.
     string[] bold?;
+    # Array of italic formatting options for text, with "none" for regular style and "on" to enable italic.
     string[] italic?;
+    # Array of available font family options with their names and typographic traits (serif/sans-serif).
     FontFamily[] fontFamily?;
     # A format descriptor where each element describes the formats the Smartsheet Web app displays for format values that have not been set. Each value refers to an index of the following options
     string defaults?;
+    # Array of number formatting options including none, standard number, currency, and percentage formats.
     string[] numberFormat?;
     # The default setting is "default" which is equivalent to "left"
     string[] horizontalAlign?;
+    # Array of text wrapping options for cells, with "none" for no wrapping and "on" to enable text wrapping.
     string[] textWrap?;
+    # Array of available currency options with ISO codes and their corresponding symbols for formatting monetary values.
     Currency[] currency?;
+    # Array of available font size options in points, ranging from 8pt to 36pt for text formatting.
     string[] fontSize?;
+    # Array of strikethrough formatting options for text, with "none" for no strikethrough and "on" to enable strikethrough.
     string[] strikethrough?;
+    # Array of decimal place options (0-5) for formatting numeric values in cells.
     string[] decimalCount?;
+    # Array of thousands separator options for numeric formatting, with "none" for no separator and "on" to enable.
     string[] thousandsSeparator?;
 };
 
@@ -3425,6 +3463,7 @@ public type SightListItem SightResult;
 public type PredecessorList record {
     # List of references to rows on which the current row depends
     Predecessor[] predecessors?;
+    # Type identifier that specifies this object as a predecessor list with the fixed value "PREDECESSOR_LIST".
     "PREDECESSOR_LIST" objectType?;
 };
 
@@ -3737,6 +3776,7 @@ public type InlineResponse20062 record {
 
 # A list of created summary fields
 public type InlineResponse20064AllOf2 record {
+    # An array of SummaryField objects representing the created summary fields.
     SummaryField[] result?;
 };
 
@@ -3836,6 +3876,7 @@ public type Duration record {
     decimal minutes?;
     # The number of days for this duration
     decimal days?;
+    # Type identifier that specifies this object represents a duration value, always set to "DURATION".
     "DURATION" objectType?;
 };
 
@@ -4077,6 +4118,7 @@ public type ColumnGetHeaders record {
     string authorization?;
 };
 
+# Represents a user's profile image including its unique ID, width, and height
 public type ProfileImage record {
     # Unique image Id
     string imageId?;
@@ -4115,6 +4157,7 @@ public type InlineResponse2001AllOf2 record {
 
 # Sheet to create from scratch using the specified columns
 public type SheetToCreate record {
+    # Array of column definitions used to create the structure of a new sheet.
     ColumnToCreateASheet[] columns?;
     # Sheet name
     Name name?;
@@ -4158,6 +4201,7 @@ public type DeleteFolderHeaders record {
 };
 
 public type UpdateProofStatusRequest record {
+    # Indicates whether the proof status has been completed or not.
     boolean isCompleted?;
 };
 
@@ -4202,6 +4246,7 @@ public type Schedule record {
     # 
     #   For more details, refer to the Table of Schedule Object’s Attributes below
     "FIRST"|"LAST"|"SECOND"|"THIRD"|"FOURTH" dayOrdinal?;
+    # The date and time when the last scheduled request was sent.
     Timestamp lastSentAt?;
     # Frequency on which the request is delivered. The unit is a function of the **type** attribute. For example,
     # for **MONTHLY** schedule, **repeatEvery=1** means every month.
@@ -4214,8 +4259,11 @@ public type Schedule record {
     decimal repeatEvery?;
     # Type of schedule
     "ONCE"|"DAILY"|"WEEKLY"|"MONTHLY"|"YEARLY" 'type?;
+    # The date and time when the delivery schedule ends, in ISO-8601 format or numeric timestamp.
     TimestampWriteable endAt?;
+    # The date and time when the next scheduled request is due to be sent.
     Timestamp nextSendAt?;
+    # The date and time when the first scheduled delivery starts, in ISO-8601 format or numeric timestamp.
     TimestampWriteable startAt?;
 };
 
@@ -4582,6 +4630,7 @@ public type AddColumns record {
 
 # A list of fieldIds corresponding to all summary fields that were successfully deleted
 public type InlineResponse20065AllOf2 record {
+    # Array of numeric field IDs for successfully deleted summary fields.
     decimal[] result?;
 };
 
@@ -4640,6 +4689,7 @@ public type Folder record {
 };
 
 public type InlineResponse20013AllOf2 record {
+    # Contains either a single GroupMember object or an array of GroupMember objects.
     GroupMember|GroupMember[] result?;
 };
 
@@ -4795,6 +4845,7 @@ public type AddRowsObject record {
 };
 
 public type SortCriterion record {
+    # Unique identifier of the column to sort by.
     decimal columnId?;
     # Direction of the sort
     "ASCENDING"|"DESCENDING" direction = "ASCENDING";
@@ -4970,10 +5021,12 @@ public type Cell record {
     CellLink linkInFromCell?;
     # A string, number, or a Boolean value -- depending on the cell type and the data in the cell. Cell values larger than 4000 characters are silently truncated. An empty cell returns no value
     string|decimal|boolean value?;
+    # An array of cell links representing outgoing connections from this cell to other cells.
     CellLink[] linksOutToCells?;
 };
 
 public type InlineResponse20057AllOf2 record {
+    # An array of numeric values representing the computed results or output data.
     decimal[] result?;
 };
 
@@ -4987,6 +5040,7 @@ public type UserProfileImageResponse record {
     string firstName?;
     # User's last name.
     string lastName?;
+    # Represents a user's profile image including its unique ID, width, and height
     ProfileImage profileImage?;
     # User Id.
     decimal id?;
@@ -5103,6 +5157,7 @@ public type ContactObjectValue record {
     string name?;
     # Email address of the Contact
     string email?;
+    # Type identifier indicating this object represents a contact entity.
     "CONTACT" objectType?;
 };
 
@@ -5190,6 +5245,7 @@ public type SheetCopyRowAdditionalDetails record {
 public type Sight SightListItem;
 
 public type InlineResponse20056AllOf2 record {
+    # Array of AddRowsObject items containing the results of the add rows operation.
     AddRowsObject[] result?;
 };
 
@@ -5204,6 +5260,7 @@ public type UserProfile record {
     string role?;
     # Indicates whether the user is a system admin (can manage user accounts and organization account)
     boolean admin?;
+    # Represents a user's profile image including its unique ID, width, and height
     ProfileImage profileImage?;
     # Current user's locale (see [ServerInfo](/api/smartsheet/openapi/serverinfo/serverinfo))
     string locale?;
@@ -5478,6 +5535,7 @@ public type ContactOption record {
 };
 
 public type InlineResponse20055AllOf2 record {
+    # Array of UpdateRowsObject items containing the results of row update operations.
     UpdateRowsObject[] result?;
 };
 
@@ -5688,7 +5746,9 @@ public type SheetRequestBackup record {
 
 # MiniUser Object
 public type MiniUser record {
+    # The full name of the user (read-only).
     string name?;
+    # The email address of the user.
     string email?;
 };
 
@@ -5696,6 +5756,7 @@ public type MiniUser record {
 public type CheckboxObjectValue record {
     # true if checked; false otherwise
     boolean value?;
+    # Identifies this object as a checkbox type with the constant value "CHECKBOX".
     "CHECKBOX" objectType?;
 };
 
@@ -5797,6 +5858,7 @@ public type ListReportSharesHeaders record {
 
 # A list of updated summary fields
 public type InlineResponse20063AllOf2 record {
+    # Array of summary fields that have been updated.
     SummaryField[] result?;
 };
 
@@ -5870,6 +5932,7 @@ public type SearchResult record {
 };
 
 public type InlineResponse20087AllOf2 record {
+    # Array of workspace listing objects containing workspace information and metadata.
     WorkspaceListing[] data?;
 };
 
@@ -5974,6 +6037,7 @@ public type FormActivateAdditionalDetails record {
 public type MultiPicklistObjectValue record {
     # List of strings to choose from
     string[] values?;
+    # Specifies the object type as a multi-picklist, indicating multiple values can be selected.
     "MULTI_PICKLIST" objectType?;
 };
 
@@ -6202,6 +6266,7 @@ public type ImageUrl record {
 };
 
 public type InlineResponse20017AllOf2 record {
+    # An array of Share objects containing the response data.
     Share[] result?;
 };
 
@@ -6364,6 +6429,7 @@ public type InlineResponse20089AllOf2 record {
 };
 
 public type InlineResponse20039AllOf2 record {
+    # Array of cross-sheet references containing related data from other sheets.
     CrossSheetReference[] data?;
 };
 
@@ -6473,6 +6539,7 @@ public type ReportExportAdditionalDetails record {
 };
 
 public type InlineResponse20018AllOf2 record {
+    # Contains either a single Share object or an array of Share objects as the operation result.
     Share|Share[] result?;
 };
 
@@ -7024,6 +7091,7 @@ public type WorkspaceRemoveShare record {
 };
 
 public type InlineResponse20019AllOf2 record {
+    # An array of Share objects containing the response data.
     Share[] result?;
 };
 
@@ -7284,6 +7352,7 @@ public type InlineResponse20081AllOf2 record {
 };
 
 public type InlineResponse20031AllOf2 record {
+    # An array of column objects containing column configuration and metadata information.
     GetColumn[] data?;
 };
 
@@ -7317,6 +7386,7 @@ public type SheetCreateAdditionalDetails record {
     string emailAddress;
     # Name of the newly created Sheets
     string sheetName?;
+    # Specifies the method used to create the sheet: copied from sheet, template, global template, or import.
     "sheet"|"template"|"globale_template"|"import" sourceType?;
     # Id of the template used to create the sheet. (Only included if the sheet was created using a template, that is not a global template)
     @constraint:Int {minValue: 0}
@@ -7392,6 +7462,7 @@ public type FormUpdate record {
 };
 
 public type Favorite record {
+    # The type of item being favorited (folder, report, sheet, sight, template, or workspace).
     "folder"|"report"|"sheet"|"sight"|"template"|"workspace" 'type?;
     # The Id of the favorited item. If type is template, only private sheet-type template Id is allowed
     decimal objectId?;
@@ -7443,6 +7514,7 @@ public type User record {
     string customWelcomeScreenViewed?;
     # Indicates whether the user is a system admin (can manage user accounts and organization account)
     boolean admin = false;
+    # Represents a user's profile image including its unique ID, width, and height
     ProfileImage profileImage?;
     # User's first name
     string firstName?;
@@ -7472,6 +7544,7 @@ public type User record {
 public type DatetimeObjectValue record {
     # Datetime, in the **date-time** format defined by <a href="https://tools.ietf.org/html/rfc3339#section-5.6" target="_blank" rel="noopener noreferrer">RFC 3339, section 5.6</a>
     string value?;
+    # Type identifier that specifies this object represents a datetime value, always set to "DATETIME".
     "DATETIME" objectType?;
 };
 
@@ -7643,6 +7716,7 @@ public type UpdateRowsHeaders record {
 };
 
 public type InlineResponse20032AllOf2 record {
+    # Array of AddColumns objects representing the operation results.
     AddColumns[] result?;
 };
 
