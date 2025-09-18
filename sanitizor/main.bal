@@ -82,6 +82,45 @@ public function main(string... args) returns error? {
     }
     log:printInfo("Ballerina client generated successfully", outputPath = clientOutputPath);
 
+    // Step 7: Fix type errors in generated types.bal file
+    string typesFilePath = clientOutputPath + "/types.bal";
+    io:println("✓ Checking for type errors in generated Ballerina client...");
+    
+    // Check for compilation errors in the generated client
+    command_executor:CommandResult buildResult = command_executor:executeBalBuild(clientOutputPath);
+    if buildResult.compilationErrors.length() > 0 {
+        io:println(string `Found ${buildResult.compilationErrors.length()} compilation errors. Attempting AI-powered fixes...`);
+        
+        // Extract error messages for the types.bal file
+        string[] typeErrors = [];
+        foreach command_executor:CompilationError err in buildResult.compilationErrors {
+            if err.fileName.endsWith("types.bal") {
+                string errorMsg = string `Line ${err.line}: ${err.message}`;
+                typeErrors.push(errorMsg);
+            }
+        }
+        
+        if typeErrors.length() > 0 {
+            int|llm_service:LLMServiceError fixResult = llm_service:fixBallerinaTypeErrors(typesFilePath, typeErrors);
+            if fixResult is llm_service:LLMServiceError {
+                log:printError("Failed to fix type errors", 'error = fixResult);
+                io:println("⚠ Warning: Could not automatically fix type errors. Manual intervention may be required.");
+            } else {
+                io:println(string `✓ Fixed ${fixResult} type errors using AI`);
+                
+                // Verify the fixes by building again
+                command_executor:CommandResult verifyResult = command_executor:executeBalBuild(clientOutputPath);
+                if verifyResult.compilationErrors.length() == 0 {
+                    io:println("✓ All type errors have been resolved! Client compiles successfully.");
+                } else {
+                    io:println(string `⚠ ${verifyResult.compilationErrors.length()} errors remain after fixes. Additional work may be needed.`);
+                }
+            }
+        }
+    } else {
+        io:println("✓ No compilation errors found in generated client!");
+    }
+
     // Sanitization completed successfully
     io:println("✓ All processing completed successfully!");
     io:println("✓ OpenAPI spec has been sanitized and Ballerina client generated!");

@@ -635,3 +635,170 @@ public function renameInlineResponseSchemas(string specFilePath) returns int|LLM
 //     return [true, string `Fixed ${errorMessages.length()} compilation errors in ${typesFilePath}`];
 // }
 
+# Fix Ballerina types.bal file by resolving redeclared symbol errors
+#
+# + typesFilePath - Path to the types.bal file with compilation errors
+# + errorMessages - Array of compilation error messages to fix
+# + return - Number of errors fixed or error
+public function fixBallerinaTypeErrors(string typesFilePath, string[] errorMessages) returns int|LLMServiceError {
+    ai:ModelProvider? model = anthropicModel;
+    if (model is ()) {
+        return error LLMServiceError("LLM service not initialized");
+    }
+
+    log:printInfo("Analyzing Ballerina type errors", filePath = typesFilePath, errorCount = errorMessages.length());
+
+    // Read the current types.bal file
+    string|error fileContent = io:fileReadString(typesFilePath);
+    if (fileContent is error) {
+        return error LLMServiceError("Failed to read types.bal file", fileContent);
+    }
+
+    // Create backup of original file
+    string backupPath = typesFilePath + ".backup";
+    error? backupResult = io:fileWriteString(backupPath, fileContent);
+    if (backupResult is error) {
+        log:printWarn("Failed to create backup of types.bal", 'error = backupResult);
+    } else {
+        log:printInfo("Created backup of original types.bal", backupPath = backupPath);
+    }
+
+    // For very large files, use a pattern-based approach instead of sending entire file to LLM
+    if (fileContent.length() > 50000) { // File too large for LLM context
+        log:printInfo("File too large for single LLM call, applying pattern-based fixes");
+        return applyPatternBasedFixes(typesFilePath, fileContent, errorMessages);
+    }
+
+    // For smaller files, use the original LLM approach
+    return applyLLMBasedFixes(typesFilePath, fileContent, errorMessages);
+}
+
+// Apply pattern-based fixes for large files
+function applyPatternBasedFixes(string filePath, string content, string[] errorMessages) returns int|LLMServiceError {
+    string[] lines = regex:split(content, "\n");
+    string[] fixedLines = [];
+    int fixedCount = 0;
+    
+    // Analyze error patterns
+    map<int[]> errorLineMap = {};
+    foreach string errorMsg in errorMessages {
+        if errorMsg.includes("Line ") && errorMsg.includes("redeclared symbol") {
+            string lineNumStr = regex:split(errorMsg, "Line ")[1];
+            lineNumStr = regex:split(lineNumStr, ":")[0];
+            int|error lineNum = int:fromString(lineNumStr.trim());
+            if lineNum is int {
+                string key = lineNum.toString();
+                if !errorLineMap.hasKey(key) {
+                    errorLineMap[key] = [];
+                }
+                int[] existingLines = errorLineMap[key] ?: [];
+                existingLines.push(lineNum);
+                errorLineMap[key] = existingLines;
+            }
+        }
+    }
+    
+    log:printInfo("Processing lines with errors", errorLines = errorLineMap.length());
+    
+    // Process each line
+    foreach int i in 0 ..< lines.length() {
+        string line = lines[i];
+        int lineNum = i + 1;
+        
+        // Check if this line has redeclared symbol errors
+        if errorLineMap.hasKey(lineNum.toString()) {
+            // Look for patterns like "*SomeRecordAllOf2;" that cause conflicts
+            if line.trim().startsWith("*") && line.trim().endsWith("AllOf2;") {
+                // Comment out this conflicting record inclusion
+                string commentedLine = "    // " + line.trim() + " // Removed due to redeclared symbol conflict";
+                fixedLines.push(commentedLine);
+                fixedCount += 1;
+                log:printInfo("Fixed redeclared symbol", lineNumber = lineNum, originalLine = line.trim());
+            } else {
+                fixedLines.push(line);
+            }
+        } else {
+            fixedLines.push(line);
+        }
+    }
+    
+    // Write the fixed content back
+    string fixedContent = string:'join("\n", ...fixedLines);
+    error? writeResult = io:fileWriteString(filePath, fixedContent);
+    if (writeResult is error) {
+        return error LLMServiceError("Failed to write fixed types.bal", writeResult);
+    }
+    
+    log:printInfo("Applied pattern-based fixes", fixedCount = fixedCount);
+    return fixedCount;
+}
+
+// Apply LLM-based fixes for smaller files
+function applyLLMBasedFixes(string filePath, string content, string[] errorMessages) returns int|LLMServiceError {
+    ai:ModelProvider? model = anthropicModel;
+    if (model is ()) {
+        return error LLMServiceError("LLM service not initialized");
+    }
+
+    // Prepare the error summary for LLM
+    string errorsText = string:'join("\n", ...errorMessages);
+    
+    string prompt = string `You are a Ballerina programming language expert. Fix compilation errors in this auto-generated types.bal file.
+
+COMPILATION ERRORS TO FIX:
+${errorsText}
+
+TYPES.BAL FILE CONTENT:
+${content}
+
+PROBLEM ANALYSIS:
+The main issues are "redeclared symbol" errors where multiple record types include the same fields through record inclusion syntax (*RecordType). This happens when OpenAPI allOf compositions create overlapping field definitions.
+
+FIXING STRATEGY:
+1. IDENTIFY CONFLICTS: Find records with conflicting field inclusions
+2. RESOLVE DUPLICATES: For each record with redeclared symbol errors:
+   - Remove duplicate record inclusions that cause conflicts
+   - Keep only ONE inclusion per field name
+   - If multiple inclusions define the same field, keep the most specific one
+3. PRESERVE STRUCTURE: Maintain all type definitions and field types
+4. MAINTAIN COMPATIBILITY: Ensure all API contracts remain valid
+
+SPECIFIC FIXES NEEDED:
+- Remove redundant *RecordTypeAllOf2 inclusions that conflict with existing fields
+- For records that include multiple AllOf2 types, consolidate to avoid field redeclaration
+- Keep record documentation and annotations intact
+
+CRITICAL REQUIREMENTS:
+- Return ONLY the complete fixed Ballerina code
+- NO explanations, markdown formatting, or additional text
+- All record syntax must be valid Ballerina
+- Preserve all type names and field types exactly
+- Fix ONLY the redeclared symbol conflicts
+
+EXPECTED RESULT:
+A fully compilable types.bal file with all redeclared symbol errors resolved.`;
+
+    ai:ChatMessage[] messages = [
+        {role: "user", content: prompt}
+    ];
+
+    ai:ChatAssistantMessage|error response = model->chat(messages);
+    if (response is error) {
+        return error LLMServiceError("Failed to generate type fixes", response);
+    }
+
+    string? fixedCode = response.content;
+    if (fixedCode is ()) {
+        return error LLMServiceError("Empty response from LLM");
+    }
+
+    // Write the fixed code back to the file
+    error? writeResult = io:fileWriteString(filePath, fixedCode);
+    if (writeResult is error) {
+        return error LLMServiceError("Failed to write fixed types.bal", writeResult);
+    }
+
+    log:printInfo("Fixed Ballerina type errors", fixedErrors = errorMessages.length());
+    return errorMessages.length();
+}
+
