@@ -4,7 +4,7 @@
 import ballerina/data.jsondata;
 import ballerina/http;
 
-# An order represents a payment between two or more parties. Use the Orders API to create, update, retrieve, authorize, and capture orders.
+# Call the Payments API to authorize payments, capture authorized payments, refund payments that have already been captured, and show payment information. Use the Payments API in conjunction with the <a href="/docs/api/orders/v2/">Orders API</a>. For more information, see the <a href="/docs/checkout/">PayPal Checkout Overview</a>.
 public isolated client class Client {
     final http:Client clientEp;
     # Gets invoked to initialize the `connector`.
@@ -12,56 +12,28 @@ public isolated client class Client {
     # + config - The configurations to be used when initializing the `connector` 
     # + serviceUrl - URL of the target service 
     # + return - An error if connector initialization failed 
-    public isolated function init(ConnectionConfig config, string serviceUrl = "https://api-m.sandbox.paypal.com/v2/checkout") returns error? {
+    public isolated function init(ConnectionConfig config, string serviceUrl = "https://api-m.sandbox.paypal.com/v2/payments") returns error? {
         http:ClientConfiguration httpClientConfig = {auth: config.auth, httpVersion: config.httpVersion, http1Settings: config.http1Settings, http2Settings: config.http2Settings, timeout: config.timeout, forwarded: config.forwarded, followRedirects: config.followRedirects, poolConfig: config.poolConfig, cache: config.cache, compression: config.compression, circuitBreaker: config.circuitBreaker, retryConfig: config.retryConfig, cookieConfig: config.cookieConfig, responseLimits: config.responseLimits, secureSocket: config.secureSocket, proxy: config.proxy, socketConfig: config.socketConfig, validation: config.validation, laxDataBinding: config.laxDataBinding};
         self.clientEp = check new (serviceUrl, httpClientConfig);
     }
 
-    # Create order
+    # Show details for authorized payment
     #
+    # + authorizationId - The PayPal-generated ID for the authorized payment to void
     # + headers - Headers to be sent with the request 
-    # + return - A successful response to an idempotent request returns the HTTP `200 OK` status code with a JSON response body that shows order details 
-    resource isolated function post orders(OrderRequest payload, OrdersCreateHeaders headers = {}) returns Order|error {
-        string resourcePath = string `/orders`;
-        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
-        http:Request request = new;
-        json jsonBody = jsondata:toJson(payload);
-        request.setPayload(jsonBody, "application/json");
-        return self.clientEp->post(resourcePath, request, httpHeaders);
-    }
-
-    # Show order details
-    #
-    # + id - The ID of the order that the tracking information is associated with
-    # + headers - Headers to be sent with the request 
-    # + queries - Queries to be sent with the request 
-    # + return - A successful request returns the HTTP `200 OK` status code and a JSON response body that shows order details 
-    resource isolated function get orders/[string id](map<string|string[]> headers = {}, *OrdersGetQueries queries) returns Order|error {
-        string resourcePath = string `/orders/${getEncodedUri(id)}`;
-        resourcePath = resourcePath + check getPathForQueryParam(queries);
+    # + return - A successful request returns the HTTP <code>200 OK</code> status code and a JSON response body that shows authorization details 
+    resource isolated function get authorizations/[string authorizationId](map<string|string[]> headers = {}) returns Authorization2|error {
+        string resourcePath = string `/authorizations/${getEncodedUri(authorizationId)}`;
         return self.clientEp->get(resourcePath, headers);
     }
 
-    # Update order
+    # Capture authorized payment
     #
-    # + id - The ID of the order that the tracking information is associated with
+    # + authorizationId - The PayPal-generated ID for the authorized payment to void
     # + headers - Headers to be sent with the request 
-    # + return - A successful request returns the HTTP `204 No Content` status code with an empty object in the JSON response body 
-    resource isolated function patch orders/[string id](PatchRequest payload, map<string|string[]> headers = {}) returns error? {
-        string resourcePath = string `/orders/${getEncodedUri(id)}`;
-        http:Request request = new;
-        json jsonBody = jsondata:toJson(payload);
-        request.setPayload(jsonBody, "application/json");
-        return self.clientEp->patch(resourcePath, request, headers);
-    }
-
-    # Confirm the Order
-    #
-    # + id - The ID of the order that the tracking information is associated with
-    # + headers - Headers to be sent with the request 
-    # + return - A successful request indicates that the payment source was added to the Order. A successful request returns the HTTP `200 OK` status code with a JSON response body that shows order details 
-    resource isolated function post orders/[string id]/confirm\-payment\-source(ConfirmOrderRequest payload, OrdersConfirmHeaders headers = {}) returns Order|error {
-        string resourcePath = string `/orders/${getEncodedUri(id)}/confirm-payment-source`;
+    # + return - A successful request returns the HTTP <code>201 Created</code> status code and a JSON response body that shows captured payment details 
+    resource isolated function post authorizations/[string authorizationId]/capture(CaptureRequest payload, AuthorizationsCaptureHeaders headers = {}) returns Capture2|error {
+        string resourcePath = string `/authorizations/${getEncodedUri(authorizationId)}/capture`;
         map<string|string[]> httpHeaders = http:getHeaderMap(headers);
         http:Request request = new;
         json jsonBody = jsondata:toJson(payload);
@@ -69,13 +41,13 @@ public isolated client class Client {
         return self.clientEp->post(resourcePath, request, httpHeaders);
     }
 
-    # Authorize payment for order
+    # Reauthorize authorized payment
     #
-    # + id - The ID of the order that the tracking information is associated with
+    # + authorizationId - The PayPal-generated ID for the authorized payment to void
     # + headers - Headers to be sent with the request 
-    # + return - A successful response to an idempotent request returns the HTTP `200 OK` status code with a JSON response body that shows authorized payment details 
-    resource isolated function post orders/[string id]/authorize(OrderAuthorizeRequest payload, OrdersAuthorizeHeaders headers = {}) returns OrderAuthorizeResponse|error {
-        string resourcePath = string `/orders/${getEncodedUri(id)}/authorize`;
+    # + return - A successful request returns the HTTP <code>201 Created</code> status code and a JSON response body that shows the reauthorized payment details 
+    resource isolated function post authorizations/[string authorizationId]/reauthorize(ReauthorizeRequest payload, AuthorizationsReauthorizeHeaders headers = {}) returns Authorization2|error {
+        string resourcePath = string `/authorizations/${getEncodedUri(authorizationId)}/reauthorize`;
         map<string|string[]> httpHeaders = http:getHeaderMap(headers);
         http:Request request = new;
         json jsonBody = jsondata:toJson(payload);
@@ -83,13 +55,35 @@ public isolated client class Client {
         return self.clientEp->post(resourcePath, request, httpHeaders);
     }
 
-    # Capture payment for order
+    # Void authorized payment
     #
-    # + id - The ID of the order that the tracking information is associated with
+    # + authorizationId - The PayPal-generated ID for the authorized payment to void
     # + headers - Headers to be sent with the request 
-    # + return - A successful response to an idempotent request returns the HTTP `200 OK` status code with a JSON response body that shows captured payment details 
-    resource isolated function post orders/[string id]/capture(OrderCaptureRequest payload, OrdersCaptureHeaders headers = {}) returns Order|error {
-        string resourcePath = string `/orders/${getEncodedUri(id)}/capture`;
+    # + return - A successful request returns the HTTP <code>200 OK</code> status code and a JSON response body that shows authorization details. This response is returned when the Prefer header is set to return=representation 
+    resource isolated function post authorizations/[string authorizationId]/void(AuthorizationsVoidHeaders headers = {}) returns Authorization2|error? {
+        string resourcePath = string `/authorizations/${getEncodedUri(authorizationId)}/void`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        return self.clientEp->post(resourcePath, request, httpHeaders);
+    }
+
+    # Show captured payment details
+    #
+    # + captureId - The PayPal-generated ID for the captured payment to refund
+    # + headers - Headers to be sent with the request 
+    # + return - A successful request returns the HTTP <code>200 OK</code> status code and a JSON response body that shows captured payment details 
+    resource isolated function get captures/[string captureId](map<string|string[]> headers = {}) returns Capture2|error {
+        string resourcePath = string `/captures/${getEncodedUri(captureId)}`;
+        return self.clientEp->get(resourcePath, headers);
+    }
+
+    # Refund captured payment
+    #
+    # + captureId - The PayPal-generated ID for the captured payment to refund
+    # + headers - Headers to be sent with the request 
+    # + return - A successful request returns the HTTP <code>201 Created</code> status code and a JSON response body that shows refund details 
+    resource isolated function post captures/[string captureId]/refund(RefundRequest payload, CapturesRefundHeaders headers = {}) returns Refund|error {
+        string resourcePath = string `/captures/${getEncodedUri(captureId)}/refund`;
         map<string|string[]> httpHeaders = http:getHeaderMap(headers);
         http:Request request = new;
         json jsonBody = jsondata:toJson(payload);
@@ -97,31 +91,13 @@ public isolated client class Client {
         return self.clientEp->post(resourcePath, request, httpHeaders);
     }
 
-    # Add tracking information for an Order.
+    # Show refund details
     #
-    # + id - The ID of the order that the tracking information is associated with
+    # + refundId - The PayPal-generated ID for the refund for which to show details
     # + headers - Headers to be sent with the request 
-    # + return - A successful response to an idempotent request returns the HTTP `200 OK` status code with a JSON response body that shows tracker details 
-    resource isolated function post orders/[string id]/track(OrderTrackerRequest payload, OrdersTrackCreateHeaders headers = {}) returns Order|error {
-        string resourcePath = string `/orders/${getEncodedUri(id)}/track`;
-        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
-        http:Request request = new;
-        json jsonBody = jsondata:toJson(payload);
-        request.setPayload(jsonBody, "application/json");
-        return self.clientEp->post(resourcePath, request, httpHeaders);
-    }
-
-    # Update or cancel tracking information for a PayPal order
-    #
-    # + id - The ID of the order that the tracking information is associated with
-    # + trackerId - The order tracking ID
-    # + headers - Headers to be sent with the request 
-    # + return - A successful request returns the HTTP `204 No Content` status code with an empty object in the JSON response body 
-    resource isolated function patch orders/[string id]/trackers/[string trackerId](PatchRequest payload, map<string|string[]> headers = {}) returns error? {
-        string resourcePath = string `/orders/${getEncodedUri(id)}/trackers/${getEncodedUri(trackerId)}`;
-        http:Request request = new;
-        json jsonBody = jsondata:toJson(payload);
-        request.setPayload(jsonBody, "application/json");
-        return self.clientEp->patch(resourcePath, request, headers);
+    # + return - A successful request returns the HTTP <code>200 OK</code> status code and a JSON response body that shows refund details 
+    resource isolated function get refunds/[string refundId](map<string|string[]> headers = {}) returns Refund|error {
+        string resourcePath = string `/refunds/${getEncodedUri(refundId)}`;
+        return self.clientEp->get(resourcePath, headers);
     }
 }
