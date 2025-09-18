@@ -635,7 +635,7 @@ public function renameInlineResponseSchemas(string specFilePath) returns int|LLM
 //     return [true, string `Fixed ${errorMessages.length()} compilation errors in ${typesFilePath}`];
 // }
 
-# Fix Ballerina types.bal file by resolving redeclared symbol errors
+# Fix compilation errors in generated ballerina code
 #
 # + typesFilePath - Path to the types.bal file with compilation errors
 # + errorMessages - Array of compilation error messages to fix

@@ -113,7 +113,7 @@ public function main(string... args) returns error? {
                 if verifyResult.compilationErrors.length() == 0 {
                     io:println("✓ All type errors have been resolved! Client compiles successfully.");
                 } else {
-                    io:println(string `⚠ ${verifyResult.compilationErrors.length()} errors remain after fixes. Additional work may be needed.`);
+                    io:println(string `⚠ ${verifyResult.compilationErrors.length()} errors remain after fixes. Additional work may be needed. :(`);
                 }
             }
         }
