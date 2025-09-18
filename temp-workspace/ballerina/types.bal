@@ -5,100 +5,9757 @@ import ballerina/constraint;
 import ballerina/data.jsondata;
 import ballerina/http;
 
-# OAuth2 Client Credentials Grant Configs
-public type OAuth2ClientCredentialsGrantConfig record {|
-    *http:OAuth2ClientCredentialsGrantConfig;
-    # Token URL
-    string tokenUrl = "https://api.sandbox.paypal.com/v1/oauth2/token";
+# Request body for copying a workspace, containing destination container information
+public type WorkspaceIdCopyBody ContainerDestinationForCopy;
+
+# Schema for creating a new discussion event, combining base event properties with discussion-specific fields
+public type DiscussionCreate record {
+    *Event;
+    *DiscussionCreateAllOf2;
+};
+
+# Additional details for attachment load events, including user email and container information
+public type AttachmentLoadAdditionalDetails record {
+    # Email address of the user responsible for the event
+    string emailAddress;
+    # Id of the sheet that contains the attachment. (This property is included only if the `workspaceId` property below isn't included)
+    @constraint:Int {minValue: 0}
+    int sheetId?;
+    # Name of the compressed file containing the multiple attachments downloaded at once. (Only included if more than one attachment was selected to be downloaded in the same user action. Please notice that multi-attachment download action allows the user to specify the name of the zip file that shoud include all attachments, which is what is being provided here. The download of a single attachment uses the attachment name as the download file name and it cannot be changed, and it isn't provided in this event because it is provided in the ATTACHMENT-CREATE event or by querying Smartsheet API with the attachment ID)
+    string multiFileDownloadName?;
+    # Id of the workspace that directly contains the attachment. (This property is included only if the `sheetId` property above isn't included)
+    @constraint:Int {minValue: 0}
+    int workspaceId?;
+};
+
+# Represents the Headers record for the operation: reactivate-user
+public type ReactivateUserHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Represents the Headers record for the operation: rows-sort
+public type RowsSortHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+    # Required for POST and PUT requests. Defines the structure for the request body
+    @http:Header {name: "Content-Type"}
+    string contentType = "application/json";
+};
+
+# Represents the Queries record for the operation: share-report-get
+public type ShareReportGetQueries record {
+    # Allows COMMENTER access for inputs and return values. For backwards-compatibility, VIEWER is the default. For example, to see whether a user has COMMENTER access for a sheet, use accessApiLevel=1
+    decimal accessApiLevel = 0;
+};
+
+# Response object containing a single folder result
+public type FolderResultResponse1 record {
+    # The folder object returned from the operation, containing folder details and metadata
+    Folder result?;
+};
+
+# Triggered when an admin downloads login history report for the users. This can be done through Login History console on UI
+public type AccountDownloadLoginHistoryAllOf2 record {
+    # The action applied to the specified object
+    "DOWNLOAD_LOGIN_HISTORY" action?;
+    # Additional details for bulk account updates, including the responsible user's email address
+    AccountBulkUpdateAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "ACCOUNT" objectType?;
+};
+
+# Represents the Headers record for the operation: deleteWebhook
+public type DeleteWebhookHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Represents the Headers record for the operation: delete-alternate-email
+public type DeleteAlternateEmailHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# **Deprecated** Indicates whether the left nav toolbar is displayed. The default, or **true**, is to display the toolbar. If **false**, hides the toolbar
+# 
+# # Deprecated
+@deprecated
+public type ReadOnlyFullShowToolbar boolean;
+
+# Triggered when a user is added to a group that a workspace has been shared to via the workspace's sharing list, or via a workspace's sharing list. 
+# 
+# If a workspace has been shared to a group directly via the workspace's sharing list, and via a workspace's sharing list, then an event will be generated for each of these shares
+public type WorkspaceAddShareMemberAllOf2 record {
+    # The action applied to the specified object
+    "ADD_SHARE_MEMBER" action?;
+    # Additional details for workspace share member addition events, including user email, access level, group ID, and user ID
+    WorkspaceAddShareMemberAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "WORKSPACE" objectType?;
+};
+
+# A combined response that merges generic result data with folder-specific result information
+public type GenericResultCombinedResponse record {
+    *GenericResult;
+    *FolderResultResponse1;
+};
+
+# Additional details for dashboard ownership transfer events, including user IDs, email, and access levels
+public type DashboardTransferOwnershipAdditionalDetails record {
+    # New access level of the new owner: `"OWNER"`
+    "OWNER" newAccessLevel = "OWNER";
+    # Email address of the user responsible for the event
+    string emailAddress;
+    # Id of the new dashboard owner
+    @constraint:Int {minValue: 0}
+    int newUserId?;
+    # Id of the former dashboard owner
+    @constraint:Int {minValue: 0}
+    int oldUserId?;
+    # New access level of the former owner: `"ADMIN"`
+    "ADMIN" oldAccessLevel = "ADMIN";
+};
+
+# Request body for favorites operations supporting either a single favorite item or bulk operations
+public type FavoritesBody Favorite|FavoritesOneOf2;
+
+# Represents the Queries record for the operation: attachments-listOnSheet
+public type AttachmentsListOnSheetQueries record {
+    # The maximum number of items to return per page. Unless otherwise stated for a specific endpoint, defaults to 100. If only page is specified, defaults to a page size of 100. For reports, the default is 100 rows. If you need larger sets of data from your report, returns a maximum of 10,000 rows per request
+    decimal pageSize = 100;
+    # If true, include all results, that is, do not paginate. Mutually exclusive with page and pageSize (they are ignored if includeAll=true is specified)
+    boolean includeAll = false;
+    # Which page to return. Defaults to 1 if not specified. If you specify a value greater than the total number of pages, the last page of results is returned
+    decimal page = 1;
+};
+
+# A paginated response containing a collection of webhook data with metadata for navigation
+public type CompositeDataCollectionResponse record {
+    *PaginationMetadataResponse;
+    *WebhookCollectionApiResponse;
+};
+
+# Additional details for attachment send events, including sender email and recipient information
+public type AttachmentSendAdditionalDetails record {
+    # Email address of the user responsible for the event
+    string emailAddress;
+    # Id of the sheet that contains the attachment. (This property is included only if the `workspaceId` property below isn't included)
+    @constraint:Int {minValue: 0}
+    int sheetId?;
+    # Single ID of a user group explicitly included in the recipient list. (This property is included only if the `recipientEmail` property above isn't included)
+    @constraint:Int {minValue: 0}
+    int recipientGroupId?;
+    # Single email address either of a user explicitly included in the recipient list or of the sender (when *CC sender* is requested). (This property is included only if the recipientGroupId property below isn't included)
+    string recipientEmail?;
+    # Id of the workspace that directly contains the attachment. (This property is included only if the `sheetId` property above isn't included)
+    @constraint:Int {minValue: 0}
+    int workspaceId?;
+};
+
+# Represents a search result item containing object details, parent context, text excerpt, and additional metadata
+public type SearchResultItem record {
+    # Search result parent object name
+    string parentObjectName?;
+    # Search result parent object Id
+    decimal parentObjectId?;
+    # Search result parent object type (dashboard, folder, report, sheet, template, or workspace)
+    string parentObjectType?;
+    # Search result text excerpt
+    string text?;
+    # Search result object Id
+    decimal objectId?;
+    # Additional info about the search result item. If the item has a discussion or attachment belonging to a proof, the context data includes the URL of that proof (e.g., "proofUrl: https://app.smartsheet.com/b/proofs/sheets/abc123/proofs/def456")
+    string[] contextData?;
+    # Search result object type (attachment, dashboard, discussion, folder, report, row, sheet, summaryField, template, or workspace)
+    string objectType?;
+};
+
+# Describes the dashboard's publish settings
+public type SightPublish record {
+    # URL for 'Read-Only Full' view of the published dashboard. Only returned in a response if readOnlyFullEnabled = true
+    string readOnlyFullUrl?;
+    # If true, a rich version of the dashboard is published with the ability to use shortcuts and widget interactions
+    boolean readOnlyFullEnabled;
+    # Indicates who can access the 'Read-Only Full' view of the published dashboard. Only returned in the response if **readOnlyFullEnabled = true**.
+    #   * **ALL** - available to anyone who has the link.
+    #   * **ORG** - available only to members of the dashboard owner's Smartsheet organization account.
+    #   * **SHARED** - available only to users shared to the item.
+    # 
+    # ---
+    # If **readOnlyFullEnabled** is set to true in the request, but **readOnlyFullAccessibleBy** is not specified, the value of **readOnlyFullAccessibleBy** defaults to the organization-level 'Dashboard Publishing' setting (if the dashboard owner belongs to an organization account) or to **ALL** (if the dashboard owner does not belong to an organization account)
+    "ALL"|"ORG" readOnlyFullAccessibleBy?;
+};
+
+# Indicates which view the user has set for a read-only, default view of the published sheet. Must be one of the listed enum values
+public type ReadOnlyFullDefaultView "CALENDAR"|"CARD"|"GRID";
+
+# Represents the Headers record for the operation: updaterequests-create
+public type UpdaterequestsCreateHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+    # Required for POST and PUT requests. Defines the structure for the request body
+    @http:Header {name: "Content-Type"}
+    string contentType = "application/json";
+};
+
+# Represents the Headers record for the operation: automationrule-update
+public type AutomationruleUpdateHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+    # Required for POST and PUT requests. Defines the structure for the request body
+    @http:Header {name: "Content-Type"}
+    string contentType = "application/json";
+};
+
+# Additional details for dashboard creation events, including user email, source information, and dashboard name
+public type DashboardCreateAdditionalDetails record {
+    # Email address of the user responsible for the event
+    string emailAddress;
+    # The source object used to create the dashboard, currently only 'global_template' is valid
+    string sourceType?;
+    # Id of the global template that was used to create the dashboard. (Specific to `Create New` actions)
+    @constraint:Int {minValue: 0}
+    int sourceGlobalTemplateId?;
+    # Id of the source dashboard. (Specific to `Save As New` actions). 
+    @constraint:Int {minValue: 0}
+    int sourceObjectId?;
+    # Name of the newly created dashboard
+    string dashboardName?;
+};
+
+# Request object for filtering events by managed plan, time range, sheets, workspaces, and pagination options
+public type FilteredEventsRequest record {
+    # The target managed plan for which to list events. Authorized if the caller is a licensed user on either the target managed plan or the main plan in EPM hierarchy
+    decimal managedPlanId?;
+    # Indicates next set of events to return. Use value of `nextStreamPosition` returned from the previous call.
+    # You must pass in a value for either `since` or `streamPosition` and never both
+    string streamPosition?;
+    # Array of sheet Ids used to filter events. Only events related to the specified sheet Ids are returned
+    string[] sheetIds?;
+    # Array of workspace Ids used to filter events. Only events related to the specified workspace Ids are returned
+    string[] workspaceIds?;
+    # If true, dates are accepted and returned in Unix epoch time (milliseconds since midnight on January 1, 1970 in UTC time).
+    # Default is false, which means ISO-8601 format
+    boolean numericDates = false;
+    # The latest time up to which events are included in the response. Events after this time are excluded. The `to` field requires using the `since` body field (above). This field is intended for use when backfilling data at client startup or recovery--don't use it for fine-grained date-based queries. Therefore, resolution is limited to the nearest hour. The value is interpreted as ISO-8601 format, unless `numericDates` is specified (see details about `numericDates` below).
+    # 
+    # If `to` is a future time, the current time is used. If `to` equals the `since` time, an empty data value is returned. If `to` is before the `since` time, an error is returned
+    string to?;
+    # Maximum number of events to return as response to this call.
+    # Must be between 1 through 10,000 (inclusive).
+    # Defaults to 1,000 if not specified
+    @constraint:Int {minValue: 1, maxValue: 10000}
+    int maxCount = 1000;
+    # The earliest time from which events are included in the response. Events before this time are excluded. This field is intended for use when backfilling data at client startup or recovery--don't use it for fine-grained date-based queries. Therefore, resolution is limited to the nearest hour. The value is interpreted as ISO-8601 format, unless `numericDates` is specified (see details about `numericDates` below).
+    # 
+    # You must pass in a value for either `since` or `streamPosition` and never both
+    string since?;
+};
+
+# Represents the Queries record for the operation: get-asset-share
+public type GetAssetShareQueries record {
+    # The id of the asset. Used in combination with assetType to determine the asset.
+    # 
+    # Depending on the asset, this may be a numeric or string value
+    string assetId;
+    # The type of the asset. Used in combination with assetId to determine the asset
+    "sheet"|"report"|"sight"|"workspace"|"collection"|"file" assetType;
+};
+
+# Response object containing the result of a sheet publishing operation
+public type SheetPublishResultResponse record {
+    # Describes the sheet's publish settings
+    SheetPublish result?;
+};
+
+# Represents the Headers record for the operation: attachments-listOnSheet
+public type AttachmentsListOnSheetHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Response object containing a single webhook result in the 'result' field
+public type WebhookResultResponse record {
+    # The webhook object
+    Webhook result?;
+};
+
+# Additional configuration details for creating workspace recurring backups, including email notifications and attachment settings
+public type WorkspaceCreateRecurringBackupAdditionalDetails record {
+    # Email address of the user responsible for the event
+    string emailAddress;
+    # Indicates whether attachments should be included in the recurring backup
+    boolean includeAttachments?;
+    # Indicates whether an email should be sent to the workspace's owner every time a recurring backup completes
+    boolean sendCompletionEmail?;
+};
+
+# Triggered when a user publishes a dashboard or republishes a dashboard with new settings
+public type DashboardAddPublishAllOf2 record {
+    # The action applied to the specified object
+    "ADD_PUBLISH" action?;
+    # Additional details for publishing a dashboard, including user email, access permissions, and format settings
+    DashboardAddPublishAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "DASHBOARD" objectType?;
+};
+
+# Response containing complete group information including basic group details and member list
+public type GroupDetailsResponse record {
+    *Group;
+    *GroupMemberListResponse;
+};
+
+# Event triggered when a folder is deleted from the system
+public type FolderDelete record {
+    *Event;
+    *FolderDeleteAllOf2;
+};
+
+# Represents the Headers record for the operation: share-report-get
+public type ShareReportGetHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Triggered when a discussion comment (or discussion comment reply) is **directly** (i.e. instead of indirectly as part of another operation) sent by email to user(s) or user group(s). An individual `DISCUSSION - SEND_COMMENT` event is issued for each user or user group listed as recipient
+public type DiscussionSendcommentAllOf2 record {
+    # The action applied to the specified object
+    "SEND_COMMENT" action?;
+    # Additional details for discussion comment send events, including sender email, recipients, attachments, and location context
+    DiscussionSendcommentAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "DISCUSSION" objectType?;
+};
+
+# Represents the Headers record for the operation: get-sheetPublish
+public type GetSheetPublishHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Paginated response object containing an array of asset references. Call again
+# with the `lastKey` query parameter to retrieve the next page of results
+public type PaginatedChildrenResponse record {
+    # Array of assets of the requested type in this folder
+    PaginatedChildrenResponseData[] data;
+    # A token that is used to retrieve the next page of results when passed as the
+    # `lastKey` query parameter. This value will be absent when there are no 
+    # further pages
+    LastKey lastKey?;
+};
+
+# CrossSheetReference object to create which will refer to the entire columns in the range from startColumnId to endColumnId
+public type CrossSheetReferenceRequestWithColumnIds record {
+    # Friendly name of reference. Auto-generated unless specified in Create Cross-sheet References
+    string name?;
+    # Defines beginning edge of range when specifying one or more columns. Must be used with endColumnId
+    decimal startColumnId?;
+    # Sheet Id of source sheet
+    decimal sourceSheetId?;
+    # Defines ending edge of range when specifying one or more columns. Must be used with startColumnId
+    decimal endColumnId?;
+};
+
+# Represents the Headers record for the operation: proofs-create
+public type ProofsCreateHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+    # Required for POST and PUT requests. Defines the structure for the request body
+    @http:Header {name: "Content-Type"}
+    string contentType = "application/json";
+};
+
+# Triggered when a group or user is added to the report's sharing list, or when a group or user's share permissions are changed
+public type ReportAddShareAllOf2 record {
+    # The action applied to the specified object
+    "ADD_SHARE" action?;
+    # Additional details for report sharing events, including recipient email, access level, and user/group IDs
+    ReportAddShareAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "REPORT" objectType?;
+};
+
+# Request body for home folders operations containing a single folder object
+public type HomeFoldersBody Folder;
+
+# Triggered when an access token is revoked
+public type AccesstokenRevokeAllOf2 record {
+    # The action applied to the specified object
+    "REVOKE" action?;
+    # Additional details for access token revocation events, including responsible user email, token owner ID, and display value
+    AccesstokenRevokeAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "ACCESS_TOKEN" objectType?;
+};
+
+# Event schema for bulk updating multiple account records in a single operation
+public type AccountBulkUpdate record {
+    *Event;
+    *AccountBulkUpdateAllOf2;
+};
+
+# Event schema for report purge operations, combining base event properties with purge-specific attributes
+public type ReportPurge record {
+    *Event;
+    *ReportPurgeAllOf2;
+};
+
+# Triggered when a dashboard is moved between workspaces and/or folders
+public type DashboardMoveAllOf2 record {
+    # The action applied to the specified object
+    "MOVE" action?;
+    # Additional details for dashboard move events, including user email, destination folder, and workspace information
+    DashboardMoveAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "DASHBOARD" objectType?;
+};
+
+# Event triggered when a member is removed from a shared sheet's access permissions
+public type SheetRemoveShareMember record {
+    *Event;
+    *SheetRemoveShareMemberAllOf2;
+};
+
+# Triggered when a sheet form is activated
+public type FormActivateAllOf2 record {
+    # The action applied to the specified object
+    "ACTIVATE" action?;
+    # Additional details for form activation events, including the responsible user's email and optional sheet ID
+    FormActivateAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "FORM" objectType?;
+};
+
+# Additional details for dashboard rename events, including the user's email address and old/new dashboard names
+public type DashboardRenameAdditionalDetails record {
+    # Email address of the user responsible for the event
+    string emailAddress;
+    # New name of the dashboard
+    string newName?;
+    # Previous name of the dashboard
+    string oldName?;
+};
+
+# Array of Share objects representing report sharing configurations or permissions
+public type ReportsreportIdsharesOneOf2 Share[];
+
+# Event that occurs when a group is renamed, capturing the group identifier and new name details
+public type GroupRename record {
+    *Event;
+    *GroupRenameAllOf2;
+};
+
+# A child resource item in a paginated list containing basic metadata like ID, name, type, access level, and timestamps
+public type PaginatedChildrenListItem record {
+    # A read-only timestamp field that accepts either a datetime string or long integer value
+    Timestamp2 createdAt;
+    # The access level permissions associated with this child item in the paginated list
+    AccessLevel accessLevel;
+    # A read-only timestamp field that accepts either a datetime string or long integer value
+    Timestamp2 modifiedAt;
+    # Resource name
+    string name;
+    # Resource ID
+    int id;
+    # URL to the resource in Smartsheet
+    string permalink;
+    # The type of the child resource
+    "sheet"|"report"|"sight" resourceType;
+};
+
+# Event triggered when a sheet is updated or modified
+public type SheetUpdate record {
+    *Event;
+    *SheetUpdateAllOf2;
+};
+
+# When applicable for PICKLIST column type. Array of the options available for the field
+public type PropertiesOptions string[];
+
+# Event triggered when a user saves an existing dashboard as a new dashboard with a different name
+public type DashboardSaveAsNew record {
+    *Event;
+    *DashboardSaveAsNewAllOf2;
+};
+
+# Describes the sheet's publish settings
+public type SheetPublish record {
+    # Indicates which view the user has set for a read-write, default view of the published sheet. Must be one of the listed enum values
+    "CALENDAR"|"CARD"|"GRID" readWriteDefaultView?;
+    # Indicates who can access the 'Read-Only Full' view of the published sheet:
+    #   * ALL - available to anyone who has the link.
+    #   * ORG - available only to members of the sheet owner's Smartsheet organization account.
+    #   * SHARED - available only to users shared to the item.
+    # 
+    # Only returned in the response if **readOnlyFullEnabled = true**
+    "ALL"|"ORG"|"SHARED" readOnlyFullAccessibleBy?;
+    # If **true**,a rich version of the sheet is published with the ability to edit cells and manage attachments and discussions
+    boolean readWriteEnabled?;
+    # URL for **iCal** view of the published sheet. Only returned in a response if **icalEnabled = true**
+    anydata icalUrl?;
+    # Indicates which view the user has set for a read-only, default view of the published sheet. Must be one of the listed enum values
+    "CALENDAR"|"CARD"|"GRID" readOnlyFullDefaultView?;
+    # **Deprecated** Indicates whether the left nav toolbar is displayed. The default, or **true**, is to display the toolbar. If **false**, hides the toolbar
+    # 
+    # # Deprecated
+    @deprecated
+    boolean readWriteShowToolbar?;
+    # URL for 'Read-Only Full' view of the published sheet. Only returned in a response if **readOnlyFullEnabled = true
+    string readOnlyFullUrl?;
+    # If **true**, a webcal is available for the calendar in the sheet
+    boolean icalEnabled?;
+    # If **true**, a rich version of the sheet is published with the ability to download row attachments and discussions
+    boolean readOnlyFullEnabled?;
+    # URL for 'Edit by Anyone' view of the published sheet. Only returned in a response if **readWriteEnabled = true**
+    string readWriteUrl?;
+    # URL for 'Read-Only' view of the published sheet when SSL is enabled
+    string readOnlyLiteSslUrl?;
+    # URL for 'Read-Only HTML' view of the published sheet. Only returned in a response if **readOnlyLiteEnabled = true**
+    string readOnlyLiteUrl?;
+    # If **true**, a lightweight version of the sheet is published without row attachments and discussions
+    boolean readOnlyLiteEnabled?;
+    # **Deprecated** Indicates whether the left nav toolbar is displayed. The default, or **true**, is to display the toolbar. If **false**, hides the toolbar
+    # 
+    # # Deprecated
+    @deprecated
+    boolean readOnlyFullShowToolbar?;
+    # Indicates who can access the 'Edit by Anyone' view of the published sheet:
+    #   * ALL - available to anyone who has the link.
+    #   * ORG - available only to members of the sheet owner's Smartsheet organization account.
+    #   * SHARED - available only to users shared to the item.
+    # 
+    # Only returned in the response if **readWriteEnabled = true**
+    "ALL"|"ORG"|"SHARED" readWriteAccessibleBy?;
+};
+
+# API response containing a collection of Template objects in a data array
+public type TemplateCollectionApiResponse record {
+    # list of Templates
+    Template[] data?;
+};
+
+# Additional details for report move events, including user email, destination folder, and workspace information
+public type ReportMoveAdditionalDetails record {
+    # Email address of the user responsible for the event
+    string emailAddress;
+    # Id of the parent container of the report. (Specific to move events where a folder containing the report is moved to a folder in a different workspace, indicates that the report has moved to a new workspace but is still within the same folder)
+    @constraint:Int {minValue: 0}
+    int parentContainerId?;
+    # Id of the destination folder for the move event. (Specific to actions where the report was moved to a different folder)
+    @constraint:Int {minValue: 0}
+    int newParentContainerId?;
+    # Name of the destination folder for the move event. (Specific to actions where the report was moved to a different folder)
+    string folderName?;
+    # Id of the workspace the report is currently in. If the move was between two workspaces the `workspaceId` will be the Id of the destination workspace
+    @constraint:Int {minValue: 0}
+    int workspaceId?;
+};
+
+# Represents the Queries record for the operation: proofs-listAttachments
+public type ProofsListAttachmentsQueries record {
+    # The maximum number of items to return per page. Unless otherwise stated for a specific endpoint, defaults to 100. If only page is specified, defaults to a page size of 100. For reports, the default is 100 rows. If you need larger sets of data from your report, returns a maximum of 10,000 rows per request
+    decimal pageSize = 100;
+    # If true, include all results, that is, do not paginate. Mutually exclusive with page and pageSize (they are ignored if includeAll=true is specified)
+    boolean includeAll = false;
+    # Which page to return. Defaults to 1 if not specified. If you specify a value greater than the total number of pages, the last page of results is returned
+    decimal page = 1;
+};
+
+# Can contain dashboards, folders, reports, sheets, or templates
+public type FolderSimpleResponse record {
+    # Folder name
+    string name?;
+};
+
+# Triggered when an admin downloads user list report for an organization account. This can be done through User Management console on UI
+public type AccountDownloadUserListAllOf2 record {
+    # The action applied to the specified object
+    "DOWNLOAD_USER_LIST" action?;
+    # Additional details for bulk account updates, including the responsible user's email address
+    AccountBulkUpdateAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "ACCOUNT" objectType?;
+};
+
+# A union type that can represent either a Sheet or a SheetVersion object
+public type SheetVersionUnionType Sheet|SheetVersion;
+
+# Event triggered when a form is deleted from the system
+public type FormDelete record {
+    *Event;
+    *FormDeleteAllOf2;
+};
+
+# Updates User for the following attributes:
+# 
+# * **admin** (required).
+# * **licensedSheetCreator** (required).
+# * **firstName** (optional).
+# * **groupAdmin** (optional).
+# * **lastName** (optional).
+# * **resourceViewer** (optional)
+public type UserUpdate record {
+    # User's first name
+    string firstName?;
+    # User's last name
+    string lastName?;
+    # Indicates whether the user is a group admin (can create and edit groups)
+    boolean groupAdmin = false;
+    # Indicates whether the user is a resource viewer (can access resource views)
+    boolean resourceViewer = false;
+    # Indicates whether the user is a system admin (can manage user accounts and organization account)
+    boolean admin = false;
+    # Indicates whether the user is a licensed user (can create and own sheets)
+    boolean licensedSheetCreator = false;
+};
+
+# Triggered when an attachment is deleted
+public type AttachmentDeleteAllOf2 record {
+    # The action applied to the specified object
+    "DELETE" action?;
+    # Additional details for attachment deletion events, including the responsible user's email and the parent sheet or workspace ID
+    AttachmentDeleteAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "ATTACHMENT" objectType?;
+};
+
+# Request body for creating sheets, either from scratch or from an existing template
+public type SheetsBody SheetToCreate|SheetToCreateFromTemplate;
+
+# A list of updated summary fields
+public type SummaryFieldUpdateResponse record {
+    # Array of updated summary field objects returned after the field update operation
+    SummaryField[] result?;
+};
+
+# Represents the Headers record for the operation: is-favorite
+public type IsFavoriteHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+    # UserId of the user
+    @http:Header {name: "x-smar-sc-actor-id"}
+    string xSmarScActorId?;
+};
+
+# Response containing the result of an update request operation
+public type UpdateRequestResultResponse record {
+    # Request object for updating multi-row email data with additional update-specific fields
+    UpdateRequest result?;
+};
+
+# Represents the Queries record for the operation: addImageToCell
+public type AddImageToCellQueries record {
+    # Url-encoded alternate text for the image
+    string altText?;
+    # You may use the query string parameter **overrideValidation** with a value of **true** to allow a cell value outside of the validation limits. You must specify **strict** with a value of **false** to bypass value type checking
+    boolean overrideValidation = false;
+};
+
+# An email object containing recipients, subject, message content, and CC sender option
+public type Email record {
+    # Array of recipients
+    Recipient[] sendTo?;
+    # Indicates whether to send a copy of the email to the sender
+    boolean ccMe?;
+    # The subject of the email
+    string subject?;
+    # The message of the email
+    string message?;
+};
+
+# Triggered when a group or user is removed from a workspace's sharing list. 
+# 
+# Note that this event will appear for each report that is in the workspace. If a group or user is removed from a workspace's sharing list and the workspace is empty, then no events will be recorded
+public type ReportRemoveWorkspaceShareAllOf2 record {
+    # The action applied to the specified object
+    "REMOVE_WORKSPACE_SHARE" action?;
+    # Additional details for dashboard events when workspace sharing is removed from users or groups
+    DashboardRemoveWorkspaceShareAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "REPORT" objectType?;
+};
+
+# Triggered when a group or user is added to a workspace's sharing list. Note that this event will appear for each dashboard that is in the workspace. If a group or user is added to a workspace's sharing list and the workspace is empty, then no events will be recorded. 
+public type DashboardAddWorkspaceShareAllOf2 record {
+    # The action applied to the specified object
+    "ADD_WORKSPACE_SHARE" action?;
+    # Additional details for dashboard events when a workspace is shared, including recipient email, access level, and relevant IDs
+    DashboardAddWorkspaceShareAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "DASHBOARD" objectType?;
+};
+
+# Triggered when an admin imports users through a CSV file. This can be done through User Administration console on UI
+public type AccountImportUsersAllOf2 record {
+    # The action applied to the specified object
+    "IMPORT_USERS" action?;
+    # Additional details for bulk account updates, including the responsible user's email address
+    AccountBulkUpdateAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "ACCOUNT" objectType?;
+};
+
+# Represents the project settings dependencies for a specific sheet. Project settings may be updated on sheets that the user has editor access
+public type ProjectSettings record {
+    # Non-working days for a project sheet
+    string[] nonWorkingDays?;
+    # Array of weekdays when work is scheduled for the project, specified as day names
+    ("MONDAY"|"TUESDAY"|"WEDNESDAY"|"THURSDAY"|"FRIDAY"|"SATURDAY"|"SUNDAY")[] workingDays?;
+    # Length of a workday for a project sheet
+    @constraint:Number {minValue: 1, maxValue: 24}
+    decimal lengthOfDay?;
+};
+
+# Array of Share objects representing workspace sharing configurations or permissions
+public type WorkspacesworkspaceIdsharesOneOf2 Share[];
+
+# A composite response that combines result data with update request result information
+public type ResultCompositeResponse record {
+    *Result;
+    *UpdateRequestResultResponse;
+};
+
+# Additional details for a sheet row send operation, including recipient email, attachments, and row count
+public type SheetSendRowAdditionalDetails record {
+    # Email address of the user responsible for the event
+    string emailAddress;
+    # Indicates whether the row(s) were sent with their respective attachments
+    boolean includeAttachments?;
+    # Number of rows sent
+    @constraint:Int {minValue: 1}
+    int rowCount?;
+    # Single ID of a user group explicitly included in the recipient list. (This property is included only if the `recipientEmail` property above isn't included)
+    @constraint:Int {minValue: 0}
+    int recipientGroupId?;
+    # Single email address either of a user explicitly included in the recipient list or of the sender (when *CC sender* is requested). (This property is included only if the `recipientGroupId` property below isn't included)
+    string recipientEmail?;
+    # Indicates whether the row(s) were sent with their respective discussion comments
+    boolean includeDiscussions?;
+};
+
+# Represents the Queries record for the operation: updaterequests-list
+public type UpdaterequestsListQueries record {
+    # The maximum number of items to return per page. Unless otherwise stated for a specific endpoint, defaults to 100. If only page is specified, defaults to a page size of 100. For reports, the default is 100 rows. If you need larger sets of data from your report, returns a maximum of 10,000 rows per request
+    decimal pageSize = 100;
+    # If true, include all results, that is, do not paginate. Mutually exclusive with page and pageSize (they are ignored if includeAll=true is specified)
+    boolean includeAll = false;
+    # Which page to return. Defaults to 1 if not specified. If you specify a value greater than the total number of pages, the last page of results is returned
+    decimal page = 1;
+};
+
+# Request body for sharing a sheet, accepting either a Share object or alternative sharing configuration
+public type SheetIdSharesBody Share|SheetssheetIdsharesOneOf2;
+
+# Represents the Queries record for the operation: get-sight
+public type GetSightQueries record {
+    # Allows COMMENTER access for inputs and return values. For backwards-compatibility, VIEWER is the default. For example, to see whether a user has COMMENTER access for a sheet, use accessApiLevel=1
+    decimal accessApiLevel = 0;
+    # A comma-separated list of optional elements to include in the response:
+    #   * **objectValue** - when used in combination with a **level** query parameter, includes the email addresses for multi-contact data.
+    #   * **source** - the Source object for any Sight that was created from another Sight, if any
+    "objectValue"|"source" include?;
+    # Specifies whether new functionality, such as multi-contact data is returned in a backwards-compatible, text format (**level=0**, default), multi-contact data (**level=2**), multi-picklist data (**level=3**), or Metric widget with sheet summary (**level=4**)
+    int level = 0;
+    # You can optionally choose to receive and send dates/times in numeric format, as milliseconds since the UNIX epoch (midnight on January 1, 1970 in UTC time), using the query string parameter numericDates with a value of true. This query parameter works for any API request
+    boolean numericDates = false;
+};
+
+# Response object containing a single Row result from a database or table operation
+public type RowResultResponse record {
+    # A row object representing a single row in a Smartsheet, containing cells, metadata, formatting, and optional attachments or discussions
+    Row result?;
+};
+
+# Response containing detailed information about a specific comment, extending the base Comment schema
+public type CommentDetailsResponse Comment;
+
+# Indicates whether summary field values are restricted to the type
+public type Validation boolean;
+
+# Additional details for discussion creation events, including user email and location context (sheet, row, or workspace)
+public type DiscussionCreateAdditionalDetails record {
+    # Email address of the user responsible for the event
+    string emailAddress;
+    # Id of the sheet row containing the discussion. (this property is included only if the discussion is on a sheet row)
+    @constraint:Int {minValue: 0}
+    int sheetRowId?;
+    # Id of the sheet the discussion is on. (This property is included only if the `workspaceId` property below isn't included)
+    @constraint:Int {minValue: 0}
+    int sheetId?;
+    # Id of the workspace the discussion is directly on. (This property is included only if the `sheetId` property above isn't included)
+    @constraint:Int {minValue: 0}
+    int workspaceId?;
+};
+
+# Represents the Headers record for the operation: getSheet
+public type GetSheetHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+    # The Accept request-header field can be used to specify certain media types which are acceptable for the response
+    @http:Header {name: "Accept"}
+    string accept?;
+};
+
+# Triggered when a row-level, grid-level, or workspace-level comment is added
+public type DiscussionCreateAllOf2 record {
+    # The action applied to the specified object
+    "CREATE" action?;
+    # Additional details for discussion creation events, including user email and location context (sheet, row, or workspace)
+    DiscussionCreateAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "DISCUSSION" objectType?;
+};
+
+# A list of created summary fields
+public type SummaryFieldCollectionResponse1 record {
+    # Array of summary field objects containing aggregated data or calculated values
+    SummaryField[] result?;
+};
+
+# Defines user permission level with values: ADMIN, COMMENTER, EDITOR, EDITOR_SHARE, OWNER, or VIEWER
+public type AccessLevel "ADMIN"|"COMMENTER"|"EDITOR"|"EDITOR_SHARE"|"OWNER"|"VIEWER";
+
+# Represents the Headers record for the operation: get-sight-publish-status
+public type GetSightPublishStatusHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Represents the Headers record for the operation: get-asset-share
+public type GetAssetShareHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+};
+
+# Triggered when a user is removed from the organization account. This can be done through User Management on UI or via the API (Remove User)
+public type UserRemoveFromAccountAllOf2 record {
+    # The action applied to the specified object
+    "REMOVE_FROM_ACCOUNT" action?;
+    # Additional details for bulk account updates, including the responsible user's email address
+    AccountBulkUpdateAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "USER" objectType?;
+};
+
+# Additional details for account rename events, including responsible user email and old/new account names
+public type AccountRenameAdditionalDetails record {
+    # Email address of the user responsible for the event
+    string emailAddress;
+    # New name of the organization account
+    string newName?;
+    # Previous name of the organization account
+    string oldName?;
+};
+
+# Triggered when a sheet is deleted ("Delete Forever") from the deleted items bin
+public type SheetPurgeAllOf2 record {
+    # The action applied to the specified object
+    "PURGE" action?;
+    # Additional details for bulk account updates, including the responsible user's email address
+    AccountBulkUpdateAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "SHEET" objectType?;
+};
+
+# Triggered when an existing sheet is updated
+public type SheetUpdateAllOf2 record {
+    # The action applied to the specified object
+    "UPDATE" action?;
+    # Additional details for bulk account updates, including the responsible user's email address
+    AccountBulkUpdateAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "SHEET" objectType?;
+};
+
+# Response object containing a single Workspace result
+public type WorkspaceResultResponse record {
+    # Can contain dashboards, folders, reports, sheets, and templates
+    Workspace result?;
+};
+
+# A stream result response that includes access control information and event data
+public type StreamResultResponse1 record {
+    *StreamResult;
+    *EventsAccessControlledResponse;
+};
+
+# Response containing a collection of alternate email addresses with their associated data
+public type AlternateEmailCollectionResponse record {
+    # list of alternate email results
+    AlternateEmail[] data?;
+};
+
+# Represents the Headers record for the operation: comments-create
+public type CommentsCreateHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+    # Required for POST and PUT requests. Defines the structure for the request body
+    @http:Header {name: "Content-Type"}
+    string contentType = "application/json";
+};
+
+# Represents the Queries record for the operation: get-workspace-children
+public type GetWorkspaceChildrenQueries record {
+    # A comma-separated list of optional elements to include in the response:
+    #   * **source** - adds the Source object indicating which object this resource was created from, if any
+    #   * **ownerInfo** Returns the user with owner permissions, or the user with admin permissions if there is no owner assigned. If no owner or admins are assigned, the Plan Asset Admin is returned. If no Plan Asset Admin is assigned, the System Admin is returned
+    "source"|"ownerInfo" include?;
+    # Allows COMMENTER access for inputs and return values. For backwards-compatibility, VIEWER is the default. For example, to see whether a user has COMMENTER access for a sheet, use accessApiLevel=1
+    decimal accessApiLevel = 0;
+    # The maximum number of items to return in the response
+    @constraint:Int {minValue: 100, maxValue: 1000}
+    int maxItems = 100;
+    # A comma-separated list of the child types to include in the response
+    "sheets"|"reports"|"sights"|"folders" childrenResourceTypes;
+    # You can optionally choose to receive and send dates/times in numeric format, as milliseconds since the UNIX epoch (midnight on January 1, 1970 in UTC time), using the query string parameter numericDates with a value of true. This query parameter works for any API request
+    boolean numericDates = false;
+    # The lastKey token returned from the previous page of results. If not specified,
+    # the first page of results is returned
+    string lastKey?;
+};
+
+# Event triggered when an access token is revoked or invalidated in the system
+public type AccesstokenRevoke record {
+    *Event;
+    *AccesstokenRevokeAllOf2;
+};
+
+# Represents the Headers record for the operation: proofs-deleteVersion
+public type ProofsDeleteVersionHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# **Deprecated** Indicates whether the left nav toolbar is displayed. The default, or **true**, is to display the toolbar. If **false**, hides the toolbar
+# 
+# # Deprecated
+@deprecated
+public type ReadWriteShowToolbar boolean;
+
+# Represents the Headers record for the operation: add-favorite
+public type AddFavoriteHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+    # UserId of the user
+    @http:Header {name: "x-smar-sc-actor-id"}
+    string xSmarScActorId?;
+    # Required for POST and PUT requests. Defines the structure for the request body
+    @http:Header {name: "Content-Type"}
+    string contentType = "application/json";
+};
+
+# Represents the Headers record for the operation: get-current-user
+public type GetCurrentUserHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Represents the Headers record for the operation: attachments-versionsDelete
+public type AttachmentsVersionsDeleteHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Event triggered when a workspace's recurring backup configuration is modified or updated
+public type WorkspaceUpdateRecurringBackup record {
+    *Event;
+    *WorkspaceUpdateRecurringBackupAllOf2;
+};
+
+# A timestamp that can be represented as either a datetime object or a numeric value
+public type TimestampWriteable TimestampDateTime|TimestampNumber;
+
+# Triggered when a group or user is removed from a dashboard's sharing list
+public type DashboardRemoveShareAllOf2 record {
+    # The action applied to the specified object
+    "REMOVE_SHARE" action?;
+    # Additional details for dashboard share removal events, including the responsible user's email and the removed user or group ID
+    DashboardRemoveShareAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "DASHBOARD" objectType?;
+};
+
+# Object that describes how the the System Column type of "AUTO_NUMBER" is auto-generated
+public type AutoNumberFormat record {
+    # The prefix. Can include the date tokens:
+    #   * {DD}
+    #   * {MM}
+    #   * {YY}
+    #   * {YYYY}
+    string prefix?;
+    # The starting number for the auto-id
+    decimal startingNumber?;
+    # Indicates zero-padding. Must be between 0 and 10 "0" (zero) characters
+    string fill?;
+    # The suffix. Can include the date tokens:
+    #   * {DD}
+    #   * {MM}
+    #   * {YY}
+    #   * {YYYY}
+    string suffix?;
+};
+
+# Indicates whether the field is locked
+public type Locked boolean;
+
+# Represents the Headers record for the operation: copy-workspace
+public type CopyWorkspaceHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+    # Required for POST and PUT requests. Defines the structure for the request body
+    @http:Header {name: "Content-Type"}
+    string contentType = "application/json";
+};
+
+# Response object containing the result of a report publishing operation
+public type ReportPublishResultResponse record {
+    # Configuration settings for publishing a report with read-only access controls and view options
+    ReportPublish result?;
+};
+
+# A generic API response that combines standard result information with extended workspace listing data
+public type GenericResultWithExtendedDataResponse record {
+    *GenericResult;
+    *WorkspaceListingApiResponse;
+};
+
+# OAuth2 Refresh Token Grant Configs
+public type OAuth2RefreshTokenGrantConfig record {|
+    *http:OAuth2RefreshTokenGrantConfig;
+    # Refresh URL
+    string refreshUrl = "https://api.smartsheet.com/2.0/token";
 |};
 
-# The internationalized email address.<blockquote><strong>Note:</strong> Up to 64 characters are allowed before and 255 characters are allowed after the <code>@</code> sign. However, the generally accepted maximum length for an email address is 254 characters. The pattern verifies that an unquoted <code>@</code> sign exists.</blockquote>
-@constraint:String {maxLength: 254, minLength: 3}
-public type Email string;
+# Additional details for dashboard events when a workspace is shared, including recipient email, access level, and relevant IDs
+public type DashboardAddWorkspaceShareAdditionalDetails record {
+    # Email address of the user responsible for the event
+    string emailAddress;
+    # Indicates the access level granted to the group or user.
+    # 
+    # Note that this access level represents the access level granted by this specific sharing action; it is not the group or user's effective access level for the dashboard
+    "VIEWER"|"EDITOR"|"EDITOR_SHARE"|"ADMIN" accessLevel?;
+    # Id of the group that the workspace was shared to. (Specific to share to group actions)
+    @constraint:Int {minValue: 0}
+    int groupId?;
+    # Id of the user that the workspace was shared to. (Specific to share to user actions)
+    @constraint:Int {minValue: 0}
+    int userId?;
+    # Id of the workspace that was shared to the group or user
+    @constraint:Int {minValue: 0}
+    int workspaceId?;
+};
 
-# The account identifier for a PayPal account
-@constraint:String {maxLength: 13, minLength: 13, pattern: re `^[2-9A-HJ-NP-Z]{13}$`}
-public type AccountId string;
+# Represents the Queries record for the operation: getSheet
+public type GetSheetQueries record {
+    # Allows COMMENTER access for inputs and return values. For backwards-compatibility, VIEWER is the default. For example, to see whether a user has COMMENTER access for a sheet, use accessApiLevel=1
+    decimal accessApiLevel = 0;
+    # A comma-separated list of optional elements to include in the response:
+    #   * **attachments** - includes the metadata for sheet-level and row-level attachments. To include discussion attachments, both attachments and discussions must be present in the include list.
+    #   * **columnType** -includes columnType attribute in the row's cells indicating the type of the column the cell resides in.
+    #   * **crossSheetReferences** - includes the cross-sheet references
+    #   * **discussions** - includes sheet-level and row-level discussions. To include discussion attachments, both attachments and discussions must be present in the include list.
+    #   * **filters** - includes filteredOut attribute indicating if the row should be displayed or hidden according to the sheet's filters.
+    #   * **filterDefinitions** - includes type of filter, operators used, and criteria
+    #   * **format** -  includes column, row, cell, and summary fields formatting.
+    #   * **ganttConfig** - includes Gantt chart details.
+    #   * **objectValue** - when used in combination with a level query parameter, includes the email addresses for multi-contact data.
+    #   * **ownerInfo** - includes the owner's email address and the owner's user Id.
+    #   * **rowPermalink** - includes permalink attribute that represents a direct link to the row in the Smartsheet application.
+    #   * **source** - adds the Source object indicating which report, sheet  Sight (aka dashboard), or template the sheet was created from, if any.
+    #   * **writerInfo** - includes createdBy and modifiedBy attributes on the row or summary fields, indicating the row or summary field's creator, and last modifier
+    "attachments"|"columnType"|"crossSheetReferences"|"discussions"|"filters"|"filterDefinitions"|"format"|"ganttConfig"|"objectValue"|"ownerInfo"|"rowPermalink"|"source"|"writerInfo" include?;
+    # Specifies whether object data types, such as multi-contact data are returned in a backwards-compatible, text format in text/number columns.<br>  - Set `level=0` (default) to use text/number columns for multi-contact data and multi-picklist data.<br>  - Set `level=1` to use multiple-entry contact list columns for multi-contact data; multi-picklist data is returned in text/number columns.<br>  - Set `level=2` to use multiple-entry contact list columns for multi-contact data and use multiple-entry picklist columns for multi-picklist data
+    int level = 0;
+    # A comma-separated list of row Ids on which to filter the rows included in the result
+    string rowIds?;
+    # The maximum number of items to return per page. Unless otherwise stated for a specific endpoint, defaults to 100. If only page is specified, defaults to a page size of 100. For reports, the default is 100 rows. If you need larger sets of data from your report, returns a maximum of 10,000 rows per request
+    decimal pageSize = 100;
+    # applies to PDF format only
+    "LETTER"|"LEGAL"|"WIDE"|"ARCHD"|"A4"|"A3"|"A2"|"A1"|"A0" paperSize = "LETTER";
+    # If version specified is still the current sheet version, then returns an abbreviated Sheet object with only the sheet version property. Otherwise, if the sheet has been modified, returns the complete Sheet object. Intended to allow clients with a cached copy to make sure they have the latest version
+    int ifVersionAfter?;
+    # Overrides the existing include={filters} parameter if both are supplied. Applies the given filter (if accessible by the calling user) and marks the affected rows as "filteredOut": true
+    string filterId?;
+    # A comma-separated list of column ids. The response contains only the specified columns in the "columns" array, and individual rows' "cells" array only contains cells in the specified columns
+    string columnIds?;
+    # A comma-separated list of row numbers on which to filter the rows included in the result. Non-existent row numbers are ignored
+    string rowNumbers?;
+    # A comma-separated list of element types to exclude from the response:
+    #   * **filteredOutRows** - excludes filtered-out rows from response payload if a sheet filter is applied; includes total number of filtered rows
+    #   * **linkInFromCellDetails** - excludes the following attributes from the **cell.linkInFromCell** object: `columnId`, `rowId`, `status`
+    #   * **linksOutToCellsDetails** - excludes the following attributes from the **cell.linksOutToCells** array elements: `columnId`, `rowId`, `status`
+    #   * **nonexistentCells** - excludes empty cells
+    "filteredOutRows"|"linkInFromCellDetails"|"linksOutToCellsDetails"|"nonexistentCells" exclude?;
+    # Which page to return. Defaults to 1 if not specified. If you specify a value greater than the total number of pages, the last page of results is returned
+    decimal page = 1;
+    # Filter to return only rows that have been modified since the date/time provided. Date should be in ISO-8601 format
+    Timestamp rowsModifiedSince?;
+};
 
-# Contains authorization-specific details including ID, amount, invoice information, seller protection, expiration, and related links
-public type AuthorizationAllOf2 record {
-    # The PayPal-generated ID for the authorized payment.
+# All objects a user has access to, including dashboards, folders, reports, sheets, and templates
+public type Home record {
+    # Collection of reports associated with the home
+    Report[] reports?;
+    # Collection of sheets associated with the home
+    Sheet[] sheets?;
+    # Array of folder objects associated with the home entity
+    Folder[] folders?;
+    # Array of sight objects associated with the home location
+    Sight[] sights?;
+    # Collection of template objects associated with the home
+    Template[] templates?;
+};
+
+# A report object that extends Sheet functionality with scope, source sheet references, and summary/row report type indication
+public type Report Sheet;
+
+# Sheet imported from CSV / XLSX file
+public type SheetImported record {
+    # Defines user permission level with values: ADMIN, COMMENTER, EDITOR, EDITOR_SHARE, OWNER, or VIEWER
+    AccessLevel accessLevel?;
+    # Sheet name
+    Name name?;
+    # Sheet Id
+    Id id?;
+    # Container type. Has 'sheet' value for the imported sheet
+    string 'type?;
+    # URL that represents a direct link to the sheet in Smartsheet
+    Permalink permalink?;
+};
+
+# Represents the Queries record for the operation: tokens-getOrRefresh
+public type TokensGetOrRefreshQueries record {
+    # refresh_token value that came with the access token
+    @http:Query {name: "refresh_token"}
+    string refreshToken?;
+    # Authorization code acquired after user selects "Allow" in the Web login UI
+    string code?;
+    # Must be set to "authorization_code"
+    @http:Query {name: "grant_type"}
+    "authorization_code"|"refresh_token" grantType;
+    # (Optional) Must use either this value or hash. Plain text method for sending this value. For example, client_secret={app_secret}. Encryption occurs at the HTTPS level
+    @http:Query {name: "client_secret"}
+    string clientSecret?;
+    # The client Id you obtained when you registered your app
+    @http:Query {name: "client_id"}
+    string clientId;
+    # (Optional) Must use either this value or client_secret. SHA-256 hash of your app secret concatenated with a pipe and the authorization code. For example, hash={SHA_256(app_secret|code)}
+    string hash?;
+    # **Deprecated** If supplied, must match the redirect URI you registered for your app
+    # 
+    # # Deprecated
+    @http:Query {name: "redirect_url"}
+    @deprecated
+    string redirectUrl?;
+};
+
+# A configurable automation rule that triggers actions based on sheet changes, with tracking for creation, modification, and enable/disable status
+public type AutomationRule record {
+    # A timestamp of when the rule was originally added
+    Timestamp createdAt?;
+    # Machine-readable reason a rule is disabled:
+    # * `APPROVAL_COLUMN_MISSING` This rule's approval status column has been deleted.
+    # 
+    # * `APPROVAL_COLUMN_WRONG_TYPE` The approval column must be a dropdown column.
+    # 
+    # * `AUTOMATION_NOT_ENABLED_FOR_ORG` To create or edit automated actions,
+    # you need to upgrade your organization account to a Business or Enterprise plan.
+    # 
+    # * `COLUMN_MISSING` A column referenced by this rule has been deleted.
+    # 
+    # * `COLUMN_TYPE_INCOMPATIBLE` A column referenced by this rule has been changed to an incompatible column type.
+    # 
+    # * `NO_POTENTIAL_RECIPIENTS` This rule has no recipients that will be able to receive
+    # notifications based on this sheet's permission settings or this account's approved domain sharing list.
+    # 
+    # * `NO_VALID_SELECTED_COLUMNS` All selected columns for this rule have been deleted
+    "APPROVAL_COLUMN_MISSING"|"APPROVAL_COLUMN_WRONG_TYPE"|"AUTOMATION_NOT_ENABLED_FOR_ORG"|"COLUMN_MISSING"|"COLUMN_TYPE_INCOMPATIBLE"|"NO_POTENTIAL_RECIPIENTS"|"NO_VALID_SELECTED_COLUMNS" disabledReason?;
+    # `User` object containing `name` and `email` of the creator of this rule
+    MiniUser createdBy?;
+    # The datetime for when the change was made to the rule
+    Timestamp modifiedAt?;
+    # Rule name as shown in the UI
+    string name?;
+    # If true, indicates that the current user can modify the rule
+    boolean userCanModify?;
+    # An [AutomationAction object](/api/smartsheet/openapi/automationrules/automationaction) containing information for this rule, such as type, recipients, and frequency
+    anydata action?;
+    # `User` object containing the `name` and `email` of the user that made the change
+    MiniUser modifiedBy?;
+    # AutomationRule Id
+    decimal id?;
+    # Descriptive reason a rule is disabled
+    string disabledReasonText?;
+    # If true, indicates that the rule is active
+    boolean enabled?;
+};
+
+# Event triggered when a sheet is sent as an email attachment to recipients
+public type SheetSendAsAttachment record {
+    *Event;
+    *SheetSendAsAttachmentAllOf2;
+};
+
+# Request object for adding a new member to a group by email address
+public type GroupMemberAdd record {
+    # Group member's email address
+    string email?;
+};
+
+# Event for creating a new sheet with associated data and properties
+public type SheetCreate record {
+    *Event;
+    *SheetCreateAllOf2;
+};
+
+# Event report generated when a workspace share is removed or revoked from a user or group
+public type ReportRemoveWorkspaceShare record {
+    *Event;
+    *ReportRemoveWorkspaceShareAllOf2;
+};
+
+# Represents the Queries record for the operation: is-favorite
+public type IsFavoriteQueries record {
+    # A comma-separated list of optional elements to include in the response
+    "directId"|"name" include?;
+};
+
+# Contains metadata information for a report including name, ID, access level, type, and permalink URL
+public type ReportMetadataDetails record {
+    # Defines user permission level with values: ADMIN, COMMENTER, EDITOR, EDITOR_SHARE, OWNER, or VIEWER
+    AccessLevel accessLevel?;
+    # The report's name
+    string name?;
+    # It is `true` if the report is a sheet summary; otherwise it is a row report
+    boolean isSummaryReport?;
+    # The report's unique identifier
+    decimal id?;
+    # URL to the report in Smartsheet
+    string permalink?;
+};
+
+# Represents the Queries record for the operation: get-current-user
+public type GetCurrentUserQueries record {
+    # When specified with a value of 'groups', response includes an array of groups (groupId, name, and description only) that the user is a member of
+    "groups" include?;
+};
+
+# Represents the Headers record for the operation: sentupdaterequests-list
+public type SentupdaterequestsListHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Represents the Queries record for the operation: list-sights
+public type ListSightsQueries record {
+    # Allows COMMENTER access for inputs and return values. For backwards-compatibility, VIEWER is the default. For example, to see whether a user has COMMENTER access for a sheet, use accessApiLevel=1
+    decimal accessApiLevel = 0;
+    # When specified with a date and time value, response only includes the objects that are modified on or after the date and time specified. If you need to keep track of frequent changes, it may be more useful to use Get Sheet Version
+    Timestamp modifiedSince?;
+    # You can optionally choose to receive and send dates/times in numeric format, as milliseconds since the UNIX epoch (midnight on January 1, 1970 in UTC time), using the query string parameter numericDates with a value of true. This query parameter works for any API request
+    boolean numericDates = false;
+    # The maximum number of items to return per page. Unless otherwise stated for a specific endpoint, defaults to 100. If only page is specified, defaults to a page size of 100. For reports, the default is 100 rows. If you need larger sets of data from your report, returns a maximum of 10,000 rows per request
+    decimal pageSize = 100;
+    # If true, include all results, that is, do not paginate. Mutually exclusive with page and pageSize (they are ignored if includeAll=true is specified)
+    boolean includeAll = false;
+    # Which page to return. Defaults to 1 if not specified. If you specify a value greater than the total number of pages, the last page of results is returned
+    decimal page = 1;
+};
+
+# Request to update the access level permissions for an existing share
+public type UpdateShareRequest record {
+    # Defines user permission level with values: ADMIN, COMMENTER, EDITOR, EDITOR_SHARE, OWNER, or VIEWER
+    AccessLevel accessLevel;
+};
+
+# Triggered when a user is added to a group that a dashboard has been shared to via the dashboard's sharing list, or via a workspace's sharing list. If a dashboard has been shared to a group directly via the dashboard's sharing list, and via a workspace's sharing list, then an event will be generated for each of these shares
+public type DashboardAddShareMemberAllOf2 record {
+    # The action applied to the specified object
+    "ADD_SHARE_MEMBER" action?;
+    # Additional details for dashboard share member events, including email, access level, and user/group IDs
+    DashboardAddShareMemberAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "DASHBOARD" objectType?;
+};
+
+# Represents the Headers record for the operation: copy-rows
+public type CopyRowsHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+    # Required for POST and PUT requests. Defines the structure for the request body
+    @http:Header {name: "Content-Type"}
+    string contentType = "application/json";
+};
+
+# Triggered when a group or user is added to the dashboard's sharing list, or when a group or user's share permissions are changed
+public type DashboardAddShareAllOf2 record {
+    # The action applied to the specified object
+    "ADD_SHARE" action?;
+    # Additional details for dashboard sharing events, including user email, access level, and related group/workspace IDs
+    DashboardAddShareAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "DASHBOARD" objectType?;
+};
+
+# Event representing when a user downloads a sheet access report for a group
+public type GroupDownloadSheetAccessReport record {
+    *Event;
+    *GroupDownloadSheetAccessReportAllOf2;
+};
+
+# Additional details for report share removal events, including the responsible user's email and affected user/group IDs
+public type ReportRemoveShareAdditionalDetails record {
+    # Email address of the user responsible for the event
+    string emailAddress;
+    # Id of the group that was added to the report's sharing list. (Specific to share to group actions)
+    @constraint:Int {minValue: 0}
+    int groupId?;
+    # Id of the user that was added to the report's sharing list. (Specific to share to user actions)
+    @constraint:Int {minValue: 0}
+    int userId?;
+};
+
+# Represents the Queries record for the operation: list-groups
+public type ListGroupsQueries record {
+    # When specified with a date and time value, response only includes the objects that are modified on or after the date and time specified. If you need to keep track of frequent changes, it may be more useful to use Get Sheet Version
+    Timestamp modifiedSince?;
+    # You can optionally choose to receive and send dates/times in numeric format, as milliseconds since the UNIX epoch (midnight on January 1, 1970 in UTC time), using the query string parameter numericDates with a value of true. This query parameter works for any API request
+    boolean numericDates = false;
+    # The maximum number of items to return per page. Unless otherwise stated for a specific endpoint, defaults to 100. If only page is specified, defaults to a page size of 100. For reports, the default is 100 rows. If you need larger sets of data from your report, returns a maximum of 10,000 rows per request
+    decimal pageSize = 100;
+    # If true, include all results, that is, do not paginate. Mutually exclusive with page and pageSize (they are ignored if includeAll=true is specified)
+    boolean includeAll = false;
+    # Which page to return. Defaults to 1 if not specified. If you specify a value greater than the total number of pages, the last page of results is returned
+    decimal page = 1;
+};
+
+# Represents the Headers record for the operation: add-group-members
+public type AddGroupMembersHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Response containing index results for unknown pages with sheet collection metadata
+public type IndexResultUnknownPagesResponse record {
+    *IndexResultUnknownPages;
+    *SheetCollectionApiResponse1;
+};
+
+# Additional details for attachment deletion events, including the responsible user's email and the parent sheet or workspace ID
+public type AttachmentDeleteAdditionalDetails record {
+    # Email address of the user responsible for the event
+    string emailAddress;
+    # Id of the sheet that contains the attachment. (This property is included only if the `workspaceId` property below isn't included)
+    @constraint:Int {minValue: 0}
+    int sheetId?;
+    # Id of the workspace that directly contains the attachment. (This property is included only if the `sheetId` property above isn't included)
+    @constraint:Int {minValue: 0}
+    int workspaceId?;
+};
+
+# Triggered when a user saves a copy of a folder by using the `Save As New` option via UI or `Copy Folder` via API.
+# 
+# This event is recorded for the original folder. Each `Save As New` event is paired with a [FOLDER - CREATE](/api/smartsheet/openapi/schemas/folder_create) event that is recorded for the copy of the folder
+public type FolderSaveAsNewAllOf2 record {
+    # The action applied to the specified object
+    "SAVE_AS_NEW" action?;
+    # Additional details for bulk account updates, including the responsible user's email address
+    AccountBulkUpdateAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "FOLDER" objectType?;
+};
+
+# Triggered when a user creates a sheet update request. 
+# 
+# Notice that an update request is created whenever the user sends a new update request via the UI. Also, notice that even though update requests can be sent from a report, it is in fact an update request on the sheet that owns the rows sent in the update request
+public type UpdateRequestCreateAllOf2 record {
+    # The action applied to the specified object
+    "CREATE" action?;
+    # Additional details for creating an update request, including recipient email, sheet context, and content options
+    UpdateRequestCreateAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "UPDATE_REQUEST" objectType?;
+};
+
+# Triggered when an existing report is renamed
+public type ReportRenameAllOf2 record {
+    # The action applied to the specified object
+    "RENAME" action?;
+    # Additional details for report rename events, including the user's email address and old/new report names
+    ReportRenameAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "REPORT" objectType?;
+};
+
+# A 64-bit integer representing a timestamp, typically in milliseconds since Unix epoch
+public type TimestampLong int;
+
+# Event triggered when a user downloads a sheet access report from the system
+public type UserDownloadSheetAccessReport record {
+    *Event;
+    *UserDownloadSheetAccessReportAllOf2;
+};
+
+# Represents the Queries record for the operation: row-discussions-list
+public type RowDiscussionsListQueries record {
+    # A comma-separated list of optional elements to include in the response:
+    #   * **attachments** - effective only if comments is present, otherwise ignored
+    #   * **comments** - include all comments in threads
+    "attachments"|"comments" include?;
+    # The maximum number of items to return per page. Unless otherwise stated for a specific endpoint, defaults to 100. If only page is specified, defaults to a page size of 100. For reports, the default is 100 rows. If you need larger sets of data from your report, returns a maximum of 10,000 rows per request
+    decimal pageSize = 100;
+    # If true, include all results, that is, do not paginate. Mutually exclusive with page and pageSize (they are ignored if includeAll=true is specified)
+    boolean includeAll = false;
+    # Which page to return. Defaults to 1 if not specified. If you specify a value greater than the total number of pages, the last page of results is returned
+    decimal page = 1;
+};
+
+# Additional details for sheet share removal events, including the responsible user's email and removed user/group ID
+public type SheetRemoveShareAdditionalDetails record {
+    # Email address of the user responsible for the event
+    string emailAddress;
+    # Id of the group that was removed from the sheet's sharing list. (Specific to remove share from group actions)
+    @constraint:Int {minValue: 0}
+    int groupId?;
+    # Id of the user that was removed from the sheet's sharing list. (Specific to remove share from user actions)
+    @constraint:Int {minValue: 0}
+    int userId?;
+};
+
+# Specifies the recipient of an [Email]($ref: 'Email.yaml#/components/schemas/Email'). The recipient may be either an individual or a group. To specify an individual, set the **email** attribute; to specify a group, set the **groupId** attribute. Either **email** and **groupId** may be set, but not both
+public type RecipientIndividual record {
+    # The email address of an individual recipient
+    string email?;
+};
+
+# Represents the Headers record for the operation: list-sheets
+public type ListSheetsHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# If **true**, a rich version of the sheet is published with the ability to download row attachments and discussions
+public type ReadOnlyFullEnabled boolean;
+
+# Triggered when a report is moved between workspaces and/or folders
+public type ReportMoveAllOf2 record {
+    # The action applied to the specified object
+    "MOVE" action?;
+    # Additional details for report move events, including user email, destination folder, and workspace information
+    ReportMoveAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "REPORT" objectType?;
+};
+
+# Represents the Queries record for the operation: list-sheets
+public type ListSheetsQueries record {
+    # Allows COMMENTER access for inputs and return values. For backwards-compatibility, VIEWER is the default. For example, to see whether a user has COMMENTER access for a sheet, use accessApiLevel=1
+    decimal accessApiLevel = 0;
+    # A comma-separated list of optional elements to include in the response:
+    # * **sheetVersion** - current version number of each sheet, should not be combined with pagination
+    # * **source** - the Source object for any sheet that was created from another sheet, if any
+    "sheetVersion"|"source" include?;
+    # When specified with a date and time value, response only includes the objects that are modified on or after the date and time specified. If you need to keep track of frequent changes, it may be more useful to use Get Sheet Version
+    Timestamp modifiedSince?;
+    # You can optionally choose to receive and send dates/times in numeric format, as milliseconds since the UNIX epoch (midnight on January 1, 1970 in UTC time), using the query string parameter numericDates with a value of true. This query parameter works for any API request
+    boolean numericDates = false;
+    # The maximum number of items to return per page. Unless otherwise stated for a specific endpoint, defaults to 100. If only page is specified, defaults to a page size of 100. For reports, the default is 100 rows. If you need larger sets of data from your report, returns a maximum of 10,000 rows per request
+    decimal pageSize = 100;
+    # If true, include all results, that is, do not paginate. Mutually exclusive with page and pageSize (they are ignored if includeAll=true is specified)
+    boolean includeAll = false;
+    # Which page to return. Defaults to 1 if not specified. If you specify a value greater than the total number of pages, the last page of results is returned
+    decimal page = 1;
+};
+
+# Triggered when a dashboard is renamed in the UI or via the API (update)
+public type DashboardRenameAllOf2 record {
+    # The action applied to the specified object
+    "RENAME" action?;
+    # Additional details for dashboard rename events, including the user's email address and old/new dashboard names
+    DashboardRenameAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "DASHBOARD" objectType?;
+};
+
+# Indicates which view the user has set for a read-write, default view of the published sheet. Must be one of the listed enum values
+public type ReadWriteDefaultView "CALENDAR"|"CARD"|"GRID";
+
+# Represents the Headers record for the operation: set-sheetPublish
+public type SetSheetPublishHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+    # Required for POST and PUT requests. Defines the structure for the request body
+    @http:Header {name: "Content-Type"}
+    string contentType = "application/json";
+};
+
+# Represents the Queries record for the operation: delete-sheet-share
+public type DeleteSheetShareQueries record {
+    # Allows COMMENTER access for inputs and return values. For backwards-compatibility, VIEWER is the default. For example, to see whether a user has COMMENTER access for a sheet, use accessApiLevel=1
+    decimal accessApiLevel = 0;
+};
+
+# Can contain dashboards, folders, reports, sheets, or templates
+public type FolderNameOnly record {
+    # Folder name
+    string name?;
+};
+
+# Sheet Id
+public type Id decimal;
+
+# Event triggered when a dashboard is renamed, capturing the rename operation details
+public type DashboardRename record {
+    *Event;
+    *DashboardRenameAllOf2;
+};
+
+# Event representing a request to backup a folder, combining base event properties with folder backup-specific data
+public type FolderRequestBackup record {
+    *Event;
+    *FolderRequestBackupAllOf2;
+};
+
+# Represents the Headers record for the operation: attachments-delete
+public type AttachmentsDeleteHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Represents the Queries record for the operation: list-contacts
+public type ListContactsQueries record {
+    # When specified with a date and time value, response only includes the objects that are modified on or after the date and time specified. If you need to keep track of frequent changes, it may be more useful to use Get Sheet Version
+    Timestamp modifiedSince?;
+    # You can optionally choose to receive and send dates/times in numeric format, as milliseconds since the UNIX epoch (midnight on January 1, 1970 in UTC time), using the query string parameter numericDates with a value of true. This query parameter works for any API request
+    boolean numericDates = false;
+    # The maximum number of items to return per page. Unless otherwise stated for a specific endpoint, defaults to 100. If only page is specified, defaults to a page size of 100. For reports, the default is 100 rows. If you need larger sets of data from your report, returns a maximum of 10,000 rows per request
+    decimal pageSize = 100;
+    # If true, include all results, that is, do not paginate. Mutually exclusive with page and pageSize (they are ignored if includeAll=true is specified)
+    boolean includeAll = false;
+    # Which page to return. Defaults to 1 if not specified. If you specify a value greater than the total number of pages, the last page of results is returned
+    decimal page = 1;
+};
+
+# Additional details for sheet cell link creation events, including the responsible user's email and source sheet ID
+public type SheetCreateCellLinkAdditionalDetails record {
+    # Email address of the user responsible for the event
+    string emailAddress;
+    # Id of sheet referenced by the cell link
+    @constraint:Int {minValue: 0}
+    int cellLinkSourceSheetId?;
+};
+
+# Represents the Queries record for the operation: sentupdaterequests-list
+public type SentupdaterequestsListQueries record {
+    # The maximum number of items to return per page. Unless otherwise stated for a specific endpoint, defaults to 100. If only page is specified, defaults to a page size of 100. For reports, the default is 100 rows. If you need larger sets of data from your report, returns a maximum of 10,000 rows per request
+    decimal pageSize = 100;
+    # If true, include all results, that is, do not paginate. Mutually exclusive with page and pageSize (they are ignored if includeAll=true is specified)
+    boolean includeAll = false;
+    # Which page to return. Defaults to 1 if not specified. If you specify a value greater than the total number of pages, the last page of results is returned
+    decimal page = 1;
+};
+
+# Event tracking when an account downloads a sheet access report from the system
+public type AccountDownloadSheetAccessReport record {
+    *Event;
+    *AccountDownloadSheetAccessReportAllOf2;
+};
+
+# Response object containing a single folder result
+public type FolderResultResponse record {
+    # Can contain dashboards, folders, reports, sheets, or templates
+    Folder result?;
+};
+
+# Event triggered when a form becomes active or gains focus in the user interface
+public type FormActivate record {
+    *Event;
+    *FormActivateAllOf2;
+};
+
+# A dashboard listing containing basic metadata including ID, name, timestamps, and permalink URL
+public type DashboardListing record {
+    # A read-only timestamp that can be represented as either a datetime string or numeric value
+    Timestamp createdAt?;
+    # A read-only timestamp that can be represented as either a datetime string or numeric value
+    Timestamp modifiedAt?;
+    # Asset name
+    string name?;
+    # Asset Id
+    decimal id?;
+    # URL that represents a direct link to the asset in Smartsheet
+    string permalink?;
+};
+
+# Represents the Queries record for the operation: copy-rows
+public type CopyRowsQueries record {
+    # A comma-separated list of row elements to copy in addition to the cell data:
+    #   * **all** - specify a value of **all** to include everything (attachments, children, and discussions).
+    #   * **attachments**
+    #   * **children** -  if specified, any child rows of the rows specified in the request are also copied to the destination sheet, and parent-child relationships amongst rows are preserved within the destination sheet; if not specified, only the rows specified in the request are copied.
+    #   * **discussions**
+    "all"|"attachments"|"children"|"discussions" include?;
+    # **true** or **false**: default is **false**. If set to **true**, specifying row Ids that do not exist within the source sheet does not cause an error response. If omitted or set to **false**, specifying row Ids that do not exist within the source sheet causes an error response (and no rows are copied)
+    boolean ignoreRowsNotFound = false;
+};
+
+# If **true**, a webcal is available for the calendar in the sheet
+public type IcalEnabled boolean;
+
+# API response containing index results with share collection metadata and status information
+public type IndexResultApiResponse1 record {
+    *IndexResult;
+    *ShareCollectionApiResponse2;
+};
+
+# A read-only timestamp field that accepts either a datetime string or long integer value
+public type Timestamp2 TimestampDateTime|TimestampLong;
+
+# API response containing workspace listing data with a single result field that references WorkspaceListing schema
+public type WorkspaceListingApiResponse record {
+    # Contains the workspace listing data when the API request is successful
+    WorkspaceListing result?;
+};
+
+# Represents the Headers record for the operation: tokens-getOrRefresh
+public type TokensGetOrRefreshHeaders record {
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+    # Required for POST and PUT requests. Defines the structure for the response
+    @http:Header {name: "Content-Type"}
+    "application/x-www-form-urlencoded" contentType?;
+};
+
+# Event triggered when a workspace is deleted from the system
+public type WorkspaceDelete record {
+    *Event;
+    *WorkspaceDeleteAllOf2;
+};
+
+# Triggered when a user saves a copy of a workspace by using the `Save As New` option via UI or `Copy Workspace` via API. 
+# 
+# This event is recorded for the original workspace. Each `Save As New` event is paired with a [WORKSPACE - CREATE](/api/smartsheet/openapi/schemas/workspace_create) event that is recorded for the copy of the workspace
+public type WorkspaceSaveAsNewAllOf2 record {
+    # The action applied to the specified object
+    "SAVE_AS_NEW" action?;
+    # Additional details for bulk account updates, including the responsible user's email address
+    AccountBulkUpdateAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "WORKSPACE" objectType?;
+};
+
+# Display width of the column in pixels
+public type Width decimal;
+
+# Represents a row object for updating sheet data with cells, hierarchy, and metadata properties
+public type UpdateRowsObject record {
+    # A read-only timestamp that can be represented as either a datetime string or numeric value
+    Timestamp createdAt?;
+    # Indicates whether the row is expanded or collapsed
+    boolean expanded?;
+    # Cells objects
+    CellObjectForRows[] cells?;
+    # A read-only timestamp that can be represented as either a datetime string or numeric value
+    Timestamp modifiedAt?;
+    # Row Id
+    decimal id?;
+    # Row number within the sheet
+    @constraint:Number {minValue: 1}
+    decimal rowNumber?;
+    # The row number of the parent
+    decimal parentRowNumber?;
+    # Sheet version number that is incremented every time a sheet is modified
+    decimal version?;
+    # The Id of the parent
+    decimal parentId?;
+};
+
+# Triggered when a folder is renamed in the UI or via the API (update)
+public type FolderRenameAllOf2 record {
+    # The action applied to the specified object
+    "RENAME" action?;
+    # Additional details for folder rename events, including the user's email address and old/new folder names
+    FolderRenameAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "FOLDER" objectType?;
+};
+
+# A secure string value used for authentication or encryption between parties
+public type SharedSecret record {
+    # Value for the shared secret
+    string sharedSecret?;
+};
+
+# Event triggered when ownership of a dashboard is transferred from one user to another
+public type DashboardTransferOwnership record {
+    *Event;
+    *DashboardTransferOwnershipAllOf2;
+};
+
+# Represents the Queries record for the operation: columns-listOnSheet
+public type ColumnsListOnSheetQueries record {
+    # Specifies whether object data types, such as multi-contact data are returned in a backwards-compatible, text format in text/number columns.<br>  - Set `level=0` (default) to use text/number columns for multi-contact data and multi-picklist data.<br>  - Set `level=1` to use multiple-entry contact list columns for multi-contact data; multi-picklist data is returned in text/number columns.<br>  - Set `level=2` to use multiple-entry contact list columns for multi-contact data and use multiple-entry picklist columns for multi-picklist data
+    int level = 0;
+    # The maximum number of items to return per page. Unless otherwise stated for a specific endpoint, defaults to 100. If only page is specified, defaults to a page size of 100. For reports, the default is 100 rows. If you need larger sets of data from your report, returns a maximum of 10,000 rows per request
+    decimal pageSize = 100;
+    # If true, include all results, that is, do not paginate. Mutually exclusive with page and pageSize (they are ignored if includeAll=true is specified)
+    boolean includeAll = false;
+    # Which page to return. Defaults to 1 if not specified. If you specify a value greater than the total number of pages, the last page of results is returned
+    decimal page = 1;
+};
+
+# Triggered when an existing attachment is updated (e.g. its description changed)
+public type AttachmentUpdateAllOf2 record {
+    # The action applied to the specified object
+    "UPDATE" action?;
+    # Additional details for attachment deletion events, including the responsible user's email and the parent sheet or workspace ID
+    AttachmentDeleteAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "ATTACHMENT" objectType?;
+};
+
+# Additional details for sheet share member events, including email, access level, and group/user IDs
+public type SheetAddShareMemberAdditionalDetails record {
+    # Email address of the user responsible for the event
+    string emailAddress;
+    # Indicates the access level granted to the user. 
+    # 
+    # Note that this access level represents the access level that has been granted to the user via group membership; it is not the user's effective access level for the sheet
+    "VIEWER"|"EDITOR"|"EDITOR_SHARE"|"ADMIN" accessLevel?;
+    # Id of the group the user was added to
+    @constraint:Int {minValue: 0}
+    int groupId?;
+    # Id of the user that was added to the group
+    @constraint:Int {minValue: 0}
+    int userId?;
+    # Id of the workspace that the group is shared to. (Specific to cases where the sheet is shared to the group via a workspace's sharing list)
+    @constraint:Int {minValue: 0}
+    int workspaceId?;
+};
+
+# Event triggered when a member is removed from a shared workspace
+public type WorkspaceRemoveShareMember record {
+    *Event;
+    *WorkspaceRemoveShareMemberAllOf2;
+};
+
+# Request body for sheet row operations that accepts either a single Row object or multiple row data
+public type SheetIdRowsBody1 Row|SheetssheetIdrowsOneOf21;
+
+# Represents the Headers record for the operation: proofs-createProofRequests
+public type ProofsCreateProofRequestsHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+    # Required for POST and PUT requests. Defines the structure for the request body
+    @http:Header {name: "Content-Type"}
+    string contentType = "application/json";
+};
+
+# Response object containing the result of a sheet creation operation, either from scratch or from template
+public type SheetCreationResultResponse record {
+    # Contains the sheet creation outcome, either a newly created sheet or one generated from a template
+    SheetCreated|SheetCreatedFromTemplate result?;
+};
+
+# Object for updating sheet properties including name, user settings, and project settings
+public type UpdateSheet record {
+    # Represents individual user settings for a specific sheet. User settings may be updated even on sheets where the current user only has read access (for example, viewer permissions or a read-only sheet)
+    SheetUserSettings userSettings?;
+    # Sheet name
+    string name?;
+    # Represents the project settings dependencies for a specific sheet. Project settings may be updated on sheets that the user has editor access
+    ProjectSettings projectSettings?;
+};
+
+# Represents an action taken on a proof request, including the approval status and the user who performed the action
+public type ProofRequestAction record {
+    # Proof request action status
+    "APPROVED"|"PENDING"|"REJECTED" actionStatus?;
+    # `User` object containing `name` and `email` of the user performing the action
+    MiniUser user?;
+};
+
+# Represents the Headers record for the operation: proofs-deleteProofRequests
+public type ProofsDeleteProofRequestsHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Represents the Headers record for the operation: get-workspace-children
+public type GetWorkspaceChildrenHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+};
+
+# Represents the Queries record for the operation: get-folder
+public type GetFolderQueries record {
+    # A comma-separated list of optional elements to include in the response:
+    #   * **source** - adds the Source object indicating which object the folder was created from, if any
+    #   * **distributionLink**
+    #   * **ownerInfo** Returns the user with owner permissions, or the user with admin permissions if there is no owner assigned. If no owner or admins are assigned, the Plan Asset Admin is returned. If no Plan Asset Admin is assigned, the System Admin is returned.
+    #   * **sheetVersion**
+    #   * **permalinks**
+    "source"|"distributionLink"|"ownerInfo"|"sheetVersion" include?;
+};
+
+# Event triggered when a sheet is loaded or opened in the application
+public type SheetLoad record {
+    *Event;
+    *SheetLoadAllOf2;
+};
+
+# Represents the Headers record for the operation: SetReportPublish
+public type SetReportPublishHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+    # Required for POST and PUT requests. Defines the structure for the request body
+    @http:Header {name: "Content-Type"}
+    string contentType = "application/json";
+};
+
+# Event triggered when a workspace share is added to a dashboard configuration
+public type DashboardAddWorkspaceShare record {
+    *Event;
+    *DashboardAddWorkspaceShareAllOf2;
+};
+
+# Triggered when a link to another sheet cell is created in a sheet cell
+public type SheetCreateCellLinkAllOf2 record {
+    # The action applied to the specified object
+    "CREATE_CELL_LINK" action?;
+    # Additional details for sheet cell link creation events, including the responsible user's email and source sheet ID
+    SheetCreateCellLinkAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "SHEET" objectType?;
+};
+
+# Event triggered when a user requests a password reset to be sent to their registered email address
+public type UserSendPasswordReset record {
+    *Event;
+    *UserSendPasswordResetAllOf2;
+};
+
+# Response containing validation results for a submitted proof, inheriting all proof properties
+public type ProofValidationResponse Proof;
+
+# Event triggered when a user's sharing permissions are removed from a sheet or spreadsheet document
+public type SheetRemoveShare record {
+    *Event;
+    *SheetRemoveShareAllOf2;
+};
+
+# Configuration for emailing a sheet in EXCEL, PDF, or PDF_GANTT format with email details
+public type SheetEmail Email;
+
+# Event representing the transfer of ownership of a sheet from one user to another
+public type SheetTransferOwnership record {
+    *Event;
+    *SheetTransferOwnershipAllOf2;
+};
+
+# Specifies the recipient of an email. The recipient may be either an individual or a group. To specify an individual, set the email attribute; to specify a group, set the groupId attribute. Either email and groupId may be set, but not both
+public type Recipient RecipientIndividual|RecipientGroup;
+
+# API response containing an array of column data objects
+public type ColumnCollectionApiResponse record {
+    # Array of column objects containing the retrieved column data and metadata
+    GetColumn[] data?;
+};
+
+# Represents the Queries record for the operation: discussion-listAttachments
+public type DiscussionListAttachmentsQueries record {
+    # The maximum number of items to return per page. Unless otherwise stated for a specific endpoint, defaults to 100. If only page is specified, defaults to a page size of 100. For reports, the default is 100 rows. If you need larger sets of data from your report, returns a maximum of 10,000 rows per request
+    decimal pageSize = 100;
+    # If true, include all results, that is, do not paginate. Mutually exclusive with page and pageSize (they are ignored if includeAll=true is specified)
+    boolean includeAll = false;
+    # Which page to return. Defaults to 1 if not specified. If you specify a value greater than the total number of pages, the last page of results is returned
+    decimal page = 1;
+};
+
+# Represents the Headers record for the operation: add-alternate-email
+public type AddAlternateEmailHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Triggered when a user sends a report as email attachment to user(s) or user group(s). 
+# 
+# An individual `REPORT - SEND_AS_ATTACHMENT` event is issued for each user or user group listed as recipient
+public type ReportSendAsAttachmentAllOf2 record {
+    # The action applied to the specified object
+    "SEND_AS_ATTACHMENT" action?;
+    # Additional details for report email attachment events, including recipient information and format type
+    ReportSendAsAttachmentAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "REPORT" objectType?;
+};
+
+# Additional details for a discussion send event, including sender email, recipients, attachments, and location context
+public type DiscussionSendAdditionalDetails record {
+    # Email address of the user responsible for the event
+    string emailAddress;
+    # Indicates whether the discussion was sent with its respective attachments
+    boolean includeAttachments?;
+    # Id of the sheet row containing the discussion. (this property is included only if the discussion is on a sheet row)
+    @constraint:Int {minValue: 0}
+    int sheetRowId?;
+    # Id of the sheet the discussion is on. (This property is included only if the `workspaceId` property below isn't included)
+    @constraint:Int {minValue: 0}
+    int sheetId?;
+    # Single ID of a user group explicitly included in the recipient list. (This property is included only if the `recipientEmail` property above isn't included)
+    @constraint:Int {minValue: 0}
+    int recipientGroupId?;
+    # Single email address either of a user explicitly included in the recipient list or of the sender (when *CC sender* is requested). (This property is included only if the `recipientGroupId` property below isn't included)
+    string recipientEmail?;
+    # Id of the workspace the discussion is directly on. (This property is included only if the `sheetId` property above isn't included)
+    @constraint:Int {minValue: 0}
+    int workspaceId?;
+};
+
+# Represents the Headers record for the operation: discussion-listAttachments
+public type DiscussionListAttachmentsHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Triggered when a sheet is moved between workspaces and/or folders
+public type SheetMoveAllOf2 record {
+    # The action applied to the specified object
+    "MOVE" action?;
+    # Additional details for sheet move events, including responsible user email and destination container information
+    SheetMoveAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "SHEET" objectType?;
+};
+
+# A report event that captures system or application load metrics and performance data
+public type ReportLoad record {
+    *Event;
+    *ReportLoadAllOf2;
+};
+
+# Maps a source sheet row to a destination sheet row by their respective row IDs
+public type RowMapping record {
+    # Row Id in the source sheet
+    decimal 'from?;
+    # Row Id in the destination sheet
+    decimal to?;
+};
+
+# A reference to a specific range of cells or rows/columns in another sheet, with status tracking and optional friendly naming
+public type CrossSheetReference record {
+    # Defines beginning edge of range when specifying one or more rows. To specify an entire row, omit the startColumnId and endColumnId parameters
+    decimal startRowId?;
+    # Friendly name of reference. Auto-generated unless specified in Create Cross-sheet References
+    string name?;
+    # Defines beginning edge of range when specifying one or more columns. To specify an entire column, omit the startRowId and endRowId parameters
+    decimal startColumnId?;
+    # Sheet Id of source sheet
+    decimal sourceSheetId?;
+    # Defines ending edge of range when specifying one or more columns. To specify an entire column, omit the startRowId and endRowId parameters
+    decimal endColumnId?;
+    # Defines ending edge of range when specifying one or more rows. To specify an entire row, omit the startColumnId and endColumnId parameters
+    decimal endRowId?;
+    # Cross-sheet reference Id, guaranteed unique within referencing sheet
+    decimal id?;
+    # Status of request:
+    #  * 'BLOCKED' - A reference is downstream of a circular issue.
+    #  * 'BROKEN' - The data source location (column, row or sheet) was deleted.
+    #  * 'CIRCULAR' - The formula reference is self referencing and cannot be resolved.
+    #  * 'DISABLED' - Updating the reference is temporarily disabled due to maintenance.
+    #  * 'INVALID/UNKNOWN' - The reference is new and had not been validated.
+    #  * 'NOT_SHARED' - No common shared users.
+    #  * 'OK' - The reference is in a good state
+    "BLOCKED"|"BROKEN"|"CIRCULAR"|"DISABLED"|"INVALID/UNKNOWN"|"NOT-SHARED"|"OK" status?;
+};
+
+# A row object representing a single row in a Smartsheet, containing cells, metadata, formatting, and optional attachments or discussions
+public type Row record {
+    # Describes this row's conditional format. Only returned if the include query string parameter contains format and this row has a conditional format applied
+    string conditionalFormat?;
+    # Attachments on row. Only returned if the include query string parameter contains attachments
+    Attachment[] attachments?;
+    # URL that represents a direct link to the row in Smartsheet. Only returned if the include query string parameter contains rowPermalink
+    string permaLink?;
+    # Defines user permission level with values: ADMIN, COMMENTER, EDITOR, EDITOR_SHARE, OWNER, or VIEWER
+    AccessLevel accessLevel?;
+    # Columns of row. Only returned if the include query string parameter contains columns
+    Column[] columns?;
+    # A read-only timestamp that can be represented as either a datetime string or numeric value
+    Timestamp modifiedAt?;
+    # Discussions on the row. Only returned if the include query string parameter contains discussions
+    Discussion[] discussions?;
+    # Format descriptor. Only returned if the include query string parameter contains format and this row has a non-default format applied
+    string format?;
+    # Sheet version number that is incremented every time a sheet is modified
+    decimal version?;
+    # A read-only timestamp that can be represented as either a datetime string or numeric value
+    Timestamp createdAt?;
+    # Indicates whether the row is expanded or collapsed
+    boolean expanded?;
+    # Cells belonging to the row
+    Cell[] cells?;
+    # User object containing name and email of the creator of this row
+    MiniUser createdBy?;
+    # Indicates if the row is filtered out by a column filter. Only returned if the include query string parameter contains filters
+    boolean filteredOut?;
+    # Only returned, with a value of true, if the sheet is a project sheet with dependencies enabled and this row is in the critical path
+    boolean inCriticalPath?;
+    # Parent sheet Id
+    decimal sheetId?;
+    # Indicates whether the row is locked for the requesting user
+    boolean lockedForUser?;
+    # User object containing name and email of the last person to modify this row
+    MiniUser modifiedBy?;
+    # Row Id
+    decimal id?;
+    # Object containing zero or more media items, including images, videos, and documents, for review, editing, or approval
+    Proof proof?;
+    # Indicates whether the row is locked
+    boolean locked?;
+    # Row number within the sheet
+    @constraint:Number {minValue: 1}
+    decimal rowNumber?;
+    # Sibling Id
+    decimal siblingId?;
+};
+
+# Triggered when an admin removes the user from all groups and from sharing for all sheets, workspaces, and dashboards owned by users on the organization account. This can be done through User Management on UI
+public type UserRemoveSharesAllOf2 record {
+    # The action applied to the specified object
+    "REMOVE_SHARES" action?;
+    # Additional details for bulk account updates, including the responsible user's email address
+    AccountBulkUpdateAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "USER" objectType?;
+};
+
+# Configuration settings for publishing a report with read-only access controls and view options
+public type ReportPublish record {
+    # URL for 'Read-Only Full' view of the published report.
+    # 
+    # Only returned in a response if **readOnlyFullEnabled** = **true**
+    string readOnlyFullUrl?;
+    # (Required) If **true**, a rich version of the report is published with the ability to download row
+    # attachments and discussions
+    boolean readOnlyFullEnabled?;
+    # Indicates who can access the 'Read-Only Full' view of the published report:
+    # * If **ALL**, it is available to anyone who has the link.
+    # * If **ORG**, it is available only to members of the report owner's Smartsheet organization account.
+    # * If **SHARED**, it is available only to users shared to the item.
+    # 
+    # Only returned in a response if **readOnlyFullEnabled** = **true**
+    string readOnlyFullAccessibleBy?;
+    # **Deprecated** Indicates whether the left nav toolbar is displayed. The default, or **true**, is to display the toolbar.
+    # If **false**, hides the toolbar
+    # 
+    # # Deprecated
+    @deprecated
+    boolean readOnlyFullShowToolbar?;
+    # Indicates which view the user has set for a read-only, default view of the published report. Must be one of
+    # the following values: **CALENDAR**, **CARD**, or **GRID**
+    string readOnlyFullDefaultView?;
+};
+
+# Additional details for workspace share removal events, including the responsible user's email and the removed user or group ID
+public type WorkspaceRemoveShareAdditionalDetails record {
+    # Email address of the user responsible for the event
+    string emailAddress;
+    # Id of the group that was removed from the workspace's sharing list. (Specific to remove share from group actions)
+    @constraint:Int {minValue: 0}
+    int groupId?;
+    # Id of the user that was removed from the workspace's sharing list. (Specific to remove share from user actions)
+    @constraint:Int {minValue: 0}
+    int userId?;
+};
+
+# API response containing index results with associated column collection data
+public type IndexResultsApiResponse record {
+    *IndexResult;
+    *ColumnCollectionApiResponse;
+};
+
+# Represents the Headers record for the operation: get-contact
+public type GetContactHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# A response containing stream processing results combined with event collection API response data
+public type StreamResultResponse record {
+    *StreamResult;
+    *EventCollectionApiResponse;
+};
+
+# Represents the Headers record for the operation: share-workspace-get
+public type ShareWorkspaceGetHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Event schema for creating an update request, combining base event properties with update-specific fields
+public type UpdateRequestCreate record {
+    *Event;
+    *UpdateRequestCreateAllOf2;
+};
+
+# Triggered when a dashboard is created. Dashboards can be created in the UI with the `Create New` button, by selecting the `Save As New` option on an existing dashboard, or through the API
+public type DashboardCreateAllOf2 record {
+    # Action type indicating the creation operation for a dashboard resource
+    "CREATE" action?;
+    # Additional details for dashboard creation events, including user email, source information, and dashboard name
+    DashboardCreateAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "DASHBOARD" objectType?;
+};
+
+# Represents the Headers record for the operation: get-folder
+public type GetFolderHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Represents the Headers record for the operation: updaterequests-list
+public type UpdaterequestsListHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# The format descriptor. Only returned if the include query string parameter contains format and this column has a non-default format applied to it
+public type Format string;
+
+# A string field containing a date and time value in ISO 8601 format (e.g., 2023-12-25T10:30:00Z)
+public type TimestampDateTime string;
+
+# Represents the Headers record for the operation: columns-listOnSheet
+public type ColumnsListOnSheetHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Result object containing the destination sheet ID and row mappings after copying or moving rows
+public type CopyOrMoveRowResult record {
+    # The Id of the destination sheet
+    decimal destinationSheetId?;
+    # Array of rowMapping objects
+    RowMapping[] rowMappings?;
+};
+
+# Represents the Headers record for the operation: addImageToCell
+public type AddImageToCellHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+    # Should be equal to "attachment" to tell the API that a file is in the body of the POST request, followed by a semicolon, followed by **filename=** and the URL-encoded filename in quotes
+    @http:Header {name: "Content-Disposition"}
+    string contentDisposition?;
+    # Must be set to the size of the file, in bytes. For example to determine file size using in UNIX:
+    # $ ls -l ProgressReport.docx
+    # 5463 ProgressReport.docx
+    @http:Header {name: "Content-Length"}
+    int contentLength?;
+    # Required for POST and PUT requests. Defines the structure for the request body
+    @http:Header {name: "Content-Type"}
+    string contentType = "application/json";
+};
+
+# Event schema for updating user information, combining base event properties with user-specific update fields
+public type UserUpdateUser record {
+    *Event;
+    *UserUpdateUserAllOf2;
+};
+
+# Array of Share objects representing sheet sharing configurations and permissions
+public type SheetssheetIdsharesOneOf2 Share[];
+
+# Response containing a collection of proof objects returned from a proof retrieval operation
+public type ProofCollectionResponse record {
+    # list of all proofs
+    Proof[] data?;
+};
+
+# Request object for creating a new discussion containing a comment
+public type DiscussionCreationRequest record {
+    # Comment
+    CommentRequest comment?;
+};
+
+# Additional details for sheet sharing events, including recipient email, access level, and user/group IDs
+public type SheetAddShareAdditionalDetails record {
+    # Email address of the user responsible for the event
+    string emailAddress;
+    # Indicates the access level granted to the group or user. 
+    # 
+    # Note that this access level represents the access level granted by this specific sharing action; it is not the group or user's effective access level for the sheet
+    "VIEWER"|"EDITOR"|"EDITOR_SHARE"|"ADMIN" accessLevel?;
+    # Id of the group that was added to the sheet's sharing list. (Specific to share to group actions)
+    @constraint:Int {minValue: 0}
+    int groupId?;
+    # Id of the user that was added to the sheet's sharing list. (Specific to share to user actions)
+    @constraint:Int {minValue: 0}
+    int userId?;
+};
+
+# Contains additional details for workspace export events, including the responsible user's email address and export format type
+public type WorkspaceExportAdditionalDetails record {
+    # Email address of the user responsible for the event
+    string emailAddress;
+    # The format that the workspace was exported ("excel" or "pdf"). Notice that the same value "excel" is displayed either when exporting to Microsoft Excel or when exporting to Google Sheets
+    "excel"|"pdf" formatType?;
+};
+
+# Represents the Headers record for the operation: discussion-delete
+public type DiscussionDeleteHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Triggered when a group name is updated. 
+public type GroupRenameAllOf2 record {
+    # The action applied to the specified object
+    "RENAME" action?;
+    # Additional details for group rename events, including responsible user's email and old/new group names
+    GroupRenameAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "GROUP" objectType?;
+};
+
+# A field within a sheet summary that contains structured data with type validation, formatting options, and user permissions
+public type SummaryField record {
+    # A link object that can reference external URLs or internal reports, sheets, and dashboards by ID
+    Hyperlink hyperlink?;
+    # Represents an image with metadata including dimensions, alternate text, and unique identifier
+    Image image?;
+    # When applicable for PICKLIST column type
+    string symbol?;
+    # Array of ContactOption objects to specify a pre-defined list of values for the column. Column type must be CONTACT_LIST
+    ContactOption[] contactOptions?;
+    # A read-only timestamp that can be represented as either a datetime string or numeric value
+    Timestamp modifiedAt?;
+    # The format descriptor. Only returned if the include query string parameter contains format and this column has a non-default format applied to it
+    string format?;
+    # Field index or position. This number is zero-based
+    decimal index?;
+    # The base object for values found in the **Cell.objectValue** attribute. Its **objectType** attribute indicates the type of the object. This object itself is not used directly
+    ObjectValue objectValue?;
+    # Arbitrary name, must be unique within summary
+    string title?;
+    # Specifies the data type of the summary field, determining how the field value is formatted and validated
+    "ABSTRACT_DATETIME"|"CHECKBOX"|"CONTACT_LIST"|"DATE"|"DATETIME"|"DURATION"|"MULTI_CONTACT_LIST"|"MULTI_PICKLIST"|"PICKLIST"|"PREDECESSOR"|"TEXT_NUMBER" 'type?;
+    # Visual representation of cell contents, as presented to the user in the UI
+    string displayValue?;
+    # A read-only timestamp that can be represented as either a datetime string or numeric value
+    Timestamp createdAt?;
+    # User object containing name and email of the creator of this summary field
+    MiniUser createdBy?;
+    # When applicable for PICKLIST column type. Array of the options available for the field
+    string[] options?;
+    # The formula for a cell, if set
+    string formula?;
+    # Indicates whether the field is locked for the requesting user
+    boolean lockedForUser?;
+    # User object containing name and email of the user who most recently modified this summary field
+    MiniUser modifiedBy?;
+    # SummaryField Id
+    decimal id?;
+    # Indicates whether the field is locked
+    boolean locked?;
+    # Indicates whether summary field values are restricted to the type
+    boolean validation?;
+};
+
+# Triggered when an admin transfers ownership of all items (sheets/reports/dashboards/workspaces) owned by a user to another user. This can be done through User Management on UI
+public type UserTransferOwnedItemsAllOf2 record {
+    # The action applied to the specified object
+    "TRANSFER_OWNED_ITEMS" action?;
+    # Additional details for group ownership transfer events, including responsible user email and owner IDs
+    GroupTransferOwnershipAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "USER" objectType?;
+};
+
+# Additional details for group ownership transfer events, including responsible user email and owner IDs
+public type GroupTransferOwnershipAdditionalDetails record {
+    # Email address of the user responsible for the event
+    string emailAddress;
+    # Id of the former group owner
+    @constraint:Int {minValue: 0}
+    int oldOwnerUserId?;
+    # Id of the new group owner
+    @constraint:Int {minValue: 0}
+    int newOwnerUserId?;
+};
+
+# A composite response that combines Result data with ShareResultResponse information
+public type ResultCompositeResponse1 record {
+    *Result;
+    *ShareResultResponse;
+};
+
+# Directive for copying or moving rows from a source sheet to a specified destination
+public type CopyOrMoveRowDirective record {
+    # The Ids of the rows to move or copy from the source sheet
+    decimal[] rowIds?;
+    # Specifies the destination sheet ID where rows will be copied or moved to
+    CopyOrMoveRowDestination to?;
+};
+
+# A Smartsheet object containing rows, columns, and metadata with configurable features like Gantt view, dependencies, and resource management
+public type Sheet record {
+    # Indicates whether multi-select is enabled
+    boolean isMultiPicklistEnabled?;
+    # A workspace listing containing basic workspace information including name, ID, access level, and permalink
+    WorkspaceListing workspace?;
+    # Array of Attachment objects.
+    # Only returned if the [include](/api/smartsheet/openapi/sheets/getsheet) query string parameter contains **attachments**
+    Attachment[] attachments?;
+    # Array of Column objects that define the structure and properties of columns within the sheet
+    Column[] columns?;
+    # A read-only timestamp that can be represented as either a datetime string or numeric value
+    Timestamp modifiedAt?;
+    # Array of Discussion objects
+    # Only returned if the [include](/api/smartsheet/openapi/sheets/getsheet) query string parameter contains **discussions**
+    Discussion[] discussions?;
+    # Identifies the original dashboard, report, sheet, or template used to create the current object
+    Source 'source?;
+    # Describes the current user's editing permissions for a specific sheet
+    SheetUserPermissions userPermissions?;
+    # User Id of the sheet owner
+    decimal ownerId?;
+    # Indicates that resource management is enabled
+    boolean resourceManagementEnabled?;
+    # The sheet is enabled for cell images to be uploaded
+    boolean cellImageUploadEnabled?;
+    # Indicates whether a sheet summary is present
+    boolean hasSummaryFields?;
+    # Indicates whether "Gantt View" is enabled
+    boolean ganttEnabled?;
+    # A read-only timestamp that can be represented as either a datetime string or numeric value
+    Timestamp createdAt?;
+    # Resource Management type. Indicates the type of RM that is enabled
+    "NONE"|"LEGACY_RESOURCE_MANAGEMENT"|"RESOURCE_MANAGEMENT_BY_SMARTSHEET" resourceManagementType?;
+    # Sheet Id
+    decimal id?;
+    # The total number of rows in the sheet
+    decimal totalRowCount?;
+    # Email address of the sheet owner
+    string owner?;
+    # Represents the entire summary, or a list of defined fields and values, for a specific sheet
+    SheetSummary summary?;
+    # Defines user permission level with values: ADMIN, COMMENTER, EDITOR, EDITOR_SHARE, OWNER, or VIEWER
+    AccessLevel accessLevel?;
+    # Returned only if the sheet belongs to an expired trial (value = **true**)
+    boolean readOnly?;
+    # An array of Row objects that represent the data rows contained within the sheet
+    Row[] rows?;
+    # The Id of the template from which to create the sheet. This attribute can be specified in a request, but is never present in a response
+    decimal fromId?;
+    # A number that is incremented every time a sheet is modified
+    decimal version?;
+    # Array of enum strings (see [Attachment.attachmentType](/api/smartsheet/openapi/attachments) indicating the allowable attachment options for the current user and sheet
+    string[] effectiveAttachmentOptions?;
+    # Indicates whether dependencies are enabled
+    boolean dependenciesEnabled?;
+    # Returned only if there are column filters on the sheet. Value = **true** if "show parent rows" is enabled for the filters
+    boolean showParentRowsForFilters?;
+    # Represents individual user settings for a specific sheet. User settings may be updated even on sheets where the current user only has read access (for example, viewer permissions or a read-only sheet)
+    SheetUserSettings userSettings?;
+    # Array of CrossSheetReference objects.
+    # Only returned if the [include](/api/smartsheet/openapi/sheets/getsheet) query string parameter contains **crossSheetReferences**
+    CrossSheetReference[] crossSheetReferences?;
+    # Sheet name
+    string name?;
+    # URL that represents a direct link to the sheet in Smartsheet
+    string permalink?;
+    # **Deprecated** Returned only if the user has marked this sheet as a favorite in their Home tab (value = **true**)
+    # 
+    # # Deprecated
+    @deprecated
+    boolean favorite?;
+    # Represents the project settings dependencies for a specific sheet. Project settings may be updated on sheets that the user has editor access
+    ProjectSettings projectSettings?;
+};
+
+# Represents the Headers record for the operation: update-group
+public type UpdateGroupHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Represents the Headers record for the operation: delete-summary-fields
+public type DeleteSummaryFieldsHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Sheet to create from template
+public type SheetToCreateFromTemplate record {
+    # Sheet name
+    Name name?;
+    # Template Id from which to create the sheet
+    decimal fromId?;
+};
+
+# Represents the Queries record for the operation: list-sight-shares
+public type ListSightSharesQueries record {
+    # Allows COMMENTER access for inputs and return values. For backwards-compatibility, VIEWER is the default. For example, to see whether a user has COMMENTER access for a sheet, use accessApiLevel=1
+    decimal accessApiLevel = 0;
+    # When applicable for the specific object this parameter defines the scope of the share. Possible values are ITEM or WORKSPACE. ITEM is an item-level share (that is, the specific object to which the share applies is shared with the user or group). WORKSPACE is a workspace-level share (that is, the workspace that contains the object to which the share applies is shared with the user or group)
+    "ITEM"|"WORKSPACE" sharingInclude?;
+    # The maximum number of items to return per page. Unless otherwise stated for a specific endpoint, defaults to 100. If only page is specified, defaults to a page size of 100. For reports, the default is 100 rows. If you need larger sets of data from your report, returns a maximum of 10,000 rows per request
+    decimal pageSize = 100;
+    # If true, include all results, that is, do not paginate. Mutually exclusive with page and pageSize (they are ignored if includeAll=true is specified)
+    boolean includeAll = false;
+    # Which page to return. Defaults to 1 if not specified. If you specify a value greater than the total number of pages, the last page of results is returned
+    decimal page = 1;
+};
+
+# Represents an asset in a grid listing with basic identification and navigation properties
+public type GridListing record {
+    # Asset name
+    string name?;
+    # Asset Id
+    decimal id?;
+    # URL that represents a direct link to the asset in Smartsheet
+    string permalink?;
+};
+
+# Represents the Queries record for the operation: delete-rows
+public type DeleteRowsQueries record {
+    # A comma-separated list of row Ids
+    string ids;
+    # **true** or **false**. If set to **false** and any of the specified row Ids are not found, no rows are deleted, and the "not found" [error](/api/smartsheet/openapi/schemas/error) is returned
+    boolean ignoreRowsNotFound = false;
+};
+
+# Triggered when an admin downloads sheet access report for an organization account. This can be done through `User Management` console on UI
+public type AccountDownloadSheetAccessReportAllOf2 record {
+    # The action applied to the specified object
+    "DOWNLOAD_SHEET_ACCESS_REPORT" action?;
+    # Additional details for bulk account updates, including the responsible user's email address
+    AccountBulkUpdateAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "ACCOUNT" objectType?;
+};
+
+# Represents the Headers record for the operation: set-sight-publish-status
+public type SetSightPublishStatusHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+    # Required for POST and PUT requests. Defines the structure for the request body
+    @http:Header {name: "Content-Type"}
+    string contentType = "application/json";
+};
+
+# Additional details for folder creation events, including the responsible user's email and optional copy source or destination folder information
+public type FolderCreateAdditionalDetails record {
+    # Email address of the user responsible for the event
+    string emailAddress;
+    # Id of folder that was copied to create the new folder. (Only included if the folder was created as a result of a *save as new* or *copy*)
+    @constraint:Int {minValue: 0}
+    int sourceFolderId?;
+    # Name of the destination folder for the move event. (Specific to actions where the folder was moved to a different folder)
+    string folderName?;
+};
+
+# Represents the Queries record for the operation: list-report-shares
+public type ListReportSharesQueries record {
+    # When applicable for the specific object this parameter defines the scope of the share. Possible values are ITEM or WORKSPACE. ITEM is an item-level share (that is, the specific object to which the share applies is shared with the user or group). WORKSPACE is a workspace-level share (that is, the workspace that contains the object to which the share applies is shared with the user or group)
+    "ITEM"|"WORKSPACE" sharingInclude?;
+    # The maximum number of items to return per page. Unless otherwise stated for a specific endpoint, defaults to 100. If only page is specified, defaults to a page size of 100. For reports, the default is 100 rows. If you need larger sets of data from your report, returns a maximum of 10,000 rows per request
+    decimal pageSize = 100;
+    # If true, include all results, that is, do not paginate. Mutually exclusive with page and pageSize (they are ignored if includeAll=true is specified)
+    boolean includeAll = false;
+    # Which page to return. Defaults to 1 if not specified. If you specify a value greater than the total number of pages, the last page of results is returned
+    decimal page = 1;
+};
+
+# Response containing a list of alternate email addresses associated with an account or user
+public type AlternateEmailListResponse record {
+    # list of attachments
+    AlternateEmail[] data?;
+};
+
+# Represents the Headers record for the operation: create-workspace
+public type CreateWorkspaceHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+    # Required for POST and PUT requests. Defines the structure for the request body
+    @http:Header {name: "Content-Type"}
+    string contentType = "application/json";
+};
+
+# Represents the Queries record for the operation: list-asset-shares
+public type ListAssetSharesQueries record {
+    # Request query parameter used in endpoints that support token based pagination.
+    # 
+    # The maximum amount of items to return in the response. The default and minimum are 100
+    @constraint:Int {minValue: 100}
+    int:Signed32 maxItems = 100;
+    # The id of the asset. Used in combination with assetType to determine the asset.
+    # 
+    # Depending on the asset, this may be a numeric or string value
+    string assetId;
+    # The lastKey token returned from the previous page of results. If not specified,
+    # the first page of results is returned
+    string lastKey?;
+    # When applicable for the specific object this parameter defines the scope of the share. Possible values are ITEM or WORKSPACE. ITEM is an item-level share (that is, the specific object to which the share applies is shared with the user or group). WORKSPACE is a workspace-level share (that is, the workspace that contains the object to which the share applies is shared with the user or group)
+    "ITEM"|"WORKSPACE" sharingInclude?;
+    # The type of the asset. Used in combination with assetId to determine the asset
+    "sheet"|"report"|"sight"|"workspace"|"collection"|"file" assetType;
+};
+
+# Represents a currency with its ISO 4217 code and display symbol
+public type Currency record {
+    # The currency symbol
+    string symbol?;
+    # The ISO 4217 currency code
+    string code?;
+};
+
+# Array of Row objects representing spreadsheet rows within a specific sheet
+public type SheetssheetIdrowsOneOf21 Row[];
+
+# Event triggered when a workspace share is removed from a sheet, revoking shared access permissions
+public type SheetRemoveWorkspaceShare record {
+    *Event;
+    *SheetRemoveWorkspaceShareAllOf2;
+};
+
+# Triggered when a user is added to an auto-provisioned organization account by an admin or when the user logs in with email associated with an auto-provisioned domain
+public type UserAddToAccountAllOf2 record {
+    # The action applied to the specified object
+    "ADD_TO_ACCOUNT" action?;
+    # Additional details for user account addition events, including responsible user's email and assigned user types
+    UserAddToAccountAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "USER" objectType?;
+};
+
+# Response object containing automation rule configuration and metadata
+public type AutomationRuleResponse AutomationRule;
+
+# Event triggered when a folder is saved as a new copy, inheriting from base Event schema
+public type FolderSaveAsNew record {
+    *Event;
+    *FolderSaveAsNewAllOf2;
+};
+
+# Object representing a calculated datetime
+public type AbstractDatetimeObjectValue record {
+    # Datetime, in the **date-time** format defined by <a href="https://tools.ietf.org/html/rfc3339#section-5.6" target="_blank" rel="noopener noreferrer">RFC 3339, section 5.6</a>
+    string value?;
+    # Specifies the object type as an abstract datetime value with fixed value "ABSTRACT_DATETIME"
+    "ABSTRACT_DATETIME" objectType?;
+};
+
+# A search result collection response that combines search result data with an empty object schema structure
+public type SearchResultCollectionResponse1 record {
+    *SearchResult;
+    *EmptyObjectSchema;
+};
+
+# Represents the Headers record for the operation: attachments-versionList
+public type AttachmentsVersionListHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Request body for updating a workspace, containing the workspace name to be modified
+public type WorkspacesworkspaceIdBody record {
+    # Workspace name
+    string name?;
+};
+
+# Additional details for access token revocation events, including responsible user email, token owner ID, and display value
+public type AccesstokenRevokeAdditionalDetails record {
+    # Email address of the user responsible for the event
+    string emailAddress;
+    # The ID of the user who owns this token
+    @constraint:Int {minValue: 0}
+    int tokenUserId?;
+    # Four or more characters used as a mnemonic to represent this access token. Even though this value serves as a visual token differentiator, this value isn't an Id because it isn't guaranteed to be unique across all tokens. This value is the same displayed by Smartsheet UI for each access token listed under Apps & Integrations > API Access
+    string tokenDisplayValue?;
+};
+
+# Event schema for access token authorization processes, combining base event properties with authorization-specific fields
+public type AccesstokenAuthorize record {
+    *Event;
+    *AccesstokenAuthorizeAllOf2;
+};
+
+# Triggered when a user requests a backup for a sheet
+public type SheetRequestBackupAllOf2 record {
+    # The action applied to the specified object
+    "REQUEST_BACKUP" action?;
+    # Additional details for folder backup requests including user email, attachment preferences, and completion notifications
+    FolderRequestBackupAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "SHEET" objectType?;
+};
+
+# Represents the Queries record for the operation: attachments-versionList
+public type AttachmentsVersionListQueries record {
+    # The maximum number of items to return per page. Unless otherwise stated for a specific endpoint, defaults to 100. If only page is specified, defaults to a page size of 100. For reports, the default is 100 rows. If you need larger sets of data from your report, returns a maximum of 10,000 rows per request
+    decimal pageSize = 100;
+    # If true, include all results, that is, do not paginate. Mutually exclusive with page and pageSize (they are ignored if includeAll=true is specified)
+    boolean includeAll = false;
+    # Which page to return. Defaults to 1 if not specified. If you specify a value greater than the total number of pages, the last page of results is returned
+    decimal page = 1;
+};
+
+# Event triggered when a user sends an invitation to another user or contact
+public type UserSendInvite record {
+    *Event;
+    *UserSendInviteAllOf2;
+};
+
+# Represents the Headers record for the operation: delete-rows
+public type DeleteRowsHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# A group object containing identification, ownership details, metadata, and descriptive information for user groups
+public type Group record {
+    # Group owner’s email address
+    string owner?;
+    # A read-only timestamp that can be represented as either a datetime string or numeric value
+    Timestamp createdAt?;
+    # A read-only timestamp that can be represented as either a datetime string or numeric value
+    Timestamp modifiedAt?;
+    # Group name
+    string name?;
+    # Group description
+    string description?;
+    # Group Id
+    decimal id?;
+    # Group owner's user Id
+    decimal ownerId?;
+};
+
+# A response containing indexed search results that combines index result data with a collection of contact API responses
+public type IndexedSearchResultsResponse1 record {
+    *IndexResult;
+    *ContactCollectionApiResponse;
+};
+
+# Event triggered when a user adds or grants sharing permissions to a sheet
+public type SheetAddShare record {
+    *Event;
+    *SheetAddShareAllOf2;
+};
+
+# Response containing indexed search results with index metadata and reports access information
+public type IndexedSearchResultsResponse2 record {
+    *IndexResult;
+    *ReportsAccessListApiResponse;
+};
+
+# Response object containing a collection of user data as an array of User objects
+public type UserCollectionResponse record {
+    # List of User Objects
+    User[] data?;
+};
+
+# Represents the Queries record for the operation: share-sheet-get
+public type ShareSheetGetQueries record {
+    # Allows COMMENTER access for inputs and return values. For backwards-compatibility, VIEWER is the default. For example, to see whether a user has COMMENTER access for a sheet, use accessApiLevel=1
+    decimal accessApiLevel = 0;
+};
+
+# Represents the Queries record for the operation: delete-summary-fields
+public type DeleteSummaryFieldsQueries record {
+    # If **true**, the operation will succeed even if some fieldIds are not found
+    boolean ignoreSummaryFieldsNotFound = false;
+    # A comma-separated list of Sheet Summary Field Ids
+    string ids;
+};
+
+# Triggered when a user schedules a recurring backup for a workspace
+public type WorkspaceCreateRecurringBackupAllOf2 record {
+    # The action applied to the specified object
+    "CREATE_RECURRING_BACKUP" action?;
+    # Additional configuration details for creating workspace recurring backups, including email notifications and attachment settings
+    WorkspaceCreateRecurringBackupAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "WORKSPACE" objectType?;
+};
+
+# Object representing a date
+public type DateObjectValue record {
+    # Date in the **full-date** format defined by [(https://tools.ietf.org/html/rfc3339#section-5.6" target="_blank" rel="noopener noreferrer">RFC 3339, section 5.6]</a>
+    string value?;
+    # Specifies the object type as DATE for date value objects
+    "DATE" objectType?;
+};
+
+# A read-only timestamp that can be represented as either a datetime string or numeric value
+public type Timestamp TimestampDateTime|TimestampNumber;
+
+# Represents the Headers record for the operation: attachments-attachToComment
+public type AttachmentsAttachToCommentHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+    # Required for POST and PUT requests. Defines the structure for the request body
+    @http:Header {name: "Content-Type"}
+    string contentType = "application/json";
+};
+
+# Response containing a collection of UpdateRequest objects returned after processing update operations
+public type UpdateRequestCollectionResponse record {
+    # list of UpdateRequest objects
+    UpdateRequest[] data?;
+};
+
+# Triggered when a group or user is removed from a report's sharing list
+public type ReportRemoveShareAllOf2 record {
+    # The action applied to the specified object
+    "REMOVE_SHARE" action?;
+    # Additional details for report share removal events, including the responsible user's email and affected user/group IDs
+    ReportRemoveShareAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "REPORT" objectType?;
+};
+
+# Event triggered when a member is added to a shared dashboard's access permissions
+public type DashboardAddShareMember record {
+    *Event;
+    *DashboardAddShareMemberAllOf2;
+};
+
+# Represents the Headers record for the operation: list-sight-shares
+public type ListSightSharesHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Event representing the export operation of a sheet, combining base event properties with export-specific data
+public type SheetExport record {
+    *Event;
+    *SheetExportAllOf2;
+};
+
+# Represents the Queries record for the operation: move-rows
+public type MoveRowsQueries record {
+    # A comma-separate list of row elements to move in addition to the cell data
+    "attachments"|"discussions" include?;
+    # **true** or **false**: default is **false**. If set to **true**, specifying row Ids that do not exist within the source sheet does not cause an error response. If omitted or set to **false**, specifying row Ids that do not exist within the source sheet causes an error response (and no rows are moved)
+    boolean ignoreRowsNotFound = false;
+};
+
+# Represents the Headers record for the operation: update-sheet-share
+public type UpdateSheetShareHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Event triggered when a user declines an invitation to join or participate in something
+public type UserDeclineInvite record {
+    *Event;
+    *UserDeclineInviteAllOf2;
+};
+
+# Triggered when a discussion (i.e. whole thread of top comment and replies) is **directly** (i.e. instead of indirectly as part of another operation) sent by email to user(s) or user group(s). An individual `DISCUSSION - SEND` event is issued for each user or user group listed as recipient
+public type DiscussionSendAllOf2 record {
+    # The action applied to the specified object
+    "SEND" action?;
+    # Additional details for a discussion send event, including sender email, recipients, attachments, and location context
+    DiscussionSendAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "DISCUSSION" objectType?;
+};
+
+# Request body for folder operations containing folder data or properties to be updated
+public type FolderIdFoldersBody Folder;
+
+# Additional details for access token refresh events including user email, token expiration, and display value
+public type AccesstokenRefreshAdditionalDetails record {
+    # Date and time when this access token expires
+    string tokenExpirationTimestamp?;
+    # Email address of the user responsible for the event
+    string emailAddress;
+    # Four or more characters used as a mnemonic to represent this access token. Even though this value serves as a visual token differentiator, this value isn't an Id because it isn't guaranteed to be unique across all tokens. This value is the same displayed by Smartsheet UI for each access token listed under Apps & Integrations > API Access
+    string tokenDisplayValue?;
+};
+
+# Event triggered when a sheet is restored from a previously deleted or archived state
+public type SheetRestore record {
+    *Event;
+    *SheetRestoreAllOf2;
+};
+
+# Email configuration for sending multiple table rows, extending standard row email functionality
+public type MultiRowEmail RowEmail;
+
+# Array of ContactOption objects to specify a pre-defined list of values for the column. Column type must be CONTACT_LIST
+public type PropertiesContactOptions ContactOption[];
+
+# Represents the Headers record for the operation: create-sheet-in-workspace
+public type CreateSheetInWorkspaceHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+    # Required for POST and PUT requests. Defines the structure for the request body
+    @http:Header {name: "Content-Type"}
+    string contentType = "application/json";
+};
+
+# Represents the Queries record for the operation: create-workspace
+public type CreateWorkspaceQueries record {
+    # Allows COMMENTER access for inputs and return values. For backwards-compatibility, VIEWER is the default. For example, to see whether a user has COMMENTER access for a sheet, use accessApiLevel=1
+    decimal accessApiLevel = 0;
+    # A comma-separated list of elements to include:
+    #   * **all**
+    #   * **attachments**
+    #   * **brand**
+    #   * **cellLinks** - includes cross-sheet references
+    #   * **data** - includes formatting
+    #   * **discussions** - includes comments
+    #   * **filters**
+    #   * **forms**
+    #   * **ruleRecipients**
+    #   * **rules**
+    #   * **shares**
+    # NOTE: Cell history is not copied, regardless of which include parameter values are specified
+    "all"|"attachments"|"brand"|"cellLinks"|"data"|"discussions"|"filters"|"forms"|"ruleRecipients"|"rules"|"shares" include?;
+    # A comma-separated list of references to NOT re-map for the newly created folder
+    "cellLinks"|"reports"|"sheetHyperlinks"|"sights" skipRemap?;
+};
+
+# Response containing a collection of proof versions as an array of Proof objects
+public type ProofVersionCollectionResponse record {
+    # list of proof versions
+    Proof[] data?;
+};
+
+# The webhook object
+public type Webhook record {
+    *UpdateWebhookRequest;
+    *WebhookAllOf2;
+};
+
+# A combined response that extends GenericResult with additional user-specific result data and properties
+public type GenericResultExtendedResponse2 record {
+    *GenericResult;
+    *UserResultResponse;
+};
+
+# Request body for updating share access level permissions by share ID
+public type SharesshareIdBody record {
+    # Defines user permission level with values: ADMIN, COMMENTER, EDITOR, EDITOR_SHARE, OWNER, or VIEWER
+    AccessLevel accessLevel?;
+};
+
+# A generic result response that includes alternate email collection data and standard result fields
+public type GenericResultExtendedResponse3 record {
+    *GenericResult;
+    *AlternateEmailCollectionResponse;
+};
+
+# A generic result response that combines standard result data with extended sheet-specific response information
+public type GenericResultExtendedResponse4 record {
+    *GenericResult;
+    *SheetResultResponse1;
+};
+
+# A generic result response that combines standard result data with column update API response information
+public type GenericResultExtendedResponse5 record {
+    *GenericResult;
+    *UpdateColumnApiResponse;
+};
+
+# Represents the Queries record for the operation: share-workspace-get
+public type ShareWorkspaceGetQueries record {
+    # Allows COMMENTER access for inputs and return values. For backwards-compatibility, VIEWER is the default. For example, to see whether a user has COMMENTER access for a sheet, use accessApiLevel=1
+    decimal accessApiLevel = 0;
+};
+
+# Request body for moving a folder, containing the destination container information
+public type FolderIdMoveBody ContainerDestinationForMove;
+
+# Represents the Headers record for the operation: share-sheet-get
+public type ShareSheetGetHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# A combined response containing generic result data and favorite result information
+public type GenericResultExtendedResponse1 record {
+    *GenericResult;
+    *FavoriteResultResponse;
+};
+
+# A generic result response that combines standard result data with sheet publishing operation details
+public type GenericResultExtendedResponse6 record {
+    *GenericResult;
+    *SheetPublishResultResponse;
+};
+
+# A generic result response that extends the base GenericResult with UpdateRowsCollectionResponse data
+public type GenericResultExtendedResponse7 record {
+    *GenericResult;
+    *UpdateRowsCollectionResponse;
+};
+
+# Represents the Queries record for the operation: update-sight
+public type UpdateSightQueries record {
+    # You can optionally choose to receive and send dates/times in numeric format, as milliseconds since the UNIX epoch (midnight on January 1, 1970 in UTC time), using the query string parameter numericDates with a value of true. This query parameter works for any API request
+    boolean numericDates = false;
+};
+
+# Event triggered when a recurring backup configuration is deleted from a workspace
+public type WorkspaceDeleteRecurringBackup record {
+    *Event;
+    *WorkspaceDeleteRecurringBackupAllOf2;
+};
+
+# Event triggered when a dashboard is deleted from the system
+public type DashboardDelete record {
+    *Event;
+    *DashboardDeleteAllOf2;
+};
+
+# Represents the Queries record for the operation: copy-folder
+public type CopyFolderQueries record {
+    # A comma-separated list of elements to copy:
+    #   * **attachments**
+    #   * **cellLinks** - includes cross-sheet references
+    #   * **data** - includes formatting
+    #   * **discussions** - includes comments
+    #   * **filters**
+    #   * **forms**
+    #   * **ruleRecipients** -- includes notification recipients, must also include rules when using this attribute
+    #   * **rules** -- includes notifications and workflow rules
+    #   * **shares** |
+    # NOTE: Cell history is not copied, regardless of which include parameter values are specified
+    "attachments"|"cellLinks"|"data"|"discussions"|"filters"|"forms"|"ruleRecipients"|"rules"|"shares" include?;
+    # A comma-separated list of references to NOT re-map for the newly created folder
+    "cellLinks"|"reports"|"sheetHyperlinks"|"sights" skipRemap?;
+    # When specified with a value of **sheetHyperlinks**, excludes this category from the response
+    "sheetHyperlinks" exclude?;
+};
+
+# A result object containing automation rule response data with extended API information
+public type ResultExtendedApiResponse1 record {
+    *Result;
+    *AutomationRuleResponse1;
+};
+
+# API response containing a collection of dashboard items returned as a list of SightListItem objects
+public type DashboardCollectionApiResponse record {
+    # List of Dashboards
+    SightListItem[] data?;
+};
+
+# Represents the Headers record for the operation: attachments-versionUpload
+public type AttachmentsVersionUploadHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+    # Required for POST and PUT requests. Defines the structure for the request body
+    @http:Header {name: "Content-Type"}
+    string contentType = "application/json";
+};
+
+# Represents the Headers record for the operation: import-sheet-into-workspace
+public type ImportSheetIntoWorkspaceHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+    # Should be equal to "attachment" to tell the API that a file is in the body of the POST request, followed by a semicolon, followed by **filename=** and the URL-encoded filename in quotes
+    @http:Header {name: "Content-Disposition"}
+    string contentDisposition?;
+    # Required for POST request to import a sheet from CSV/XLSX file.
+    # * For CSV files, use: Content-Type: text/csv
+    # * For XLSX files, use: Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+    @http:Header {name: "Content-Type"}
+    "text/csv"|"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" contentType;
+};
+
+# Sheet created from scratch using the specified columns
+public type SheetCreated record {
+    # Defines user permission level with values: ADMIN, COMMENTER, EDITOR, EDITOR_SHARE, OWNER, or VIEWER
+    AccessLevel accessLevel?;
+    # An array of Column objects representing the columns in a table or data structure
+    Columns columns?;
+    # Sheet name
+    Name name?;
+    # Sheet Id
+    Id id?;
+    # URL that represents a direct link to the sheet in Smartsheet
+    Permalink permalink?;
+};
+
+# Request object for updating multi-row email data with additional update-specific fields
+public type UpdateRequest record {
+    *MultiRowEmail;
+    *UpdateRequestAllOf2;
+};
+
+# A response containing index results combined with cell history collection data
+public type IndexResultCollectionResponse record {
+    *IndexResult;
+    *CellHistoryCollectionResponse;
+};
+
+# Triggered when a user declines an invitation to join an organization account through email
+public type UserDeclineInviteAllOf2 record {
+    # The action applied to the specified object
+    "DECLINE_INVITE" action?;
+    # Additional details for user invite decline events, including the user's email address and reason for declining
+    UserDeclineInviteAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "USER" objectType?;
+};
+
+# Triggered when a user is added to a group that a report has been shared to via the report's sharing list, or via a workspace's sharing list. 
+# 
+# If a report has been shared to a group directly via the report's sharing list, and via a workspace's sharing list, then an event will be generated for each of these shares
+public type ReportAddShareMemberAllOf2 record {
+    # The action applied to the specified object
+    "ADD_SHARE_MEMBER" action?;
+    # Additional details for report share member events, including email, access level, and group/user IDs
+    ReportAddShareMemberAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "REPORT" objectType?;
+};
+
+# Represents the result of an item operation, including any failed items from bulk operations that support partial success
+public type ItemResult GenericResult;
+
+# Represents the Headers record for the operation: getWebhook
+public type GetWebhookHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Represents the Headers record for the operation: list-sheet-shares
+public type ListSheetSharesHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Represents the Queries record for the operation: getReport
+public type GetReportQueries record {
+    # Allows COMMENTER access for inputs and return values. For backwards-compatibility, VIEWER is the default. For example, to see whether a user has COMMENTER access for a sheet, use accessApiLevel=1
+    decimal accessApiLevel = 0;
+    # A comma-separated list of optional elements to include in the response:
+    #   * **attachments**
+    #   * **discussions**
+    #   * **proofs**
+    #   * **format**
+    #   * **objectValue** - when used in combination with a level query parameter, includes the email addresses for multi-contact data
+    #   * **scope** - adds the report's scope to the response
+    #   * **source** - adds the Source object indicating which report the report was created from, if any
+    #   * **sourceSheets**
+    "attachments"|"discussions"|"proofs"|"format"|"objectValue"|"scope"|"source"|"sourceSheets" include?;
+    # specifies whether new functionality, such as multi-contact data is returned in a backwards-compatible, text format (level=0, default), multi-contact data (level=1), or multi-picklist data (level=3)
+    int level = 0;
+    # The maximum number of items to return per page. Unless otherwise stated for a specific endpoint, defaults to 100. If only page is specified, defaults to a page size of 100. For reports, the default is 100 rows. If you need larger sets of data from your report, returns a maximum of 10,000 rows per request
+    decimal pageSize = 100;
+    # A comma-separated list of optional elements to not include in the response
+    "linkInFromCellDetails"|"linksOutToCellsDetails" exclude?;
+    # Which page to return. Defaults to 1 if not specified. If you specify a value greater than the total number of pages, the last page of results is returned
+    decimal page = 1;
+};
+
+# Response containing a list of sent update requests
+public type SentUpdateRequestListResponse record {
+    # list of Sent Update Requests
+    SentUpdateRequest[] data?;
+};
+
+# Event triggered when a user saves an existing workspace with a new name or creates a copy of a workspace
+public type WorkspaceSaveAsNew record {
+    *Event;
+    *WorkspaceSaveAsNewAllOf2;
+};
+
+# Represents the Headers record for the operation: update-sight
+public type UpdateSightHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+    # Required for POST and PUT requests. Defines the structure for the request body
+    @http:Header {name: "Content-Type"}
+    string contentType = "application/json";
+};
+
+# Event triggered when a discussion is modified or updated with new information
+public type DiscussionUpdate record {
+    *Event;
+    *DiscussionUpdateAllOf2;
+};
+
+# A response combining generic result information with numeric array data
+public type GenericResultResponse2 record {
+    *GenericResult;
+    *NumericArrayResponse;
+};
+
+# Specifies the destination container (folder, workspace, or deprecated home) and its ID for move operations
+public type ContainerDestinationForMove record {
+    # Type of destination container.
+    # 
+    # The `"home"` enum is **Deprecated** since March 25, 2025, and will be removed
+    "folder"|"home"|"workspace"? destinationType?;
+    # The ID of the destination container
+    decimal destinationId;
+};
+
+# A generic result response that combines standard result information with add rows collection data
+public type GenericResultResponse1 record {
+    *GenericResult;
+    *AddRowsCollectionResponse;
+};
+
+# Event representing the movement or repositioning of a sheet within a document or workbook
+public type SheetMove record {
+    *Event;
+    *SheetMoveAllOf2;
+};
+
+# Represents the Headers record for the operation: copy-folder
+public type CopyFolderHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+    # Required for POST and PUT requests. Defines the structure for the request body
+    @http:Header {name: "Content-Type"}
+    string contentType = "application/json";
+};
+
+# Response object containing the result of adding an image to a summary field
+public type SummaryFieldImageAddResponse record {
+    # Represents a summary field for adding images with metadata, positioning, locking status, and formula support
+    SummaryFieldAddImage result?;
+};
+
+# Represents the Queries record for the operation: import-sheet-into-workspace
+public type ImportSheetIntoWorkspaceQueries record {
+    # Desired name of the sheet
+    string sheetName;
+    # A zero-based integer indicating the row number to use for column names. Rows before this are omitted.
+    # If not specified, the default values are Column1, Column2, etc
+    decimal headerRowIndex?;
+    # A zero-based integer indicating the column to designate as primary
+    decimal primaryColumnIndex = 0;
+};
+
+# Represents the Headers record for the operation: sentupdaterequest-get
+public type SentupdaterequestGetHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Represents the Queries record for the operation: share-sheet
+public type ShareSheetQueries record {
+    # Allows COMMENTER access for inputs and return values. For backwards-compatibility, VIEWER is the default. For example, to see whether a user has COMMENTER access for a sheet, use accessApiLevel=1
+    decimal accessApiLevel = 0;
+    # Either true or false to indicate whether to notify the user by email. Default is false. If true, limit is 1000 emails
+    boolean sendEmail = false;
+};
+
+# A mapping object containing image URLs and their expiration time in milliseconds
+public type ImageUrlMap record {
+    # Milliseconds before the URLs within imageUrls expire
+    decimal urlExpiresInMillis?;
+    # Array of image URL objects containing references to associated images
+    ImageUrl[] imageUrls?;
+};
+
+# Event triggered when a group is deleted from the system
+public type GroupDelete record {
+    *Event;
+    *GroupDeleteAllOf2;
+};
+
+# Triggered when a report is in the deleted items bin and is restored (`Undelete`)
+public type ReportRestoreAllOf2 record {
+    # The action applied to the specified object
+    "RESTORE" action?;
+    # Additional details for bulk account updates, including the responsible user's email address
+    AccountBulkUpdateAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "REPORT" objectType?;
+};
+
+# Additional details for user account addition events, including responsible user's email and assigned user types
+public type UserAddToAccountAdditionalDetails record {
+    # Email address of the user responsible for the event
+    string emailAddress;
+    # Comma-delimited list of user types, e.g. `SYSTEM_ADMIN`, `LICENSED_USER`, `GROUP_ADMIN`, `RESOURCE_VIEWER`, `JIRA_ADMIN`, `JIRA_USER`, `SALESFORCE_ADMIN`, `SALESFORCE_USER`. 
+    # 
+    # The full list of available user types can be seen <a href="https://help.smartsheet.com/learning-track/shared-users/user-types-and-permissions" target="_blank" rel="noopener noreferrer">here</a>. Please notice that user types Unlicensed User and Free Collaborator are not applicable for this event
+    string userTypes?;
+};
+
+# Triggered when a user exports or prints the sheet
+public type SheetExportAllOf2 record {
+    # The action applied to the specified object
+    "EXPORT" action?;
+    # Additional details for sheet export events, including the user's email address and export format type
+    SheetExportAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "SHEET" objectType?;
+};
+
+# Triggered when an admin sends a password reset email. This can be done through User Management on UI
+public type UserSendPasswordResetAllOf2 record {
+    # The action applied to the specified object
+    "SEND_PASSWORD_RESET" action?;
+    # Additional details for bulk account updates, including the responsible user's email address
+    AccountBulkUpdateAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "USER" objectType?;
+};
+
+# Represents the Queries record for the operation: update-sheet-share
+public type UpdateSheetShareQueries record {
+    # Allows COMMENTER access for inputs and return values. For backwards-compatibility, VIEWER is the default. For example, to see whether a user has COMMENTER access for a sheet, use accessApiLevel=1
+    decimal accessApiLevel = 0;
+};
+
+# Defines attributes for Smartsheet columns including type, title, formatting, visibility, validation, and display properties
+public type ColumnObjectAttributes record {
+    # When applicable for **CHECKBOX** or **PICKLIST** column types. See [Symbol Columns](/api/smartsheet/openapi/columns)
+    string symbol?;
+    # A contact entry containing a name (user name, display name, or free text) and a parsable email address
+    ContactOption contactOptions?;
+    # Indicates whether the column is hidden
+    boolean hidden?;
+    # The format descriptor (see [Cell formatting](/api/smartsheet/guides/advanced-topics/cell-formatting)). Only returned if the **include** query string parameter contains **format** and this column has a non-default format applied to it
+    string format?;
+    # Column index or position. This number is zero-based
+    decimal index?;
+    # Column description
+    string description?;
+    # Column title
+    string title?;
+    # The data type of the column, determining how values are stored, displayed, and validated
+    "ABSTRACT_DATETIME"|"CHECKBOX"|"CONTACT_LIST"|"DATE"|"DATETIME"|"DURATION"|"MULTI_CONTACT_LIST"|"MULTI_PICKLIST"|"PICKLIST"|"PREDECESSOR"|"TEXT_NUMBER" 'type?;
+    # Read only. The level of the column type. Each element in the array is set to one of the following values:
+    #  * **0**: TEXT_NUMBER, CONTACT_LIST, or PICKLIST
+    #  * **1**: MULTI_CONTACT_LIST
+    #  * **2**: MULTI_PICKLIST
+    # 
+    # See [Versioning and changes](/api/smartsheet/guides/basics/versioning-and-changes)
+    decimal version?;
+    # Object that describes how the the System Column type of "AUTO_NUMBER" is auto-generated
+    AutoNumberFormat autoNumberFormat?;
+    # Array of string values representing the available options for this column
+    string[] options?;
+    # Display width of the column in pixels
+    decimal width?;
+    # The formula for a column, if set, for instance **=data@row**
+    string formula?;
+    # Indicates whether the column is locked for the requesting user. This attribute may be present in a response, but cannot be specified in a request
+    boolean lockedForUser?;
+    # See [System Columns](/api/smartsheet/openapi/columns)
+    "AUTO_NUMBER"|"CREATED_BY"|"CREATED_DATE"|"MODIFIED_BY"|"MODIFIED_DATE" systemColumnType?;
+    # Indicates whether the column is locked. In a response, a value of **true** indicates that the column has been locked by the sheet owner or the admin
+    boolean locked?;
+    # Indicates whether validation has been enabled for the column (value = **true**)
+    boolean validation?;
+};
+
+# Additional details for events when a workspace share is added to a sheet, including recipient and access information
+public type SheetAddWorkspaceShareAdditionalDetails record {
+    # Email address of the user responsible for the event
+    string emailAddress;
+    # Indicates the access level granted to the group or user. 
+    # 
+    # Note that this access level represents the access level granted by this specific sharing action; it is not the group or user's effective access level for the sheet
+    "VIEWER"|"EDITOR"|"EDITOR_SHARE"|"ADMIN" accessLevel?;
+    # Id of the group that the workspace was shared to. (Specific to share to group actions)
+    @constraint:Int {minValue: 0}
+    int groupId?;
+    # Id of the user that the workspace was shared to. (Specific to share to user actions)
+    @constraint:Int {minValue: 0}
+    int userId?;
+    # Id of the workspace that was shared to the group or user
+    @constraint:Int {minValue: 0}
+    int workspaceId?;
+};
+
+# Extended index result response that combines index data with template collection API response format
+public type IndexResultExtendedResponse record {
+    *IndexResult;
+    *TemplateCollectionApiResponse;
+};
+
+# Event triggered when a user saves a sheet as a template for future reuse
+public type SheetSaveAsTemplate record {
+    *Event;
+    *SheetSaveAsTemplateAllOf2;
+};
+
+# Represents the Headers record for the operation: move-sight
+public type MoveSightHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+    # Required for POST and PUT requests. Defines the structure for the request body
+    @http:Header {name: "Content-Type"}
+    string contentType = "application/json";
+};
+
+# A response wrapper that extends GenericResult to provide standardized result formatting
+public type GenericResultResponse GenericResult;
+
+# A successful API response that combines standard success result data with share collection information
+public type SuccessResultExtendedResponse record {
+    *SuccessResult;
+    *ShareCollectionApiResponse;
+};
+
+# Request body for proof operations, extending Email schema with downloadable description flag
+public type ProofRequestBody Email;
+
+# Represents the Headers record for the operation: get-crosssheet-reference
+public type GetCrosssheetReferenceHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Configuration for emailing row data with options for column selection, attachments, discussions, and layout formatting
+public type RowEmail Email;
+
+# Represents the Queries record for the operation: delete-report-share
+public type DeleteReportShareQueries record {
+    # Allows COMMENTER access for inputs and return values. For backwards-compatibility, VIEWER is the default. For example, to see whether a user has COMMENTER access for a sheet, use accessApiLevel=1
+    decimal accessApiLevel = 0;
+};
+
+# Sheet created from template
+public type SheetCreatedFromTemplate record {
+    # Defines user permission level with values: ADMIN, COMMENTER, EDITOR, EDITOR_SHARE, OWNER, or VIEWER
+    AccessLevel accessLevel?;
+    # Sheet name
+    Name name?;
+    # Sheet Id
+    Id id?;
+    # URL that represents a direct link to the sheet in Smartsheet
+    Permalink permalink?;
+};
+
+# Represents the Queries record for the operation: get-folder-metadata
+public type GetFolderMetadataQueries record {
+    # A comma-separated list of optional elements to include in the response:
+    #   * **source** - adds the Source object indicating which object this resource was created from, if any
+    "source" include?;
+    # You can optionally choose to receive and send dates/times in numeric format, as milliseconds since the UNIX epoch (midnight on January 1, 1970 in UTC time), using the query string parameter numericDates with a value of true. This query parameter works for any API request
+    boolean numericDates = false;
+};
+
+# Triggered when a user requests a backup for a workspace
+public type WorkspaceRequestBackupAllOf2 record {
+    # The action applied to the specified object
+    "REQUEST_BACKUP" action?;
+    # Additional details for folder backup requests including user email, attachment preferences, and completion notifications
+    FolderRequestBackupAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "WORKSPACE" objectType?;
+};
+
+# Request payload for updating an existing webhook configuration with modified properties
+public type UpdateWebhookRequest record {
+    *CreateWebhookRequest;
+    *UpdateWebhookRequestAllOf2;
+};
+
+# Represents the Queries record for the operation: copy-workspace
+public type CopyWorkspaceQueries record {
+    # A comma-separated list of elements to include:
+    #   * **all**
+    #   * **attachments**
+    #   * **brand**
+    #   * **cellLinks** - includes cross-sheet references
+    #   * **data** - includes formatting
+    #   * **discussions** - includes comments
+    #   * **filters**
+    #   * **forms**
+    #   * **ruleRecipients**
+    #   * **rules**
+    #   * **shares**
+    # NOTE: Cell history is not copied, regardless of which include parameter values are specified
+    "all"|"attachments"|"brand"|"cellLinks"|"data"|"discussions"|"filters"|"forms"|"ruleRecipients"|"rules"|"shares" include?;
+    # A comma-separated list of references to NOT re-map for the newly created folder
+    "cellLinks"|"reports"|"sheetHyperlinks"|"sights" skipRemap?;
+};
+
+# API response for discussion update operations, containing the updated discussion data and new sheet version
+public type DiscussionUpdateApiResponse record {
+    *GenericResult;
+    # A discussion thread containing comments, attachments, and metadata associated with a sheet or row
+    Discussion result?;
+};
+
+# Additional details for user invite decline events, including the user's email address and reason for declining
+public type UserDeclineInviteAdditionalDetails record {
+    # Email address of the user responsible for the event
+    string emailAddress;
+    # Specific reason code indicating why a user invitation was declined or failed to be accepted
+    "ACCEPT_FAILED_REMOVED_FROM_ORG"|"ACCEPT_FAILED_IN_OTHER_ORG"|"ACCEPT_FAILED_IS_PAID_USER"|"ACCEPT_FAILED_NEEDS_LICENSE"|"ACCEPT_FAILED_INSUFFICIENT_LICENSES"|"ACCEPT_FAILED_NOT_ELIGIBLE_FOR_TRIAL"|"ACCEPT_FAILED"|"ACCEPT_FAILED_NEEDS_GROUP_ADMIN_ROLE"|"ACCEPT_FAILED_UAP_VIOLATION"|"DECLINE_SUCCESS" declineReason?;
+};
+
+# API response containing an array of sheet data objects
+public type SheetCollectionApiResponse1 record {
+    # List of Sheets
+    SheetList[] data?;
+};
+
+# Event triggered when an attachment is modified or updated with new content or metadata
+public type AttachmentUpdate record {
+    *Event;
+    *AttachmentUpdateAllOf2;
+};
+
+# Event schema for access token refresh operations, combining base event properties with refresh-specific attributes
+public type AccesstokenRefresh record {
+    *Event;
+    *AccesstokenRefreshAllOf2;
+};
+
+# Event schema for adding and publishing dashboard content or configurations
+public type DashboardAddPublish record {
+    *Event;
+    *DashboardAddPublishAllOf2;
+};
+
+# Represents the Queries record for the operation: list-home-contents
+public type ListHomeContentsQueries record {
+    # A comma-separated list of optional elements to include in the response:
+    #   * **source** - adds the Source object indicating which object the folder was created from, if any
+    #   * **distributionLink**
+    #   * **ownerInfo** Returns the user with owner permissions, or the user with admin permissions if there is no owner assigned. If no owner or admins are assigned, the Plan Asset Admin is returned. If no Plan Asset Admin is assigned, the System Admin is returned.
+    #   * **sheetVersion**
+    #   * **permalinks**
+    "source"|"distributionLink"|"ownerInfo"|"sheetVersion" include?;
+};
+
+# A combined API response that merges Result data with WebhookResultResponse information
+public type ResultCombinedApiResponse record {
+    *Result;
+    *WebhookResultResponse;
+};
+
+# Represents the Headers record for the operation: row-discussions-list
+public type RowDiscussionsListHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Represents the Headers record for the operation: list-home-contents
+public type ListHomeContentsHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Represents the Headers record for the operation: column-delete
+public type ColumnDeleteHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Request body for sharing a report, containing either share configuration or sharing parameters
+public type ReportIdSharesBody Share|ReportsreportIdsharesOneOf2;
+
+# Represents the Headers record for the operation: proofs-delete
+public type ProofsDeleteHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Event triggered when a sheet is deleted from a workbook or spreadsheet application
+public type SheetDelete record {
+    *Event;
+    *SheetDeleteAllOf2;
+};
+
+# API response containing indexed workspace results with collection metadata and pagination details
+public type WorkspaceIndexApiResponse record {
+    *IndexResultWorkspaces;
+    *WorkspaceListingCollectionResponse;
+};
+
+# Response containing either a single GroupMember object or an array of GroupMember objects
+public type GroupMemberResultResponse record {
+    # Contains either a single GroupMember object or an array of GroupMember objects
+    GroupMember|GroupMember[] result?;
+};
+
+# Represents the Headers record for the operation: delete-report-share
+public type DeleteReportShareHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Represents the Headers record for the operation: automationrules-list
+public type AutomationrulesListHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Triggered when a user exports or prints the report. 
+# 
+# Printing a report is a PDF export, then browser print, thus is reported as PDF export
+public type ReportExportAllOf2 record {
+    # The action applied to the specified object
+    "EXPORT" action?;
+    # Additional details for report export events, including the user's email address and export format type
+    ReportExportAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "REPORT" objectType?;
+};
+
+# Contains server configuration details including supported data formats and available locales
+public type ServerInfo record {
+    # Contains all of the lookup tables that the format descriptor indexes refer to. Here the examples show the formatting options, the default value is used to denote each option. NOTE -- Indexes and their values are guaranteed never to change or be removed for a given major API version.  However, new values could potentially be added to the ends of lookup tables. Because of this possibility, your code should handle the case where a cell might contain a format index value greater than the size of a lookup table your app has loaded. Your application should check for that case and reload the format tables if necessary
+    FormatTables formats?;
+    # Array of strings representing all Smartsheet-supported locales
+    string[] supportedLocales?;
+};
+
+# Represents the Headers record for the operation: add-user
+public type AddUserHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Triggered when a user updates the options (listed below in **`additionalDetails`**) in a recurring backup schedule for a workspace
+public type WorkspaceUpdateRecurringBackupAllOf2 record {
+    # The action applied to the specified object
+    "UPDATE_RECURRING_BACKUP" action?;
+    # Additional details for folder backup requests including user email, attachment preferences, and completion notifications
+    FolderRequestBackupAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "WORKSPACE" objectType?;
+};
+
+# Represents a summary field for adding images with metadata, positioning, locking status, and formula support
+public type SummaryFieldAddImage record {
+    # Represents an image with metadata including dimensions, alternate text, and unique identifier
+    Image image?;
+    # A read-only timestamp that can be represented as either a datetime string or numeric value
+    Timestamp createdAt?;
+    # A read-only timestamp that can be represented as either a datetime string or numeric value
+    Timestamp modifiedAt?;
+    # Field index or position. This number is zero-based
+    decimal index?;
+    # Indicates whether the field is locked for the requesting user
+    boolean lockedForUser?;
+    # The formula for a cell, if set
+    string formula?;
+    # The base object for values found in the **Cell.objectValue** attribute. Its **objectType** attribute indicates the type of the object. This object itself is not used directly
+    ObjectValue objectValue?;
+    # SummaryField Id
+    decimal id?;
+    # Arbitrary name, must be unique within summary
+    string title?;
+    # Specifies the data type of the summary field, determining how the field value is formatted and displayed
+    "ABSTRACT_DATETIME"|"CHECKBOX"|"CONTACT_LIST"|"DATE"|"DATETIME"|"DURATION"|"MULTI_CONTACT_LIST"|"MULTI_PICKLIST"|"PICKLIST"|"PREDECESSOR"|"TEXT_NUMBER" 'type?;
+    # Indicates whether the field is locked
+    boolean locked?;
+    # Sheet version number that is incremented every time a sheet is modified
+    decimal version?;
+};
+
+# Represents the Headers record for the operation: get-sight
+public type GetSightHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Response containing the last key used for pagination to retrieve the next set of results
+public type PaginationLastKeyResponse record {
+    # A token that is used to retrieve the next page of results when passed as the
+    # `lastKey` query parameter. This value will be absent when there are no 
+    # further pages
+    LastKey lastKey?;
+};
+
+# A folder item in a paginated list containing basic metadata like ID, name, timestamps, and permalink
+public type PaginatedFolderListItem record {
+    # A read-only timestamp field that accepts either a datetime string or long integer value
+    Timestamp2 createdAt;
+    # A read-only timestamp field that accepts either a datetime string or long integer value
+    Timestamp2 modifiedAt;
+    # Resource name
+    string name;
+    # Resource ID
+    int id;
+    # URL to the resource in Smartsheet
+    string permalink;
+    # The type of the resource
+    "folder" resourceType;
+};
+
+# Additional details for workspace rename events, including the responsible user's email and old/new workspace names
+public type WorkspaceRenameAdditionalDetails record {
+    # Email address of the user responsible for the event
+    string emailAddress;
+    # New name of the workspace
+    string newName?;
+    # Previous name of the workspace
+    string oldName?;
+};
+
+# Additional details for dashboard events when workspace sharing is removed from users or groups
+public type DashboardRemoveWorkspaceShareAdditionalDetails record {
+    # Email address of the user responsible for the event
+    string emailAddress;
+    # Id of the group that was removed from the workspace. (Specific to remove share from group actions)
+    @constraint:Int {minValue: 0}
+    int groupId?;
+    # Id of the user that was removed from the workspace. (Specific to remove share from user actions)
+    @constraint:Int {minValue: 0}
+    int userId?;
+    # Id of the workspace the group or user was removed from
+    @constraint:Int {minValue: 0}
+    int workspaceId?;
+};
+
+# Triggered when a user exports the folder
+public type FolderExportAllOf2 record {
+    # The action applied to the specified object
+    "EXPORT" action?;
+    # Contains details about folder export events, including the responsible user's email and export format type
+    FolderExportAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "FOLDER" objectType?;
+};
+
+# See [Column Types](/api/smartsheet/openapi/columns)
+public type Type "ABSTRACT_DATETIME"|"CHECKBOX"|"CONTACT_LIST"|"DATE"|"DATETIME"|"DURATION"|"MULTI_CONTACT_LIST"|"MULTI_PICKLIST"|"PICKLIST"|"PREDECESSOR"|"TEXT_NUMBER";
+
+# Represents the Queries record for the operation: list-webhooks
+public type ListWebhooksQueries record {
+    # **DEPRECATED - As early as the sunset date specified in this [Changelog entry](/api/smartsheet/changelog#2025-08-04), the unlimited value range will be discontinued (sunset) to reduce latency, mitigate performance issues, and add stability, especially for users with many webhooks.** See the [Changelog entry](/api/smartsheet/changelog#2025-08-04) for migration instructions and details.
+    # 
+    # The maximum number of items to return per page. Unless otherwise stated for a
+    # specific endpoint, defaults to 100. If only page is specified, defaults to a
+    # page size of 100. For reports, the default is 100 rows. If you need larger
+    # sets of data from your report, returns a maximum of 10,000 rows per request
+    # 
+    # # Deprecated
+    @deprecated
+    decimal pageSize = 100;
+    # **DEPRECATED - As early as the sunset date specified in this [Changelog entry](/api/smartsheet/changelog#2025-08-04), this parameter will be discontinued (sunset) to reduce latency, mitigate performance issues, and add stability, especially for users with many webhooks.** See the [Changelog entry](/api/smartsheet/changelog#2025-08-04) for migration instructions and details.
+    # 
+    # If true, include all results, that is, do not paginate. Mutually exclusive
+    # with page and pageSize (they are ignored if includeAll=true is specified)
+    # 
+    # # Deprecated
+    @deprecated
+    boolean includeAll = false;
+    # Which page to return. Defaults to 1 if not specified. If you specify a value greater than the total number of pages, the last page of results is returned
+    decimal page = 1;
+};
+
+# Triggered when a report is viewed in the UI or loaded through the API
+public type ReportLoadAllOf2 record {
+    # The action applied to the specified object
+    "LOAD" action?;
+    # Additional details for bulk account updates, including the responsible user's email address
+    AccountBulkUpdateAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "REPORT" objectType?;
+};
+
+# **DEPRECATED - As early as the sunset date specified in this [Changelog entry](/api/smartsheet/changelog#2025-08-04), this endpoint will be discontinued.** Please refer to the [changelog entry](/api/smartsheet/changelog#2025-08-04) for more details.
+# 
+# Share object used for various sharing relation operations
+public type Share record {
+    # Defines user permission level with values: ADMIN, COMMENTER, EDITOR, EDITOR_SHARE, OWNER, or VIEWER
+    AccessLevel accessLevel?;
+    # A read-only timestamp that can be represented as either a datetime string or numeric value
+    Timestamp modifiedAt?;
+    # The subject of the email that is optionally sent to notify the recipient. You can specify this attribute
+    # in a request, but it is never present in a response
+    string subject?;
+    # Group Id if the share is a group share, else null
+    decimal groupId?;
+    # The type of this share. One of the following values: GROUP or USER
+    string 'type?;
+    # The message included in the body of the email that is optionally sent to the recipient. You can specify
+    # this attribute in a request, but it is never present in a response
+    string message?;
+    # User Id if the share is a user share, else null
+    decimal userId?;
+    # A read-only timestamp that can be represented as either a datetime string or numeric value
+    Timestamp createdAt?;
+    # Indicates whether to send a copy of the email to the sharer of the sheet. You can specify this attribute
+    # in a request, but it is never present in a response
+    boolean ccMe?;
+    # The scope of this share. One of the following values:
+    #   * **ITEM**: an item-level share (that is, the specific object to which the share applies is shared with
+    #     the user or group).
+    #   * **WORKSPACE**: a workspace-level share (that is, the workspace that contains the object to which the
+    #     share applies is shared with the user or group)
+    string scope?;
+    # If a user share and user is also a contact, the user's full name. If a group share, the group's name
+    string name?;
+    # Share Id.
+    # 
+    # **NOTE**: unlike other Smartsheet object Ids, this Id is an alphanumeric string
     string id?;
-    # The currency and amount for a financial transaction, such as a balance or payment due
-    Money amount?;
-    # The API caller-provided external invoice number for this order. Appears in both the payer's transaction history and the emails that the payer receives.
-    string invoice_id?;
-    # The API caller-provided external ID. Used to reconcile API caller-initiated transactions with PayPal transactions. Appears in transaction and settlement reports.
-    @constraint:String {maxLength: 127}
-    string custom_id?;
-    # Reference values used by the card network to identify a transaction
-    NetworkTransactionReference network_transaction_reference?;
-    # The level of protection offered as defined by [PayPal Seller Protection for Merchants](https://www.paypal.com/us/webapps/mpp/security/seller-protection)
-    SellerProtection seller_protection?;
-    # The date and time, in [Internet date and time format](https://tools.ietf.org/html/rfc3339#section-5.6). Seconds are required while fractional seconds are optional.<blockquote><strong>Note:</strong> The regular expression provides guidance but does not reject all invalid dates.</blockquote>
-    DateTime expiration_time?;
-    # An array of related [HATEOAS links](/docs/api/reference/api-responses/#hateoas-links).
-    LinkDescription[] links?;
+    # User's primary email address for user shares
+    string email?;
 };
 
-# The capture identification-related fields. Includes the invoice ID, custom ID, note to payer, and soft descriptor
-public type SupplementaryPurchaseData record {
-    # The API caller-provided external invoice number for this order. Appears in both the payer's transaction history and the emails that the payer receives
-    @jsondata:Name {value: "invoice_id"}
-    string invoiceId?;
-    # An informational note about this settlement. Appears in both the payer's transaction history and the emails that the payer receives
-    @jsondata:Name {value: "note_to_payer"}
-    string noteToPayer?;
+# Additional details for dashboard share removal events, including the responsible user's email and the removed user or group ID
+public type DashboardRemoveShareAdditionalDetails record {
+    # Email address of the user responsible for the event
+    string emailAddress;
+    # Id of the group that was removed from the dashboard's sharing list. (Specific to remove share from group actions)
+    @constraint:Int {minValue: 0}
+    int groupId?;
+    # Id of the user that was removed from the dashboard's sharing list. (Specific to remove share from user actions)
+    @constraint:Int {minValue: 0}
+    int userId?;
 };
 
-# The card network or brand. Applies to credit, debit, gift, and payment cards
-public type CardBrand "VISA"|"MASTERCARD"|"DISCOVER"|"AMEX"|"SOLO"|"JCB"|"STAR"|"DELTA"|"SWITCH"|"MAESTRO"|"CB_NATIONALE"|"CONFIGOGA"|"CONFIDIS"|"ELECTRON"|"CETELEM"|"CHINA_UNION_PAY";
-
-# The date and time, in [Internet date and time format](https://tools.ietf.org/html/rfc3339#section-5.6). Seconds are required while fractional seconds are optional.<blockquote><strong>Note:</strong> The regular expression provides guidance but does not reject all invalid dates.</blockquote>
-@constraint:String {maxLength: 64, minLength: 20, pattern: re `^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])[T,t]([0-1][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)([.][0-9]+)?([Zz]|[+-][0-9]{2}:[0-9]{2})$`}
-public type DateTime string;
-
-# A captured payment
-public type Capture record {
-    *CaptureStatus;
-    *CaptureAllOf2;
-    *ActivityTimestamps;
+# Event triggered when a user sends a comment in a discussion thread
+public type DiscussionSendcomment record {
+    *Event;
+    *DiscussionSendcommentAllOf2;
 };
 
-# The [three-character ISO-4217 currency code](/api/rest/reference/currency-codes/) that identifies the currency
-@constraint:String {maxLength: 3, minLength: 3}
-public type CurrencyCode string;
-
-# The status fields for an authorized payment
-public type AuthorizationStatus record {
-    # Additional details and context information about the current authorization status
-    @jsondata:Name {value: "status_details"}
-    AuthorizationStatusDetails statusDetails?;
-    # The status for the authorized payment
-    "CREATED"|"CAPTURED"|"DENIED"|"PARTIALLY_CAPTURED"|"VOIDED"|"PENDING" status?;
+# Represents the Queries record for the operation: add-user
+public type AddUserQueries record {
+    # Either true or false to indicate whether to notify the user by email. Default is false. If true, limit is 1000 emails
+    boolean sendEmail = false;
 };
 
-# The details of the captured payment status
-public type CaptureStatusDetails record {
-    # The reason why the captured payment status is `PENDING` or `DENIED`
-    "BUYER_COMPLAINT"|"CHARGEBACK"|"ECHECK"|"INTERNATIONAL_WITHDRAWAL"|"OTHER"|"PENDING_REVIEW"|"RECEIVING_PREFERENCE_MANDATES_MANUAL_ACTION"|"REFUNDED"|"TRANSACTION_APPROVED_AWAITING_FUNDING"|"UNILATERAL"|"VERIFICATION_REQUIRED" reason?;
+# Additional details for sheet rename events, including user email and old/new sheet names
+public type SheetRenameAdditionalDetails record {
+    # Email address of the user responsible for the event
+    string emailAddress;
+    # New name of the sheet
+    string newName?;
+    # Previous name of the sheet
+    string oldName?;
 };
 
-# The details for the merchant who receives the funds and fulfills the order. The merchant is also known as the payee
-public type PayeeBase record {
-    # Email address of the payee for communication and identification purposes
-    @jsondata:Name {value: "email_address"}
-    Email emailAddress?;
-    # Unique identifier for the merchant account associated with the payee
-    @jsondata:Name {value: "merchant_id"}
-    AccountId merchantId?;
+# Response containing indexed search results with alternate email listings and indexing metadata
+public type IndexedSearchResultsResponse record {
+    *IndexResult;
+    *AlternateEmailListResponse;
+};
+
+# Represents the Queries record for the operation: automationrules-list
+public type AutomationrulesListQueries record {
+    # The maximum number of items to return per page. Unless otherwise stated for a specific endpoint, defaults to 100. If only page is specified, defaults to a page size of 100. For reports, the default is 100 rows. If you need larger sets of data from your report, returns a maximum of 10,000 rows per request
+    decimal pageSize = 100;
+    # If true, include all results, that is, do not paginate. Mutually exclusive with page and pageSize (they are ignored if includeAll=true is specified)
+    boolean includeAll = false;
+    # Which page to return. Defaults to 1 if not specified. If you specify a value greater than the total number of pages, the last page of results is returned
+    decimal page = 1;
+};
+
+# Object containing a list of Contacts
+public type MultiContactObjectValue record {
+    # List of Contacts
+    ContactObjectValue[] value?;
+    # Specifies the object type as a multi-contact value, with only "MULTI_CONTACT" as valid option
+    "MULTI_CONTACT" objectType?;
+};
+
+# Extended webhook properties including metadata, statistics, scope details, and status information for webhook management
+public type WebhookAllOf2 record {
+    # API client name corresponding to third-party app that created the webhook. Read-only. Only present if webhook was created by third-party app
+    string apiClientName?;
+    # Timestamp indicating when the webhook was created. This field is read-only
+    Timestamp createdAt?;
+    # Details about the reason the webhook was disabled. Read-only. Only present when enabled=false
+    string disabledDetails?;
+    # Statistics tracking webhook callback attempts, retry counts, and last successful callback timestamp
+    WebhookStats stats?;
+    # Id of the object that is subscribed to. Specified when a webhook is created and cannot be changed
+    decimal scopeObjectId?;
+    # Timestamp indicating when the webhook was last modified. Read-only field
+    Timestamp modifiedAt?;
+    # Scope of the subscription. Currently, the only supported value is sheet. Specified when a webhook is created and cannot be changed
+    string scope?;
+    # API client Id corresponding to third-party app that created the webhook. Read-only. Only present if webhook was created by third-party app
+    string apiClientId?;
+    # An object that contains an array of column Ids if you want to limit the subscription to a subscope. Specified when a webhook is created and cannot be changed
+    Subscope subscope?;
+    # Webhook Id
+    decimal id?;
+    # Shared secret for this Webhook, randomly generated by Smartsheet. Read-only. See [Authenticating Callbacks](/api/smartsheet/guides/webhooks/webhook-callbacks#authenticating-callbacks-optional) for details about how this value can be used
+    string sharedSecret?;
+    # The webhook's status.
+    # 
+    # See [Webhook Status](/api/smartsheet/guides/webhooks/webhook-status) for details
+    "DISABLED_ADMINISTRATIVE"|"DISABLED_APP_REVOKED"|"DISABLED_BY_OWNER"|"DISABLED_CALLBACK_FAILED"|"DISABLED_SCOPE_INACCESSIBLE"|"DISABLED_VERIFICATION_FAILED"|"ENABLED"|"NEW_NOT_VERIFIED" status?;
+};
+
+# API response containing an array of share collection results with ShareResponse objects
+public type ShareCollectionApiResponse record {
+    # Array of share responses containing details about shared collection items
+    ShareResponse[] result?;
+};
+
+# Triggered when a sheet form is deleted
+public type FormDeleteAllOf2 record {
+    # The action applied to the specified object
+    "DELETE" action?;
+    # Additional details for form activation events, including the responsible user's email and optional sheet ID
+    FormActivateAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "FORM" objectType?;
+};
+
+# A response object containing a numeric result code and corresponding success message for API operations
+public type GenericResult record {
+    # * '0' Success
+    # * '3' Partial Success of Bulk Operation
+    0|3 resultCode?;
+    # Message that indicates the outcome of the request. (One of SUCCESS or PARTIAL_SUCCESS.)
+    "PARTIAL_SUCCESS"|"SUCCESS" message?;
+};
+
+# A combined response containing index results and proof attachment collection data
+public type IndexResultExtendedResponse5 record {
+    *IndexResult;
+    *ProofAttachmentCollectionResponse;
+};
+
+# A composite response combining index results with proof request action list data
+public type IndexResultExtendedResponse6 record {
+    *IndexResult;
+    *ProofRequestActionListResponse;
+};
+
+# The formula for a cell, if set
+public type Formula string;
+
+# The base object for values found in the **Cell.objectValue** attribute. Its **objectType** attribute indicates the type of the object. This object itself is not used directly
+public type ObjectValue AbstractDatetimeObjectValue|CheckboxObjectValue|ContactObjectValue|DateObjectValue|DatetimeObjectValue|DurationObjectValue|MultiContactObjectValue|MultiPicklistObjectValue|PredecessorList;
+
+# Event triggered when an attachment is deleted from the system
+public type AttachmentDelete record {
+    *Event;
+    *AttachmentDeleteAllOf2;
+};
+
+# Combined index result with user collection data, extending basic index functionality with user-specific collection information
+public type IndexResultExtendedResponse1 record {
+    *IndexResult;
+    *UserCollectionResponse;
+};
+
+# See [System Columns](/api/smartsheet/openapi/columns)
+public type SystemColumnType "AUTO_NUMBER"|"CREATED_BY"|"CREATED_DATE"|"MODIFIED_BY"|"MODIFIED_DATE";
+
+# Extended index result that combines basic index data with automation rule collection response
+public type IndexResultExtendedResponse2 record {
+    *IndexResult;
+    *AutomationRuleCollectionResponse;
+};
+
+# Combined index result with cross-sheet reference collection data for extended response handling
+public type IndexResultExtendedResponse3 record {
+    *IndexResult;
+    *CrossSheetReferenceCollectionResponse;
+};
+
+# Represents the Headers record for the operation: share-sheet
+public type ShareSheetHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# A combined response containing indexed search results with an associated collection of cryptographic proofs
+public type IndexResultExtendedResponse4 record {
+    *IndexResult;
+    *ProofCollectionResponse;
+};
+
+# Represents the Headers record for the operation: sentupdaterequest-delete
+public type SentupdaterequestDeleteHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Records the modification history of a cell, including timestamp and user who made changes
+public type CellHistory Cell;
+
+# Represents the Headers record for the operation: resetSharedSecret
+public type ResetSharedSecretHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+    # Required for POST and PUT requests. Defines the structure for the request body
+    @http:Header {name: "Content-Type"}
+    string contentType = "application/json";
+};
+
+# Indicates who can access the 'Edit by Anyone' view of the published sheet:
+#   * ALL - available to anyone who has the link.
+#   * ORG - available only to members of the sheet owner's Smartsheet organization account.
+#   * SHARED - available only to users shared to the item.
+# 
+# Only returned in the response if **readWriteEnabled = true**
+public type ReadWriteAccessibleBy "ALL"|"ORG"|"SHARED";
+
+# A token that is used to retrieve the next page of results when passed as the
+# `lastKey` query parameter. This value will be absent when there are no 
+# further pages
+public type LastKey string;
+
+# Represents the Queries record for the operation: proofs-listDiscussions
+public type ProofsListDiscussionsQueries record {
+    # A comma-separated list of optional elements to include in the response:
+    #   * **attachments** - effective only if comments is present, otherwise ignored
+    #   * **comments** - include all comments in threads
+    "attachments"|"comments" include?;
+    # The maximum number of items to return per page. Unless otherwise stated for a specific endpoint, defaults to 100. If only page is specified, defaults to a page size of 100. For reports, the default is 100 rows. If you need larger sets of data from your report, returns a maximum of 10,000 rows per request
+    decimal pageSize = 100;
+    # If true, include all results, that is, do not paginate. Mutually exclusive with page and pageSize (they are ignored if includeAll=true is specified)
+    boolean includeAll = false;
+    # Which page to return. Defaults to 1 if not specified. If you specify a value greater than the total number of pages, the last page of results is returned
+    decimal page = 1;
+};
+
+# Represents the Headers record for the operation: attachments-attachToSheet
+public type AttachmentsAttachToSheetHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+    # Required for POST and PUT requests. Defines the structure for the request body
+    @http:Header {name: "Content-Type"}
+    string contentType = "application/json";
+};
+
+# Additional details for dashboard share member events, including email, access level, and user/group IDs
+public type DashboardAddShareMemberAdditionalDetails record {
+    # Email address of the user responsible for the event
+    string emailAddress;
+    # Indicates the access level granted to the group or user. 
+    # 
+    # Note that this access level represents the access level granted by this specific sharing action; it is not the group or user's effective access level for the dashboard
+    "VIEWER"|"EDITOR"|"EDITOR_SHARE"|"ADMIN" accessLevel?;
+    # Id of the group that was added to the dashboard's sharing list. (Specific to share to group actions)
+    @constraint:Int {minValue: 0}
+    int groupId?;
+    # Id of the user that was added to the dashboard's sharing list. (Specific to share to user actions)
+    @constraint:Int {minValue: 0}
+    int userId?;
+};
+
+# Event triggered when a user removes sharing permissions from a dashboard
+public type DashboardRemoveShare record {
+    *Event;
+    *DashboardRemoveShareAllOf2;
+};
+
+# API response containing a collection of sheet data objects in an array format
+public type SheetCollectionApiResponse record {
+    # Array of sheet objects containing the collection of sheets returned by the API response
+    SchemasSheet[] data?;
+};
+
+# Event for creating a cell link within a sheet, combining base event properties with cell link creation details
+public type SheetCreateCellLink record {
+    *Event;
+    *SheetCreateCellLinkAllOf2;
+};
+
+# A numeric timestamp value representing a point in time, typically in seconds or milliseconds since epoch
+public type TimestampNumber decimal;
+
+# Response containing a collection of user profile image data with updated user properties
+public type UserProfileImageCollectionResponse record {
+    # Updated User Properties
+    UserProfileImageResponse[] data?;
+};
+
+# Event triggered when a workspace share is removed from a dashboard
+public type DashboardRemoveWorkspaceShare record {
+    *Event;
+    *DashboardRemoveWorkspaceShareAllOf2;
+};
+
+# Represents the Headers record for the operation: get-folder-metadata
+public type GetFolderMetadataHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+};
+
+# Additional details for workspace sharing events, including recipient email, access level, and relevant IDs
+public type ReportAddWorkspaceShareAdditionalDetails record {
+    # Email address of the user responsible for the event
+    string emailAddress;
+    # Indicates the access level granted to the group or user. 
+    # 
+    # Note that this access level represents the access level granted by this specific sharing action; it is not the group or user's effective access level for the report
+    "VIEWER"|"EDITOR"|"EDITOR_SHARE"|"ADMIN" accessLevel?;
+    # Id of the group that the workspace was shared to. (Specific to share to group actions)
+    @constraint:Int {minValue: 0}
+    int groupId?;
+    # Id of the user that the workspace was shared to. (Specific to share to user actions)
+    @constraint:Int {minValue: 0}
+    int userId?;
+    # Id of the workspace that was shared to the group or user
+    @constraint:Int {minValue: 0}
+    int workspaceId?;
+};
+
+# API response containing a collection of Group objects in a data array
+public type GroupCollectionApiResponse record {
+    # List of Groups
+    Group[] data?;
+};
+
+# Triggered when a workspace is renamed in the UI or via the API (update)
+public type WorkspaceRenameAllOf2 record {
+    # The action applied to the specified object
+    "RENAME" action?;
+    # Additional details for workspace rename events, including the responsible user's email and old/new workspace names
+    WorkspaceRenameAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "WORKSPACE" objectType?;
+};
+
+# Represents the Headers record for the operation: list-asset-shares
+public type ListAssetSharesHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+};
+
+# A request to access or download a proof, containing sender details, timestamps, and current status
+public type ProofRequest ProofRequestBody;
+
+# Represents the Headers record for the operation: proofs-listDiscussions
+public type ProofsListDiscussionsHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Response object containing discussion details and metadata returned from discussion-related API operations
+public type DiscussionResponse Discussion;
+
+# Configuration object defining column properties and settings when creating a new sheet
+public type ColumnToCreateASheet record {
+    # When applicable for **CHECKBOX** or **PICKLIST** column types. See [Symbol Columns](/api/smartsheet/openapi/columns)
+    Symbol symbol?;
+    # Array of ContactOption objects to specify a pre-defined list of values for the column. Column **type** must be **CONTACT_LIST**
+    ContactOptions contactOptions?;
+    # Object that describes how the the System Column type of "AUTO_NUMBER" is auto-generated
+    AutoNumberFormat autoNumberFormat?;
+    # Array of the options available for the column
+    Options options?;
+    # Display width of the column in pixels
+    Width width?;
+    # See [System Columns](/api/smartsheet/openapi/columns)
+    SystemColumnType systemColumnType?;
+    # Column title
+    Title title?;
+    # See [Column Types](/api/smartsheet/openapi/columns)
+    Type 'type?;
+    # Returned only if the column is the Primary Column (value = **true**)
+    Primary primary?;
+};
+
+# An array of group members to be added to a group
+public type GroupMembersAddArray GroupMemberAdd[];
+
+# Triggered when row(s) are moved from one sheet to another
+public type SheetMoveRowAllOf2 record {
+    # The action applied to the specified object
+    "MOVE_ROW" action?;
+    # Additional details for sheet row move events, including user email, row count, and transfer options
+    SheetMoveRowAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "SHEET" objectType?;
+};
+
+# Represents the Headers record for the operation: proofs-listAttachments
+public type ProofsListAttachmentsHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Represents the Headers record for the operation: move-rows
+public type MoveRowsHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+    # Required for POST and PUT requests. Defines the structure for the request body
+    @http:Header {name: "Content-Type"}
+    string contentType = "application/json";
+};
+
+# Represents the Headers record for the operation: delete-sight
+public type DeleteSightHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Triggered when a member is removed from a group
+public type GroupRemoveMemberAllOf2 record {
+    # The action applied to the specified object
+    "REMOVE_MEMBER" action?;
+    # Additional details for group member removal events, including the responsible user's email and removed member's ID
+    GroupRemoveMemberAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "GROUP" objectType?;
+};
+
+# Required webhook configuration fields including callback URL, events, name, scope, scope object ID, and version
+public type WebhooksAllOf2 record {
+};
+
+# Triggered when a workspace is created.
+# 
+# Workspaces can be created in the UI with the `Create New` button, by selecting the `Save As New` option on an existing workspace, or through the API
+public type WorkspaceCreateAllOf2 record {
+    # The action applied to the specified object
+    "CREATE" action?;
+    # Additional details for workspace creation events, including responsible user email and optional source workspace information
+    WorkspaceCreateAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "WORKSPACE" objectType?;
+};
+
+# Represents the Queries record for the operation: create-sheet-in-workspace
+public type CreateSheetInWorkspaceQueries record {
+    # Allows COMMENTER access for inputs and return values. For backwards-compatibility, VIEWER is the default. For example, to see whether a user has COMMENTER access for a sheet, use accessApiLevel=1
+    decimal accessApiLevel = 0;
+    # Additional parameter to create a sheet from template.
+    # A comma-separated list of elements to copy from the template
+    "attachments"|"cellLinks"|"data"|"discussions"|"filters"|"forms"|"ruleRecipients"|"rules" include?;
+};
+
+# Event report indicating the removal of a shared resource or access permission from a system
+public type ReportRemoveShare record {
+    *Event;
+    *ReportRemoveShareAllOf2;
+};
+
+# Represents the Headers record for the operation: list-webhooks
+public type ListWebhooksHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Response object containing a single comment result
+public type CommentResultResponse record {
+    # A comment object containing text, creator information, timestamps, attachments, and discussion reference
+    Comment result?;
+};
+
+# Triggered when a user saves a copy of a report by using the `Save As New` option. 
+# 
+# This event is recorded for the original report. If the original reports belongs to a different organization, then an event will be generated for organization with original report and for the organization with copied report.
+# 
+# For copied report, `Save As New` event is paired with a [REPORT - CREATE](/api/smartsheet/openapi/schemas/report_create) event
+public type ReportSaveAsNewAllOf2 record {
+    # The action applied to the specified object
+    "SAVE_AS_NEW" action?;
+    # Additional details for bulk account updates, including the responsible user's email address
+    AccountBulkUpdateAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "REPORT" objectType?;
+};
+
+# Request object for sharing a sheet with a user or group, specifying access level and optional email notification settings
+public type CreateShareRequest record {
+    # Defines user permission level with values: ADMIN, COMMENTER, EDITOR, EDITOR_SHARE, OWNER, or VIEWER
+    AccessLevel accessLevel;
+    # The subject of the email that is optionally sent to notify the recipient.
+    # 
+    # Must set the `sendEmail` query parameter to **true** for this parameter to take effect
+    string subject?;
+    # Indicates whether to send a copy of the email to the sharer of the sheet.
+    # 
+    # Must set the `sendEmail` query parameter to **true** for this parameter to take effect
+    boolean ccMe?;
+    # The id of the group to share to. Must be provided if `email` is not provided
+    decimal groupId?;
+    # The message included in the body of the email that is optionally sent to the recipient.
+    # 
+    # Must set the `sendEmail` query parameter to **true** for this parameter to take effect
+    string message?;
+    # The primary email address of a user to share to. Must be provided if `groupId` is not provided
+    string email?;
+};
+
+# Represents the Queries record for the operation: column-get
+public type ColumnGetQueries record {
+    # Specifies whether object data types, such as multi-contact data are returned in a backwards-compatible, text format in text/number columns.<br>  - Set `level=0` (default) to use text/number columns for multi-contact data and multi-picklist data.<br>  - Set `level=1` to use multiple-entry contact list columns for multi-contact data; multi-picklist data is returned in text/number columns.<br>  - Set `level=2` to use multiple-entry contact list columns for multi-contact data and use multiple-entry picklist columns for multi-picklist data
+    int level = 0;
+};
+
+# Metadata for paginated API responses containing current page number, page size, and deprecated total count/pages information
+public type PaginationMetadataResponse record {
+    # The current page in the full result set that the data array represents.
+    # NOTE when a page number greater than totalPages is requested, the last
+    # page is instead returned
+    decimal pageNumber?;
+    # **DEPRECATED - As early as the sunset date specified in this [Changelog entry](/api/smartsheet/changelog#2025-08-04), this response property value will be `-1`.** See the [Changelog entry](/api/smartsheet/changelog#2025-08-04) for migration instructions and details.
+    # 
+    # The total number of pages in the full result set
+    # 
+    # # Deprecated
+    @deprecated
+    decimal totalPages?;
+    # The number of items in a page. Omitted if there is no limit to page size (and hence, all results are included). Unless otherwise specified, this defaults to 100 for most endpoints
+    decimal? pageSize?;
+    # **DEPRECATED - As early as the sunset date specified in this [Changelog entry](/api/smartsheet/changelog#2025-08-04), this response property value will be `-1`.** See the [Changelog entry](/api/smartsheet/changelog#2025-08-04) for migration instructions and details.
+    # 
+    # The total number of items in the full result set
+    # 
+    # # Deprecated
+    @deprecated
+    decimal totalCount?;
+};
+
+# Additional details for group member addition events, including the responsible user's email and added member's ID
+public type GroupAddMemberAdditionalDetails record {
+    # Email address of the user responsible for the event
+    string emailAddress;
+    # Id of the user that was added to the group
+    @constraint:Int {minValue: 0}
+    int memberUserId?;
+};
+
+# Triggered when a user saves a copy of a dashboard by using the `Save As New` option.
+# 
+# This event is recorded for the original  dashboard. If the original dashboard belongs to a different organization, then `Save As New` event will be generated for the organization with original dashboard and for the organization with copied dashboard.
+# 
+# For copied dashboard, `Save As New` event is paired with a [DASHBOARD - CREATE](/api/smartsheet/openapi/schemas/dashboard_create) event
+public type DashboardSaveAsNewAllOf2 record {
+    # The action applied to the specified object
+    "SAVE_AS_NEW" action?;
+    # Additional details for bulk account updates, including the responsible user's email address
+    AccountBulkUpdateAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "DASHBOARD" objectType?;
+};
+
+# A response object that combines standard result information with extension API summary field deletion details
+public type ResultExtensionApiResponse record {
+    *Result;
+    *SummaryFieldDeletionResponse;
+};
+
+# Represents the Headers record for the operation: list-events
+public type ListEventsHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+    # Strongly recommended to make sure payload is compressed. Must be set to one of the following values:
+    # * deflate
+    # * gzip
+    @http:Header {name: "Accept-Encoding"}
+    "deflate"|"gzip" acceptEncoding?;
+};
+
+# Represents the Queries record for the operation: delete-asset-share
+public type DeleteAssetShareQueries record {
+    # The id of the asset. Used in combination with assetType to determine the asset.
+    # 
+    # Depending on the asset, this may be a numeric or string value
+    string assetId;
+    # The type of the asset. Used in combination with assetId to determine the asset
+    "sheet"|"report"|"sight"|"workspace"|"collection"|"file" assetType;
+};
+
+# Triggered when a user is removed from a group that a workspace has been shared to via the workspace's sharing list, or via a workspace's sharing list. 
+# 
+# If a workspace has been shared to a group directly via the workspace's sharing list, and via a workspace's sharing list, then an event will be generated for each of these shares
+public type WorkspaceRemoveShareMemberAllOf2 record {
+    # The action applied to the specified object
+    "REMOVE_SHARE_MEMBER" action?;
+    # Additional details for bulk account updates, including the responsible user's email address
+    AccountBulkUpdateAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "WORKSPACE" objectType?;
+};
+
+# Additional details for report sharing events, including recipient email, access level, and user/group IDs
+public type ReportAddShareAdditionalDetails record {
+    # Email address of the user responsible for the event
+    string emailAddress;
+    # Indicates the access level granted to the group or user. 
+    # 
+    # Note that this access level represents the access level granted by this specific sharing action; it is not the group or user's effective access level for the report
+    "VIEWER"|"EDITOR"|"EDITOR_SHARE"|"ADMIN" accessLevel?;
+    # Id of the group that was added to the report's sharing list. (Specific to share to group actions)
+    @constraint:Int {minValue: 0}
+    int groupId?;
+    # Id of the user that was added to the report's sharing list. (Specific to share to user actions)
+    @constraint:Int {minValue: 0}
+    int userId?;
+};
+
+# Represents the Headers record for the operation: delete-group
+public type DeleteGroupHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# API response containing attachment data and metadata
+public type AttachmentApiResponse Attachment;
+
+# Triggered when a group or user is added to the sheet's sharing list, or when a group or user's share permissions are changed
+public type SheetAddShareAllOf2 record {
+    # The action applied to the specified object
+    "ADD_SHARE" action?;
+    # Additional details for sheet sharing events, including recipient email, access level, and user/group IDs
+    SheetAddShareAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "SHEET" objectType?;
+};
+
+# Represents the Queries record for the operation: proofs-getAllProofs
+public type ProofsGetAllProofsQueries record {
+    # The maximum number of items to return per page. Unless otherwise stated for a specific endpoint, defaults to 100. If only page is specified, defaults to a page size of 100. For reports, the default is 100 rows. If you need larger sets of data from your report, returns a maximum of 10,000 rows per request
+    decimal pageSize = 100;
+    # If true, include all results, that is, do not paginate. Mutually exclusive with page and pageSize (they are ignored if includeAll=true is specified)
+    boolean includeAll = false;
+    # Which page to return. Defaults to 1 if not specified. If you specify a value greater than the total number of pages, the last page of results is returned
+    decimal page = 1;
+};
+
+# Represents the Headers record for the operation: proofs-getAllProofs
+public type ProofsGetAllProofsHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Response containing a list of proof request actions that can be performed or have been executed
+public type ProofRequestActionListResponse record {
+    # list of proof request actions
+    ProofRequestAction[] data?;
+};
+
+# API response wrapper containing a SightResult object in the result field
+public type SightResultApiResponse record {
+    # A dashboard result containing ID, access level, permalink, and name properties from Smartsheet
+    SightResult result?;
+};
+
+# Response data for paginated children that can be either a list item or folder item
+public type PaginatedChildrenResponseData PaginatedChildrenListItem|PaginatedFolderListItem;
+
+# Triggered when an attachment is loaded (i.e. viewed or downloaded)
+public type AttachmentLoadAllOf2 record {
+    # The action applied to the specified object
+    "LOAD" action?;
+    # Additional details for attachment load events, including user email and container information
+    AttachmentLoadAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "ATTACHMENT" objectType?;
+};
+
+# Triggered when an existing sheet form is updated
+public type FormUpdateAllOf2 record {
+    # The action applied to the specified object
+    "UPDATE" action?;
+    # Additional details for form activation events, including the responsible user's email and optional sheet ID
+    FormActivateAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "FORM" objectType?;
+};
+
+# Response object containing an array of numeric values in the result field
+public type NumericArrayResponse record {
+    # Array of numeric values returned as the response result
+    decimal[] result?;
+};
+
+# Contains metadata for a Smartsheet folder including name, unique identifier, and permalink URL
+public type FolderMetadataDetails record {
+    # The folder's name
+    string name?;
+    # The folder's unique identifier
+    decimal id?;
+    # URL to the folder in Smartsheet
+    string permalink?;
+};
+
+# Represents the Headers record for the operation: rows-addToSheet
+public type RowsAddToSheetHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+    # Required for POST and PUT requests. Defines the structure for the request body
+    @http:Header {name: "Content-Type"}
+    string contentType = "application/json";
+};
+
+# Object representing a duration in days
+public type DurationObjectValue record {
+    # Number of days
+    float days?;
+    # Specifies the object type as DURATION for duration-based values
+    "DURATION" objectType?;
+};
+
+# Response containing indexed query results with pagination and update request details
+public type IndexedQueryResultsResponse record {
+    *IndexResult;
+    *SentUpdateRequestListResponse;
+};
+
+# Request body for workspace sharing operations, accepting either a Share object or workspace-specific sharing configuration
+public type WorkspaceIdSharesBody Share|WorkspacesworkspaceIdsharesOneOf2;
+
+# Event triggered when a report is exported, combining base event properties with export-specific details
+public type ReportExport record {
+    *Event;
+    *ReportExportAllOf2;
+};
+
+# Represents the Queries record for the operation: rows-addToSheet
+public type RowsAddToSheetQueries record {
+    # Allows COMMENTER access for inputs and return values. For backwards-compatibility, VIEWER is the default. For example, to see whether a user has COMMENTER access for a sheet, use accessApiLevel=1
+    decimal accessApiLevel = 0;
+    # When specified with a value of true, enables partial success for this bulk operation. See [Bulk operations > Partial success](/api/smartsheet/guides/advanced-topics/scalability-options) for more information
+    boolean allowPartialSuccess = false;
+    # You may use the query string parameter **overrideValidation** with a value of **true** to allow a cell value outside of the validation limits. You must specify **strict** with a value of **false** to bypass value type checking
+    boolean overrideValidation = false;
+};
+
+# Represents a member of a group with personal details including name, ID, and email address
+public type GroupMember record {
+    # Group member's first name
+    string firstName?;
+    # Group member's last name
+    string lastName?;
+    # Group member's full name
+    string name?;
+    # Group member's user Id
+    decimal id?;
+    # Group member's email address
+    string email?;
+};
+
+# Represents the Headers record for the operation: getReportPublish
+public type GetReportPublishHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Additional details for group member removal events, including the responsible user's email and removed member's ID
+public type GroupRemoveMemberAdditionalDetails record {
+    # Email address of the user responsible for the event
+    string emailAddress;
+    # Id of the user that was removed from the group
+    @constraint:Int {minValue: 0}
+    int memberUserId?;
+};
+
+# Contains all of the lookup tables that the format descriptor indexes refer to. Here the examples show the formatting options, the default value is used to denote each option. NOTE -- Indexes and their values are guaranteed never to change or be removed for a given major API version.  However, new values could potentially be added to the ends of lookup tables. Because of this possibility, your code should handle the case where a cell might contain a format index value greater than the size of a lookup table your app has loaded. Your application should check for that case and reload the format tables if necessary
+public type FormatTables record {
+    # The default setting is "default" which is equivalent to "top"
+    string[] verticalAlign?;
+    # The default setting is "none". Typically this is black text and a white background
+    string[] color?;
+    # Array of supported date format patterns including locale-based and custom formats like YYYY-MM-DD
+    string[] dateFormat?;
+    # Array of underline formatting options for table elements, such as "none" or "on"
+    string[] underline?;
+    # Array of string values controlling bold text formatting options for table elements
+    string[] bold?;
+    # Array of italic formatting states for table elements, such as "none" or "on"
+    string[] italic?;
+    # Array of available font families with their names and typographic traits (serif, sans-serif, etc.)
+    FontFamily[] fontFamily?;
+    # A format descriptor where each element describes the formats the Smartsheet Web app displays for format values that have not been set. Each value refers to an index of the following options
+    string defaults?;
+    # Array of number formatting types for table columns (e.g., none, NUMBER, CURRENCY, PERCENT)
+    string[] numberFormat?;
+    # The default setting is "default" which is equivalent to "left"
+    string[] horizontalAlign?;
+    # Specifies text wrapping behavior for table cells as an array of string values
+    string[] textWrap?;
+    # Array of supported currencies with their ISO codes and display symbols for formatting purposes
+    Currency[] currency?;
+    # Array of available font size options as string values for table formatting
+    string[] fontSize?;
+    # Array of strikethrough formatting options for table elements, such as "none" or "on"
+    string[] strikethrough?;
+    # Array of decimal place count options as strings, typically ranging from 0 to 5 decimal places
+    string[] decimalCount?;
+    # Specifies thousands separator formatting options as an array of string values (e.g., "none", "on")
+    string[] thousandsSeparator?;
+};
+
+# Triggered when an admin downloads sheet access report for a group. This can be done through Group Management console on UI
+public type GroupDownloadSheetAccessReportAllOf2 record {
+    # The action applied to the specified object
+    "DOWNLOAD_SHEET_ACCESS_REPORT" action?;
+    # Additional details for bulk account updates, including the responsible user's email address
+    AccountBulkUpdateAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "GROUP" objectType?;
+};
+
+# Event triggered when a row is sent or transmitted from a sheet to another destination or system
+public type SheetSendRow record {
+    *Event;
+    *SheetSendRowAllOf2;
+};
+
+# Array of alternate email addresses to be added for the user
+public type UsersuserIdalternateemailsOneOf2 AddAlternateEmail[];
+
+# A sight list item containing sight result data with creation and modification timestamps
+public type SightListItem SightResult;
+
+# Triggered when a group is deleted
+public type GroupDeleteAllOf2 record {
+    # The action applied to the specified object
+    "DELETE" action?;
+    # Additional details for bulk account updates, including the responsible user's email address
+    AccountBulkUpdateAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "GROUP" objectType?;
+};
+
+# Object containing a list of references to rows on which the current row depends
+public type PredecessorList record {
+    # List of references to rows on which the current row depends
+    Predecessor[] predecessors?;
+    # Specifies the type of object, with a fixed value of "PREDECESSOR_LIST" for predecessor list objects
+    "PREDECESSOR_LIST" objectType?;
+};
+
+# Represents the Queries record for the operation: list-events
+public type ListEventsQueries record {
+    # The target managed plan for which to list events. Authorized if the
+    # caller is a system administrator on either the target managed plan or
+    # the main plan in EPM hierarchy
+    decimal managedPlanId?;
+    # Indicates next set of events to return. Use value of
+    # `nextStreamPosition` returned from the previous call.
+    # 
+    # This parameter is required if `since` is not used
+    string streamPosition?;
+    # If `true`, dates are accepted and returned in Unix epoch time
+    # (milliseconds since midnight on January 1, 1970 in UTC time).
+    # 
+    # Default is `false`, which means ISO-8601 format
+    boolean numericDates = false;
+    # The latest time up to which events are included in the response. Events after this time are excluded.
+    # 
+    # This parameter requires using the `since` parameter. 
+    # 
+    # The date-time value is resolved to the nearest hour. The value is interpreted as ISO-8601 format, unless `numericDates` is specified (see details about `numericDates` below).
+    # 
+    # Logic:
+    # 
+    # - If `to` is a future time, the current time is used.
+    # - If `to` equals the `since` time, an empty data value is returned.
+    # - If `to` is before the `since` time, a validation error is returned.
+    # 
+    # > **IMPORTANT:** This parameter is intended for use when backfilling data at client startup or recovery--don't use it for fine-grained, date-based queries
+    string to?;
+    # Maximum number of events to return as response to this call.
+    # Must be between 1 through 10,000 (inclusive).
+    # Defaults to 1,000 if not specified
+    @constraint:Int {minValue: 1, maxValue: 10000}
+    int:Signed32 maxCount = 1000;
+    # The earliest time from which events are included in the response. Events before this time are excluded.
+    # 
+    # This parameter is required if `streamPosition` is not used.
+    # 
+    # The date-time value is resolved to the nearest hour. The value is interpreted as ISO-8601 format, unless `numericDates` is specified (see details about `numericDates` below).
+    # 
+    # > **IMPORTANT:** To keep event responses manageable and prevent timeouts, also specify the `to` query parameter.
+    # 
+    # > **IMPORTANT:** This parameter is intended for use when backfilling data at client startup or recovery--don't use it for fine-grained, date-based queries
+    string since?;
+};
+
+# Represents the Headers record for the operation: delete-asset-share
+public type DeleteAssetShareHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+};
+
+# A combined response that includes both generic result information and add columns collection data
+public type GenericResultCombinedResponse1 record {
+    *GenericResult;
+    *AddColumnsCollectionResponse;
+};
+
+# A response object that combines result data with extended summary field collection information
+public type ResultWithExtendedDataResponse record {
+    *Result;
+    *SummaryFieldCollectionResponse1;
+};
+
+# Represents the Headers record for the operation: columns-addToSheet
+public type ColumnsAddToSheetHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+    # Required for POST and PUT requests. Defines the structure for the request body
+    @http:Header {name: "Content-Type"}
+    string contentType = "application/json";
+};
+
+# Response object containing a cross-sheet reference result from an API operation
+public type CrossSheetReferenceResponse record {
+    # A reference to a specific range of cells or rows/columns in another sheet, with status tracking and optional friendly naming
+    CrossSheetReference result?;
+};
+
+# An array of Column objects representing the columns in a table or data structure
+public type Columns Column[];
+
+# Represents the Queries record for the operation: get-workspace-metadata
+public type GetWorkspaceMetadataQueries record {
+    # A comma-separated list of optional elements to include in the response:
+    #   * **source** - adds the Source object indicating which object this resource was created from, if any
+    "source" include?;
+    # Allows COMMENTER access for inputs and return values. For backwards-compatibility, VIEWER is the default. For example, to see whether a user has COMMENTER access for a sheet, use accessApiLevel=1
+    decimal accessApiLevel = 0;
+    # You can optionally choose to receive and send dates/times in numeric format, as milliseconds since the UNIX epoch (midnight on January 1, 1970 in UTC time), using the query string parameter numericDates with a value of true. This query parameter works for any API request
+    boolean numericDates = false;
+};
+
+# Event triggered when a discussion is deleted from the system
+public type DiscussionDelete record {
+    *Event;
+    *DiscussionDeleteAllOf2;
+};
+
+# API response wrapper containing a simplified folder object in the result field
+public type FolderSimpleApiResponse record {
+    # Can contain dashboards, folders, reports, sheets, or templates
+    FolderSimpleResponse result?;
+};
+
+# Contains details about folder export events, including the responsible user's email and export format type
+public type FolderExportAdditionalDetails record {
+    # Email address of the user responsible for the event
+    string emailAddress;
+    # The format that the folder was exported. Notice that the same value "excel" is displayed either when exporting to Microsoft Excel or when exporting to Google Sheets
+    "excel"|"pdf" formatType?;
+};
+
+# Pagination metadata for index results where total page count and item count are unknown during processing
+public type IndexResultUnknownPages record {
+    # The current page in the full result set that the data array represents. NOTE when a page number greater than totalPages is requested, the last page is instead returned
+    decimal pageNumber?;
+    # If the data field value is not empty, returns a static value of -1. When you reach the first empty page after the end of the result set, then all four fields are set with a static value of “0”
+    decimal totalPages?;
+    # The number of items in a page. Omitted if there is no limit to page size (and hence, all results are included). Unless otherwise specified, this defaults to 100 for most endpoints
+    decimal? pageSize?;
+    # If the data field value is not empty, returns a static value of -1. When you reach the first empty page after the end of the result set, then all four fields are set with a static value of “0”
+    decimal totalCount?;
+};
+
+# Triggered when a workspace is deleted
+public type WorkspaceDeleteAllOf2 record {
+    # The action applied to the specified object
+    "DELETE" action?;
+    # Additional details for bulk account updates, including the responsible user's email address
+    AccountBulkUpdateAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "WORKSPACE" objectType?;
+};
+
+# A response object that combines generic result information with extended sheet creation result details
+public type GenericResultExtendedResponse record {
+    *GenericResult;
+    *SheetCreationResultResponse;
+};
+
+# A composite response combining Result and SheetResultResponse schemas for API operations
+public type ResultCompositeApiResponse2 record {
+    *Result;
+    *SheetResultResponse;
+};
+
+# Additional details for attachment creation events, including user email and parent container information
+public type AttachmentCreateAdditionalDetails record {
+    # Email address of the user responsible for the event
+    string emailAddress;
+    # Id of the sheet that contains the attachment. (This property is included only if the `workspaceId` property below isn't included)
+    @constraint:Int {minValue: 0}
+    int sheetId?;
+    # Name of the attachment
+    string attachmentName?;
+    # Id of the workspace that directly contains the attachment. (This property is included only if the `sheetId` property above isn't included)
+    @constraint:Int {minValue: 0}
+    int workspaceId?;
+};
+
+# A composite API response that combines Result status information with ShareCollectionApiResponse3 data
+public type ResultCompositeApiResponse1 record {
+    *Result;
+    *ShareCollectionApiResponse3;
+};
+
+# Represents the Headers record for the operation: list-crosssheet-references
+public type ListCrosssheetReferencesHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Response object containing the result of a sheet import operation
+public type SheetImportResultResponse record {
+    # Sheet imported from CSV / XLSX file
+    SheetImported result?;
+};
+
+# A composite response combining standard result data with cross-sheet reference information
+public type ResultCompositeApiResponse3 record {
+    *Result;
+    *CrossSheetReferenceResponse;
+};
+
+# API response containing an array of workspace folder metadata including IDs, names, and URLs
+public type WorkspaceFolderCollectionApiResponse record {
+    # Array of all the workspace folders, referenced by their ID, name, and URL
+    FolderMetadataDetails[] data?;
+};
+
+# Additional details for publishing a dashboard, including user email, access permissions, and format settings
+public type DashboardAddPublishAdditionalDetails record {
+    # Email address of the user responsible for the event
+    string emailAddress;
+    # Indicates who can use the link to view the dashboard: `"ALL"` (accessible to any person with the link), `"ORG"` (accessible only by those belonging to the org)
+    "ALL"|"ORG" accessibleBy?;
+    # Indicates permissions granted to users with a valid link. All dashboard publishes are read only: `"read_only"`
+    "read_only" publishType?;
+    # Indicates format of the published dashboard. Dashboards are published in a rich media format: `"FULL"`,
+    "FULL" publishFormat?;
+};
+
+# A link object that can reference external URLs or internal reports, sheets, and dashboards by ID
+public type Hyperlink record {
+    # If non-null, this hyperlink is a link to the report with this Id
+    decimal reportId?;
+    # If non-null, this hyperlink is a link to the sheet with this Id
+    decimal sheetId?;
+    # If non-null, this hyperlink is a link to the dashboard with this Id
+    decimal sightId?;
+    # When the hyperlink is a URL link, this property contains the URL value. When the hyperlink is a dashboard/report/sheet link (that is, dashboardId, reportId, or sheetId is non-null), this property contains the permalink to the dashboard, report, or sheet
+    string url?;
+};
+
+# Triggered when a user is removed from a group that a sheet has been shared to via the sheet's sharing list, or via a workspace's sharing list. 
+# 
+# If a sheet has been shared to a group directly via the sheet's sharing list, and via a workspace's sharing list, then an event will be generated for each of these shares
+public type SheetRemoveShareMemberAllOf2 record {
+    # The action applied to the specified object
+    "REMOVE_SHARE_MEMBER" action?;
+    # Additional details for sheet share member removal events, including user email, group, user, and workspace IDs
+    SheetRemoveShareMemberAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "SHEET" objectType?;
+};
+
+# Attachment Object
+public type Attachment record {
+    # A read-only timestamp that can be represented as either a datetime string or numeric value
+    Timestamp createdAt?;
+    # Attachment sub type. Note--Folder type is for EGNYTE values and the rest are GOOGLE_DRIVE values
+    "DOCUMENT"|"DRAWING"|"FOLDER"|"PDF"|"PRESENTATION"|"SPREADSHEET" attachmentSubType?;
+    # Attachment type. Note--Dropbox, Egnyte, and Evernote are not supported for Smartsheet.gov accounts
+    "BOX_COM"|"DROPBOX"|"EGNYTE"|"EVERNOTE"|"FILE"|"GOOGLE_DRIVE"|"LINK"|"ONEDRIVE"|"TRELLO" attachmentType?;
+    # `User` object containing `name` and `email` of the user who created this attachment
+    MiniUser createdBy?;
+    # Attachment temporary URL time to live (files only)
+    decimal urlExpiresInMillis?;
+    # Attachment name
+    string name?;
+    # Attachment Id
+    decimal id?;
+    # Attachment MIME type
+    string mimeType?;
+    # The size of the file, if the attachmentType is FILE
+    decimal sizeInKb?;
+    # The Id of the parent
+    decimal parentId?;
+    # The type of object the attachment belongs to
+    "COMMENT"|"PROOF"|"ROW"|"SHEET" parentType?;
+    # Attachment temporary URL (files only)
+    string url?;
+};
+
+# Field index or position. This number is zero-based
+public type Index decimal;
+
+# Event representing the removal or unpublishing of a dashboard from a system or platform
+public type DashboardRemovePublish record {
+    *Event;
+    *DashboardRemovePublishAllOf2;
+};
+
+# Request body for creating a sheet in a folder, either from scratch or from a template
+public type FolderIdSheetsBody SheetToCreate|SheetToCreateFromTemplate;
+
+# Additional details for creating an update request, including recipient email, sheet context, and content options
+public type UpdateRequestCreateAdditionalDetails record {
+    # Email address of the user responsible for the event
+    string emailAddress;
+    # Indicates whether the row(s) were sent with their respective attachments
+    boolean includeAttachments?;
+    # Id of the sheet that owns the rows sent in the update request
+    @constraint:Int {minValue: 0}
+    int sheetId?;
+    # Number of rows sent in the update request
+    @constraint:Int {minValue: 1}
+    int rowCount?;
+    # Indicates whether the row(s) were sent with their respective discussion comments
+    boolean includeDiscussions?;
+};
+
+# Represents the Queries record for the operation: list-summary-fields
+public type ListSummaryFieldsQueries record {
+    # A comma-separated list of elements to include in the response.
+    # * **format**: includes format info for cells, rows, and summary fields
+    # * **writerInfo**: includes createdBy and modifiedBy attributes for rows and summary fields
+    "format"|"writerInfo" include?;
+    # A comma-separated list of elements to not include in the response.
+    # * **displayValue**: excludes displayValue info for cells, rows, and summary fields
+    # * **image**: excludes image attributes for cells and summary fields
+    # * **imageAltText**: excludes alt text for cells and summary fields
+    "displayValue"|"image"|"imageAltText" exclude?;
+};
+
+# A composite response combining item result data with sight-specific result information
+public type ItemResultCompositeResponse record {
+    *ItemResult;
+    *SightResultResponse;
+};
+
+# Event triggered when a dashboard is loaded or accessed by a user
+public type DashboardLoad record {
+    *Event;
+    *DashboardLoadAllOf2;
+};
+
+# Describes the sheet's publish settings. Used as a request body to set publish status
+public type SheetPublishRequest record {
+    # Indicates which view the user has set for a read-write, default view of the published sheet. Must be one of the listed enum values
+    ReadWriteDefaultView readWriteDefaultView?;
+    # If **true**, a webcal is available for the calendar in the sheet
+    IcalEnabled icalEnabled?;
+    # If **true**, a rich version of the sheet is published with the ability to download row attachments and discussions
+    ReadOnlyFullEnabled readOnlyFullEnabled?;
+    # Indicates who can access the 'Read-Only Full' view of the published sheet:
+    #   * ALL - available to anyone who has the link.
+    #   * ORG - available only to members of the sheet owner's Smartsheet organization account.
+    #   * SHARED - available only to users shared to the item.
+    # 
+    # Only returned in the response if **readOnlyFullEnabled = true**
+    ReadOnlyFullAccessibleBy readOnlyFullAccessibleBy?;
+    # If **true**, a lightweight version of the sheet is published without row attachments and discussions
+    ReadOnlyLiteEnabled readOnlyLiteEnabled?;
+    # **Deprecated** Indicates whether the left nav toolbar is displayed. The default, or **true**, is to display the toolbar. If **false**, hides the toolbar
+    ReadOnlyFullShowToolbar readOnlyFullShowToolbar?;
+    # If **true**,a rich version of the sheet is published with the ability to edit cells and manage attachments and discussions
+    ReadWriteEnabled readWriteEnabled?;
+    # Indicates which view the user has set for a read-only, default view of the published sheet. Must be one of the listed enum values
+    ReadOnlyFullDefaultView readOnlyFullDefaultView?;
+    # Indicates who can access the 'Edit by Anyone' view of the published sheet:
+    #   * ALL - available to anyone who has the link.
+    #   * ORG - available only to members of the sheet owner's Smartsheet organization account.
+    #   * SHARED - available only to users shared to the item.
+    # 
+    # Only returned in the response if **readWriteEnabled = true**
+    ReadWriteAccessibleBy readWriteAccessibleBy?;
+    # **Deprecated** Indicates whether the left nav toolbar is displayed. The default, or **true**, is to display the toolbar. If **false**, hides the toolbar
+    ReadWriteShowToolbar readWriteShowToolbar?;
+};
+
+# Event schema for sending attachment data, combining base event properties with attachment-specific send parameters
+public type AttachmentSend record {
+    *Event;
+    *AttachmentSendAllOf2;
+};
+
+# A number that is incremented every time a sheet is modified
+public type Version decimal;
+
+# Triggered when the organization account is renamed. This can be done through Account Administration console on UI
+public type AccountRenameAllOf2 record {
+    # The action applied to the specified object
+    "RENAME" action?;
+    # Additional details for account rename events, including responsible user email and old/new account names
+    AccountRenameAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "ACCOUNT" objectType?;
+};
+
+# Triggered when a group or user is removed from a workspace's sharing list
+public type WorkspaceRemoveShareAllOf2 record {
+    # The action applied to the specified object
+    "REMOVE_SHARE" action?;
+    # Additional details for workspace share removal events, including the responsible user's email and the removed user or group ID
+    WorkspaceRemoveShareAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "WORKSPACE" objectType?;
+};
+
+# Represents the Queries record for the operation: share-report
+public type ShareReportQueries record {
+    # Either true or false to indicate whether to notify the user by email. Default is false. If true, limit is 1000 emails
+    boolean sendEmail = false;
+};
+
+# Array of ContactOption objects to specify a pre-defined list of values for the column. Column **type** must be **CONTACT_LIST**
+public type ContactOptions ContactOption[];
+
+# Represents individual user settings for a specific sheet. User settings may be updated even on sheets where the current user only has read access (for example, viewer permissions or a read-only sheet)
+public type SheetUserSettings record {
+    # Does this user have "Show Critical Path" turned on for this sheet? **NOTE**: This setting only has an effect on project sheets with dependencies enabled
+    boolean criticalPathEnabled?;
+    # Does this user have "Display Summary Tasks" turned on for this sheet? Applies only to sheets where "Calendar View" has been configured
+    boolean displaySummaryTasks?;
+};
+
+# SummaryField Id
+public type PropertiesId decimal;
+
+# Represents the Headers record for the operation: delete-sight-share
+public type DeleteSightShareHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Request object for creating a webhook subscription to monitor events on a specified scope object
+public type CreateWebhookRequest record {
+    # ID of the object to subscribed to. Specified when a webhook is created and cannot be changed
+    @constraint:Int {minValue: 0}
+    int scopeObjectId?;
+    # Scope of the subscription. Currently, the only supported value is
+    # "sheet". Specified when a webhook is created and cannot be changed
+    "sheet" scope?;
+    # Webhook name
+    string name?;
+    # HTTPS URL where callbacks are sent
+    string callbackUrl?;
+    # Limits the webhook to monitor specific columns designated by an array of sheet column IDs. 
+    CreateWebhookRequestSubscope subscope?;
+    # Webhook version. Currently, the only supported value is 1. This attribute is intended to ensure backward compatibility as new webhook functionality is released. For example, a webhook with a version of 1 is guaranteed to always be sent callback objects that are compatible with the version 1 release of webhooks
+    @constraint:Number {minValue: 1, maxValue: 1}
+    decimal version?;
+    # Array of the events that are subscribed to. Currently, must be an array of size 1 that contains the string value '\*.\*' (asterisk period asterisk), which means "all objects" and "all events"
+    string[] events?;
+};
+
+# In a project sheet, represents a value in a duration cell, or a lag value of a predecessor
+public type Duration record {
+    # If true, indicates this duration represents elapsed time, which ignores non-working time
+    boolean elapsed?;
+    # The number of milliseconds for this duration
+    decimal milliseconds?;
+    # The number of hours for this duration
+    decimal hours?;
+    # When used as a predecessor's lag value, indicates whether the lag is negative (if true), or positive (false). The individual duration values themselves (for example, days, hours, or minutes) is always positive
+    boolean negative?;
+    # The number of seconds for this duration
+    decimal seconds?;
+    # The number of weeks for this duration
+    decimal weeks?;
+    # The number of minutes for this duration
+    decimal minutes?;
+    # The number of days for this duration
+    decimal days?;
+    # Specifies the object type identifier, which must be set to "DURATION" for duration objects
+    "DURATION" objectType?;
+};
+
+# Represents the Headers record for the operation: get-alternate-email
+public type GetAlternateEmailHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Represents the Headers record for the operation: getReports
+public type GetReportsHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Represents the Headers record for the operation: update-user
+public type UpdateUserHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Represents the Queries record for the operation: update-workspace
+public type UpdateWorkspaceQueries record {
+    # Allows COMMENTER access for inputs and return values. For backwards-compatibility, VIEWER is the default. For example, to see whether a user has COMMENTER access for a sheet, use accessApiLevel=1
+    decimal accessApiLevel = 0;
+};
+
+# Triggered when a summarized list of all sheets owned by the members of the organization account is generated. This can be done through API
+public type AccountListSheetsAllOf2 record {
+    # The action applied to the specified object
+    "LIST_SHEETS" action?;
+    # Additional details for bulk account updates, including the responsible user's email address
+    AccountBulkUpdateAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "ACCOUNT" objectType?;
+};
+
+# Represents the Queries record for the operation: share-workspace
+public type ShareWorkspaceQueries record {
+    # Allows COMMENTER access for inputs and return values. For backwards-compatibility, VIEWER is the default. For example, to see whether a user has COMMENTER access for a sheet, use accessApiLevel=1
+    decimal accessApiLevel = 0;
+    # Either true or false to indicate whether to notify the user by email. Default is false. If true, limit is 1000 emails
+    boolean sendEmail = false;
+};
+
+# API response object containing a collection of webhook configurations in a data array
+public type WebhookCollectionApiResponse record {
+    # list of Webhooks
+    Webhook[] data?;
+};
+
+# Represents the Headers record for the operation: deactivate-user
+public type DeactivateUserHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# A list of fieldIds corresponding to all summary fields that were successfully deleted
+public type SummaryFieldDeletionResponse record {
+    # Array of numeric identifiers for successfully deleted summary fields
+    decimal[] result?;
+};
+
+# Additional details for discussion comment send events, including sender email, recipients, attachments, and location context
+public type DiscussionSendcommentAdditionalDetails record {
+    # Email address of the user responsible for the event
+    string emailAddress;
+    # Indicates whether the discussion comment (or discussion comment reply) was sent with its respective attachments
+    boolean includeAttachments?;
+    # Id of the sheet row containing the discussion. (this property is included only if the discussion is on a sheet row)
+    @constraint:Int {minValue: 0}
+    int sheetRowId?;
+    # Id of the comment
+    @constraint:Int {minValue: 0}
+    int commentId?;
+    # Id of the sheet the discussion is on. (This property is included only if the `workspaceId` property below isn't included)
+    @constraint:Int {minValue: 0}
+    int sheetId?;
+    # Single ID of a user group explicitly included in the recipient list. (This property is included only if the `recipientEmail` property above isn't included)
+    @constraint:Int {minValue: 0}
+    int recipientGroupId?;
+    # Single email address either of a user explicitly included in the recipient list or of the sender (when *CC sender* is requested). (This property is included only if the `recipientGroupId` property below isn't included)
+    string recipientEmail?;
+    # Id of the workspace the discussion is directly on. (This property is included only if the `sheetId` property above isn't included)
+    @constraint:Int {minValue: 0}
+    int workspaceId?;
+};
+
+# Represents the Queries record for the operation: list-folders
+public type ListFoldersQueries record {
+    # The maximum number of items to return per page. Unless otherwise stated for a specific endpoint, defaults to 100. If only page is specified, defaults to a page size of 100. For reports, the default is 100 rows. If you need larger sets of data from your report, returns a maximum of 10,000 rows per request
+    decimal pageSize = 100;
+    # If true, include all results, that is, do not paginate. Mutually exclusive with page and pageSize (they are ignored if includeAll=true is specified)
+    boolean includeAll = false;
+    # Which page to return. Defaults to 1 if not specified. If you specify a value greater than the total number of pages, the last page of results is returned
+    decimal page = 1;
+};
+
+# Triggered when a user sends selected sheet row(s) by email to user(s) or user group(s). 
+# 
+# An individual `SHEET - SEND_ROW` event is issued for each user or user group listed as recipient
+public type SheetSendRowAllOf2 record {
+    # The action applied to the specified object
+    "SEND_ROW" action?;
+    # Additional details for a sheet row send operation, including recipient email, attachments, and row count
+    SheetSendRowAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "SHEET" objectType?;
+};
+
+# Represents the Headers record for the operation: list-folders
+public type ListFoldersHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Represents the Headers record for the operation: discussion-get
+public type DiscussionGetHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# A discussion thread containing comments, attachments, and metadata associated with a sheet or row
+public type Discussion record {
+    # Array of attachments on discussion comments. Only returned if the include query string parameter contains attachments
+    Attachment[] commentAttachments?;
+    # Array of comments in discussion. Only returned if the include query string parameter contains comments
+    Comment[] comments?;
+    # Defines user permission level with values: ADMIN, COMMENTER, EDITOR, EDITOR_SHARE, OWNER, or VIEWER
+    AccessLevel accessLevel?;
+    # `User` object containing `name` and `email` of the user who created the discussion
+    MiniUser createdBy?;
+    # Indicates whether the user can modify the discussion
+    boolean readOnly?;
+    # Discussion Id
+    decimal id?;
+    # A read-only timestamp that can be represented as either a datetime string or numeric value
+    Timestamp lastCommentedAt?;
+    # Title automatically created by duplicating the first 100 characters of top-level comment
+    string title?;
+    # The Id of the associated row or sheet
+    decimal parentId?;
+    # Type of parent object
+    "ROW"|"SHEET" parentType?;
+    # Number of comments in the discussion
+    decimal commentCount?;
+    # `User` object containing `name` and `email` of the user who last commented on the discussion
+    MiniUser lastCommentedUser?;
+};
+
+# Response object containing row data retrieved from a database or table
+public type GetRowObjectResponse GetRowObject;
+
+# Triggered when an existing sheet is renamed
+public type SheetRenameAllOf2 record {
+    # The action applied to the specified object
+    "RENAME" action?;
+    # Additional details for sheet rename events, including user email and old/new sheet names
+    SheetRenameAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "SHEET" objectType?;
+};
+
+# If **true**,a rich version of the sheet is published with the ability to edit cells and manage attachments and discussions
+public type ReadWriteEnabled boolean;
+
+# Triggered when a group or user is added to a workspace's sharing list. 
+# 
+# Note that this event will appear for each sheet that is in the workspace. If a group or user is added to a workspace's sharing list and the workspace is empty, then no events will be recorded
+public type SheetAddWorkspaceShareAllOf2 record {
+    # The action applied to the specified object
+    "ADD_WORKSPACE_SHARE" action?;
+    # Additional details for events when a workspace share is added to a sheet, including recipient and access information
+    SheetAddWorkspaceShareAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "SHEET" objectType?;
+};
+
+# An object that contains an array of column Ids if you want to limit the subscription to a subscope. Specified when a webhook is created and cannot be changed
+public type Subscope record {
+    # A column Id or Ids
+    decimal[] columnIds?;
+};
+
+# Event schema for importing multiple users into an account system or platform
+public type AccountImportUsers record {
+    *Event;
+    *AccountImportUsersAllOf2;
+};
+
+# Event triggered when a row is moved within a sheet, capturing the row relocation operation
+public type SheetMoveRow record {
+    *Event;
+    *SheetMoveRowAllOf2;
+};
+
+# Triggered when an attachment is **directly** (i.e. instead of indirectly as part of another operation) sent by email to user(s) or user group(s). 
+# 
+# An individual `ATTACHMENT - SEND` event is issued for each user or user group listed as recipient
+public type AttachmentSendAllOf2 record {
+    # The action applied to the specified object
+    "SEND" action?;
+    # Additional details for attachment send events, including sender email and recipient information
+    AttachmentSendAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "ATTACHMENT" objectType?;
+};
+
+# Represents the Headers record for the operation: update-report-share
+public type UpdateReportShareHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Response object containing a single User result
+public type UserResultResponse record {
+    # User Object
+    User result?;
+};
+
+# Represents the Headers record for the operation: column-get
+public type ColumnGetHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Represents a user profile image with unique identifier and dimensions (width/height)
+public type ProfileImage record {
+    # Unique image Id
+    string imageId?;
+    # Image width
+    string width?;
+    # Image height
+    string height?;
+};
+
+# Triggered when a group or user is added to a workspace's sharing list. 
+# 
+# Note that this event will appear for each report that is in the workspace. If a group or user is added to a workspace's sharing list and the workspace is empty, then no events will be recorded
+public type ReportAddWorkspaceShareAllOf2 record {
+    # The action applied to the specified object
+    "ADD_WORKSPACE_SHARE" action?;
+    # Additional details for workspace sharing events, including recipient email, access level, and relevant IDs
+    ReportAddWorkspaceShareAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "REPORT" objectType?;
+};
+
+# Triggered when a sheet is in the deleted items bin and is restored (`Undelete`)
+public type SheetRestoreAllOf2 record {
+    # The action applied to the specified object
+    "RESTORE" action?;
+    # Additional details for bulk account updates, including the responsible user's email address
+    AccountBulkUpdateAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "SHEET" objectType?;
+};
+
+# Represents the Headers record for the operation: automationrule-delete
+public type AutomationruleDeleteHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Response object containing a single sight result with detailed sight information
+public type SightResultResponse record {
+    # A dashboard object containing visual layout properties, widgets, data source, and workspace configuration
+    Sight result?;
+};
+
+# Sheet to create from scratch using the specified columns
+public type SheetToCreate record {
+    # Array of column definitions that specify the structure and properties of columns to be created in the sheet
+    ColumnToCreateASheet[] columns?;
+    # Sheet name
+    Name name?;
+};
+
+# Represents the Headers record for the operation: share-report
+public type ShareReportHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Contains metadata for update requests including timestamps, schedule reference, ID, and sender information
+public type UpdateRequestAllOf2 record {
+    # The date and time for when this request was originally created. Read-only
+    Timestamp createdAt?;
+    # The schedule for which update requests are sent out
+    Schedule schedule?;
+    # The date and time for when the last change was made to this request. Read-only
+    Timestamp modifiedAt?;
+    # Id of the update request
+    decimal id?;
+    # `User` object containing `name` and `email` of the sender
+    MiniUser sentBy?;
+};
+
+# A response containing index results combined with attachment collection metadata and details
+public type IndexResultWithMetadataResponse record {
+    *IndexResult;
+    *AttachmentCollectionResponse;
+};
+
+# Represents the Headers record for the operation: delete-folder
+public type DeleteFolderHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Request to update the completion status of a proof with a boolean flag indicating whether it's completed
+public type UpdateProofStatusRequest record {
+    # Indicates whether the proof verification process has been completed
+    boolean isCompleted?;
+};
+
+# A scheduling configuration object that defines when and how frequently automated requests are delivered, supporting daily, weekly, monthly, yearly, or one-time schedules
+public type Schedule record {
+    # The day within the month.
+    # 
+    # Valid range is 1 to 28.
+    # 
+    # This attribute is applicable to the following schedule type:
+    #  * **MONTHLY**
+    # 
+    # For more details, refer to the Table of Schedule Object’s Attributes below
+    @constraint:Number {minValue: 1, maxValue: 31}
+    decimal dayOfMonth?;
+    # A string array consists of one or more of the following values:
+    # * **DAY**, **WEEKDAY**, **WEEKEND**
+    # * **SUNDAY**, **MONDAY**, **TUESDAY**, **WEDNESDAY**, **THURSDAY**, **FRIDAY**, **SATURDAY**
+    # 
+    # The subset of values applicable to the schedule type are as followed:
+    # 
+    # | Value         | Daily schedule | Weekly schedule | Monthly schedule |
+    # |---------------|----------------|-----------------|------------------|
+    # | **DAY**       |                |                 |       **✓**      |
+    # | **WEEKDAY**   |      **✓**     |                 |       **✓**      |
+    # | **WEEKEND**   |                |                 |       **✓**      |
+    # | **SUNDAY**    |                |      **✓**      |       **✓**      |
+    # | **MONDAY**    |                |      **✓**      |       **✓**      |
+    # | **TUESDAY**   |                |      **✓**      |       **✓**      |
+    # | **WEDNESDAY** |                |      **✓**      |       **✓**      |
+    # | **THURSDAY**  |                |      **✓**      |       **✓**      |
+    # | **FRIDAY**    |                |      **✓**      |       **✓**      |
+    # | **SATURDAY**  |                |      **✓**      |       **✓**      |
+    # 
+    # For more details, refer to the Table of Schedule Object’s Attributes below
+    ("DAY"|"WEEKDAY"|"WEEKEND"|"SUNDAY"|"MONDAY"|"TUESDAY"|"WEDNESDAY"|"THURSDAY"|"FRIDAY"|"SATURDAY")[] dayDescriptors?;
+    # Must be one of the following values:
+    #   * **FIRST** or **LAST**
+    #   * **SECOND**, **THIRD**, or **FOURTH**
+    # 
+    # This attribute is applicable to the following schedule type:
+    #   * **MONTHLY**
+    # 
+    #   For more details, refer to the Table of Schedule Object’s Attributes below
+    "FIRST"|"LAST"|"SECOND"|"THIRD"|"FOURTH" dayOrdinal?;
+    # The date and time when the last request was sent
+    Timestamp lastSentAt?;
+    # Frequency on which the request is delivered. The unit is a function of the **type** attribute. For example,
+    # for **MONTHLY** schedule, **repeatEvery=1** means every month.
+    # 
+    # Valid range is 1 to 99.
+    # 
+    # This attribute is applicable to the following schedule types: **DAILY**, **WEEKLY**, **MONTHLY**, or **YEARLY**.
+    # For more details, refer to the Table of Schedule Object’s Attributes below
+    @constraint:Number {minValue: 1, maxValue: 99}
+    decimal repeatEvery?;
+    # Type of schedule
+    "ONCE"|"DAILY"|"WEEKLY"|"MONTHLY"|"YEARLY" 'type?;
+    # The date and time when the delivery schedule ends, in ISO-8601 format or UTC timestamp
+    TimestampWriteable endAt?;
+    # The date and time for when the next request is scheduled to send
+    Timestamp nextSendAt?;
+    # The date and time when the first delivery starts, in ISO-8601 format or numeric timestamp
+    TimestampWriteable startAt?;
+};
+
+# Represents the Headers record for the operation: get-workspace-metadata
+public type GetWorkspaceMetadataHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+};
+
+# Triggered when a user disables publish option for a dashboard
+public type DashboardRemovePublishAllOf2 record {
+    # The action applied to the specified object
+    "REMOVE_PUBLISH" action?;
+    # Additional details for bulk account updates, including the responsible user's email address
+    AccountBulkUpdateAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "DASHBOARD" objectType?;
+};
+
+# Represents the Queries record for the operation: list-crosssheet-references
+public type ListCrosssheetReferencesQueries record {
+    # The maximum number of items to return per page. Unless otherwise stated for a specific endpoint, defaults to 100. If only page is specified, defaults to a page size of 100. For reports, the default is 100 rows. If you need larger sets of data from your report, returns a maximum of 10,000 rows per request
+    decimal pageSize = 100;
+    # If true, include all results, that is, do not paginate. Mutually exclusive with page and pageSize (they are ignored if includeAll=true is specified)
+    boolean includeAll = false;
+    # Which page to return. Defaults to 1 if not specified. If you specify a value greater than the total number of pages, the last page of results is returned
+    decimal page = 1;
+};
+
+# Represents the Queries record for the operation: list-users
+public type ListUsersQueries record {
+    # If the API request is submitted by a system administrator and when specified with a value of 'lastLogin', response includes a lastLogin attribute for each user that indicates the Last login date/time of the user.
+    # 
+    # **Note** If the number of users included in the response is > 100, you must paginate your query to see the lastLogin attribute. For large responses, the lastLogin attribute is never included
+    string include?;
+    # You can optionally choose to receive and send dates/times in numeric format, as milliseconds since the UNIX epoch (midnight on January 1, 1970 in UTC time), using the query string parameter numericDates with a value of true. This query parameter works for any API request
+    boolean numericDates = false;
+    # The maximum number of items to return per page. Unless otherwise stated for a specific endpoint, defaults to 100. If only page is specified, defaults to a page size of 100. For reports, the default is 100 rows. If you need larger sets of data from your report, returns a maximum of 10,000 rows per request
+    decimal pageSize = 100;
+    # If true, include all results, that is, do not paginate. Mutually exclusive with page and pageSize (they are ignored if includeAll=true is specified)
+    boolean includeAll = false;
+    # Which page to return. Defaults to 1 if not specified. If you specify a value greater than the total number of pages, the last page of results is returned
+    decimal page = 1;
+    # Comma-separated list of email addresses on which to filter the results
+    string email?;
+};
+
+# Event triggered when a user adds an item or value to their account
+public type UserAddToAccount record {
+    *Event;
+    *UserAddToAccountAllOf2;
+};
+
+# Represents the Headers record for the operation: list-users
+public type ListUsersHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Triggered when a workspace ownership is transferred
+public type WorkspaceTransferOwnershipAllOf2 record {
+    # The action applied to the specified object
+    "TRANSFER_OWNERSHIP" action?;
+    # Additional details for bulk account updates, including the responsible user's email address
+    AccountBulkUpdateAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "WORKSPACE" objectType?;
+};
+
+# A workspace listing containing basic workspace information including name, ID, access level, and permalink
+public type WorkspaceListing record {
+    # Defines user permission level with values: ADMIN, COMMENTER, EDITOR, EDITOR_SHARE, OWNER, or VIEWER
+    AccessLevel accessLevel?;
+    # Workspace name
+    string name?;
+    # Workspace Id
+    decimal id?;
+    # URL that represents a direct link to the workspace in Smartsheet
+    string permalink?;
+};
+
+# Triggered when an admin downloads published items report. This can be done through `User Management` console on UI
+public type AccountDownloadPublishedItemsReportAllOf2 record {
+    # The action applied to the specified object
+    "DOWNLOAD_PUBLISHED_ITEMS_REPORT" action?;
+    # Additional details for bulk account updates, including the responsible user's email address
+    AccountBulkUpdateAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "ACCOUNT" objectType?;
+};
+
+# A paginated response containing shared collection results with required result field and pagination metadata
+public type CompositeResultResponse2 record {
+    *PaginationLastKeyResponse;
+    *ShareCollectionApiResponse1;
+    ShareResponse[] result;
+};
+
+# Specifies the destination sheet ID where rows will be copied or moved to
+public type CopyOrMoveRowDestination record {
+    # The Id of the destination sheet
+    decimal sheetId?;
+};
+
+# A composite response combining base Result properties with SharedSecretResultResponse data
+public type CompositeResultResponse1 record {
+    *Result;
+    *SharedSecretResultResponse;
+};
+
+# An alternate email address for a user account with confirmation status and unique identifier
+public type AlternateEmail record {
+    # AlternateEmail Id
+    decimal id?;
+    # Indicates whether the alternate email address has been confirmed
+    boolean confirmed?;
+    # User's alternate email address
+    string email?;
+};
+
+# OAuth2 token containing access credentials, refresh token, type, and expiration for Smartsheet API authentication
+public type Token record {
+    # A credential that can be used by a client to access the Smartsheet API
+    @jsondata:Name {value: "access_token"}
+    string accessToken?;
+    # A credential tied to the access token that can be used to obtain a fresh access token with the same permissions, without further involvement from a user
+    @jsondata:Name {value: "refresh_token"}
+    string refreshToken?;
+    # How an access token will be generated and presented. Smartsheet uses the bearer parameter, which means essentially give access to the bearer of this token
+    @jsondata:Name {value: "token_type"}
+    string tokenType?;
+    # Number of seconds token is valid once issued
+    @jsondata:Name {value: "expires_in"}
+    decimal expiresIn = 604799;
+};
+
+# Event triggered when a workspace backup operation is requested by a user or system process
+public type WorkspaceRequestBackup record {
+    *Event;
+    *WorkspaceRequestBackupAllOf2;
+};
+
+# Represents an image with metadata including dimensions, alternate text, and unique identifier
+public type Image record {
+    # Alternate text for the image
+    string altText?;
+    # Original width (in pixels) of the uploaded image
+    decimal width?;
+    # Image Id
+    string id?;
+    # Original height (in pixels) of the uploaded image
+    decimal height?;
+};
+
+# Triggered when a user accepts an invitation to join an organization account through email
+public type UserAcceptInviteAllOf2 record {
+    # The action applied to the specified object
+    "ACCEPT_INVITE" action?;
+    # Additional details for bulk account updates, including the responsible user's email address
+    AccountBulkUpdateAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "USER" objectType?;
+};
+
+# Response object containing the updated comment and new sheet version after a comment version update operation
+public type CommentVersionUpdateResponse record {
+    *GenericResult;
+    # A comment object containing text, creator information, timestamps, attachments, and discussion reference
+    Comment result?;
+};
+
+# Represents the Queries record for the operation: get-favorites
+public type GetFavoritesQueries record {
+    # A comma-separated list of optional elements to include in the response
+    "directId"|"name" include?;
+    # The maximum number of items to return per page. Unless otherwise stated for a specific endpoint, defaults to 100. If only page is specified, defaults to a page size of 100. For reports, the default is 100 rows. If you need larger sets of data from your report, returns a maximum of 10,000 rows per request
+    decimal pageSize = 100;
+    # If true, include all results, that is, do not paginate. Mutually exclusive with page and pageSize (they are ignored if includeAll=true is specified)
+    boolean includeAll = false;
+    # Which page to return. Defaults to 1 if not specified. If you specify a value greater than the total number of pages, the last page of results is returned
+    decimal page = 1;
+};
+
+# Represents the Headers record for the operation: create-sheet-in-folder
+public type CreateSheetInFolderHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+    # Required for POST and PUT requests. Defines the structure for the request body
+    @http:Header {name: "Content-Type"}
+    string contentType = "application/json";
+};
+
+# Create group request
+public type GroupCreate1 record {
+    # An array of group members to be added to a group
+    GroupMembersAddArray members?;
+    # **name** (required)
+    # 
+    # Must be unique within the organization account
+    string name?;
+    # **description** (optional)
+    string description?;
+};
+
+# Contains details about report ownership transfers including user IDs, email addresses, and access level changes
+public type ReportTransferOwnershipAdditionalDetails record {
+    # New access level of the new owner: `"OWNER"`
+    "OWNER" newAccessLevel = "OWNER";
+    # Email address of the user responsible for the event
+    string emailAddress;
+    # Id of the new owner
+    @constraint:Int {minValue: 0}
+    int newUserId?;
+    # Id of the former owner
+    @constraint:Int {minValue: 0}
+    int oldUserId?;
+    # New access level of the former owner: `"ADMIN"`
+    "ADMIN" oldAccessLevel = "ADMIN";
+};
+
+# Event representing an update to a dashboard configuration or content
+public type DashboardUpdate record {
+    *Event;
+    *DashboardUpdateAllOf2;
+};
+
+# When applicable for PICKLIST column type
+public type PropertiesSymbol string;
+
+# Represents the Headers record for the operation: move-folder
+public type MoveFolderHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+    # Required for POST and PUT requests. Defines the structure for the request body
+    @http:Header {name: "Content-Type"}
+    string contentType = "application/json";
+};
+
+# Represents the Queries record for the operation: list-sheet-shares
+public type ListSheetSharesQueries record {
+    # Allows COMMENTER access for inputs and return values. For backwards-compatibility, VIEWER is the default. For example, to see whether a user has COMMENTER access for a sheet, use accessApiLevel=1
+    decimal accessApiLevel = 0;
+    # When applicable for the specific object this parameter defines the scope of the share. Possible values are ITEM or WORKSPACE. ITEM is an item-level share (that is, the specific object to which the share applies is shared with the user or group). WORKSPACE is a workspace-level share (that is, the workspace that contains the object to which the share applies is shared with the user or group)
+    "ITEM"|"WORKSPACE" sharingInclude?;
+    # The maximum number of items to return per page. Unless otherwise stated for a specific endpoint, defaults to 100. If only page is specified, defaults to a page size of 100. For reports, the default is 100 rows. If you need larger sets of data from your report, returns a maximum of 10,000 rows per request
+    decimal pageSize = 100;
+    # If true, include all results, that is, do not paginate. Mutually exclusive with page and pageSize (they are ignored if includeAll=true is specified)
+    boolean includeAll = false;
+    # Which page to return. Defaults to 1 if not specified. If you specify a value greater than the total number of pages, the last page of results is returned
+    decimal page = 1;
+};
+
+# Request body for creating a new sheet in a workspace, either from scratch or from a template
+public type WorkspaceIdSheetsBody SheetToCreate|SheetToCreateFromTemplate;
+
+# Additional details for report creation events, including creator email, report name, and source information
+public type ReportCreateAdditionalDetails record {
+    # Email address of the user responsible for the event
+    string emailAddress;
+    # Name of the new report
+    string reportName?;
+    # Type of object used to create the new report
+    "report"|"globale_template" sourceType?;
+    # Id of report that was copied to create the new report. (Only included if the report was created as a result of a *copy* or *save as new*)
+    @constraint:Int {minValue: 0}
+    int sourceObjectId?;
+    # Id of the global template that was used to create the new report (Only included if the report was created using a global template. "New Blank Report" is a global template)
+    @constraint:Int {minValue: 0}
+    int sourceGlobalTemplateId?;
+};
+
+# Schema for creating a new report, combining base event properties with report-specific creation fields
+public type ReportCreate record {
+    *Event;
+    *ReportCreateAllOf2;
+};
+
+# Event triggered when a user transfers ownership of groups they currently own to another user
+public type UserTransferOwnedGroups record {
+    *Event;
+    *UserTransferOwnedGroupsAllOf2;
+};
+
+# A collection of sheet objects containing basic sheet information including name, ID, owner details, and metadata
+public type SheetList record {
+    # Empty string
+    string owner?;
+    # Sheet name
+    string name?;
+    # Sheet Id
+    decimal id?;
+    # Set to a static value of "0"
+    decimal ownerId?;
+};
+
+# Represents the Headers record for the operation: list-alternate-emails
+public type ListAlternateEmailsHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Additional details for report share member removal events, including responsible user email and affected IDs
+public type ReportRemoveShareMemberAdditionalDetails record {
+    # Email address of the user responsible for the event
+    string emailAddress;
+    # Id of the group that the user was removed from
+    @constraint:Int {minValue: 0}
+    int groupId?;
+    # Id of user that was removed from the group
+    @constraint:Int {minValue: 0}
+    int userId?;
+    # Id of the workspace that the group is shared to. (Specific to cases where the report is shared to the group via a workspace's sharing list)
+    @constraint:Int {minValue: 0}
+    int workspaceId?;
+};
+
+# Represents the Headers record for the operation: sheet-send
+public type SheetSendHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+    # Required for POST and PUT requests. Defines the structure for the request body
+    @http:Header {name: "Content-Type"}
+    string contentType = "application/json";
+};
+
+# Triggered when a sheet is created (inserted)
+public type SheetCreateAllOf2 record {
+    # The action applied to the specified object
+    "CREATE" action?;
+    # Additional details for sheet creation events including user email, sheet name, and source information
+    SheetCreateAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "SHEET" objectType?;
+};
+
+# Event reporting the transfer of ownership for a report from one user or entity to another
+public type ReportTransferOwnership record {
+    *Event;
+    *ReportTransferOwnershipAllOf2;
+};
+
+# Event triggered when a user transfers ownership of items to another user or entity
+public type UserTransferOwnedItems record {
+    *Event;
+    *UserTransferOwnedItemsAllOf2;
+};
+
+# Array of Row objects representing spreadsheet rows with their data and properties
+public type SheetssheetIdrowsOneOf2 Row[];
+
+# Represents the Headers record for the operation: update-workspace
+public type UpdateWorkspaceHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Specifies the destination container for copying a folder, using container destination parameters
+public type FolderIdCopyBody ContainerDestinationForCopy;
+
+# Represents the Headers record for the operation: remove-user
+public type RemoveUserHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Triggered when a group or user is removed from a sheet's sharing list
+public type SheetRemoveShareAllOf2 record {
+    # The action applied to the specified object
+    "REMOVE_SHARE" action?;
+    # Additional details for sheet share removal events, including the responsible user's email and removed user/group ID
+    SheetRemoveShareAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "SHEET" objectType?;
+};
+
+# Represents the Queries record for the operation: copy-sheet
+public type CopySheetQueries record {
+    # A comma-separated list of elements to copy:
+    #   * **attachments**
+    #   * **cellLinks** - includes cross-sheet references
+    #   * **data** - includes formatting
+    #   * **discussions** - includes comments
+    #   * **filters**
+    #   * **forms**
+    #   * **ruleRecipients** -- includes notification recipients, must also include rules when using this attribute
+    #   * **rules** -- includes notifications and workflow rules
+    #   * **shares** |
+    # NOTE: Cell history is not copied, regardless of which include parameter values are specified
+    "attachments"|"cellLinks"|"data"|"discussions"|"filters"|"forms"|"ruleRecipients"|"rules"|"shares" include?;
+    # When specified with a value of **sheetHyperlinks**, excludes this category from the response
+    "sheetHyperlinks" exclude?;
+};
+
+# Represents the Queries record for the operation: list-workspaces
+public type ListWorkspacesQueries record {
+    # Allows COMMENTER access for inputs and return values. For backwards-compatibility, VIEWER is the default. For example, to see whether a user has COMMENTER access for a sheet, use accessApiLevel=1
+    decimal accessApiLevel = 0;
+    # Request query parameter used in ListWorkspaces endpoints that support token based pagination.
+    # 
+    # The maximum amount of items to return in the response. The default and minimum are 100
+    @constraint:Int {minValue: 100, maxValue: 1000}
+    int:Signed32 maxItems = 100;
+    # Specifies the type of pagination to use. When set to 'token', enables
+    # token-based pagination
+    "token" paginationType?;
+    # The lastKey token returned from the previous page of results. If not specified,
+    # the first page of results is returned
+    string lastKey?;
+    # **DEPRECATED - As early as the sunset date specified in this
+    # [Changelog entry](/api/smartsheet/changelog#2025-08-04), this request parameter will no longer be supported.**
+    # 
+    # The maximum number of items to return per page. Unless otherwise stated for a
+    # specific endpoint, defaults to 100. If only page is specified, defaults to a
+    # page size of 100. For reports, the default is 100 rows. If you need larger
+    # sets of data from your report, returns a maximum of 10,000 rows per request
+    # 
+    # # Deprecated
+    @deprecated
+    decimal pageSize = 100;
+    # **DEPRECATED - As early as the sunset date specified in this 
+    # [Changelog entry](/api/smartsheet/changelog#2025-08-04), this request parameter will no longer be supported.**
+    # 
+    # If true, include all results, that is, do not paginate. Mutually exclusive with page and pageSize
+    # (they are ignored if includeAll=true is specified)
+    # 
+    # # Deprecated
+    @deprecated
+    boolean includeAll = false;
+    # **DEPRECATED - As early as the sunset date specified in this
+    # [Changelog entry](/api/smartsheet/changelog#2025-08-04), this request parameter will no longer be supported.**
+    # 
+    # Which page to return. Defaults to 1 if not specified. If you specify a value
+    # greater than the total number of pages, the last page of results is returned
+    # 
+    # # Deprecated
+    @deprecated
+    decimal page = 1;
+};
+
+# Represents the Headers record for the operation: copy-sheet
+public type CopySheetHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+    # Required for POST and PUT requests. Defines the structure for the request body
+    @http:Header {name: "Content-Type"}
+    string contentType = "application/json";
+};
+
+# Defines column properties for adding new columns including type, title, position, width, options, and validation settings
+public type AddColumns record {
+    # Array of the options available for the column
+    string[] options?;
+    # Display width of the column in pixels
+    decimal width?;
+    # Column index or position. This number is zero-based
+    decimal index?;
+    # Column Id
+    decimal id?;
+    # Column title
+    string title?;
+    # See [Column Types](/api/smartsheet/openapi/columns)
+    "ABSTRACT_DATETIME"|"CHECKBOX"|"CONTACT_LIST"|"DATE"|"DATETIME"|"DURATION"|"MULTI_CONTACT_LIST"|"MULTI_PICKLIST"|"PICKLIST"|"PREDECESSOR"|"TEXT_NUMBER" 'type?;
+    # Indicates whether validation has been enabled for the column (value = **true**)
+    boolean validation?;
+};
+
+# Represents the Queries record for the operation: get-folder-children
+public type GetFolderChildrenQueries record {
+    # A comma-separated list of optional elements to include in the response:
+    #   * **source** - adds the Source object indicating which object this resource was created from, if any
+    #   * **ownerInfo** Returns the user with owner permissions, or the user with admin permissions if there is no owner assigned. If no owner or admins are assigned, the Plan Asset Admin is returned. If no Plan Asset Admin is assigned, the System Admin is returned
+    "source"|"ownerInfo" include?;
+    # Allows COMMENTER access for inputs and return values. For backwards-compatibility, VIEWER is the default. For example, to see whether a user has COMMENTER access for a sheet, use accessApiLevel=1
+    decimal accessApiLevel = 0;
+    # The maximum number of items to return in the response
+    @constraint:Int {minValue: 100, maxValue: 1000}
+    int maxItems = 100;
+    # A comma-separated list of the child types to include in the response
+    "sheets"|"reports"|"sights"|"folders" childrenResourceTypes;
+    # You can optionally choose to receive and send dates/times in numeric format, as milliseconds since the UNIX epoch (midnight on January 1, 1970 in UTC time), using the query string parameter numericDates with a value of true. This query parameter works for any API request
+    boolean numericDates = false;
+    # The lastKey token returned from the previous page of results. If not specified,
+    # the first page of results is returned
+    string lastKey?;
+};
+
+# API response containing an array of Share objects representing a collection of shared resources
+public type ShareCollectionApiResponse3 record {
+    # Array of Share objects returned from the share collection API operation
+    Share[] result?;
+};
+
+# API response containing an array of Share objects representing a collection of shared resources
+public type ShareCollectionApiResponse2 record {
+    # Array of Share objects returned from the share collection API operation
+    Share[] result?;
+};
+
+# API response containing an array of share collection results
+public type ShareCollectionApiResponse1 record {
+    # Array of share response objects containing details about shared collection items
+    ShareResponse[] result?;
+};
+
+# Represents the Headers record for the operation: add-summary-fields
+public type AddSummaryFieldsHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Represents the Queries record for the operation: list-search-sheet
+public type ListSearchSheetQueries record {
+    # Text with which to perform the search. Enclose in double-quotes for an exact search
+    string query;
+};
+
+# Represents the Queries record for the operation: updateSheet
+public type UpdateSheetQueries record {
+    # Allows COMMENTER access for inputs and return values. For backwards-compatibility, VIEWER is the default. For example, to see whether a user has COMMENTER access for a sheet, use accessApiLevel=1
+    decimal accessApiLevel = 0;
+};
+
+# Triggered when a group or user is added to the workspace's sharing list, or when a group or user's share permissions are changed
+public type WorkspaceAddShareAllOf2 record {
+    # The action applied to the specified object
+    "ADD_SHARE" action?;
+    # Additional details for workspace share events, including user email, access level, and optional group/user IDs
+    WorkspaceAddShareAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "WORKSPACE" objectType?;
+};
+
+# Represents the Headers record for the operation: get-favorites
+public type GetFavoritesHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+    # UserId of the user
+    @http:Header {name: "x-smar-sc-actor-id"}
+    string xSmarScActorId?;
+};
+
+# Can contain dashboards, folders, reports, sheets, or templates
+public type Folder record {
+    # Reports contained in folder
+    GridListing[] reports?;
+    # Sheets contained in folder
+    GridListing[] sheets?;
+    # Folders contained in folder
+    Folder[] folders?;
+    # Dashboards contained in folder
+    DashboardListing[] sights?;
+    # Templates contained in folder
+    GridListing[] templates?;
+    # Folder name
+    string name?;
+    # Folder Id
+    decimal id?;
+    # URL that represents a direct link to the folder in Smartsheet
+    string permalink?;
+    # **Deprecated** Returned only if the user has marked the folder as a favorite in their "Home" tab (value = true)
+    # 
+    # # Deprecated
+    @deprecated
+    boolean favorite?;
+};
+
+# Response containing attachment data with version tracking for sheet update operations
+public type AttachmentVersionedResponse record {
+    *GenericResult;
+    # Attachment Object
+    Attachment result?;
+};
+
+# Triggered when the user account is updated. This can be done through User Management on UI or via the API
+public type UserUpdateUserAllOf2 record {
+    # The action applied to the specified object
+    "UPDATE_USER" action?;
+    # Additional details for bulk account updates, including the responsible user's email address
+    AccountBulkUpdateAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "USER" objectType?;
+};
+
+# Represents the Headers record for the operation: create-workspace-folder
+public type CreateWorkspaceFolderHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+    # Required for POST and PUT requests. Defines the structure for the request body
+    @http:Header {name: "Content-Type"}
+    string contentType = "application/json";
+};
+
+# Triggered when a user saves a copy of a sheet by using the `Save As New` option. 
+# 
+# This event is recorded for the original sheet. 
+# 
+# If the original sheet belongs to a different organization, then an event will be generated for organization with original sheet and for the organization with copied sheet.
+# 
+# For copied sheet, `Save As New` event is paired with a [SHEET - CREATE](/api/smartsheet/openapi/schemas/sheet_create) event
+public type SheetSaveAsNewAllOf2 record {
+    # The action applied to the specified object
+    "SAVE_AS_NEW" action?;
+    # Additional details for bulk account updates, including the responsible user's email address
+    AccountBulkUpdateAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "SHEET" objectType?;
+};
+
+# Represents the Headers record for the operation: list-summary-fields
+public type ListSummaryFieldsHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Represents the Queries record for the operation: create-sheet-in-folder
+public type CreateSheetInFolderQueries record {
+    # Additional parameter to create a sheet from template.
+    # A comma-separated list of elements to copy from the template
+    "attachments"|"cellLinks"|"data"|"discussions"|"filters"|"forms"|"ruleRecipients"|"rules" include?;
+};
+
+# Represents the Headers record for the operation: updaterequests-delete
+public type UpdaterequestsDeleteHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Represents the Queries record for the operation: proofs-listRequestActions
+public type ProofsListRequestActionsQueries record {
+    # The maximum number of items to return per page. Unless otherwise stated for a specific endpoint, defaults to 100. If only page is specified, defaults to a page size of 100. For reports, the default is 100 rows. If you need larger sets of data from your report, returns a maximum of 10,000 rows per request
+    decimal pageSize = 100;
+    # If true, include all results, that is, do not paginate. Mutually exclusive with page and pageSize (they are ignored if includeAll=true is specified)
+    boolean includeAll = false;
+    # Which page to return. Defaults to 1 if not specified. If you specify a value greater than the total number of pages, the last page of results is returned
+    decimal page = 1;
+};
+
+# Represents a font family with its name and platform-independent traits like serif or sans-serif
+public type FontFamily record {
+    # Platform-independent traits of the font family. Contains one of the listed enum values
+    ("sans-serif"|"serif")[] traits?;
+    # Name of the font family
+    string name?;
+};
+
+# Represents the Headers record for the operation: rows-send
+public type RowsSendHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+    # Required for POST and PUT requests. Defines the structure for the request body
+    @http:Header {name: "Content-Type"}
+    string contentType = "application/json";
+};
+
+# Represents the Headers record for the operation: delete-group-members
+public type DeleteGroupMembersHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Response object containing column metadata and configuration details
+public type GetColumnApiResponse GetColumn;
+
+# Triggered when a report is created (inserted)
+public type ReportCreateAllOf2 record {
+    # The action applied to the specified object
+    "CREATE" action?;
+    # Additional details for report creation events, including creator email, report name, and source information
+    ReportCreateAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "REPORT" objectType?;
+};
+
+# API response containing a collection of events with operation response data
+public type EventCollectionApiResponse record {
+    # List of Events
+    SmartsheetApiOperationResponseData[] data?;
+};
+
+# Represents the Headers record for the operation: column-updateColumn
+public type ColumnUpdateColumnHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Represents the Queries record for the operation: list-workspace-shares
+public type ListWorkspaceSharesQueries record {
+    # Allows COMMENTER access for inputs and return values. For backwards-compatibility, VIEWER is the default. For example, to see whether a user has COMMENTER access for a sheet, use accessApiLevel=1
+    decimal accessApiLevel = 0;
+    # The maximum number of items to return per page. Unless otherwise stated for a specific endpoint, defaults to 100. If only page is specified, defaults to a page size of 100. For reports, the default is 100 rows. If you need larger sets of data from your report, returns a maximum of 10,000 rows per request
+    decimal pageSize = 100;
+    # If true, include all results, that is, do not paginate. Mutually exclusive with page and pageSize (they are ignored if includeAll=true is specified)
+    boolean includeAll = false;
+    # Which page to return. Defaults to 1 if not specified. If you specify a value greater than the total number of pages, the last page of results is returned
+    decimal page = 1;
+};
+
+# Response object containing an array of group members for a specific group
+public type GroupMemberListResponse record {
+    # List of Group Members
+    GroupMember[] members?;
+};
+
+# Limits the webhook to monitor specific columns designated by an array of sheet column IDs. 
+public type CreateWebhookRequestSubscope record {
+    # Array of IDs of the sheet columns to monitor
+    int[] columnIds?;
+};
+
+# Represents the Queries record for the operation: row-get
+public type RowGetQueries record {
+    # Allows COMMENTER access for inputs and return values. For backwards-compatibility, VIEWER is the default. For example, to see whether a user has COMMENTER access for a sheet, use accessApiLevel=1
+    decimal accessApiLevel = 0;
+    # A comma-separated list of elements to include in the response.
+    # 
+    # See [Row Include Flags](/api/smartsheet/openapi/rows).
+    # 
+    # Also supports the **columns** include flag, which adds a columns array that specifies all of the columns for the sheet. This enables you to have the full context of the cells in the row.
+    # 
+    # The **filters** include flag returns a **filteredOut** attribute indicating if the row should be displayed or hidden according to the sheet's filters
+    "columns"|"filters" include?;
+    # Specifies whether object data types, such as multi-contact data are returned in a backwards-compatible, text format in text/number columns.<br>  - Set `level=0` (default) to use text/number columns for multi-contact data and multi-picklist data.<br>  - Set `level=1` to use multiple-entry contact list columns for multi-contact data; multi-picklist data is returned in text/number columns.<br>  - Set `level=2` to use multiple-entry contact list columns for multi-contact data and use multiple-entry picklist columns for multi-picklist data
+    int level = 0;
+    # A comma-separated list of element types to exclude from the response:
+    #   * **filteredOutRows** - excludes filtered-out rows from response payload if a sheet filter is applied; includes total number of filtered rows
+    #   * **linkInFromCellDetails** - excludes the following attributes from the **cell.linkInFromCell** object: `columnId`, `rowId`, `status`
+    #   * **linksOutToCellsDetails** - excludes the following attributes from the **cell.linksOutToCells** array elements: `columnId`, `rowId`, `status`
+    #   * **nonexistentCells** - excludes empty cells
+    "filteredOutRows"|"linkInFromCellDetails"|"linksOutToCellsDetails"|"nonexistentCells" exclude?;
+};
+
+# Response containing index results with favorite collection data and API response metadata
+public type IndexResultResponse record {
+    *IndexResult;
+    *FavoriteCollectionApiResponse;
+};
+
+# Event representing the transfer of ownership of a group from one user to another
+public type GroupTransferOwnership record {
+    *Event;
+    *GroupTransferOwnershipAllOf2;
+};
+
+# Represents a row object for adding to a sheet, containing cells, metadata, and positioning information
+public type AddRowsObject record {
+    # A read-only timestamp that can be represented as either a datetime string or numeric value
+    Timestamp createdAt?;
+    # Indicates whether the row is expanded or collapsed
+    boolean expanded?;
+    # Cells objects
+    CellObjectForRows[] cells?;
+    # A read-only timestamp that can be represented as either a datetime string or numeric value
+    Timestamp modifiedAt?;
+    # Parent sheet Id
+    decimal sheetId?;
+    # Row Id
+    decimal id?;
+    # Row number within the sheet
+    @constraint:Number {minValue: 1}
+    decimal rowNumber?;
+    # Sheet version number that is incremented every time a sheet is modified
+    decimal version?;
+};
+
+# Defines sorting parameters with a column identifier and sort direction (ascending or descending)
+public type SortCriterion record {
+    # Unique numeric identifier for the column to be used in sorting operations
+    decimal columnId?;
+    # Direction of the sort
+    "ASCENDING"|"DESCENDING" direction = "ASCENDING";
+};
+
+# Configuration object for enabling or disabling webhook status in update requests
+public type UpdateWebhookRequestAllOf2 record {
+    # Indicates whether the webhook is on (true) or off (false)
+    boolean enabled?;
+};
+
+# Represents the Headers record for the operation: attachments-listOnRow
+public type AttachmentsListOnRowHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# A response object that extends the base Result schema with API-specific response data and metadata
+public type ResultApiResponse Result;
+
+# URL that represents a direct link to the sheet in Smartsheet
+public type Permalink string;
+
+# Triggered when a user exports the workspace
+public type WorkspaceExportAllOf2 record {
+    # The action applied to the specified object
+    "EXPORT" action?;
+    # Contains additional details for workspace export events, including the responsible user's email address and export format type
+    WorkspaceExportAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "WORKSPACE" objectType?;
+};
+
+# Represents the Headers record for the operation: getReport
+public type GetReportHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+    # The Accept request-header field can be used to specify certain media types which are acceptable for the response
+    @http:Header {name: "Accept"}
+    string accept?;
+};
+
+# Event that captures when a sheet is renamed, including the old and new sheet names
+public type SheetRename record {
+    *Event;
+    *SheetRenameAllOf2;
+};
+
+# Represents the Headers record for the operation: list-search-sheet
+public type ListSearchSheetHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Event representing the movement or repositioning of a dashboard within the system
+public type DashboardMove record {
+    *Event;
+    *DashboardMoveAllOf2;
+};
+
+# Represents the result of a sheet operation, including version information for data updates
+public type Result ItemResult;
+
+# A template can be used to create a sheet
+public type Template record {
+    # Type of global template. Only applicable to blank public templates
+    "BLANK_SHEET"|"PROJECT_SHEET"|"TASK_LIST" globalTemplate?;
+    # URL to the small preview image for this template. Only applicable to non-blank public templates
+    string image?;
+    # URL to the large preview image for this template. Only applicable to non-blank public templates
+    string largeImage?;
+    # Indicates whether the template is blank. Only applicable to public templates
+    boolean blank?;
+    # Defines user permission level with values: ADMIN, COMMENTER, EDITOR, EDITOR_SHARE, OWNER, or VIEWER
+    AccessLevel accessLevel?;
+    # Type of global template
+    string name?;
+    # Template description
+    string description?;
+    # Template Id
+    decimal id?;
+    # Indicates whether the template is blank. Only applicable to public templates
+    string[] categories?;
+    # Type of template. Only applicable to public templates
+    "report"|"sheet" 'type?;
+    # Locale of the template. Only applicable to public templates
+    "ar_AE"|"ar_BH"|"ar_DZ"|"ar_EG"|"ar_IQ"|"ar_JO"|"ar_KW"|"ar_LB"|"ar_LY"|"ar_MA"|"ar_OM"|"ar_QA"|"ar_SA"|"ar_SD"|"ar_SY"|"ar_TN"|"ar_YE"|"be_BY"|"bg_BG"|"ca_ES"|"cs_CZ"|"da_DK"|"de_AT"|"de_CH"|"de_DE"|"de_LU"|"el_CY"|"el_GR"|"en_AU"|"en_CA"|"en_GB"|"en_IE"|"en_IN"|"en_MT"|"en_NZ"|"en_PH"|"en_SG"|"en_US"|"en_ZA"|"es_AR"|"es_BO"|"es_CL"|"es_CO"|"es_CR"|"es_DO"|"es_EC"|"es_ES"|"es_GT"|"es_HN"|"es_MX"|"es_NI"|"es_PA"|"es_PE"|"es_PR"|"es_PY"|"es_SV"|"es_US"|"es_UY"|"es_VE"|"et_EE"|"fi_FI"|"fr_BE"|"fr_CA"|"fr_CH"|"fr_FR"|"fr_LU"|"ga_IE"|"hi_US"|"hr_HR"|"hu_HU"|"in_ID"|"is_IS"|"it_CH"|"it_IT"|"iw_IL"|"ja_JP"|"ko_KR"|"lt_LT"|"lv_LV"|"mk_MK"|"ms_MY"|"mt_MT"|"nl_BE"|"nl_NL"|"no_NO"|"pl_PL"|"pt_BR"|"pt_PT"|"ro_RO"|"ru_RU"|"sk_SK"|"sl_SI"|"sq_AL"|"sr_BA"|"sr_CS"|"sv_SE"|"th_US"|"tr_TR"|"uk_UA"|"vi_VN"|"zh_CN"|"zh_HK"|"zh_SG"|"zh_TW" locale?;
+    # List of search tags for this template. Only applicable to non-blank public templates
+    string[] tags?;
+};
+
+# Represents the Queries record for the operation: create-folder-folder
+public type CreateFolderFolderQueries record {
+    # A comma-separated list of elements to copy:
+    #   * **attachments**
+    #   * **cellLinks** - includes cross-sheet references
+    #   * **data** - includes formatting
+    #   * **discussions** - includes comments
+    #   * **filters**
+    #   * **forms**
+    #   * **ruleRecipients** -- includes notification recipients, must also include rules when using this attribute
+    #   * **rules** -- includes notifications and workflow rules
+    #   * **shares** |
+    # NOTE: Cell history is not copied, regardless of which include parameter values are specified
+    "attachments"|"cellLinks"|"data"|"discussions"|"filters"|"forms"|"ruleRecipients"|"rules"|"shares" include?;
+    # A comma-separated list of references to NOT re-map for the newly created folder
+    "cellLinks"|"reports"|"sheetHyperlinks"|"sights" skipRemap?;
+    # When specified with a value of **sheetHyperlinks**, excludes this category from the response
+    "sheetHyperlinks" exclude?;
+};
+
+# Triggered when a dashboard is deleted
+public type DashboardDeleteAllOf2 record {
+    # The action applied to the specified object
+    "DELETE" action?;
+    # Additional details for bulk account updates, including the responsible user's email address
+    AccountBulkUpdateAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "DASHBOARD" objectType?;
+};
+
+# Event reporting the addition of a new member to a shared resource or collaboration space
+public type ReportAddShareMember record {
+    *Event;
+    *ReportAddShareMemberAllOf2;
+};
+
+# Returned only if the column is the Primary Column (value = **true**)
+public type Primary boolean;
+
+# Event report generated when a workspace share is added to the system
+public type ReportAddWorkspaceShare record {
+    *Event;
+    *ReportAddWorkspaceShareAllOf2;
+};
+
+# Event triggered when a user saves an existing report as a new report with a different name or configuration
+public type ReportSaveAsNew record {
+    *Event;
+    *ReportSaveAsNewAllOf2;
+};
+
+# Request body for creating or updating a workspace containing the workspace name
+public type WorkspacesBody record {
+    # Workspace name
+    string name?;
+};
+
+# Represents the Headers record for the operation: proofs-listRequestActions
+public type ProofsListRequestActionsHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Response object containing a single Group result
+public type GroupResultResponse record {
+    # A group object containing identification, ownership details, metadata, and descriptive information for user groups
+    Group result?;
+};
+
+# Represents a spreadsheet cell containing data, formatting, formulas, links, and validation properties within a column
+public type Cell record {
+    # The format descriptor describing this cell's conditional format. Only returned if the include query string parameter contains **format** and this cell has a conditional format applied
+    string conditionalFormat?;
+    # A link object that can reference external URLs or internal reports, sheets, and dashboards by ID
+    Hyperlink hyperlink?;
+    # Represents an image with metadata including dimensions, alternate text, and unique identifier
+    Image image?;
+    # The Id of the column that the cell is located in
+    decimal columnId?;
+    # The format descriptor. Only returned if the include query string parameter contains **format** and this cell has a non-default format applied
+    string format?;
+    # The base object for values found in the **Cell.objectValue** attribute. Its **objectType** attribute indicates the type of the object. This object itself is not used directly
+    ObjectValue objectValue?;
+    # (Admin only) Indicates whether the cell value can contain a value outside of the validation limits (value = **true**). When using this parameter, you must also set **strict** to **false** to bypass value type checking. This property is honored for POST or PUT actions that update rows
+    boolean overrideValidation?;
+    # Visual representation of cell contents, as presented to the user in the UI
+    string displayValue?;
+    # Only returned if the include query string parameter contains **columnType**
+    string columnType?;
+    # The formula for a cell, if set, for instance **=COUNTM([Assigned To]3)**. Note that calculation errors or problems with a formula do not cause the API call to return an error code. Instead, the response contains the same value as in the UI, such as **cell.value = "#CIRCULAR REFERENCE"**
+    string formula?;
+    # Set to **false** to enable lenient parsing. Defaults to **true**. You can specify this attribute in a request, but it is never present in a response
+    boolean strict?;
+    # A reference to a specific cell in a spreadsheet, including sheet and cell coordinates with link status
+    CellLink linkInFromCell?;
+    # A string, number, or a Boolean value -- depending on the cell type and the data in the cell. Cell values larger than 4000 characters are silently truncated. An empty cell returns no value
+    string|decimal|boolean value?;
+    # Array of outbound links from this cell to other cells in the system
+    CellLink[] linksOutToCells?;
+};
+
+# API response containing index operation results and update request collection data
+public type IndexResultApiResponse record {
+    *IndexResult;
+    *UpdateRequestCollectionResponse;
+};
+
+# Triggered when a group's ownership is transferred
+public type GroupTransferOwnershipAllOf2 record {
+    # The action applied to the specified object
+    "TRANSFER_OWNERSHIP" action?;
+    # Additional details for group ownership transfer events, including responsible user email and owner IDs
+    GroupTransferOwnershipAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "GROUP" objectType?;
+};
+
+# User profile image response
+public type UserProfileImageResponse record {
+    # User's primary email address.
+    string email?;
+    # User's full name (read-only).
+    string name?;
+    # User's first name.
+    string firstName?;
+    # User's last name.
+    string lastName?;
+    # Represents a user profile image with unique identifier and dimensions (width/height)
+    ProfileImage profileImage?;
+    # User Id.
+    decimal id?;
+};
+
+# Represents the Queries record for the operation: getReports
+public type GetReportsQueries record {
+    # When specified with a date and time value, response only includes the objects that are modified on or after the date and time specified. If you need to keep track of frequent changes, it may be more useful to use Get Sheet Version
+    Timestamp modifiedSince?;
+};
+
+# API response containing a list of accessible reports with their metadata including ID, name, access level, and summary flag
+public type ReportsAccessListApiResponse record {
+    # List of all accessible reports, referenced by their ID, name, access level, and summary report flag values
+    ReportMetadataDetails[] data?;
+};
+
+# Represents the Queries record for the operation: remove-user
+public type RemoveUserQueries record {
+    # **If you're removing the user from your organization**, set this to `true` to remove the user's access to all assets in your organization and plan.
+    # 
+    # **If you're removing the user from your plan**, this parameter is ignored and the user's access to all assets in your organization and plan is removed automatically
+    boolean removeFromSharing = false;
+    # **If you're removing the user from your organization** and you want to transfer ownership of all the removed user's assets and groups to a qualified user\*, set this parameter to `true` and set the `transferTo` parameter to the ID of the qualified user. The transfer depends on setting the `transferTo` parameter.
+    # 
+    # **If you're removing the user from your plan**, this parameter is ignored.
+    # 
+    # **Warning:** If your asset transfer size exceeds 38k, the transfer fails with a `400` error that prompts you to contact Support for guidance.
+    # 
+    # \*The receiving user must be a <a href="https://help.smartsheet.com/articles/520100-user-types" target="_blank" rel="noopener noreferrer">Group Admin</a> of the group(s) to be transferred
+    boolean transferSheets = false;
+    # Set this to the ID of a qualified user\* to receive ownership of all groups the removed user owns.
+    # 
+    # **If you're removing the user from your organization** and you set the `transferSheets` parameter to `true`, the operation additionally transfers ownership of all the removed user's assets to the assigned user.
+    # 
+    # **If you're removing the user from your plan** and you don't set this parameter, the operation transfers group ownership to the respective main contact of each group's organization.
+    # 
+    # \*The receiving user must be a <a href="https://help.smartsheet.com/articles/520100-user-types" target="_blank" rel="noopener noreferrer">Group Admin</a> of the groups
+    int transferTo?;
+};
+
+# Event report generated when a member is removed from a shared resource or folder
+public type ReportRemoveShareMember record {
+    *Event;
+    *ReportRemoveShareMemberAllOf2;
+};
+
+# Represents the Headers record for the operation: share-workspace
+public type ShareWorkspaceHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Represents the Headers record for the operation: delete-workspace-share
+public type DeleteWorkspaceShareHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Response containing either a single Favorite object or an array of Favorite objects
+public type FavoriteResultResponse record {
+    # The favorite item or array of favorite items returned by the operation
+    Favorite|Favorite[] result?;
+};
+
+# Event schema for creating a new folder, combining base event properties with folder creation specifics
+public type FolderCreate record {
+    *Event;
+    *FolderCreateAllOf2;
+};
+
+# Represents the Queries record for the operation: add-summary-fields
+public type AddSummaryFieldsQueries record {
+    # Set to true if you want to override the requirement for unique summary field names. Repeated names will be adjusted by appending "(1)" or similar after the field name
+    boolean renameIfConflict = false;
+};
+
+# Defines sorting configuration with an ordered array of sort criteria by priority
+public type SortSpecifier record {
+    # Specifies sort order. Array is in priority order
+    SortCriterion[] sortCriteria?;
+};
+
+# Represents the Headers record for the operation: tokens-delete
+public type TokensDeleteHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Container object for additional event-specific properties. Properties depend upon the event type, but all events include an `emailAddress` property, representing the user responsible for the event. 
+# 
+# See [Event types](/api/smartsheet/event-types) for event details, including event-specific `additionalDetails` properties and example event response objects
+public type EventAdditionalDetails record {
+    # Email address of the user responsible for the event
+    string emailAddress;
+};
+
+# A composite response combining generic result data with sheet import operation results
+public type GenericResultCompositeResponse record {
+    *GenericResult;
+    *SheetImportResultResponse;
+};
+
+# Represents the Queries record for the operation: tokens-delete
+public type TokensDeleteQueries record {
+    # The client Id and user Id is fetched based on the token that is used to make this API call. A value of true deletes all tokens associated to the given client Id and user Id
+    boolean deleteAllForApiClient = false;
+};
+
+# Event triggered when a user removes or revokes shared access to resources or content
+public type UserRemoveShares record {
+    *Event;
+    *UserRemoveSharesAllOf2;
+};
+
+# Object containing a Contact
+public type ContactObjectValue record {
+    # ID of an image associated with the Contact
+    string imageId?;
+    # Name of the Contact
+    string name?;
+    # Email address of the Contact
+    string email?;
+    # Specifies the type of object, with "CONTACT" as the only allowed value for contact objects
+    "CONTACT" objectType?;
+};
+
+# Response containing a mapping of image identifiers to their corresponding URLs
+public type ImageUrlMapResponse ImageUrlMap;
+
+# Triggered when an access token is refreshed. See the [`POST /token`](/api/smartsheet/openapi/tokens/tokens-getorrefresh) operation for more information about access token refresh
+public type AccesstokenRefreshAllOf2 record {
+    # The action applied to the specified object
+    "REFRESH" action?;
+    # Additional details for access token refresh events including user email, token expiration, and display value
+    AccesstokenRefreshAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "ACCESS_TOKEN" objectType?;
+};
+
+# Object containing zero or more media items, including images, videos, and documents, for review, editing, or approval
+public type Proof record {
+    # `User` object containing `name` and `email` of the user who last updated the proof
+    MiniUser lastUpdatedBy?;
+    # Array of Attachment objects. Only returned if the include query string parameter contains attachments
+    Attachment[] attachments?;
+    # A read-only timestamp that can be represented as either a datetime string or numeric value
+    Timestamp lastUpdatedAt?;
+    # File type for the proof version
+    "DOCUMENT"|"IMAGE"|"MIXED"|"NONE"|"VIDEO" proofType?;
+    # Proof name. This is the same as primary column value. If the primary column value is empty, name is empty
+    string name?;
+    # Array of Discussion objects. Only returned if the include query string parameter contains discussions
+    Discussion[] discussions?;
+    # Proof Id of the proof version
+    decimal id?;
+    # Proof Id of the original proof version
+    decimal originalId?;
+    # URL to review a proofing request
+    string proofRequestUrl?;
+    # The version number of the proof
+    decimal version?;
+    # Indicates whether the proof is completed
+    boolean isCompleted?;
+};
+
+# Indicates who can access the 'Read-Only Full' view of the published sheet:
+#   * ALL - available to anyone who has the link.
+#   * ORG - available only to members of the sheet owner's Smartsheet organization account.
+#   * SHARED - available only to users shared to the item.
+# 
+# Only returned in the response if **readOnlyFullEnabled = true**
+public type ReadOnlyFullAccessibleBy "ALL"|"ORG"|"SHARED";
+
+# A reference to a specific cell in a spreadsheet, including sheet and cell coordinates with link status
+public type CellLink record {
+    # Sheet name of the linked cell
+    string sheetName?;
+    # Column Id of the linked cell
+    decimal columnId?;
+    # Sheet Id of the sheet that the linked cell belongs to
+    decimal sheetId?;
+    # Row Id of the linked cell
+    decimal rowId?;
+    # * `BLOCKED` One of several other values indicating unusual error conditions.
+    # * `BROKEN` The row or sheet linked to was deleted.
+    # * `CIRCULAR` One of several other values indicating unusual error conditions.
+    # * `DISABLED` One of several other values indicating unusual error conditions.
+    # * `INACCESSIBLE` The sheet linked to cannot be viewed by this user.
+    # * `INVALID` One of several other values indicating unusual error conditions.
+    # * `NOT_SHARED` One of several other values indicating unusual error conditions.
+    # * `OK` The link is in a good state
+    "BLOCKED"|"BROKEN"|"CIRCULAR"|"DISABLED"|"INACCESSIBLE"|"INVALID"|"NOT_SHARED"|"OK" status?;
+};
+
+# Represents the Headers record for the operation: proofs-createVersion
+public type ProofsCreateVersionHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+    # Required for POST and PUT requests. Defines the structure for the request body
+    @http:Header {name: "Content-Type"}
+    string contentType = "application/json";
+};
+
+# Additional details for sheet row copy operations, including user email, row count, and copy options
+public type SheetCopyRowAdditionalDetails record {
+    # Email address of the user responsible for the event
+    string emailAddress;
+    # Number of rows copied
+    @constraint:Int {minValue: 1}
+    int rowsCopied?;
+    # Indicates whether the row(s) were copied with their respective attachments
+    boolean includeAttachments?;
+    # Id of sheet from where the rows copied. (Only included when the `objectId` property contains the Id of the destination sheet)
+    @constraint:Int {minValue: 0}
+    int sourceSheetId?;
+    # Id of sheet to where the rows copied. (Only included when the `objectId` property contains the Id of the source sheet)
+    @constraint:Int {minValue: 0}
+    int destinationSheetId?;
+    # Indicates whether the row(s) were copied with their respective discussion comments
+    boolean includeDiscussions?;
+};
+
+# A dashboard object containing visual layout properties, widgets, data source, and workspace configuration
+public type Sight SightListItem;
+
+# Represents a user's profile information including personal details, permissions, administrative roles, and account settings
+public type UserProfile record {
+    # Indicates whether the user is a JIRA admin
+    boolean jiraAdmin?;
+    # Last login time of the current user
+    string lastLogin?;
+    # Current user's last name
+    string lastName?;
+    # User's role
+    string role?;
+    # Indicates whether the user is a system admin (can manage user accounts and organization account)
+    boolean admin?;
+    # Represents a user profile image with unique identifier and dimensions (width/height)
+    ProfileImage profileImage?;
+    # Current user's locale (see [ServerInfo](/api/smartsheet/openapi/serverinfo/serverinfo))
+    string locale?;
+    # User's title
+    string title?;
+    # Indicates whether the user is a registered Salesforce user
+    boolean salesforceUser?;
+    # Indicates whether the user is a group admin (can create and edit groups)
+    boolean groupAdmin?;
+    # Indicates whether the user is a resource viewer (can access resource views)
+    boolean resourceViewer?;
+    # User's company
+    string company?;
+    # Current user's Id
+    decimal id?;
+    # User's department
+    string department?;
+    # Current user's primary email address
+    string email?;
+    # Timestamp of viewing an <a href="https://help.smartsheet.com/articles/1392225-customizing-a-welcome-message-upgrade-screen-enterprise-only" target="_blank" rel="noopener noreferrer">Enterprise Custom Welcome Screen</a> by the current user
+    string customWelcomeScreenViewed?;
+    # Current user's time zone Id
+    string timeZone?;
+    # Current user's first name
+    string firstName?;
+    # User's mobile phone number
+    string mobilePhone?;
+    # An alternate email address for a user account with confirmation status and unique identifier
+    AlternateEmail alternateEmails?;
+    # User's work phone number
+    string workPhone?;
+    # **SUNSET** - The `sheetCount` attribute now holds the value `-1` and is included only if the retrieved user's `status` is `ACTIVE`
+    # 
+    # # Deprecated
+    @constraint:Number {minValue: -1, maxValue: -1}
+    @deprecated
+    decimal sheetCount = -1;
+    # Represents an account with a unique identifier and display name for organizational purposes
+    Account account?;
+    # Indicates whether the user is a licensed user (can create and own sheets)
+    boolean licensedSheetCreator?;
+    # Indicates whether the user is a Salesforce admin
+    boolean salesforceAdmin?;
+};
+
+# When applicable for **CHECKBOX** or **PICKLIST** column types. See [Symbol Columns](/api/smartsheet/openapi/columns)
+public type Symbol string;
+
+# Response object containing a collection of automation rules as an array
+public type AutomationRuleCollectionResponse record {
+    # list of Automation Rules
+    AutomationRule[] data?;
+};
+
+# Represents the Headers record for the operation: get-sheetVersion
+public type GetSheetVersionHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Represents the Headers record for the operation: add-group
+public type AddGroupHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Statistics tracking webhook callback attempts, retry counts, and last successful callback timestamp
+public type WebhookStats record {
+    # The number of retries the webhook had performed as of the last callback attempt
+    decimal lastCallbackAttemptRetryCount?;
+    # When this webhook last made a successful callback
+    string lastSuccessfulCallback?;
+    # When this webhook last made a callback attempt
+    string lastCallbackAttempt?;
+};
+
+# Additional details for dashboard share member removal events, including user email and relevant IDs
+public type DashboardRemoveShareMemberAdditionalDetails record {
+    # Email address of the user responsible for the event
+    string emailAddress;
+    # Id of the group that the user was removed from
+    @constraint:Int {minValue: 0}
+    int groupId?;
+    # Id of user that was removed from the group
+    @constraint:Int {minValue: 0}
+    int userId?;
+    # Id of the workspace that the group is shared to. (Specific to cases where the dashboard is shared to the group via a workspace's sharing list)
+    @constraint:Int {minValue: 0}
+    int workspaceId?;
+};
+
+# Response object containing the result of a sight publishing operation
+public type SightPublishResultResponse record {
+    # Describes the dashboard's publish settings
+    SightPublish result?;
+};
+
+# Additional details for folder rename events, including the user's email address and old/new folder names
+public type FolderRenameAdditionalDetails record {
+    # Email address of the user responsible for the event
+    string emailAddress;
+    # New name of the folder
+    string newName?;
+    # Old name of the folder
+    string oldName?;
+};
+
+# Represents the Headers record for the operation: create-folder-folder
+public type CreateFolderFolderHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+    # Required for POST and PUT requests. Defines the structure for the request body
+    @http:Header {name: "Content-Type"}
+    string contentType = "application/json";
+};
+
+# Additional details for report share member events, including email, access level, and group/user IDs
+public type ReportAddShareMemberAdditionalDetails record {
+    # Email address of the user responsible for the event
+    string emailAddress;
+    # Indicates the access level granted to the user. 
+    # 
+    # Note that this access level represents the access level that has been granted to the user via group membership; it is not the user's effective access level for the report
+    "VIEWER"|"EDITOR"|"EDITOR_SHARE"|"ADMIN" accessLevel?;
+    # Id of the group the user was added to
+    @constraint:Int {minValue: 0}
+    int groupId?;
+    # Id of the user that was added to the group
+    @constraint:Int {minValue: 0}
+    int userId?;
+    # Id of the workspace that the group is shared to. (Specific to cases where the report is shared to the group via a workspace's sharing list)
+    @constraint:Int {minValue: 0}
+    int workspaceId?;
+};
+
+# Event schema for creating a new form, combining base event properties with form-specific creation fields
+public type FormCreate record {
+    *Event;
+    *FormCreateAllOf2;
+};
+
+# API response containing a collection of Group objects in a data array
+public type GroupCollectionApiResponse1 record {
+    # List of Groups
+    Group[] data?;
+};
+
+# Event triggered when a user is removed from an account, capturing user and account details
+public type UserRemoveFromAccount record {
+    *Event;
+    *UserRemoveFromAccountAllOf2;
+};
+
+# A comment object containing text, creator information, timestamps, attachments, and discussion reference
+public type Comment record {
+    # A read-only timestamp that can be represented as either a datetime string or numeric value
+    Timestamp createdAt?;
+    # Array of attachments on comments
+    Attachment[] attachments?;
+    # User object containing name and email of the creator of this comment
+    MiniUser createdBy?;
+    # Discussion Id of discussion that contains comment
+    decimal discussionId?;
+    # A read-only timestamp that can be represented as either a datetime string or numeric value
+    Timestamp modifiedAt?;
+    # Comment Id
+    decimal id?;
+    # Comment body
+    string text?;
+};
+
+# Represents a Smartsheet column with properties including ID, title, type, position, and validation settings
+public type GetColumn record {
+    # When applicable for **CHECKBOX** or **PICKLIST** column types. See [Symbol Columns](/api/smartsheet/openapi/columns)
+    string symbol?;
+    # Column index or position. This number is zero-based
+    decimal index?;
+    # Column Id
+    decimal id?;
+    # Column title
+    string title?;
+    # See [Column Types](/api/smartsheet/openapi/columns)
+    "ABSTRACT_DATETIME"|"CHECKBOX"|"CONTACT_LIST"|"DATE"|"DATETIME"|"DURATION"|"MULTI_CONTACT_LIST"|"MULTI_PICKLIST"|"PICKLIST"|"PREDECESSOR"|"TEXT_NUMBER" 'type?;
+    # Indicates whether validation has been enabled for the column (value = **true**)
+    boolean validation?;
+};
+
+# Triggered when a folder is deleted
+public type FolderDeleteAllOf2 record {
+    # The action applied to the specified object
+    "DELETE" action?;
+    # Additional details for bulk account updates, including the responsible user's email address
+    AccountBulkUpdateAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "FOLDER" objectType?;
+};
+
+# Event schema for reporting when a share is added to a report or sharing configuration
+public type ReportAddShare record {
+    *Event;
+    *ReportAddShareAllOf2;
+};
+
+# Represents the Headers record for the operation: proofs-createDiscussion
+public type ProofsCreateDiscussionHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+    # Required for POST and PUT requests. Defines the structure for the request body
+    @http:Header {name: "Content-Type"}
+    string contentType = "application/json";
+};
+
+# Event triggered when a member is removed from a dashboard's sharing permissions
+public type DashboardRemoveShareMember record {
+    *Event;
+    *DashboardRemoveShareMemberAllOf2;
+};
+
+# The error caused by the failed item
+public type Error record {
+    # Custom error code from Smartsheet. See the complete [Error Code List](/api/smartsheet/error-codes)
+    decimal errorCode?;
+    # The Id of the specific error occurrence. Please include this information when contacting Smartsheet support
+    string refId?;
+    # Descriptive error message
+    string message?;
+};
+
+# Represents the Headers record for the operation: list-workspace-shares
+public type ListWorkspaceSharesHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Triggered when a comment that has no replies is deleted
+public type DiscussionDeleteAllOf2 record {
+    # The action applied to the specified object
+    "DELETE" action?;
+    # Additional details for discussion creation events, including user email and location context (sheet, row, or workspace)
+    DiscussionCreateAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "DISCUSSION" objectType?;
+};
+
+# Response object containing a shared secret result with cryptographic key material
+public type SharedSecretResultResponse record {
+    # A secure string value used for authentication or encryption between parties
+    SharedSecret result?;
+};
+
+# Represents the Headers record for the operation: copy-sight
+public type CopySightHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+    # Required for POST and PUT requests. Defines the structure for the request body
+    @http:Header {name: "Content-Type"}
+    string contentType = "application/json";
+};
+
+# Triggered when a report is deleted
+public type ReportDeleteAllOf2 record {
+    # The action applied to the specified object
+    "DELETE" action?;
+    # Additional details for bulk account updates, including the responsible user's email address
+    AccountBulkUpdateAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "REPORT" objectType?;
+};
+
+# Response object containing an array of cross-sheet references between Smartsheet sheets
+public type CrossSheetReferenceCollectionResponse record {
+    # Array of cross-sheet reference objects containing references between different sheets
+    CrossSheetReference[] data?;
+};
+
+# Event triggered when workspace ownership is transferred from one user to another
+public type WorkspaceTransferOwnership record {
+    *Event;
+    *WorkspaceTransferOwnershipAllOf2;
+};
+
+# Represents the Queries record for the operation: attachments-listOnRow
+public type AttachmentsListOnRowQueries record {
+    # The maximum number of items to return per page. Unless otherwise stated for a specific endpoint, defaults to 100. If only page is specified, defaults to a page size of 100. For reports, the default is 100 rows. If you need larger sets of data from your report, returns a maximum of 10,000 rows per request
+    decimal pageSize = 100;
+    # If true, include all results, that is, do not paginate. Mutually exclusive with page and pageSize (they are ignored if includeAll=true is specified)
+    boolean includeAll = false;
+    # Which page to return. Defaults to 1 if not specified. If you specify a value greater than the total number of pages, the last page of results is returned
+    decimal page = 1;
+};
+
+# Additional details for report rename events, including the user's email address and old/new report names
+public type ReportRenameAdditionalDetails record {
+    # Email address of the user responsible for the event
+    string emailAddress;
+    # New name of the report
+    string newName?;
+    # Previous name of the report
+    string oldName?;
+};
+
+# A contact entry containing a name (user name, display name, or free text) and a parsable email address
+public type ContactOption record {
+    # Can be a user's name, display name, or free text
+    string name?;
+    # A parsable email address
+    string email?;
+};
+
+# Event tracking when a user downloads their account login history data
+public type AccountDownloadLoginHistory record {
+    *Event;
+    *AccountDownloadLoginHistoryAllOf2;
+};
+
+# Can contain dashboards, folders, reports, sheets, and templates
+public type Workspace record {
+    # Reports contained in the workspace
+    GridListing[] reports?;
+    # Sheets contained in the workspace
+    GridListing[] sheets?;
+    # Folders contained in the workspace
+    Folder[] folders?;
+    # Dashboards contained in the workspace
+    DashboardListing[] sights?;
+    # Defines user permission level with values: ADMIN, COMMENTER, EDITOR, EDITOR_SHARE, OWNER, or VIEWER
+    AccessLevel accessLevel?;
+    # Workspace name
+    string name?;
+    # Workspace Id
+    decimal id?;
+    # URL that represents a direct link to the workspace in Smartsheet
+    string permalink?;
+};
+
+# Represents the Queries record for the operation: update-workspace-share
+public type UpdateWorkspaceShareQueries record {
+    # Allows COMMENTER access for inputs and return values. For backwards-compatibility, VIEWER is the default. For example, to see whether a user has COMMENTER access for a sheet, use accessApiLevel=1
+    decimal accessApiLevel = 0;
+};
+
+# Triggered when a sheet form is deactivated
+public type FormDeactivateAllOf2 record {
+    # The action applied to the specified object
+    "DEACTIVATE" action?;
+    # Additional details for form activation events, including the responsible user's email and optional sheet ID
+    FormActivateAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "FORM" objectType?;
+};
+
+# Response object containing a single automation rule result
+public type AutomationRuleResponse1 record {
+    # A configurable automation rule that triggers actions based on sheet changes, with tracking for creation, modification, and enable/disable status
+    AutomationRule result?;
+};
+
+# Triggered when a user is removed from a group that a report has been shared to via the report's sharing list, or via a workspace's sharing list. 
+# 
+# If a report has been shared to a group directly via the report's sharing list, and via a workspace's sharing list, then an event will be generated for each of these shares
+public type ReportRemoveShareMemberAllOf2 record {
+    # The action applied to the specified object
+    "REMOVE_SHARE_MEMBER" action?;
+    # Additional details for report share member removal events, including responsible user email and affected IDs
+    ReportRemoveShareMemberAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "REPORT" objectType?;
+};
+
+# A combined response containing both Result data and RowResultResponse information for extended API operations
+public type ResultExtendedApiResponse record {
+    *Result;
+    *RowResultResponse;
+};
+
+# Event triggered when a workspace share is added to a sheet, extending base event properties
+public type SheetAddWorkspaceShare record {
+    *Event;
+    *SheetAddWorkspaceShareAllOf2;
+};
+
+# Triggered when a user requests a backup for a folder
+public type FolderRequestBackupAllOf2 record {
+    # The action applied to the specified object
+    "REQUEST_BACKUP" action?;
+    # Additional details for folder backup requests including user email, attachment preferences, and completion notifications
+    FolderRequestBackupAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "FOLDER" objectType?;
+};
+
+# Specifies the destination container (folder, workspace, or home) and optional new name for copying objects
+public type ContainerDestinationForCopy record {
+    # Name of the newly created object (when copying a dashboard, folder, sheet, or workspace)
+    string newName?;
+    # Type of destination container.
+    # 
+    # The `"home"` enum is **Deprecated** since March 25, 2025, and will be removed
+    "folder"|"home"|"workspace"? destinationType?;
+    # The ID of the destination container
+    decimal destinationId;
+};
+
+# Represents the Queries record for the operation: discussions-list
+public type DiscussionsListQueries record {
+    # A comma-separated list of optional elements to include in the response:
+    #   * **attachments** - effective only if comments is present, otherwise ignored
+    #   * **comments** - include all comments in threads
+    "attachments"|"comments" include?;
+    # The maximum number of items to return per page. Unless otherwise stated for a specific endpoint, defaults to 100. If only page is specified, defaults to a page size of 100. For reports, the default is 100 rows. If you need larger sets of data from your report, returns a maximum of 10,000 rows per request
+    decimal pageSize = 100;
+    # If true, include all results, that is, do not paginate. Mutually exclusive with page and pageSize (they are ignored if includeAll=true is specified)
+    boolean includeAll = false;
+    # Which page to return. Defaults to 1 if not specified. If you specify a value greater than the total number of pages, the last page of results is returned
+    decimal page = 1;
+};
+
+# Event representing the export of a workspace, combining base event properties with workspace export-specific data
+public type WorkspaceExport record {
+    *Event;
+    *WorkspaceExportAllOf2;
+};
+
+# Represents the Headers record for the operation: update-folder
+public type UpdateFolderHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Adds an alternate email address for the user account
+public type AddAlternateEmail record {
+    # User's alternate email address
+    string email?;
+};
+
+# Event schema for tracking when an account downloads a report of their published items
+public type AccountDownloadPublishedItemsReport record {
+    *Event;
+    *AccountDownloadPublishedItemsReportAllOf2;
 };
 
 # Provides a set of configurations for controlling the behaviours when communicating with a remote HTTP endpoint.
 @display {label: "Connection Config"}
 public type ConnectionConfig record {|
     # Configurations related to client authentication
-    OAuth2ClientCredentialsGrantConfig auth;
+    http:BearerTokenConfig|OAuth2RefreshTokenGrantConfig auth;
     # The HTTP version understood by the client
     http:HttpVersion httpVersion = http:HTTP_2_0;
     # Configurations related to HTTP/1.x protocol
@@ -138,425 +9795,3755 @@ public type ConnectionConfig record {|
     boolean laxDataBinding = true;
 |};
 
-# The details of the authorized payment status
-public type AuthorizationStatusDetails record {
-    # The reason why the authorized status is `PENDING`
-    "PENDING_REVIEW" reason?;
+# Represents the Queries record for the operation: get-workspace
+public type GetWorkspaceQueries record {
+    # Allows COMMENTER access for inputs and return values. For backwards-compatibility, VIEWER is the default. For example, to see whether a user has COMMENTER access for a sheet, use accessApiLevel=1
+    decimal accessApiLevel = 0;
+    # A comma-separated list of optional elements to include in the response:
+    #   * **source** - adds the Source object indicating which object the folder was created from, if any
+    #   * **distributionLink**
+    #   * **ownerInfo** Returns the user with owner permissions, or the user with admin permissions if there is no owner assigned. If no owner or admins are assigned, the Plan Asset Admin is returned. If no Plan Asset Admin is assigned, the System Admin is returned.
+    #   * **sheetVersion**
+    #   * **permalinks**
+    "source"|"distributionLink"|"ownerInfo"|"sheetVersion" include?;
+    # If set to `true`, the workspace's entire hierarchy of items and folders is returned
+    boolean loadAll = false;
 };
 
-# The refund status
-public type RefundStatus record {
-    # Additional details and context information related to the current refund status
-    @jsondata:Name {value: "status_details"}
-    RefundStatusDetails statusDetails?;
-    # The status of the refund
-    "CANCELLED"|"FAILED"|"PENDING"|"COMPLETED" status?;
+# Stream result properties
+public type StreamResult record {
+    # True if more results are available. This is typically due to event counts
+    # exceeding the maxCount parameter passed in
+    boolean moreAvailable?;
+    # This string should be passed back to the next GET events call to obtain
+    # subsequent events
+    string nextStreamPosition?;
 };
 
-# Represents the Headers record for the operation: authorizations.void
-public type AuthorizationsVoidHeaders record {
-    # An API-caller-provided JSON Web Token (JWT) assertion that identifies the merchant. For details, see [PayPal-Auth-Assertion](/docs/api/reference/api-requests/#paypal-auth-assertion).<blockquote><strong>Note:</strong>For three party transactions in which a partner is managing the API calls on behalf of a merchant, the partner must identify the merchant using either a PayPal-Auth-Assertion header or an access token with target_subject.</blockquote>
-    @http:Header {name: "PayPal-Auth-Assertion"}
-    string payPalAuthAssertion?;
-    # The preferred server response upon successful completion of the request. Value is:<ul><li><code>return=minimal</code>. The server returns a minimal response to optimize communication between the API caller and the server. A minimal response includes the <code>id</code>, <code>status</code> and HATEOAS links.</li><li><code>return=representation</code>. The server returns a complete resource representation, including the current state of the resource.</li></ul>
-    @http:Header {name: "Prefer"}
-    string prefer = "return=minimal";
+# Represents the Headers record for the operation: get-workspace
+public type GetWorkspaceHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
 };
 
-# A captured payment
-public type Capture2 record {
-    *Capture;
-    *Capture2AllOf2;
+# Standard success response object containing a result code of 0 and "SUCCESS" message
+public type SuccessResult record {
+    # * '0' Success
+    0 resultCode?;
+    # Message that indicates the request was successful
+    "SUCCESS" message?;
 };
 
-# Contains supplementary data and payee information for capture processing
-public type Capture2AllOf2 record {
-    # The supplementary data
-    SupplementaryData supplementary_data?;
-    # The details for the merchant who receives the funds and fulfills the order. The merchant is also known as the payee
-    PayeeBase payee?;
+# Represents the Queries record for the operation: proofs-get
+public type ProofsGetQueries record {
+    # A comma-separated list of optional elements to include in the response
+    "attachments"|"discussions" include?;
 };
 
-# The refund information
-public type Refund record {
-    *RefundStatus;
-    *RefundAllOf2;
-    *ActivityTimestamps;
+# Event schema for requesting a backup operation on a sheet, combining base event properties with backup-specific fields
+public type SheetRequestBackup record {
+    *Event;
+    *SheetRequestBackupAllOf2;
 };
 
-# The date and time stamps that are common to authorized payment, captured payment, and refund transactions
-public type ActivityTimestamps record {
-    # Timestamp indicating when the activity was last updated or modified
-    @jsondata:Name {value: "update_time"}
-    DateTime updateTime?;
-    # Timestamp indicating when the activity was created, formatted as a DateTime value
-    @jsondata:Name {value: "create_time"}
-    DateTime createTime?;
+# MiniUser Object
+public type MiniUser record {
+    # A read-only string representing the user's full name
+    string name?;
+    # User's email address in standard email format
+    string email?;
 };
 
-# The status of a captured payment
-public type CaptureStatus record {
-    # Additional details and context information about the current capture status
-    @jsondata:Name {value: "status_details"}
-    CaptureStatusDetails statusDetails?;
-    # The status of the captured payment
-    "COMPLETED"|"DECLINED"|"PARTIALLY_REFUNDED"|"PENDING"|"REFUNDED"|"FAILED" status?;
+# Triggered when the ownership of a dashboard is transferred
+public type DashboardTransferOwnershipAllOf2 record {
+    # The action applied to the specified object
+    "TRANSFER_OWNERSHIP" action?;
+    # Additional details for dashboard ownership transfer events, including user IDs, email, and access levels
+    DashboardTransferOwnershipAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "DASHBOARD" objectType?;
 };
 
-# Represents the Headers record for the operation: authorizations.capture
-public type AuthorizationsCaptureHeaders record {
-    # The server stores keys for 45 days
-    @http:Header {name: "PayPal-Request-Id"}
-    string payPalRequestId?;
-    # The preferred server response upon successful completion of the request. Value is:<ul><li><code>return=minimal</code>. The server returns a minimal response to optimize communication between the API caller and the server. A minimal response includes the <code>id</code>, <code>status</code> and HATEOAS links.</li><li><code>return=representation</code>. The server returns a complete resource representation, including the current state of the resource.</li></ul>
-    @http:Header {name: "Prefer"}
-    string prefer = "return=minimal";
+# Triggered when an admin downloads sheet access report for a user. This can be done through User Management console on UI
+public type UserDownloadSheetAccessReportAllOf2 record {
+    # The action applied to the specified object
+    "DOWNLOAD_SHEET_ACCESS_REPORT" action?;
+    # Additional details for bulk account updates, including the responsible user's email address
+    AccountBulkUpdateAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "USER" objectType?;
 };
 
-# The supplementary data
-public type SupplementaryData record {
-    # Array of identifiers linking this supplementary data to related entities or records
-    @jsondata:Name {value: "related_ids"}
-    RelatedIds relatedIds?;
+# Object representing a checkbox
+public type CheckboxObjectValue record {
+    # true if checked; false otherwise
+    boolean value?;
+    # Specifies the object type as a checkbox input control
+    "CHECKBOX" objectType?;
 };
 
-# A captured payment containing transaction details, amounts, IDs, seller protection, and processing information
-public type CaptureAllOf2 record {
-    # The PayPal-generated ID for the captured payment.
-    string id?;
-    # The currency and amount for a financial transaction, such as a balance or payment due
-    Money amount?;
-    # The API caller-provided external invoice number for this order. Appears in both the payer's transaction history and the emails that the payer receives.
-    string invoice_id?;
-    # The API caller-provided external ID. Used to reconcile API caller-initiated transactions with PayPal transactions. Appears in transaction and settlement reports.
-    @constraint:String {maxLength: 127}
-    string custom_id?;
-    # Reference values used by the card network to identify a transaction
-    NetworkTransactionReference network_transaction_reference?;
-    # The level of protection offered as defined by [PayPal Seller Protection for Merchants](https://www.paypal.com/us/webapps/mpp/security/seller-protection)
-    SellerProtection seller_protection?;
-    # Indicates whether you can make additional captures against the authorized payment. Set to `true` if you do not intend to capture additional payments against the authorization. Set to `false` if you intend to capture additional payments against the authorization.
-    boolean final_capture = false;
-    # The detailed breakdown of the capture activity. This is not available for transactions that are in pending state
-    SellerReceivableBreakdown seller_receivable_breakdown?;
-    # The funds that are held on behalf of the merchant
-    DisbursementMode disbursement_mode?;
-    # An array of related [HATEOAS links](/docs/api/reference/api-responses/#hateoas-links).
-    LinkDescription[] links?;
-    # The processor response information for payment requests, such as direct credit card transactions
-    ProcessorResponse processor_response?;
+# Response object containing a collection of attachment data items
+public type AttachmentCollectionResponse record {
+    # list of attachments
+    Attachment[] data?;
 };
 
-# The exchange rate that determines the amount to convert from one currency to another currency
-public type ExchangeRate record {
-    # The currency code from which the exchange rate conversion is being made
-    @jsondata:Name {value: "source_currency"}
-    CurrencyCode sourceCurrency?;
-    # The currency code to which the exchange rate converts from the base currency
-    @jsondata:Name {value: "target_currency"}
-    CurrencyCode targetCurrency?;
-    # The target currency amount. Equivalent to one unit of the source currency. Formatted as integer or decimal value with one to 15 digits to the right of the decimal point
-    string value?;
+# Response containing index result data combined with a collection of summary fields
+public type IndexResultDataResponse record {
+    *IndexResult;
+    *SummaryFieldCollectionResponse;
 };
 
-# Reference values used by the card network to identify a transaction
-public type NetworkTransactionReference record {
-    # The date that the transaction was authorized by the scheme. This field may not be returned for all networks. MasterCard refers to this field as "BankNet reference date
-    @constraint:String {maxLength: 4, minLength: 4, pattern: re `^[0-9]+$`}
-    string date?;
-    # Reference ID issued for the card transaction. This ID can be used to track the transaction across processors, card brands and issuing banks
-    @jsondata:Name {value: "acquirer_reference_number"}
-    string acquirerReferenceNumber?;
-    # Transaction reference id returned by the scheme. For Visa and Amex, this is the "Tran id" field in response. For MasterCard, this is the "BankNet reference id" field in response. For Discover, this is the "NRID" field in response. The pattern we expect for this field from Visa/Amex/CB/Discover is numeric, Mastercard/BNPP is alphanumeric and Paysecure is alphanumeric with special character -
-    @constraint:String {maxLength: 36, minLength: 9, pattern: re `^[a-zA-Z0-9-]+$`}
+# Response object containing the result of a column update operation
+public type UpdateColumnApiResponse record {
+    # Defines column properties for updates including title, type, position, options, and validation settings
+    UpdateColumn result?;
+};
+
+# Schema for creating a new dashboard, combining base event properties with dashboard-specific creation fields
+public type DashboardCreate record {
+    *Event;
+    *DashboardCreateAllOf2;
+};
+
+# Represents the Headers record for the operation: add-crosssheet-reference
+public type AddCrosssheetReferenceHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+    # Required for POST and PUT requests. Defines the structure for the request body
+    @http:Header {name: "Content-Type"}
+    string contentType = "application/json";
+};
+
+# Request body for sheet row operations that accepts either a single Row object or multiple rows data
+public type SheetIdRowsBody Row|SheetssheetIdrowsOneOf2;
+
+# Represents the Headers record for the operation: update-sight-share
+public type UpdateSightShareHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Defines a task dependency relationship with another row, including type, timing lag, and critical path status
+public type Predecessor record {
+    # In a project sheet, represents a value in a duration cell, or a lag value of a predecessor
+    Duration lag?;
+    # True if this predecessor is in the critical path
+    boolean inCriticalPath?;
+    # True if the row referenced by rowId is not a valid row in this sheet, or there is a circular reference (displayed in the Smartsheet app as "#REF") Omitted if false
+    boolean invalid?;
+    # Type of the predecessor:
+    #  * FF (Finish-to-Finish) - finish at the same time the predecessor finishes.
+    #  * FS (Finish-to-Start) - start after the predecessor finishes.
+    #  * SF (Start-to-Finish) - finish before the predecessor starts.
+    #  * SS (Start-to-Start) - start at the same time the predecessor starts
+    "FF"|"FS"|"SF"|"SS" 'type?;
+    # The row number of the predecessor row. Omitted if invalid is true
+    decimal rowNumber?;
+    # The Id of the predecessor row
+    decimal rowId?;
+};
+
+# Represents the Headers record for the operation: get-group
+public type GetGroupHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Schema for creating attachment events, combining base event properties with attachment-specific creation fields
+public type AttachmentCreate record {
+    *Event;
+    *AttachmentCreateAllOf2;
+};
+
+# Triggered when a sheet form is created
+public type FormCreateAllOf2 record {
+    # The action applied to the specified object
+    "CREATE" action?;
+    # Additional details for form creation events, including responsible user email, form name, and sheet ID
+    FormCreateAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "FORM" objectType?;
+};
+
+# Represents the Headers record for the operation: createWebhook
+public type CreateWebhookHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+    # Required for POST and PUT requests. Defines the structure for the request body
+    @http:Header {name: "Content-Type"}
+    string contentType = "application/json";
+};
+
+# A generic object schema with no defined properties, allowing any valid JSON object structure
+public type EmptyObjectSchema record {
+};
+
+# Response object containing sheet data that inherits all properties from the Sheet schema
+public type SheetApiResponse Sheet;
+
+# Represents the Headers record for the operation: delete-workspace
+public type DeleteWorkspaceHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Represents the Headers record for the operation: list-report-shares
+public type ListReportSharesHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Response data for any Smartsheet API operation, supporting all available endpoints and their respective data formats
+public type SmartsheetApiOperationResponseData AccesstokenAuthorize|AccesstokenRefresh|AccesstokenRevoke|AccountBulkUpdate|AccountDownloadLoginHistory|AccountDownloadPublishedItemsReport|AccountDownloadSheetAccessReport|AccountDownloadUserList|AccountImportUsers|AccountListSheets|AccountRename|AccountUpdateMainContact|AttachmentCreate|AttachmentDelete|AttachmentLoad|AttachmentSend|AttachmentUpdate|DashboardAddPublish|DashboardAddShare|DashboardAddShareMember|DashboardAddWorkspaceShare|DashboardCreate|DashboardDelete|DashboardLoad|DashboardMove|DashboardPurge|DashboardRemovePublish|DashboardRemoveShare|DashboardRemoveShareMember|DashboardRemoveWorkspaceShare|DashboardRename|DashboardRestore|DashboardSaveAsNew|DashboardTransferOwnership|DashboardUpdate|DiscussionCreate|DiscussionDelete|DiscussionSend|DiscussionSendcomment|DiscussionUpdate|FolderCreate|FolderDelete|FolderExport|FolderRename|FolderRequestBackup|FolderSaveAsNew|FormActivate|FormCreate|FormDeactivate|FormDelete|FormUpdate|GroupAddMember|GroupCreate1|GroupDelete|GroupDownloadSheetAccessReport|GroupRemoveMember|GroupRename|GroupTransferOwnership|GroupUpdate1|ReportAddShare|ReportAddShareMember|ReportAddWorkspaceShare|ReportCreate|ReportDelete|ReportExport|ReportLoad|ReportMove|ReportPurge|ReportRemoveShare|ReportRemoveShareMember|ReportRemoveWorkspaceShare|ReportRename|ReportRestore|ReportSaveAsNew|ReportSendAsAttachment|ReportTransferOwnership|ReportUpdate|SheetAddShare|SheetAddShareMember|SheetAddWorkspaceShare|SheetCopyRow|SheetCreate|SheetCreateCellLink|SheetDelete|SheetExport|SheetLoad|SheetMove|SheetMoveRow|SheetPurge|SheetRemoveShare|SheetRemoveShareMember|SheetRemoveWorkspaceShare|SheetRename|SheetRequestBackup|SheetRestore|SheetSaveAsNew|SheetSaveAsTemplate|SheetSendAsAttachment|SheetSendRow|SheetTransferOwnership|SheetUpdate|UpdateRequestCreate|UserAcceptInvite|UserAddToAccount|UserDeclineInvite|UserDownloadSheetAccessReport|UserRemoveFromAccount|UserRemoveFromGroups|UserRemoveShares|UserSendInvite|UserSendPasswordReset|UserTransferOwnedGroups|UserTransferOwnedItems|UserUpdateUser|WorkspaceAddShare|WorkspaceAddShareMember|WorkspaceCreate|WorkspaceCreateRecurringBackup|WorkspaceDelete|WorkspaceDeleteRecurringBackup|WorkspaceExport|WorkspaceRemoveShare|WorkspaceRemoveShareMember|WorkspaceRename|WorkspaceRequestBackup|WorkspaceSaveAsNew|WorkspaceTransferOwnership|WorkspaceUpdateRecurringBackup;
+
+# Extended search result that combines basic search result data with collection response metadata
+public type SearchResultExtendedResponse record {
+    *SearchResult;
+    *SearchResultCollectionResponse;
+};
+
+# Event schema for retrieving a list of account sheets or worksheets within an account context
+public type AccountListSheets record {
+    *Event;
+    *AccountListSheetsAllOf2;
+};
+
+# Represents the Headers record for the operation: row-discussions-create
+public type RowDiscussionsCreateHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+    # Required for POST and PUT requests. Defines the structure for the request body
+    @http:Header {name: "Content-Type"}
+    string contentType = "application/json";
+};
+
+# Additional details for report email attachment events, including recipient information and format type
+public type ReportSendAsAttachmentAdditionalDetails record {
+    # Email address of the user responsible for the event
+    string emailAddress;
+    # Single ID of a user group explicitly included in the recipient list. (This property is included only if the `recipientEmail` property above isn't included)
+    @constraint:Int {minValue: 0}
+    int recipientGroupId?;
+    # The format in which the report was sent
+    "excel"|"pdf"|"pdf_gantt"|"pdf_calendar" formatType?;
+    # Single email address either of a user explicitly included in the recipient list or of the sender (when *CC sender* is requested). (This property is included only if the `recipientGroupId` property below isn't included)
+    string recipientEmail?;
+};
+
+# Represents the Headers record for the operation: delete-favorites-by-type-and-id
+public type DeleteFavoritesByTypeAndIdHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+    # UserId of the user
+    @http:Header {name: "x-smar-sc-actor-id"}
+    string xSmarScActorId?;
+};
+
+# Response containing a collection of summary field data items
+public type SummaryFieldCollectionResponse record {
+    # List of Summary Fields
+    SummaryField[] data?;
+};
+
+# Triggered when the ownership of a sheet is transferred
+public type SheetTransferOwnershipAllOf2 record {
+    # The action applied to the specified object
+    "TRANSFER_OWNERSHIP" action?;
+    # Contains details about report ownership transfers including user IDs, email addresses, and access level changes
+    ReportTransferOwnershipAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "SHEET" objectType?;
+};
+
+# Represents the Queries record for the operation: import-sheet-into-folder
+public type ImportSheetIntoFolderQueries record {
+    # Desired name of the sheet
+    string sheetName;
+    # A zero-based integer indicating the row number to use for column names. Rows before this are omitted.
+    # If not specified, the default values are Column1, Column2, etc
+    decimal headerRowIndex?;
+    # A zero-based integer indicating the column to designate as primary
+    decimal primaryColumnIndex = 0;
+};
+
+# Triggered when a group or user is removed from a workspace's sharing list. 
+# 
+# Note that this event will appear for each sheet that is in the workspace. If a group or user is removed from a workspace's sharing list and the workspace is empty, then no events will be recorded
+public type SheetRemoveWorkspaceShareAllOf2 record {
+    # The action applied to the specified object
+    "REMOVE_WORKSPACE_SHARE" action?;
+    # Additional details for dashboard events when workspace sharing is removed from users or groups
+    DashboardRemoveWorkspaceShareAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "SHEET" objectType?;
+};
+
+# Triggered when an admin sends/resends an invitation link to the user. This can be done through User Management console on UI or via the API (Add User). 
+public type UserSendInviteAllOf2 record {
+    # The action applied to the specified object
+    "SEND_INVITE" action?;
+    # Additional details for user account addition events, including responsible user's email and assigned user types
+    UserAddToAccountAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "USER" objectType?;
+};
+
+# Represents the Queries record for the operation: update-rows
+public type UpdateRowsQueries record {
+    # Allows COMMENTER access for inputs and return values. For backwards-compatibility, VIEWER is the default. For example, to see whether a user has COMMENTER access for a sheet, use accessApiLevel=1
+    decimal accessApiLevel = 0;
+    # When specified with a value of true, enables partial success for this bulk operation. See [Bulk operations > Partial success](/api/smartsheet/guides/advanced-topics/scalability-options) for more information
+    boolean allowPartialSuccess = false;
+    # You may use the query string parameter **overrideValidation** with a value of **true** to allow a cell value outside of the validation limits. You must specify **strict** with a value of **false** to bypass value type checking
+    boolean overrideValidation = false;
+};
+
+# Triggered when a folder is created. 
+# 
+# Folders can be created in the UI with the `Create New` button, by selecting the `Save As New` option on an existing folder, or through the API
+public type FolderCreateAllOf2 record {
+    # The action applied to the specified object
+    "CREATE" action?;
+    # Additional details for folder creation events, including the responsible user's email and optional copy source or destination folder information
+    FolderCreateAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "FOLDER" objectType?;
+};
+
+# Extended item result response combining item details with report publishing status information
+public type ItemResultExtendedResponse1 record {
+    *ItemResult;
+    *ReportPublishResultResponse;
+};
+
+# Contains search results with an array of items and total count of matching records
+public type SearchResult record {
+    # Array of SearchResultItem objects.
+    SearchResultItem[] results?;
+    # Total number of search results.
+    decimal totalCount?;
+};
+
+# Represents the Headers record for the operation: list-search
+public type ListSearchHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# A collection of image URL objects that reference the ImageUrl schema for inline body content
+public type InlineBodyItemsApplicationjsonimageurls ImageUrl;
+
+# Represents the Queries record for the operation: delete-favorites-by-type
+public type DeleteFavoritesByTypeQueries record {
+    # A comma-separated list of Ids of the favorited item
+    string objectIds;
+};
+
+# Event representing the purging or deletion of sheet data from a system or database
+public type SheetPurge record {
+    *Event;
+    *SheetPurgeAllOf2;
+};
+
+# Triggered when an admin transfers ownership of all groups owned by a user to another user. This can be done through User Management on UI
+public type UserTransferOwnedGroupsAllOf2 record {
+    # The action applied to the specified object
+    "TRANSFER_OWNED_GROUPS" action?;
+    # Additional details for group ownership transfer events, including responsible user email and owner IDs
+    GroupTransferOwnershipAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "USER" objectType?;
+};
+
+# Event triggered when a row is copied within a sheet or between sheets
+public type SheetCopyRow record {
+    *Event;
+    *SheetCopyRowAllOf2;
+};
+
+# Request body for group membership operations, accepting either a single member or batch member data
+public type GroupIdMembersBody GroupMember|GroupsgroupIdmembersOneOf2;
+
+# Response containing a collection of workspace listings with pagination support via lastKey
+public type WorkspaceListingCollectionResponse record {
+    # Array of workspace listing objects containing workspace information and metadata
+    WorkspaceListing[] data?;
+    # A token that is used to retrieve the next page of results when passed as the
+    # `lastKey` query parameter. This value will be absent when there are no 
+    # further pages
+    LastKey lastKey?;
+};
+
+# The base object for Event Reporting events. 
+# 
+# > **Note:** Event Reporting is a premium add-on available for Enterprise and Advanced Work Management plans. For details on the Event Reporting add-on, please contact our <a href="https://www.smartsheet.com/contact/sales" target="_blank" rel="noopener noreferrer">Sales Team</a>.
+# 
+# All [event types](/api/smartsheet/event-types) include the Event properties and override the following properties:
+# 
+# - `objectType` (string)
+# - `action` (string)
+# - `additionalDetails` (object)
+# 
+# See [Event types](/api/smartsheet/event-types) for event descriptions and example event response objects
+public type Event record {
+    # Unique event identifier
+    string eventId?;
+    # Name of the access token embedded in the request. This property is omitted
+    # if there's no access token in the request (i.e., it isn't an API call) or
+    # if the access token wasn't given a name when created (only access tokens
+    # generated via the Smartsheet desktop UI can be given a name at creation
+    # time)
+    string accessTokenName?;
+    # The action applied to the specified object, such as CREATE, UPDATE, or DELETE.
+    # 
+    # See [Event types](/api/smartsheet/event-types) for actions associated with each event object type
+    string action?;
+    # User whose authentication credential is embedded in the request that
+    # initiated the event. For example, if the request is an API call with an
+    # access token then requestUserId identifies the user whose data can be
+    # accessed via the access token (i.e., the user who authorized the creation
+    # of the access token). On the other hand, if the request comes from a UI
+    # session, then requestUserId identifies the user logged-in to the UI
+    decimal requestUserId?;
+    # Identifies the client or user agent used to initiate the action
+    "WEB_APP"|"MOBILE_IOS"|"MOBILE_ANDROID"|"API_UNDEFINED_APP"|"API_INTEGRATED_APP"|"API_ODBC_DRIVER" 'source?;
+    # Container object for additional event-specific properties. Properties depend upon the event type, but all events include an `emailAddress` property, representing the user responsible for the event. 
+    # 
+    # See [Event types](/api/smartsheet/event-types) for event details, including event-specific `additionalDetails` properties and example event response objects
+    EventAdditionalDetails additionalDetails?;
+    # User assumed as the one who initiated the event. Usually the userId
+    # property and the requestUserId property (below) have the same value.
+    # However, if the request is an API call with Assume-User header then the
+    # userId property identifies the user whose email matches the value in the
+    # Assume-User header
+    decimal userId?;
+    # The identifier of the object impacted by the event
+    string objectId?;
+    # The type of Smartsheet resource object impacted by the event.
+    # 
+    # See [Event types](/api/smartsheet/event-types) for all the event object types
+    string objectType?;
+    # Date and time of the event. Defaults to ISO-8601 format. See dates and
+    # times for more information
+    string eventTimestamp?;
+};
+
+# Additional details for form activation events, including the responsible user's email and optional sheet ID
+public type FormActivateAdditionalDetails record {
+    # Email address of the user responsible for the event
+    string emailAddress;
+    # Id of the form's sheet
+    @constraint:Int {minValue: 0}
+    int sheetId?;
+};
+
+# Object containing a list of strings to choose from
+public type MultiPicklistObjectValue record {
+    # List of strings to choose from
+    string[] values?;
+    # Specifies the object type as a multi-picklist selection field
+    "MULTI_PICKLIST" objectType?;
+};
+
+# CrossSheetReference object to create with specified cell range
+public type CrossSheetReferenceRequestWithColumnAndRowIds record {
+    # Defines beginning edge of range when specifying one or more rows. Must be used with endRowId. To specify an entire row, omit the startColumnId and endColumnId parameters
+    decimal startRowId?;
+    # Friendly name of reference. Auto-generated unless specified in Create Cross-sheet References
+    string name?;
+    # Defines beginning edge of range when specifying one or more columns. Must be used with endColumnId. To specify an entire column, omit the startRowId and endRowId parameters
+    decimal startColumnId?;
+    # Sheet Id of source sheet
+    decimal sourceSheetId?;
+    # Defines ending edge of range when specifying one or more columns. Must be used with startColumnId. To specify an entire column, omit the startRowId and endRowId parameters
+    decimal endColumnId?;
+    # Defines ending edge of range when specifying one or more rows. Must be used with startRowId. To specify an entire row, omit the startColumnId and endColumnId parameters
+    decimal endRowId?;
+};
+
+# Additional details for dashboard sharing events, including user email, access level, and related group/workspace IDs
+public type DashboardAddShareAdditionalDetails record {
+    # Email address of the user responsible for the event
+    string emailAddress;
+    # Indicates the access level granted to the user. 
+    # 
+    # Note that this access level represents the access level that has been granted to the user via group membership; it is not the user's effective access level for the dashboard
+    "VIEWER"|"EDITOR"|"EDITOR_SHARE"|"ADMIN" accessLevel?;
+    # Id of the group the user was added to
+    @constraint:Int {minValue: 0}
+    int groupId?;
+    # Id of the user that was added to the group
+    @constraint:Int {minValue: 0}
+    int userId?;
+    # Id of the workspace that the group is shared to. (Specific to cases where the dashboard is shared to the group via a workspace's sharing list)
+    @constraint:Int {minValue: 0}
+    int workspaceId?;
+};
+
+# Response containing proof validation results with optional version number for sheet updates
+public type ProofValidationResponse1 record {
+    *GenericResult;
+    # Object containing zero or more media items, including images, videos, and documents, for review, editing, or approval
+    Proof result?;
+};
+
+# Response object containing an array of updated row results from a bulk update operation
+public type UpdateRowsCollectionResponse record {
+    # Array of update row objects containing the results of the bulk row update operation
+    UpdateRowsObject[] result?;
+};
+
+# Response object containing a sheet result with detailed sheet information and data
+public type SheetResultResponse record {
+    # A sheet object containing access permissions, name, unique identifier, and permalink reference
+    ComponentsSchemasSheet result?;
+};
+
+# Represents the Queries record for the operation: list-org-sheets
+public type ListOrgSheetsQueries record {
+    # When specified with a date and time value, response only includes the objects that are modified on or after the date and time specified. If you need to keep track of frequent changes, it may be more useful to use Get Sheet Version
+    Timestamp modifiedSince?;
+};
+
+# Represents the Queries record for the operation: get-contact
+public type GetContactQueries record {
+    # A comma-separated list of optional elements to include in the response:
+    #   * **profileImage**
+    "profileImage" include?;
+};
+
+# Additional details for folder backup requests including user email, attachment preferences, and completion notifications
+public type FolderRequestBackupAdditionalDetails record {
+    # Email address of the user responsible for the event
+    string emailAddress;
+    # Indicates whether attachments should be included in the recurring backup
+    boolean includeAttachments?;
+    # Indicates whether an email should be sent to the workspace's owner every time a recurring backup completes
+    boolean sendCompletionEmail?;
+};
+
+# Event schema for reporting the restoration of a previously deleted or archived report
+public type ReportRestore record {
+    *Event;
+    *ReportRestoreAllOf2;
+};
+
+# Represents the Headers record for the operation: updateSheet
+public type UpdateSheetHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Represents a sent update request email containing recipient details, row/column IDs, attachments, and delivery status
+public type SentUpdateRequest record {
+    # Recipient object
+    Recipient sentTo?;
+    # Indicates whether the attachments were included in the email
+    boolean includeAttachments?;
+    # The Ids of rows where an update is requested
+    decimal[] rowIds?;
+    # The Ids of columns included in the request
+    decimal[] columnIds?;
+    # The Id of the originating update request
+    decimal updateRequestId?;
+    # The subject of the email
+    string subject?;
+    # The Id of the sent update request
+    decimal id?;
+    # The date and time for when the sent update request was sent to the recipient
+    Timestamp sentAt?;
+    # The message of the email. Max 10000 characters
+    string message?;
+    # Indicates whether the discussions were included in the email
+    boolean includeDiscussions?;
+    # `User` object containing `name` and `email` of the sender
+    MiniUser sentBy?;
+    # The status of the sent update request
+    "CANCELED"|"COMPLETE"|"PENDING" status?;
+};
+
+# Represents the Queries record for the operation: update-sight-share
+public type UpdateSightShareQueries record {
+    # Allows COMMENTER access for inputs and return values. For backwards-compatibility, VIEWER is the default. For example, to see whether a user has COMMENTER access for a sheet, use accessApiLevel=1
+    decimal accessApiLevel = 0;
+};
+
+# Event triggered when a user adds sharing permissions to a dashboard, extending base event properties
+public type DashboardAddShare record {
+    *Event;
+    *DashboardAddShareAllOf2;
+};
+
+# Additional details for sheet export events, including the user's email address and export format type
+public type SheetExportAdditionalDetails record {
+    # Email address of the user responsible for the event
+    string emailAddress;
+    # The format that the sheet was exported in "png_gantt" (gantt image), "mspdi" (Microsoft Project), "excel", or "pdf"
+    "png_gantt"|"mspdi"|"excel"|"pdf" formatType?;
+};
+
+# API response containing an array of discussion objects returned from discussion list endpoints
+public type DiscussionListApiResponse record {
+    # list of discussions
+    Discussion[] data?;
+};
+
+# Triggered when an admin removes an user from all groups owned by users on the organization account. This can be done through User Management on UI
+public type UserRemoveFromGroupsAllOf2 record {
+    # The action applied to the specified object
+    "REMOVE_FROM_GROUPS" action?;
+    # Additional details for bulk account updates, including the responsible user's email address
+    AccountBulkUpdateAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "USER" objectType?;
+};
+
+# Event schema for renaming report operations, combining base event properties with rename-specific data
+public type ReportRename record {
+    *Event;
+    *ReportRenameAllOf2;
+};
+
+# Represents the Headers record for the operation: list-summary-fields-paginated
+public type ListSummaryFieldsPaginatedHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Sheet name
+public type Name string;
+
+# Represents the Headers record for the operation: sendReportViaEmail
+public type SendReportViaEmailHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+    # Required for POST and PUT requests. Defines the structure for the request body
+    @http:Header {name: "Content-Type"}
+    string contentType = "application/json";
+};
+
+# Represents the Queries record for the operation: share-sight
+public type ShareSightQueries record {
+    # Allows COMMENTER access for inputs and return values. For backwards-compatibility, VIEWER is the default. For example, to see whether a user has COMMENTER access for a sheet, use accessApiLevel=1
+    decimal accessApiLevel = 0;
+    # Either true or false to indicate whether to notify the user by email. Default is false. If true, limit is 1000 emails
+    boolean sendEmail = false;
+};
+
+# Triggered when an admin bulk updates users. This can be done through User Managementconsole on UI
+public type AccountBulkUpdateAllOf2 record {
+    # The action applied to the specified object
+    "BULK_UPDATE" action?;
+    # Additional details for bulk account updates, including the responsible user's email address
+    AccountBulkUpdateAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "ACCOUNT" objectType?;
+};
+
+# Represents a row object containing metadata, cells, timestamps, and position within a sheet
+public type GetRowObject record {
+    # A read-only timestamp that can be represented as either a datetime string or numeric value
+    Timestamp createdAt?;
+    # Indicates whether the row is expanded or collapsed
+    boolean expanded?;
+    # Cells objects
+    CellObjectForRows[] cells?;
+    # A read-only timestamp that can be represented as either a datetime string or numeric value
+    Timestamp modifiedAt?;
+    # Parent sheet Id
+    decimal sheetId?;
+    # Row Id
+    decimal id?;
+    # Row number within the sheet
+    @constraint:Number {minValue: 1}
+    decimal rowNumber?;
+};
+
+# Represents the Queries record for the operation: share-sight-get
+public type ShareSightGetQueries record {
+    # Allows COMMENTER access for inputs and return values. For backwards-compatibility, VIEWER is the default. For example, to see whether a user has COMMENTER access for a sheet, use accessApiLevel=1
+    decimal accessApiLevel = 0;
+};
+
+# Triggered when a dashboard is in the deleted items bin and is restored (`Undelete`)
+public type DashboardRestoreAllOf2 record {
+    # The action applied to the specified object
+    "RESTORE" action?;
+    # Additional details for bulk account updates, including the responsible user's email address
+    AccountBulkUpdateAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "DASHBOARD" objectType?;
+};
+
+# Represents the Headers record for the operation: cellHistory-get
+public type CellHistoryGetHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Response object containing a single Sheet result
+public type SheetResultResponse1 record {
+    # A Smartsheet object containing rows, columns, and metadata with configurable features like Gantt view, dependencies, and resource management
+    Sheet result?;
+};
+
+# Represents the Headers record for the operation: import-sheet-into-folder
+public type ImportSheetIntoFolderHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+    # Should be equal to "attachment" to tell the API that a file is in the body of the POST request, followed by a semicolon, followed by **filename=** and the URL-encoded filename in quotes
+    @http:Header {name: "Content-Disposition"}
+    string contentDisposition?;
+    # Required for POST request to import a sheet from CSV/XLSX file.
+    # * For CSV files, use: Content-Type: text/csv
+    # * For XLSX files, use: Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+    @http:Header {name: "Content-Type"}
+    "text/csv"|"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" contentType;
+};
+
+# Event report indicating a movement or relocation action has occurred
+public type ReportMove record {
+    *Event;
+    *ReportMoveAllOf2;
+};
+
+# Object containing image metadata including ID, dimensions, temporary URL, and optional error information
+public type ImageUrl record {
+    # Image Id
+    string imageId?;
+    # Image width in pixels
+    decimal width?;
+    # The error caused by the failed item
+    Error 'error?;
+    # Temporary URL that can be used to retrieve the image. This attribute can be present in a response but is never specified in a request
+    string url?;
+    # Image height in pixels
+    decimal height?;
+};
+
+# Represents the Headers record for the operation: move-sheet
+public type MoveSheetHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+    # Required for POST and PUT requests. Defines the structure for the request body
+    @http:Header {name: "Content-Type"}
+    string contentType = "application/json";
+};
+
+# Response containing the new version number after updating sheet data, extending generic result format
+public type SheetVersionUpdateResponse GenericResult;
+
+# Represents the Headers record for the operation: get-workspace-folders
+public type GetWorkspaceFoldersHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# An array of favorite items, where each item conforms to the Favorite schema definition
+public type FavoritesOneOf2 Favorite[];
+
+# Represents the Headers record for the operation: proofs-get
+public type ProofsGetHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Response object containing deprecated pagination metadata for workspace search results, including page number, total pages, page size, and total count
+public type IndexResultWorkspaces record {
+    # **DEPRECATED - As early as the sunset date specified in this 
+    # [Changelog entry](/api/smartsheet/changelog#2025-08-04), this response property will not be part 
+    # of the response.**
+    # 
+    # The current page in the full result set that the data array represents.
+    # NOTE when a page number greater than totalPages is requested, the last
+    # page is instead returned
+    # 
+    # # Deprecated
+    @deprecated
+    decimal pageNumber?;
+    # **DEPRECATED - As early as the sunset date specified in this 
+    # [Changelog entry](/api/smartsheet/changelog#2025-08-04), this response property will not be part 
+    # of the response.**
+    # 
+    # The total number of pages in the full result set. Only present when
+    # using page-based pagination
+    # 
+    # # Deprecated
+    @deprecated
+    decimal totalPages?;
+    # **DEPRECATED - As early as the sunset date specified in this 
+    # [Changelog entry](/api/smartsheet/changelog#2025-08-04), this response property will not be part 
+    # of the response.**
+    # 
+    # The number of items in a page. Omitted if there is no limit to page size
+    # (and hence, all results are included). Unless otherwise specified, this
+    # defaults to 100 for most endpoints. Only present when using page-based pagination
+    # 
+    # # Deprecated
+    @deprecated
+    decimal? pageSize?;
+    # **DEPRECATED - As early as the sunset date specified in this 
+    # [Changelog entry](/api/smartsheet/changelog#2025-08-04), this response property will not be part 
+    # of the response.**
+    # 
+    # The total number of items in the full result set. Only present when
+    # using page-based pagination
+    # 
+    # # Deprecated
+    @deprecated
+    decimal totalCount?;
+};
+
+# Represents the Headers record for the operation: update-summary-fields
+public type UpdateSummaryFieldsHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Represents the Headers record for the operation: get-folder-children
+public type GetFolderChildrenHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+};
+
+# A dashboard result containing ID, access level, permalink, and name properties from Smartsheet
+public type SightResult SightName;
+
+# Additional details for form creation events, including responsible user email, form name, and sheet ID
+public type FormCreateAdditionalDetails record {
+    # Email address of the user responsible for the event
+    string emailAddress;
+    # Name of the form
+    string formName?;
+    # Id of the form's sheet
+    @constraint:Int {minValue: 0}
+    int sheetId?;
+};
+
+# Represents the Headers record for the operation: discussions-create
+public type DiscussionsCreateHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+    # Required for POST and PUT requests. Defines the structure for the request body
+    @http:Header {name: "Content-Type"}
+    string contentType = "application/json";
+};
+
+# Event triggered when dashboard data is purged or deleted from the system
+public type DashboardPurge record {
+    *Event;
+    *DashboardPurgeAllOf2;
+};
+
+# Array of the options available for the column
+public type Options string[];
+
+# Represents the Headers record for the operation: list-groups
+public type ListGroupsHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Extended item result response combining basic item data with sight publishing result information
+public type ItemResultExtendedResponse record {
+    *ItemResult;
+    *SightPublishResultResponse;
+};
+
+# Event triggered when a user accepts an invitation to join a system, organization, or service
+public type UserAcceptInvite record {
+    *Event;
+    *UserAcceptInviteAllOf2;
+};
+
+# Represents the Headers record for the operation: list-filtered-events
+public type ListFilteredEventsHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+    # Strongly recommended to make sure payload is compressed. Must be set to one of the following values:
+    # * deflate
+    # * gzip
+    @http:Header {name: "Accept-Encoding"}
+    "deflate"|"gzip" acceptEncoding?;
+};
+
+# Enhanced user profile response that includes both user profile data and associated group collection information
+public type UserProfileEnhancedResponse record {
+    *UserProfile;
+    *GroupCollectionApiResponse;
+};
+
+# A sheet object containing access permissions, name, unique identifier, and permalink reference
+public type ComponentsSchemasSheet record {
+    # Defines user permission level with values: ADMIN, COMMENTER, EDITOR, EDITOR_SHARE, OWNER, or VIEWER
+    AccessLevel accessLevel?;
+    # Sheet name
+    Name name?;
+    # Sheet Id
+    Id id?;
+    # URL that represents a direct link to the sheet in Smartsheet
+    Permalink permalink?;
+};
+
+# Represents the Queries record for the operation: list-summary-fields-paginated
+public type ListSummaryFieldsPaginatedQueries record {
+    # A comma-separated list of elements to include in the response.
+    # * **format**: includes format info for cells, rows, and summary fields
+    # * **writerInfo**: includes createdBy and modifiedBy attributes for rows and summary fields
+    "format"|"writerInfo" include?;
+    # The maximum number of items to return per page. Unless otherwise stated for a specific endpoint, defaults to 100. If only page is specified, defaults to a page size of 100. For reports, the default is 100 rows. If you need larger sets of data from your report, returns a maximum of 10,000 rows per request
+    decimal pageSize = 100;
+    # If true, include all results, that is, do not paginate. Mutually exclusive with page and pageSize (they are ignored if includeAll=true is specified)
+    boolean includeAll = false;
+    # A comma-separated list of elements to not include in the response.
+    # * **displayValue**: excludes displayValue info for cells, rows, and summary fields
+    # * **image**: excludes image attributes for cells and summary fields
+    # * **imageAltText**: excludes alt text for cells and summary fields
+    "displayValue"|"image"|"imageAltText" exclude?;
+    # Which page to return. Defaults to 1 if not specified. If you specify a value greater than the total number of pages, the last page of results is returned
+    decimal page = 1;
+};
+
+# Event tracking when a user downloads the complete user list from an account management system
+public type AccountDownloadUserList record {
+    *Event;
+    *AccountDownloadUserListAllOf2;
+};
+
+# API response containing an array of favorite items in the data field
+public type FavoriteCollectionApiResponse record {
+    # Array of favorite items returned by the API response
+    Favorite[] data?;
+};
+
+# Represents the Headers record for the operation: comment-get
+public type CommentGetHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# API response containing operation result status and summary field update information
+public type ResultDataApiResponse record {
+    *Result;
+    *SummaryFieldUpdateResponse;
+};
+
+# A composite response combining generic result data with group member operation results
+public type GenericResultCompositeResponse8 record {
+    *GenericResult;
+    *GroupMemberResultResponse;
+};
+
+# Response containing a collection of cell history records with their associated data
+public type CellHistoryCollectionResponse record {
+    # List of cell history objects
+    CellHistory[] data?;
+};
+
+# Event triggered when a user adds or creates a new share within a workspace
+public type WorkspaceAddShare record {
+    *Event;
+    *WorkspaceAddShareAllOf2;
+};
+
+# A composite response combining generic result data with group-specific result information
+public type GenericResultCompositeResponse7 record {
+    *GenericResult;
+    *GroupResultResponse;
+};
+
+# A composite response that combines generic result data with proof request result information
+public type GenericResultCompositeResponse6 record {
+    *GenericResult;
+    *ProofRequestResultResponse;
+};
+
+# A composite response combining generic result metadata with comment-specific response data
+public type GenericResultCompositeResponse5 record {
+    *GenericResult;
+    *CommentResultResponse;
+};
+
+# A composite response combining generic result status information with folder simple API response data
+public type GenericResultCompositeResponse4 record {
+    *GenericResult;
+    *FolderSimpleApiResponse;
+};
+
+# Response containing an array of updated alternate email addresses for a user
+public type AlternateEmailCollectionResponse1 record {
+    # Updated User Properties
+    AlternateEmail[] data?;
+};
+
+# Represents the Headers record for the operation: update-workspace-share
+public type UpdateWorkspaceShareHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Represents the Headers record for the operation: updateWebhook
+public type UpdateWebhookHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+    # Required for POST and PUT requests. Defines the structure for the request body
+    @http:Header {name: "Content-Type"}
+    string contentType = "application/json";
+};
+
+# Event triggered when an account name is changed or updated in the system
+public type AccountRename record {
+    *Event;
+    *AccountRenameAllOf2;
+};
+
+# CrossSheetReference object to create which will refer to the entire rows in the range from startRowId to endRowId
+public type CrossSheetReferenceRequestWithRowIds record {
+    # Defines beginning edge of range when specifying one or more rows. Must be used with endRowId
+    decimal startRowId?;
+    # Friendly name of reference. Auto-generated unless specified in Create Cross-sheet References
+    string name?;
+    # Sheet Id of source sheet
+    decimal sourceSheetId?;
+    # Defines ending edge of range when specifying one or more rows. Must be used with startRowId
+    decimal endRowId?;
+};
+
+# Represents the Headers record for the operation: update-asset-share
+public type UpdateAssetShareHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+};
+
+# Response object containing a collection of proof attachments as an array of Attachment items
+public type ProofAttachmentCollectionResponse record {
+    # list of proof attachments
+    Attachment[] data?;
+};
+
+# A composite response combining generic result status with alternate email collection data
+public type GenericResultCompositeResponse3 record {
+    *GenericResult;
+    *AlternateEmailCollectionResponse1;
+};
+
+# Column title
+public type Title string;
+
+# A composite response that combines generic result metadata with user profile image collection data
+public type GenericResultCompositeResponse2 record {
+    *GenericResult;
+    *UserProfileImageCollectionResponse;
+};
+
+# A composite response combining generic result information with summary field image addition response data
+public type GenericResultCompositeResponse1 record {
+    *GenericResult;
+    *SummaryFieldImageAddResponse;
+};
+
+# Represents the Headers record for the operation: proofs-update
+public type ProofsUpdateHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Event triggered when a folder is renamed, capturing the rename operation details
+public type FolderRename record {
+    *Event;
+    *FolderRenameAllOf2;
+};
+
+# Represents the Queries record for the operation: list-search
+public type ListSearchQueries record {
+    # When specified with a value of **favoriteFlag**, response indicates which returned items are favorites.  favorite -- dashboards, folders, reports, sheets, templates, and workspaces will have the property favorite: true parentObjectFavorite -- attachments, discussions, summary fields, and rows will have the property parentObjectFavorite: true
+    string include = "";
+    # When specified with a date and time value, response only includes the objects that are modified on or after the date and time specified. If you need to keep track of frequent changes, it may be more useful to use Get Sheet Version
+    Timestamp modifiedSince?;
+    # Text with which to perform the search. Enclose in double-quotes for an exact search
+    string query;
+    # **Deprecated** When specified with a value of **personalWorkspace**, limits the response to only those items in the user's workspaces
+    # 
+    # # Deprecated
+    @deprecated
+    string location = "";
+    # If search fails, try using an array for each type of this comma-separated list of search filters
+    ("attachments"|"cellData"|"comments"|"folderNames"|"reportNames"|"sheetNames"|"sightNames"|"summaryFields"|"templateNames"|"workspaceNames")[] scopes?;
+};
+
+# Additional details for sheet send-as-attachment events, including recipient email, format type, and group information
+public type SheetSendAsAttachmentAdditionalDetails record {
+    # Email address of the user responsible for the event
+    string emailAddress;
+    # Single ID of a user group explicitly included in the recipient list. (This property is included only if the `recipientEmail` property above isn't included)
+    @constraint:Int {minValue: 0}
+    int recipientGroupId?;
+    # The format in which the sheet was sent
+    "excel"|"pdf"|"pdf_gantt"|"pdf_calendar" formatType?;
+    # Single email address either of a user explicitly included in the recipient list or of the sender (when *CC sender* is requested). (This property is included only if the `recipientGroupId` property below isn't included)
+    string recipientEmail?;
+};
+
+# Represents the Headers record for the operation: row-get
+public type RowGetHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Additional details for report export events, including the user's email address and export format type
+public type ReportExportAdditionalDetails record {
+    # Email address of the user responsible for the event
+    string emailAddress;
+    # The format that the report was exported in "png_gantt" (gantt image), "mspdi" (Microsoft Project), "excel", or "pdf"
+    "png_gantt"|"mspdi"|"excel"|"pdf" formatType?;
+};
+
+# Represents an account with a unique identifier and display name for organizational purposes
+public type Account record {
+    # Account name
+    string name?;
+    # Account Id
+    decimal id?;
+};
+
+# Represents the Queries record for the operation: import-sheet-into-sheets-folder
+public type ImportSheetIntoSheetsFolderQueries record {
+    # Desired name of the sheet
+    string sheetName;
+    # A zero-based integer indicating the row number to use for column names. Rows before this are omitted.
+    # If not specified, the default values are Column1, Column2, etc
+    decimal headerRowIndex?;
+    # A zero-based integer indicating the column to designate as primary
+    decimal primaryColumnIndex = 0;
+};
+
+# Event triggered when a new workspace is created in the system
+public type WorkspaceCreate record {
+    *Event;
+    *WorkspaceCreateAllOf2;
+};
+
+# Represents the Headers record for the operation: delete-sheet-share
+public type DeleteSheetShareHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Represents the Headers record for the operation: create-home-folder
+public type CreateHomeFolderHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+    # Required for POST and PUT requests. Defines the structure for the request body
+    @http:Header {name: "Content-Type"}
+    string contentType = "application/json";
+};
+
+# Event representing the addition of a new member to a group
+public type GroupAddMember record {
+    *Event;
+    *GroupAddMemberAllOf2;
+};
+
+# Represents the Queries record for the operation: proofs-getVersions
+public type ProofsGetVersionsQueries record {
+    # The maximum number of items to return per page. Unless otherwise stated for a specific endpoint, defaults to 100. If only page is specified, defaults to a page size of 100. For reports, the default is 100 rows. If you need larger sets of data from your report, returns a maximum of 10,000 rows per request
+    decimal pageSize = 100;
+    # If true, include all results, that is, do not paginate. Mutually exclusive with page and pageSize (they are ignored if includeAll=true is specified)
+    boolean includeAll = false;
+    # Which page to return. Defaults to 1 if not specified. If you specify a value greater than the total number of pages, the last page of results is returned
+    decimal page = 1;
+};
+
+# Triggered when a reply is made to a comment, or a reply is deleted from a comment
+public type DiscussionUpdateAllOf2 record {
+    # The action applied to the specified object
+    "UPDATE" action?;
+    # Additional details for discussion creation events, including user email and location context (sheet, row, or workspace)
+    DiscussionCreateAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "DISCUSSION" objectType?;
+};
+
+# If **true**, a lightweight version of the sheet is published without row attachments and discussions
+public type ReadOnlyLiteEnabled boolean;
+
+# A response object that combines item result data with sight-specific API response details
+public type ItemResultDetailsResponse record {
+    *ItemResult;
+    *SightResultApiResponse;
+};
+
+# Additional details for workspace share member addition events, including user email, access level, group ID, and user ID
+public type WorkspaceAddShareMemberAdditionalDetails record {
+    # Email address of the user responsible for the event
+    string emailAddress;
+    # Indicates the access level granted to the user. 
+    # 
+    # Note that this access level represents the access level that has been granted to the user via group membership; it is not the user's effective access level for the workspace
+    "VIEWER"|"EDITOR"|"EDITOR_SHARE"|"ADMIN" accessLevel?;
+    # Id of the group the user was added to
+    @constraint:Int {minValue: 0}
+    int groupId?;
+    # Id of the user that was added to the group
+    @constraint:Int {minValue: 0}
+    int userId?;
+};
+
+# Represents the Headers record for the operation: listImageUrls
+public type ListImageUrlsHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+    # Required for POST and PUT requests. Defines the structure for the request body
+    @http:Header {name: "Content-Type"}
+    string contentType = "application/json";
+};
+
+# Represents the Queries record for the operation: update-report-share
+public type UpdateReportShareQueries record {
+    # Allows COMMENTER access for inputs and return values. For backwards-compatibility, VIEWER is the default. For example, to see whether a user has COMMENTER access for a sheet, use accessApiLevel=1
+    decimal accessApiLevel = 0;
+};
+
+# Represents the Headers record for the operation: attachments-get
+public type AttachmentsGetHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Represents the Headers record for the operation: row-attachments-attachFile
+public type RowAttachmentsAttachFileHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+    # Required for POST and PUT requests. Defines the structure for the request body
+    @http:Header {name: "Content-Type"}
+    string contentType = "application/json";
+};
+
+# Represents the Headers record for the operation: list-contacts
+public type ListContactsHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Contains additional details for access token authorization events, including user email, token expiration, app info, and granted scopes
+public type AccesstokenAuthorizeAdditionalDetails record {
+    # Date and time when this access token expires
+    string tokenExpirationTimestamp?;
+    # Email address of the user responsible for the event
+    string emailAddress;
+    # The name of the app to which this access token was granted. (Only included in cases when the access token was generated for an app)
+    string appName?;
+    # Comma-delimited list of access scopes granted to this access token. See these [access scopes](/api/smartsheet/guides/advanced-topics/oauth#access-scopes) for details
+    string accessScopes?;
+    # Name of the newly created access token. (Only included in cases when a name was given to the token)
+    string tokenName?;
+    # Four or more characters used as a mnemonic to represent this access token. Even though this value serves as a visual token differentiator, this value isn't an Id because it isn't guaranteed to be unique across all tokens. This value is the same displayed by Smartsheet UI for each access token listed under Apps & Integrations > API Access
+    string tokenDisplayValue?;
+    # The client ID of the app to which this access token was granted. (Only included in cases when the access token was generated for an app)
+    string appClientId?;
+};
+
+# Additional details for workspace creation events, including responsible user email and optional source workspace information
+public type WorkspaceCreateAdditionalDetails record {
+    # Email address of the user responsible for the event
+    string emailAddress;
+    # Id of workspace that was copied to create the new workspace. (Only included if the workspace was created as a result of a *save as new* or *copy*)
+    @constraint:Int {minValue: 0}
+    int sourceWorkspaceId?;
+    # Name of the workspace
+    string workspaceName?;
+};
+
+# Response containing the result of a proof request operation with ProofRequest details
+public type ProofRequestResultResponse record {
+    # A request to access or download a proof, containing sender details, timestamps, and current status
+    ProofRequest result?;
+};
+
+# Triggered when an access token creation is authorized by a user
+public type AccesstokenAuthorizeAllOf2 record {
+    # The action applied to the specified object
+    "AUTHORIZE" action?;
+    # Contains additional details for access token authorization events, including user email, token expiration, app info, and granted scopes
+    AccesstokenAuthorizeAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "ACCESS_TOKEN" objectType?;
+};
+
+# Triggered when an existing report is updated
+public type ReportUpdateAllOf2 record {
+    # The action applied to the specified object
+    "UPDATE" action?;
+    # Additional details for bulk account updates, including the responsible user's email address
+    AccountBulkUpdateAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "REPORT" objectType?;
+};
+
+# Response object containing either a single Share or an array of Share objects as the result
+public type ShareResultResponse record {
+    # Contains either a single Share object or an array of Share objects representing the operation result
+    Share|Share[] result?;
+};
+
+# SummaryField object to create
+public type SummaryFieldCreateRequest record {
+    # A link object that can reference external URLs or internal reports, sheets, and dashboards by ID
+    Hyperlink hyperlink?;
+    # Represents an image with metadata including dimensions, alternate text, and unique identifier
+    Image image?;
+    # When applicable for PICKLIST column type
+    PropertiesSymbol symbol?;
+    # Array of ContactOption objects to specify a pre-defined list of values for the column. Column type must be CONTACT_LIST
+    PropertiesContactOptions contactOptions?;
+    # The format descriptor. Only returned if the include query string parameter contains format and this column has a non-default format applied to it
+    Format format?;
+    # Field index or position. This number is zero-based
+    Index index?;
+    # The base object for values found in the **Cell.objectValue** attribute. Its **objectType** attribute indicates the type of the object. This object itself is not used directly
+    ObjectValue objectValue?;
+    # Arbitrary name, must be unique within summary
+    PropertiesTitle title?;
+    # Enumeration defining the data type of a property field, such as text, date, checkbox, or contact list
+    PropertiesType 'type?;
+    # When applicable for PICKLIST column type. Array of the options available for the field
+    PropertiesOptions options?;
+    # The formula for a cell, if set
+    Formula formula?;
+    # Indicates whether the field is locked
+    Locked locked?;
+    # Indicates whether summary field values are restricted to the type
+    Validation validation?;
+};
+
+# Additional details for workspace share events, including user email, access level, and optional group/user IDs
+public type WorkspaceAddShareAdditionalDetails record {
+    # Email address of the user responsible for the event
+    string emailAddress;
+    # Indicates the access level granted to the group or user. 
+    # 
+    # Note that this access level represents the access level granted by this specific sharing action; it is not the group or user's effective access level for the workspace
+    "VIEWER"|"EDITOR"|"EDITOR_SHARE"|"ADMIN" accessLevel?;
+    # Id of the group that was added to the workspace's sharing list. (Specific to share to group actions)
+    @constraint:Int {minValue: 0}
+    int groupId?;
+    # Id of the user that was added to the workspace's sharing list. (Specific to share to user actions)
+    @constraint:Int {minValue: 0}
+    int userId?;
+};
+
+# Request object for creating a new comment containing the comment body text
+public type CommentCreationRequest record {
+    # Comment body
+    string text?;
+};
+
+# Response containing events data with lists of inaccessible sheet and workspace IDs for access control
+public type EventsAccessControlledResponse record {
+    # List of sheet Ids specified in the request that the user does not have access to
+    string[] unavailableSheetIds?;
+    # List of Events
+    Event[] data?;
+    # List of workspace Ids specified in the request that the user does not have access to
+    string[] unavailableWorkspaceIds?;
+};
+
+# Triggered when a change is made to a dashboard and the dashboard is saved
+public type DashboardUpdateAllOf2 record {
+    # The action applied to the specified object
+    "UPDATE" action?;
+    # Additional details for bulk account updates, including the responsible user's email address
+    AccountBulkUpdateAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "DASHBOARD" objectType?;
+};
+
+# Represents the Queries record for the operation: cellHistory-get
+public type CellHistoryGetQueries record {
+    # A comma-separated list of elements to copy:
+    #   * **columnType** - includes the columnType attribute for each Cell object
+    #   * **objectValue** - when used in combination with a level query parameter, includes the email addresses for a multi-contact cell
+    "columnType"|"objectValue" include?;
+    # Specifies whether object data types, such as multi-contact data are returned in a backwards-compatible, text format in text/number columns.<br>  - Set `level=0` (default) to use text/number columns for multi-contact data and multi-picklist data.<br>  - Set `level=1` to use multiple-entry contact list columns for multi-contact data; multi-picklist data is returned in text/number columns.<br>  - Set `level=2` to use multiple-entry contact list columns for multi-contact data and use multiple-entry picklist columns for multi-picklist data
+    int level = 0;
+    # The maximum number of items to return per page. Unless otherwise stated for a specific endpoint, defaults to 100. If only page is specified, defaults to a page size of 100. For reports, the default is 100 rows. If you need larger sets of data from your report, returns a maximum of 10,000 rows per request
+    decimal pageSize = 100;
+    # Which page to return. Defaults to 1 if not specified. If you specify a value greater than the total number of pages, the last page of results is returned
+    decimal page = 1;
+};
+
+# A data structure containing a numeric identifier that tracks the current version of a sheet
+public type SheetVersion record {
+    # A number that represents the current sheet version
+    decimal version?;
+};
+
+# Represents the Queries record for the operation: create-sheet-in-sheets-folder
+public type CreateSheetInSheetsFolderQueries record {
+    # Allows COMMENTER access for inputs and return values. For backwards-compatibility, VIEWER is the default. For example, to see whether a user has COMMENTER access for a sheet, use accessApiLevel=1
+    decimal accessApiLevel = 0;
+    # Additional parameter to create a sheet from template.
+    # A comma-separated list of elements to copy from the template
+    "attachments"|"cellLinks"|"data"|"discussions"|"filters"|"forms"|"ruleRecipients"|"rules" include?;
+};
+
+# Represents a cell within a row, containing the cell's value, display text, and column information
+public type CellObjectForRows record {
+    # Visual representation of cell contents, as presented to the user in the UI
+    string displayValue?;
+    # Only returned if the include query string parameter contains **columnType**
+    string columnType?;
+    # The Id of the column that the cell is located in
+    decimal columnId?;
+    # A string, number, or a Boolean value -- depending on the cell type and the data in the cell. Cell values larger than 4000 characters are silently truncated. An empty cell returns no value
+    string|decimal|boolean value?;
+};
+
+# Triggered when the ownership of a report is transferred
+public type ReportTransferOwnershipAllOf2 record {
+    # The action applied to the specified object
+    "TRANSFER_OWNERSHIP" action?;
+    # Contains details about report ownership transfers including user IDs, email addresses, and access level changes
+    ReportTransferOwnershipAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "REPORT" objectType?;
+};
+
+# Represents the Headers record for the operation: updaterequests-update
+public type UpdaterequestsUpdateHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+    # Required for POST and PUT requests. Defines the structure for the request body
+    @http:Header {name: "Content-Type"}
+    string contentType = "application/json";
+};
+
+# A composite API response that combines general result data with workspace-specific result information
+public type ResultCompositeApiResponse record {
+    *Result;
+    *WorkspaceResultResponse;
+};
+
+# Represents the Headers record for the operation: create-sheet-in-sheets-folder
+public type CreateSheetInSheetsFolderHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+    # Required for POST and PUT requests. Defines the structure for the request body
+    @http:Header {name: "Content-Type"}
+    string contentType = "application/json";
+};
+
+# Additional details for dashboard move events, including user email, destination folder, and workspace information
+public type DashboardMoveAdditionalDetails record {
+    # Email address of the user responsible for the event
+    string emailAddress;
+    # Id of the parent container of the dashboard. (Specific to move events where a folder containing the dashboard is moved to a folder in a different workspace, indicates that the dashboard has moved to a new workspace but is still within the same folder)
+    @constraint:Int {minValue: 0}
+    int parentContainerId?;
+    # Id of the destination folder for the move event. (Specific to actions where the dashboard was moved to a different folder)
+    @constraint:Int {minValue: 0}
+    int newParentContainerId?;
+    # Name of the destination folder for the move event. (Specific to actions where the dashboard was moved to a different folder)
+    string folderName?;
+    # Id of the workspace the dashboard is currently in. If the move was between two workspaces the `workspaceId` will be the Id of the destination workspace
+    @constraint:Int {minValue: 0}
+    int workspaceId?;
+};
+
+# Represents the Headers record for the operation: list-workspaces
+public type ListWorkspacesHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Represents the Queries record for the operation: get-workspace-folders
+public type GetWorkspaceFoldersQueries record {
+    # The maximum number of items to return per page. Unless otherwise stated for a specific endpoint, defaults to 100. If only page is specified, defaults to a page size of 100. For reports, the default is 100 rows. If you need larger sets of data from your report, returns a maximum of 10,000 rows per request
+    decimal pageSize = 100;
+    # If true, include all results, that is, do not paginate. Mutually exclusive with page and pageSize (they are ignored if includeAll=true is specified)
+    boolean includeAll = false;
+    # Which page to return. Defaults to 1 if not specified. If you specify a value greater than the total number of pages, the last page of results is returned
+    decimal page = 1;
+};
+
+# Represents the Queries record for the operation: templates-listPublic
+public type TemplatesListPublicQueries record {
+    # Allows COMMENTER access for inputs and return values. For backwards-compatibility, VIEWER is the default. For example, to see whether a user has COMMENTER access for a sheet, use accessApiLevel=1
+    decimal accessApiLevel = 0;
+    # Level of public template types. 0 refers to only Sheet types, 1 refers to all types
+    0|1 level = 0;
+    # The maximum number of items to return per page. Unless otherwise stated for a specific endpoint, defaults to 100. If only page is specified, defaults to a page size of 100. For reports, the default is 100 rows. If you need larger sets of data from your report, returns a maximum of 10,000 rows per request
+    decimal pageSize = 100;
+    # If true, include all results, that is, do not paginate. Mutually exclusive with page and pageSize (they are ignored if includeAll=true is specified)
+    boolean includeAll = false;
+    # Which page to return. Defaults to 1 if not specified. If you specify a value greater than the total number of pages, the last page of results is returned
+    decimal page = 1;
+};
+
+# Event representing the loading or retrieval of an attachment in the system
+public type AttachmentLoad record {
+    *Event;
+    *AttachmentLoadAllOf2;
+};
+
+# Event triggered when a user is removed from one or more groups in the system
+public type UserRemoveFromGroups record {
+    *Event;
+    *UserRemoveFromGroupsAllOf2;
+};
+
+# Represents the Headers record for the operation: templates-listPublic
+public type TemplatesListPublicHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# API response containing a collection of Contact objects in a data array
+public type ContactCollectionApiResponse record {
+    # List of Contacts
+    Contact[] data?;
+};
+
+# Additional details for bulk account updates, including the responsible user's email address
+public type AccountBulkUpdateAdditionalDetails record {
+    # Email address of the user responsible for the event
+    string emailAddress;
+};
+
+# Specifies the recipient of an [Email]($ref: 'Email.yaml#/components/schemas/Email'). The recipient may be either an individual or a group. To specify an individual, set the **email** attribute; to specify a group, set the **groupId** attribute. Either **email** and **groupId** may be set, but not both
+public type RecipientGroup record {
+    # The Id of a group recipient
+    decimal groupId?;
+};
+
+# Represents the Headers record for the operation: promote-alternate-email
+public type PromoteAlternateEmailHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Represents the Headers record for the operation: list-org-sheets
+public type ListOrgSheetsHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Event triggered when a report is deleted from the system
+public type ReportDelete record {
+    *Event;
+    *ReportDeleteAllOf2;
+};
+
+# Represents the Headers record for the operation: import-sheet-into-sheets-folder
+public type ImportSheetIntoSheetsFolderHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+    # Should be equal to "attachment" to tell the API that a file is in the body of the POST request, followed by a semicolon, followed by **filename=** and the URL-encoded filename in quotes
+    @http:Header {name: "Content-Disposition"}
+    string contentDisposition?;
+    # Required for POST request to import a sheet from CSV/XLSX file.
+    # * For CSV files, use: Content-Type: text/csv
+    # * For XLSX files, use: Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+    @http:Header {name: "Content-Type"}
+    "text/csv"|"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" contentType;
+};
+
+# Request body for managing user alternate emails, supporting either add or update operations
+public type UserIdAlternateemailsBody AddAlternateEmail|UsersuserIdalternateemailsOneOf2;
+
+# Response containing an array of AddColumns objects representing the results of adding columns to a collection
+public type AddColumnsCollectionResponse record {
+    # Array of column addition operations and their results
+    AddColumns[] result?;
+};
+
+# Enumeration defining the data type of a property field, such as text, date, checkbox, or contact list
+public type PropertiesType "ABSTRACT_DATETIME"|"CHECKBOX"|"CONTACT_LIST"|"DATE"|"DATETIME"|"DURATION"|"MULTI_CONTACT_LIST"|"MULTI_PICKLIST"|"PICKLIST"|"PREDECESSOR"|"TEXT_NUMBER";
+
+public type SchemasSheet record {
+    # A read-only timestamp that can be represented as either a datetime string or numeric value
+    Timestamp createdAt?;
+    # Defines user permission level with values: ADMIN, COMMENTER, EDITOR, EDITOR_SHARE, OWNER, or VIEWER
+    AccessLevel accessLevel?;
+    # A read-only timestamp that can be represented as either a datetime string or numeric value
+    Timestamp modifiedAt?;
+    # Sheet name
+    Name name?;
+    # Sheet Id
+    Id id?;
+    # Identifies the original dashboard, report, sheet, or template used to create the current object
+    Source 'source?;
+    # URL that represents a direct link to the sheet in Smartsheet
+    Permalink permalink?;
+    # A number that is incremented every time a sheet is modified
+    Version version?;
+};
+
+# Triggered when a sheet is deleted
+public type SheetDeleteAllOf2 record {
+    # The action applied to the specified object
+    "DELETE" action?;
+    # Additional details for bulk account updates, including the responsible user's email address
+    AccountBulkUpdateAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "SHEET" objectType?;
+};
+
+# Represents the Headers record for the operation: list-sights
+public type ListSightsHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+};
+
+# Event triggered when a workspace share is removed or revoked from a user or group
+public type WorkspaceRemoveShare record {
+    *Event;
+    *WorkspaceRemoveShareAllOf2;
+};
+
+# Represents the Headers record for the operation: proofs-attachToProof
+public type ProofsAttachToProofHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+    # Required for POST and PUT requests. Defines the structure for the request body
+    @http:Header {name: "Content-Type"}
+    string contentType = "application/json";
+};
+
+# Represents the entire summary, or a list of defined fields and values, for a specific sheet
+public type SheetSummary record {
+    # Array of summary (or metadata) fields defined on the sheet
+    SummaryField[] fields?;
+};
+
+# Represents the Headers record for the operation: home-list-folders
+public type HomeListFoldersHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Triggered when a user is removed from a group that a dashboard has been shared to via the dashboard's sharing list, or via a workspace's sharing list. If a dashboard has been shared to a group directly via the dashboard's sharing list, and via a workspace's sharing list, then an event will be generated for each of these shares
+public type DashboardRemoveShareMemberAllOf2 record {
+    # The action applied to the specified object
+    "REMOVE_SHARE_MEMBER" action?;
+    # Additional details for dashboard share member removal events, including user email and relevant IDs
+    DashboardRemoveShareMemberAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "DASHBOARD" objectType?;
+};
+
+# Event triggered when a sheet is saved as a new document with a different name or location
+public type SheetSaveAsNew record {
+    *Event;
+    *SheetSaveAsNewAllOf2;
+};
+
+# Triggered when the main contact of the organization account is updated. This can be done through `Account Administration` console on UI
+public type AccountUpdateMainContactAllOf2 record {
+    # The action applied to the specified object
+    "UPDATE_MAIN_CONTACT" action?;
+    # Additional details for account main contact updates, including email address and old/new contact user IDs
+    AccountUpdateMainContactAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "ACCOUNT" objectType?;
+};
+
+# Additional details for account main contact updates, including email address and old/new contact user IDs
+public type AccountUpdateMainContactAdditionalDetails record {
+    # Email address of the user responsible for the event
+    string emailAddress;
+    # Id of the former main contact
+    @constraint:Int {minValue: 0}
+    int oldContactUserId?;
+    # Id of the new main contact
+    @constraint:Int {minValue: 0}
+    int newContactUserId?;
+};
+
+# Represents the Queries record for the operation: templates-list
+public type TemplatesListQueries record {
+    # Allows COMMENTER access for inputs and return values. For backwards-compatibility, VIEWER is the default. For example, to see whether a user has COMMENTER access for a sheet, use accessApiLevel=1
+    decimal accessApiLevel = 0;
+    # The maximum number of items to return per page. Unless otherwise stated for a specific endpoint, defaults to 100. If only page is specified, defaults to a page size of 100. For reports, the default is 100 rows. If you need larger sets of data from your report, returns a maximum of 10,000 rows per request
+    decimal pageSize = 100;
+    # If true, include all results, that is, do not paginate. Mutually exclusive with page and pageSize (they are ignored if includeAll=true is specified)
+    boolean includeAll = false;
+    # Which page to return. Defaults to 1 if not specified. If you specify a value greater than the total number of pages, the last page of results is returned
+    decimal page = 1;
+};
+
+# Triggered when a member is added to a group
+public type GroupAddMemberAllOf2 record {
+    # The action applied to the specified object
+    "ADD_MEMBER" action?;
+    # Additional details for group member addition events, including the responsible user's email and added member's ID
+    GroupAddMemberAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "GROUP" objectType?;
+};
+
+# Represents the Queries record for the operation: update-asset-share
+public type UpdateAssetShareQueries record {
+    # The id of the asset. Used in combination with assetType to determine the asset.
+    # 
+    # Depending on the asset, this may be a numeric or string value
+    string assetId;
+    # The type of the asset. Used in combination with assetId to determine the asset
+    "sheet"|"report"|"sight"|"workspace"|"collection"|"file" assetType;
+};
+
+# Comment
+public type CommentRequest record {
+    # Comment text
+    string text?;
+};
+
+# Represents the Queries record for the operation: add-image-summaryField
+public type AddImageSummaryFieldQueries record {
+    # Url-encoded alternate text for the image
+    string altText?;
+    # You may use the query string parameter **overrideValidation** with a value of **true** to allow a cell value outside of the validation limits. You must specify **strict** with a value of **false** to bypass value type checking
+    boolean overrideValidation = false;
+};
+
+# Event triggered when a member is removed from a group, containing group and member details
+public type GroupRemoveMember record {
+    *Event;
+    *GroupRemoveMemberAllOf2;
+};
+
+# A dashboard name identifier that specifies the display title for a particular dashboard view
+public type SightName record {
+    # Dashboard name
+    string name?;
+};
+
+# Triggered when a dashboard is deleted from the deleted items bin
+public type DashboardPurgeAllOf2 record {
+    # The action applied to the specified object
+    "PURGE" action?;
+    # Additional details for bulk account updates, including the responsible user's email address
+    AccountBulkUpdateAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "DASHBOARD" objectType?;
+};
+
+# Triggered when a report is deleted ("Delete Forever") from the deleted items bin
+public type ReportPurgeAllOf2 record {
+    # The action applied to the specified object
+    "PURGE" action?;
+    # Additional details for bulk account updates, including the responsible user's email address
+    AccountBulkUpdateAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "REPORT" objectType?;
+};
+
+# A response object that combines general result data with folder-specific result information
+public type CompositeResultResponse record {
+    *Result;
+    *FolderResultResponse;
+};
+
+# Additional details for group rename events, including responsible user's email and old/new group names
+public type GroupRenameAdditionalDetails record {
+    # Email address of the user responsible for the event
+    string emailAddress;
+    # New name of the group
+    string newName?;
+    # Old name of the group
+    string oldName?;
+};
+
+# Represents the Headers record for the operation: update-user-profile-image
+public type UpdateUserProfileImageHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+    # Required for POST and PUT requests. Defines the structure for the request body
+    @http:Header {name: "Content-Type"}
+    string contentType = "application/json";
+};
+
+# Triggered when a user sends a sheet as email attachment to user(s) or user group(s). 
+# 
+# An individual `SHEET - SEND_AS_ATTACHMENT` event is issued for each user or user group listed as recipient
+public type SheetSendAsAttachmentAllOf2 record {
+    # The action applied to the specified object
+    "SEND_AS_ATTACHMENT" action?;
+    # Additional details for sheet send-as-attachment events, including recipient email, format type, and group information
+    SheetSendAsAttachmentAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "SHEET" objectType?;
+};
+
+# Represents the Headers record for the operation: comment-delete
+public type CommentDeleteHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Triggered when a sheet is viewed in the UI or loaded through the API
+public type SheetLoadAllOf2 record {
+    # The action applied to the specified object
+    "LOAD" action?;
+    # Additional details for bulk account updates, including the responsible user's email address
+    AccountBulkUpdateAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "SHEET" objectType?;
+};
+
+# Triggered when a user saves a copy of a sheet as a template by using the `Save As Template` option. 
+# 
+# This event is recorded for the original sheet. 
+# 
+# If the original sheet belongs to a different organization, then an event will be generated for organization with original sheet and for the organization with copied sheet.
+# 
+# For copied sheet, `Save As Template` event is paired with a [SHEET - CREATE](/api/smartsheet/openapi/schemas/sheet_create) event
+public type SheetSaveAsTemplateAllOf2 record {
+    # The action applied to the specified object
+    "SAVE_AS_TEMPLATE" action?;
+    # Additional details for bulk account updates, including the responsible user's email address
+    AccountBulkUpdateAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "SHEET" objectType?;
+};
+
+# Response combining index search results with dashboard collection API metadata and status information
+public type IndexResultResponse2 record {
+    *IndexResult;
+    *DashboardCollectionApiResponse;
+};
+
+# Event triggered when a new member is added to a shared workspace
+public type WorkspaceAddShareMember record {
+    *Event;
+    *WorkspaceAddShareMemberAllOf2;
+};
+
+# A combined response containing index results and workspace folder collection data
+public type IndexResultResponse3 record {
+    *IndexResult;
+    *WorkspaceFolderCollectionApiResponse;
+};
+
+# Event triggered when a recurring backup schedule is created for a workspace
+public type WorkspaceCreateRecurringBackup record {
+    *Event;
+    *WorkspaceCreateRecurringBackupAllOf2;
+};
+
+# A response containing index results combined with folder collection API response data
+public type IndexResultResponse1 record {
+    *IndexResult;
+    *FolderCollectionApiResponse;
+};
+
+# A response containing index results combined with a list of proof discussions
+public type IndexResultResponse6 record {
+    *IndexResult;
+    *ProofDiscussionListResponse;
+};
+
+# A response combining indexed search results with a collection of proof versions
+public type IndexResultResponse7 record {
+    *IndexResult;
+    *ProofVersionCollectionResponse;
+};
+
+# Additional details for sheet move events, including responsible user email and destination container information
+public type SheetMoveAdditionalDetails record {
+    # Email address of the user responsible for the event
+    string emailAddress;
+    # Id of the parent container of the sheet. (Specific to move events where a folder containing the sheet is moved to a folder in a different workspace, indicates that the sheet has moved to a new workspace but is still within the same folder)
+    @constraint:Int {minValue: 0}
+    int parentContainerId?;
+    # Id of the destination folder for the move event. (Specific to actions where the sheet was moved to a different folder)
+    @constraint:Int {minValue: 0}
+    int newParentContainerId?;
+    # Name of the destination folder for the move event. (Specific to actions where the sheet was moved to a different folder)
+    string folderName?;
+    # Id of the workspace the sheet is currently in. If the move was between two workspaces the `workspaceId` will be the Id of the destination workspace
+    @constraint:Int {minValue: 0}
+    int workspaceId?;
+};
+
+# Additional details for sheet row move events, including user email, row count, and transfer options
+public type SheetMoveRowAdditionalDetails record {
+    # Email address of the user responsible for the event
+    string emailAddress;
+    # Indicates whether the row(s) were moved with their respective attachments
+    boolean includeAttachments?;
+    # Id of sheet from where the rows moved. (Only included when the `objectId` property contains the Id of the destination sheet)
+    @constraint:Int {minValue: 0}
+    int sourceSheetId?;
+    # Number of rows moved
+    @constraint:Int {minValue: 1}
+    int rowsMoved?;
+    # Id of sheet to where the rows moved. (Only included when the `objectId` property contains the Id of the source sheet)
+    @constraint:Int {minValue: 0}
+    int destinationSheetId?;
+    # Indicates whether the row(s) were moved with their respective discussion comments
+    boolean includeDiscussions?;
+};
+
+# A response containing index results combined with sheet collection API response data
+public type IndexResultResponse4 record {
+    *IndexResult;
+    *SheetCollectionApiResponse;
+};
+
+# Combined index result and discussion list API response containing search results and discussion data
+public type IndexResultResponse5 record {
+    *IndexResult;
+    *DiscussionListApiResponse;
+};
+
+# Event triggered when a discussion message is sent or transmitted to participants
+public type DiscussionSend record {
+    *Event;
+    *DiscussionSendAllOf2;
+};
+
+# A pagination metadata object containing page number, total pages, page size, and total item count for paginated API responses
+public type IndexResult record {
+    # The current page in the full result set that the data array represents. NOTE when a page number greater than totalPages is requested, the last page is instead returned
+    decimal pageNumber?;
+    # The total number of pages in the full result set
+    decimal totalPages?;
+    # The number of items in a page. Omitted if there is no limit to page size (and hence, all results are included). Unless otherwise specified, this defaults to 100 for most endpoints
+    decimal? pageSize?;
+    # The total number of items in the full result set
+    decimal totalCount?;
+};
+
+# Event triggered when a member is added to a shared sheet's collaboration settings
+public type SheetAddShareMember record {
+    *Event;
+    *SheetAddShareMemberAllOf2;
+};
+
+# A combined response containing index results and group collection API data
+public type IndexResultResponse8 record {
+    *IndexResult;
+    *GroupCollectionApiResponse1;
+};
+
+# Event triggered when an account's main contact information is updated or changed
+public type AccountUpdateMainContact record {
+    *Event;
+    *AccountUpdateMainContactAllOf2;
+};
+
+# Represents the Headers record for the operation: deleteSheet
+public type DeleteSheetHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Request body for creating cross-sheet references, supporting column IDs, row IDs, or both
+public type SheetIdCrosssheetreferencesBody CrossSheetReferenceRequestWithColumnIds|CrossSheetReferenceRequestWithRowIds|CrossSheetReferenceRequestWithColumnAndRowIds;
+
+# Represents the Headers record for the operation: get-user
+public type GetUserHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Additional details for sheet creation events including user email, sheet name, and source information
+public type SheetCreateAdditionalDetails record {
+    # Email address of the user responsible for the event
+    string emailAddress;
+    # Name of the newly created Sheets
+    string sheetName?;
+    # Specifies the origin type of the sheet being created: sheet, template, global template, or import
+    "sheet"|"template"|"globale_template"|"import" sourceType?;
+    # Id of the template used to create the sheet. (Only included if the sheet was created using a template, that is not a global template)
+    @constraint:Int {minValue: 0}
+    int sourceTemplateId?;
+    # Id of sheet that was copied to create the new sheet. (Only included if the sheet was created as a result of a *copy* or *save as new*)
+    @constraint:Int {minValue: 0}
+    int sourceObjectId?;
+    # Id of the global template that was used to create the new sheet (Only included if the sheet was created using a global template)
+    @constraint:Int {minValue: 0}
+    int sourceGlobalTemplateId?;
+};
+
+# Event triggered when a workspace is renamed, capturing the name change details
+public type WorkspaceRename record {
+    *Event;
+    *WorkspaceRenameAllOf2;
+};
+
+# Represents a sharing configuration for an asset, including access level, scope, and recipient details
+public type ShareResponse record {
+    # Defines user permission level with values: ADMIN, COMMENTER, EDITOR, EDITOR_SHARE, OWNER, or VIEWER
+    AccessLevel accessLevel;
+    # Group Id if the share is a group share
+    decimal groupId?;
+    # The scope of this share. One of the following values:
+    #   * **ITEM**: an item-level share (that is, the specific object to which the share applies is shared with
+    #     the user or group).
+    #   * **WORKSPACE**: a workspace-level share (that is, the workspace that contains the asset to which the
+    #     share applies is shared with the user or group)
+    "ITEM"|"WORKSPACE" scope;
+    # If present, the name of the user or group to which the asset is shared
+    string name?;
+    # The id of the share
     string id;
-    # The card network or brand. Applies to credit, debit, gift, and payment cards
-    CardBrand network?;
+    # The type of this share. One of the following values: GROUP or USER
+    string 'type;
+    # User Id if the share is a user share
+    decimal userId?;
+    # User's primary email address for user shares
+    string email?;
 };
 
-# The processor response information for payment requests, such as direct credit card transactions
-public type ProcessorResponse record {
-    # The card verification value code for for Visa, Discover, Mastercard, or American Express
-    @jsondata:Name {value: "cvv_code"}
-    "E"|"I"|"M"|"N"|"P"|"S"|"U"|"X"|"All others"|"0"|"1"|"2"|"3"|"4" cvvCode?;
-    # Processor response code for the non-PayPal payment processor errors
-    @jsondata:Name {value: "response_code"}
-    "0000"|"00N7"|"0100"|"0390"|"0500"|"0580"|"0800"|"0880"|"0890"|"0960"|"0R00"|"1000"|"10BR"|"1300"|"1310"|"1312"|"1317"|"1320"|"1330"|"1335"|"1340"|"1350"|"1352"|"1360"|"1370"|"1380"|"1382"|"1384"|"1390"|"1393"|"5100"|"5110"|"5120"|"5130"|"5135"|"5140"|"5150"|"5160"|"5170"|"5180"|"5190"|"5200"|"5210"|"5400"|"5500"|"5650"|"5700"|"5710"|"5800"|"5900"|"5910"|"5920"|"5930"|"5950"|"6300"|"7600"|"7700"|"7710"|"7800"|"7900"|"8000"|"8010"|"8020"|"8030"|"8100"|"8110"|"8220"|"9100"|"9500"|"9510"|"9520"|"9530"|"9540"|"9600"|"PCNR"|"PCVV"|"PP06"|"PPRN"|"PPAD"|"PPAB"|"PPAE"|"PPAG"|"PPAI"|"PPAR"|"PPAU"|"PPAV"|"PPAX"|"PPBG"|"PPC2"|"PPCE"|"PPCO"|"PPCR"|"PPCT"|"PPCU"|"PPD3"|"PPDC"|"PPDI"|"PPDV"|"PPDT"|"PPEF"|"PPEL"|"PPER"|"PPEX"|"PPFE"|"PPFI"|"PPFR"|"PPFV"|"PPGR"|"PPH1"|"PPIF"|"PPII"|"PPIM"|"PPIT"|"PPLR"|"PPLS"|"PPMB"|"PPMC"|"PPMD"|"PPNC"|"PPNL"|"PPNM"|"PPNT"|"PPPH"|"PPPI"|"PPPM"|"PPQC"|"PPRE"|"PPRF"|"PPRR"|"PPS0"|"PPS1"|"PPS2"|"PPS3"|"PPS4"|"PPS5"|"PPS6"|"PPSC"|"PPSD"|"PPSE"|"PPTE"|"PPTF"|"PPTI"|"PPTR"|"PPTT"|"PPTV"|"PPUA"|"PPUC"|"PPUE"|"PPUI"|"PPUP"|"PPUR"|"PPVC"|"PPVE"|"PPVT" responseCode?;
-    # The declined payment transactions might have payment advice codes. The card networks, like Visa and Mastercard, return payment advice codes
-    @jsondata:Name {value: "payment_advice_code"}
-    "01"|"02"|"03"|"21" paymentAdviceCode?;
-    # The address verification code for Visa, Discover, Mastercard, or American Express transactions
-    @jsondata:Name {value: "avs_code"}
-    "A"|"B"|"C"|"D"|"E"|"F"|"G"|"I"|"M"|"N"|"P"|"R"|"S"|"U"|"W"|"X"|"Y"|"Z"|"Null"|"0"|"1"|"2"|"3"|"4" avsCode?;
+# Event triggered when a dashboard is restored from a previous state or backup
+public type DashboardRestore record {
+    *Event;
+    *DashboardRestoreAllOf2;
 };
 
-# The request-related [HATEOAS link](/api/rest/responses/#hateoas-links) information
-public type LinkDescription record {
-    # The HTTP method required to make the related call
-    "GET"|"POST"|"PUT"|"DELETE"|"HEAD"|"CONNECT"|"OPTIONS"|"PATCH" method?;
-    # The [link relation type](https://tools.ietf.org/html/rfc5988#section-4), which serves as an ID for a link that unambiguously describes the semantics of the link. See [Link Relations](https://www.iana.org/assignments/link-relations/link-relations.xhtml)
-    string rel;
-    # The complete target URL. To make the related call, combine the method with this [URI Template-formatted](https://tools.ietf.org/html/rfc6570) link. For pre-processing, include the `$`, `(`, and `)` characters. The `href` is the key HATEOAS component that links a completed call with a subsequent call
-    string href;
+# Defines column properties for updates including title, type, position, options, and validation settings
+public type UpdateColumn record {
+    # Array of the options available for the column
+    string[] options?;
+    # Column index or position. This number is zero-based
+    decimal index?;
+    # Column Id
+    decimal id?;
+    # Column title
+    string title?;
+    # See [Column Types](/api/smartsheet/openapi/columns)
+    "ABSTRACT_DATETIME"|"CHECKBOX"|"CONTACT_LIST"|"DATE"|"DATETIME"|"DURATION"|"MULTI_CONTACT_LIST"|"MULTI_PICKLIST"|"PICKLIST"|"PREDECESSOR"|"TEXT_NUMBER" 'type?;
+    # Indicates whether validation has been enabled for the column (value = **true**)
+    boolean validation?;
 };
 
-# Contains supplementary data and payee information for authorization processing
-public type Authorization2AllOf2 record {
-    # The supplementary data
-    SupplementaryData supplementary_data?;
-    # The details for the merchant who receives the funds and fulfills the order. The merchant is also known as the payee
-    PayeeBase payee?;
+# Represents the Queries record for the operation: update-summary-fields
+public type UpdateSummaryFieldsQueries record {
+    # Set to true if you want to override the requirement for unique summary field names. Repeated names will be adjusted by appending "(1)" or similar after the field name
+    boolean renameIfConflict = false;
 };
 
-# Reauthorizes an authorized PayPal account payment, by ID. To ensure that funds are still available, reauthorize a payment after its initial three-day honor period expires. You can reauthorize a payment only once from days four to 29.<br/><br/>If 30 days have transpired since the date of the original authorization, you must create an authorized payment instead of reauthorizing the original authorized payment.<br/><br/>A reauthorized payment itself has a new honor period of three days.<br/><br/>You can reauthorize an authorized payment once. The allowed amount depends on context and geography, for example in US it is up to 115% of the original authorized amount, not to exceed an increase of $75 USD.<br/><br/>Supports only the `amount` request parameter.<blockquote><strong>Note:</strong> This request is currently not supported for Partner use cases.</blockquote>
-public type ReauthorizeRequest record {
-    # The currency and amount for a financial transaction, such as a balance or payment due
-    Money amount?;
+# Represents the Queries record for the operation: share-asset
+public type ShareAssetQueries record {
+    # Either true or false to indicate whether to notify the user by email. Default is false. If true, limit is 1000 emails
+    boolean sendEmail = false;
+    # The id of the asset. Used in combination with assetType to determine the asset.
+    # 
+    # Depending on the asset, this may be a numeric or string value
+    string assetId;
+    # The type of the asset. Used in combination with assetId to determine the asset
+    "sheet"|"report"|"sight"|"workspace"|"collection"|"file" assetType;
 };
 
-# Any additional payment instructions to be consider during payment processing. This processing instruction is applicable for Capturing an order or Authorizing an Order
-public type PaymentInstruction record {
-    # The method or channel through which payment funds will be distributed or disbursed to the recipient
-    @jsondata:Name {value: "disbursement_mode"}
-    DisbursementMode disbursementMode?;
-    # An array of various fees, commissions, tips, or donations. This field is only applicable to merchants that been enabled for PayPal Commerce Platform for Marketplaces and Platforms capability
-    @jsondata:Name {value: "platform_fees"}
-    PlatformFee[] platformFees?;
-    # FX identifier generated returned by PayPal to be used for payment processing in order to honor FX rate (for eligible integrations) to be used when amount is settled/received into the payee account
-    @jsondata:Name {value: "payee_receivable_fx_rate_id"}
-    string payeeReceivableFxRateId?;
-    # This field is only enabled for selected merchants/partners to use and provides the ability to trigger a specific pricing rate/plan for a payment transaction. The list of eligible 'payee_pricing_tier_id' would be provided to you by your Account Manager. Specifying values other than the one provided to you by your account manager would result in an error
-    @jsondata:Name {value: "payee_pricing_tier_id"}
-    string payeePricingTierId?;
+# Request body for webhook operations combining creation parameters with additional webhook configuration options
+public type WebhooksBody record {
+    *CreateWebhookRequest;
+    *WebhooksAllOf2;
 };
 
-# Represents the Headers record for the operation: authorizations.reauthorize
-public type AuthorizationsReauthorizeHeaders record {
-    # The server stores keys for 45 days
-    @http:Header {name: "PayPal-Request-Id"}
-    string payPalRequestId?;
-    # The preferred server response upon successful completion of the request. Value is:<ul><li><code>return=minimal</code>. The server returns a minimal response to optimize communication between the API caller and the server. A minimal response includes the <code>id</code>, <code>status</code> and HATEOAS links.</li><li><code>return=representation</code>. The server returns a complete resource representation, including the current state of the resource.</li></ul>
-    @http:Header {name: "Prefer"}
-    string prefer = "return=minimal";
+# Event representing the export operation of a folder, combining base event properties with folder export-specific data
+public type FolderExport record {
+    *Event;
+    *FolderExportAllOf2;
 };
 
-# The authorized payment transaction
-public type Authorization record {
-    *AuthorizationStatus;
-    *AuthorizationAllOf2;
-    *ActivityTimestamps;
+# Event representing an update to a form, combining base event properties with form-specific update data
+public type FormUpdate record {
+    *Event;
+    *FormUpdateAllOf2;
 };
 
-# The currency and amount for a financial transaction, such as a balance or payment due
-public type Money record {
-    # The value, which might be:<ul><li>An integer for currencies like `JPY` that are not typically fractional.</li><li>A decimal fraction for currencies like `TND` that are subdivided into thousandths.</li></ul>For the required number of decimal places for a currency code, see [Currency Codes](/api/rest/reference/currency-codes/)
-    @constraint:String {maxLength: 32, pattern: re `^((-?[0-9]+)|(-?([0-9]+)?[.][0-9]+))$`}
-    string value;
-    # The ISO 4217 three-letter currency code indicating the monetary unit for this amount
-    @jsondata:Name {value: "currency_code"}
-    CurrencyCode currencyCode;
+# Represents the Headers record for the operation: share-asset
+public type ShareAssetHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
 };
 
-# The detailed breakdown of the capture activity. This is not available for transactions that are in pending state
-public type SellerReceivableBreakdown record {
-    # An array of platform or partner fees, commissions, or brokerage fees that associated with the captured payment
-    @jsondata:Name {value: "platform_fees"}
-    PlatformFee[] platformFees?;
-    # Exchange rate applied to convert currency amounts in the seller receivable breakdown
-    @jsondata:Name {value: "exchange_rate"}
-    ExchangeRate exchangeRate?;
-    # The PayPal fee amount deducted from the transaction, expressed as a monetary value
-    @jsondata:Name {value: "paypal_fee"}
-    Money paypalFee?;
-    # The total gross amount before deductions, represented as a monetary value
-    @jsondata:Name {value: "gross_amount"}
-    Money grossAmount;
-    # The PayPal fee amount expressed in the receivable currency for this seller transaction
-    @jsondata:Name {value: "paypal_fee_in_receivable_currency"}
-    Money paypalFeeInReceivableCurrency?;
-    # The net amount due to the seller after deducting fees and adjustments from the total receivable
-    @jsondata:Name {value: "net_amount"}
-    Money netAmount?;
-    # Amount due to the seller, representing the total receivable in monetary terms
-    @jsondata:Name {value: "receivable_amount"}
-    Money receivableAmount?;
+# Represents a user's favorited item with its type (folder, report, sheet, sight, template, or workspace) and unique object ID
+public type Favorite record {
+    # The type of Smartsheet object being favorited (folder, report, sheet, sight, template, or workspace)
+    "folder"|"report"|"sheet"|"sight"|"template"|"workspace" 'type?;
+    # The Id of the favorited item. If type is template, only private sheet-type template Id is allowed
+    decimal objectId?;
 };
 
-# Identifiers related to a specific resource
-public type RelatedIds record {
-    # Authorization ID related to the resource
-    @jsondata:Name {value: "authorization_id"}
-    string authorizationId?;
-    # Capture ID related to the resource
-    @jsondata:Name {value: "capture_id"}
-    string captureId?;
-    # Order ID related to the resource
-    @jsondata:Name {value: "order_id"}
-    string orderId?;
+# SummaryField object to update
+public type SummaryFieldUpdateRequest record {
+    # A link object that can reference external URLs or internal reports, sheets, and dashboards by ID
+    Hyperlink hyperlink?;
+    # Represents an image with metadata including dimensions, alternate text, and unique identifier
+    Image image?;
+    # When applicable for PICKLIST column type
+    PropertiesSymbol symbol?;
+    # Array of ContactOption objects to specify a pre-defined list of values for the column. Column type must be CONTACT_LIST
+    PropertiesContactOptions contactOptions?;
+    # The format descriptor. Only returned if the include query string parameter contains format and this column has a non-default format applied to it
+    Format format?;
+    # Field index or position. This number is zero-based
+    Index index?;
+    # The base object for values found in the **Cell.objectValue** attribute. Its **objectType** attribute indicates the type of the object. This object itself is not used directly
+    ObjectValue objectValue?;
+    # Arbitrary name, must be unique within summary
+    PropertiesTitle title?;
+    # Enumeration defining the data type of a property field, such as text, date, checkbox, or contact list
+    PropertiesType 'type?;
+    # When applicable for PICKLIST column type. Array of the options available for the field
+    PropertiesOptions options?;
+    # The formula for a cell, if set
+    Formula formula?;
+    # SummaryField Id
+    PropertiesId id?;
+    # Indicates whether the field is locked
+    Locked locked?;
+    # Indicates whether summary field values are restricted to the type
+    Validation validation?;
 };
 
-# The level of protection offered as defined by [PayPal Seller Protection for Merchants](https://www.paypal.com/us/webapps/mpp/security/seller-protection)
-public type SellerProtection record {
-    # An array of conditions that are covered for the transaction
-    @jsondata:Name {value: "dispute_categories"}
-    ("ITEM_NOT_RECEIVED"|"UNAUTHORIZED_TRANSACTION")[] disputeCategories?;
-    # Indicates whether the transaction is eligible for seller protection. For information, see [PayPal Seller Protection for Merchants](https://www.paypal.com/us/webapps/mpp/security/seller-protection)
-    "ELIGIBLE"|"PARTIALLY_ELIGIBLE"|"NOT_ELIGIBLE" status?;
+# Represents the Headers record for the operation: share-sight-get
+public type ShareSightGetHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
 };
 
-# The authorized payment transaction
-public type Authorization2 record {
-    *Authorization;
-    *Authorization2AllOf2;
+# User Object
+public type User record {
+    # Last login time of the current user
+    string lastLogin?;
+    # User's last name
+    string lastName?;
+    # Timestamp of viewing an <a href="https://help.smartsheet.com/articles/1392225-customizing-a-welcome-message-upgrade-screen-enterprise-only" target="_blank" rel="noopener noreferrer">Enterprise Custom Welcome Screen</a> by the current user
+    string customWelcomeScreenViewed?;
+    # Indicates whether the user is a system admin (can manage user accounts and organization account)
+    boolean admin = false;
+    # Represents a user profile image with unique identifier and dimensions (width/height)
+    ProfileImage profileImage?;
+    # User's first name
+    string firstName?;
+    # Indicates whether the user is a group admin (can create and edit groups)
+    boolean groupAdmin = false;
+    # User's full name (read-only)
+    string name?;
+    # Indicates whether the user is a resource viewer (can access resource views)
+    boolean resourceViewer = false;
+    # User Id
+    decimal id?;
+    # **SUNSET** - The `sheetCount` attribute now holds the value `-1` and is included only if the retrieved user's `status` is `ACTIVE`
+    # 
+    # # Deprecated
+    @constraint:Number {minValue: -1, maxValue: -1}
+    @deprecated
+    decimal sheetCount = -1;
+    # User's primary email address
+    string email?;
+    # Indicates whether the user is a licensed user (can create and own sheets)
+    boolean licensedSheetCreator = false;
+    # User status, set to one of the listed enum values
+    "ACTIVE"|"DECLINED"|"PENDING"|"DEACTIVATED" status?;
 };
 
-# The net amount. Returned when the currency of the refund is different from the currency of the PayPal account where the merchant holds their funds
-public type NetAmountBreakdownItem record {
-    # The exchange rate used to convert the amount from the original currency to the base currency
-    @jsondata:Name {value: "exchange_rate"}
-    ExchangeRate exchangeRate?;
-    # The monetary amount converted to a different currency, represented as a Money object
-    @jsondata:Name {value: "converted_amount"}
-    Money convertedAmount?;
-    # The monetary amount that is due to be paid for this breakdown item
-    @jsondata:Name {value: "payable_amount"}
-    Money payableAmount?;
+# Triggered when row(s) are copied from one sheet to another
+public type SheetCopyRowAllOf2 record {
+    # The action applied to the specified object
+    "COPY_ROW" action?;
+    # Additional details for sheet row copy operations, including user email, row count, and copy options
+    SheetCopyRowAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "SHEET" objectType?;
 };
 
-# Represents the Headers record for the operation: captures.refund
-public type CapturesRefundHeaders record {
-    # The server stores keys for 45 days
-    @http:Header {name: "PayPal-Request-Id"}
-    string payPalRequestId?;
-    # An API-caller-provided JSON Web Token (JWT) assertion that identifies the merchant. For details, see [PayPal-Auth-Assertion](/docs/api/reference/api-requests/#paypal-auth-assertion).<blockquote><strong>Note:</strong>For three party transactions in which a partner is managing the API calls on behalf of a merchant, the partner must identify the merchant using either a PayPal-Auth-Assertion header or an access token with target_subject.</blockquote>
-    @http:Header {name: "PayPal-Auth-Assertion"}
-    string payPalAuthAssertion?;
-    # The preferred server response upon successful completion of the request. Value is:<ul><li><code>return=minimal</code>. The server returns a minimal response to optimize communication between the API caller and the server. A minimal response includes the <code>id</code>, <code>status</code> and HATEOAS links.</li><li><code>return=representation</code>. The server returns a complete resource representation, including the current state of the resource.</li></ul>
-    @http:Header {name: "Prefer"}
-    string prefer = "return=minimal";
+# Object representing a datetime
+public type DatetimeObjectValue record {
+    # Datetime, in the **date-time** format defined by <a href="https://tools.ietf.org/html/rfc3339#section-5.6" target="_blank" rel="noopener noreferrer">RFC 3339, section 5.6</a>
+    string value?;
+    # Specifies the object type as DATETIME for datetime value objects
+    "DATETIME" objectType?;
 };
 
-# The breakdown of the refund
-public type MerchantPayableBreakdown record {
-    # An array of platform or partner fees, commissions, or brokerage fees for the refund
-    @jsondata:Name {value: "platform_fees"}
-    PlatformFee[] platformFees?;
-    # The net amount owed to the merchant in the receivable currency after deductions and adjustments
-    @jsondata:Name {value: "net_amount_in_receivable_currency"}
-    Money netAmountInReceivableCurrency?;
-    # Total amount refunded to customers for this merchant, represented as a monetary value
-    @jsondata:Name {value: "total_refunded_amount"}
-    Money totalRefundedAmount?;
-    # The PayPal fee amount deducted from the transaction, represented as a monetary value
-    @jsondata:Name {value: "paypal_fee"}
-    Money paypalFee?;
-    # The total gross amount before any deductions, expressed as a monetary value
-    @jsondata:Name {value: "gross_amount"}
-    Money grossAmount?;
-    # The PayPal fee amount expressed in the receivable currency for this merchant transaction
-    @jsondata:Name {value: "paypal_fee_in_receivable_currency"}
-    Money paypalFeeInReceivableCurrency?;
-    # The net amount payable to the merchant, representing the final settlement value after deductions
-    @jsondata:Name {value: "net_amount"}
-    Money netAmount?;
-    # An array of breakdown values for the net amount. Returned when the currency of the refund is different from the currency of the PayPal account where the payee holds their funds
-    @jsondata:Name {value: "net_amount_breakdown"}
-    NetAmountBreakdownItem[] netAmountBreakdown?;
+# Represents the Queries record for the operation: rows-sort
+public type RowsSortQueries record {
+    # (Optional) Any of the relevant parameters or query parameters listed for [Get Sheet](/api/smartsheet/openapi/sheets/getsheet)
+    @http:Query {name: "include&exclude"}
+    string includeExclude?;
 };
 
-# Additional capture request parameters including amount, invoice details, and payment instructions
-public type CaptureRequestAllOf2 record {
-    # The currency and amount for a financial transaction, such as a balance or payment due
-    Money amount?;
-    # The API caller-provided external invoice number for this order. Appears in both the payer's transaction history and the emails that the payer receives.
-    @constraint:String {maxLength: 127}
-    string invoice_id?;
-    # Indicates whether you can make additional captures against the authorized payment. Set to `true` if you do not intend to capture additional payments against the authorization. Set to `false` if you intend to capture additional payments against the authorization.
-    boolean final_capture = false;
-    # Any additional payment instructions to be consider during payment processing. This processing instruction is applicable for Capturing an order or Authorizing an Order
-    PaymentInstruction payment_instruction?;
-    # An informational note about this settlement. Appears in both the payer's transaction history and the emails that the payer receives.
-    @constraint:String {maxLength: 255}
-    string note_to_payer?;
-    # The payment descriptor on the payer's account statement.
-    @constraint:String {maxLength: 22}
-    string soft_descriptor?;
+# Event triggered when a form loses focus or becomes inactive in the user interface
+public type FormDeactivate record {
+    *Event;
+    *FormDeactivateAllOf2;
 };
 
-# Refunds a captured payment, by ID. For a full refund, include an empty request body. For a partial refund, include an <code>amount</code> object in the request body
-public type RefundRequest record {
-    # The currency and amount for a financial transaction, such as a balance or payment due
-    Money amount?;
-    # The API caller-provided external ID. Used to reconcile API caller-initiated transactions with PayPal transactions. Appears in transaction and settlement reports. The pattern is defined by an external party and supports Unicode
-    @jsondata:Name {value: "custom_id"}
-    string customId?;
-    # The API caller-provided external invoice ID for this order. The pattern is defined by an external party and supports Unicode
-    @jsondata:Name {value: "invoice_id"}
-    string invoiceId?;
-    # The reason for the refund. Appears in both the payer's transaction history and the emails that the payer receives. The pattern is defined by an external party and supports Unicode
-    @jsondata:Name {value: "note_to_payer"}
-    string noteToPayer?;
-    # Payment instruction details specifying how the refund should be processed and delivered to the recipient
-    @jsondata:Name {value: "payment_instruction"}
-    PaymentInstruction2 paymentInstruction?;
+# Arbitrary name, must be unique within summary
+public type PropertiesTitle string;
+
+# The metadata of a Workspace
+public type WorkspaceMetadata record {
+    # A read-only timestamp field that accepts either a datetime string or long integer value
+    Timestamp2 createdAt;
+    # A read-only timestamp field that accepts either a datetime string or long integer value
+    Timestamp2 modifiedAt;
+    # Workspace name
+    string name;
+    # Workspace Id
+    int id;
+    # URL to the workspace in Smartsheet
+    string permalink;
 };
 
-# The details of the refund status
-public type RefundStatusDetails record {
-    # The reason why the refund has the `PENDING` or `FAILED` status
-    "ECHECK" reason?;
+# Represents the Headers record for the operation: add-image-summaryField
+public type AddImageSummaryFieldHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+    # Should be equal to "attachment" to tell the API that a file is in the body of the POST request, followed by a semicolon, followed by **filename=** and the URL-encoded filename in quotes
+    @http:Header {name: "Content-Disposition"}
+    string contentDisposition?;
+    # Must be set to the size of the file, in bytes. For example to determine file size using in UNIX:
+    # $ ls -l ProgressReport.docx
+    # 5463 ProgressReport.docx
+    @http:Header {name: "Content-Length"}
+    int contentLength?;
+    # Required for POST and PUT requests. Defines the structure for the request body
+    @http:Header {name: "Content-Type"}
+    string contentType = "application/json";
 };
 
-# A PayPal refund object containing refund details, amount, payer information, and transaction references
-public type RefundAllOf2 record {
-    # The PayPal-generated ID for the refund.
+# Identifies the original dashboard, report, sheet, or template used to create the current object
+public type Source record {
+    # The Id of the dashboard, report, sheet, or template from which the enclosing dashboard, report, sheet, or template was created
+    decimal id?;
+    # **report**, **sheet**, **sight** (aka dashboard), or **template**
+    string 'type?;
+};
+
+# Represents the Headers record for the operation: proofs-getVersions
+public type ProofsGetVersionsHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Triggered when an attachment is created (i.e. uploaded) in a sheet, in a sheet row, or in a workspace
+public type AttachmentCreateAllOf2 record {
+    # The action applied to the specified object
+    "CREATE" action?;
+    # Additional details for attachment creation events, including user email and parent container information
+    AttachmentCreateAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "ATTACHMENT" objectType?;
+};
+
+# Event schema for updating report information, combining base event properties with report-specific update fields
+public type ReportUpdate record {
+    *Event;
+    *ReportUpdateAllOf2;
+};
+
+# Triggered when a group or user is removed from a workspace's sharing list. Note that this event will appear for each dashboard that is in the workspace. If a group or user is removed from a workspace's sharing list and the workspace is empty, then no events will be recorded
+public type DashboardRemoveWorkspaceShareAllOf2 record {
+    # The action applied to the specified object
+    "REMOVE_WORKSPACE_SHARE" action?;
+    # Additional details for dashboard events when workspace sharing is removed from users or groups
+    DashboardRemoveWorkspaceShareAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "DASHBOARD" objectType?;
+};
+
+# Event triggered when a report is configured to be sent as an email attachment
+public type ReportSendAsAttachment record {
+    *Event;
+    *ReportSendAsAttachmentAllOf2;
+};
+
+# A column in a Smartsheet that defines data structure, formatting, and behavior for a specific field type
+public type Column record {
+    # When applicable for **CHECKBOX** or **PICKLIST** column types. See [Symbol Columns](/api/smartsheet/openapi/columns)
+    string symbol?;
+    # Array of ContactOption objects to specify a pre-defined list of values for the column. Column **type** must be **CONTACT_LIST**
+    ContactOption[] contactOptions?;
+    # Indicates whether the column is hidden
+    boolean hidden?;
+    # The format descriptor (see [Cell formatting](/api/smartsheet/guides/advanced-topics/cell-formatting)). Only returned if the **include** query string parameter contains **format** and this column has a non-default format applied to it
+    string format?;
+    # Column description
+    string description?;
+    # Column index or position. This number is zero-based
+    decimal index?;
+    # Column title
+    string title?;
+    # See [Column Types](/api/smartsheet/openapi/columns)
+    "ABSTRACT_DATETIME"|"CHECKBOX"|"CONTACT_LIST"|"DATE"|"DATETIME"|"DURATION"|"MULTI_CONTACT_LIST"|"MULTI_PICKLIST"|"PICKLIST"|"PREDECESSOR"|"TEXT_NUMBER" 'type?;
+    # * `0`: CONTACT_LIST, PICKLIST, or TEXT_NUMBER.
+    # * `1`: MULTI_CONTACT_LIST.
+    # * `2`: MULTI_PICKLIST
+    0|1|2 version?;
+    # Set of tags to indicate special columns. Each element in the array is set to one of the listed enum values
+    ("CALENDAR_END_DATE"|"CALENDAR_START_DATE"|"CARD_DONE"|"GANTT_ALLOCATION"|"GANTT_ASSIGNED_RESOURCE"|"GANTT_DISPLAY_LABEL"|"GANTT_DURATION"|"GANTT_END_DATE"|"GANTT_PERCENT_COMPLETE"|"GANTT_PREDECESSOR"|"GANTT_START_DATE"|"BASELINE_START_DATE"|"BASELINE_END_DATE"|"BASELINE_VARIANCE")[] tags?;
+    # Object that describes how the the System Column type of "AUTO_NUMBER" is auto-generated
+    AutoNumberFormat autoNumberFormat?;
+    # Array of the options available for the column
+    string[] options?;
+    # Display width of the column in pixels
+    decimal width?;
+    # The formula for the column, if set
+    string formula?;
+    # Indicates whether the column is locked for the requesting user. This attribute may be present in a response, but cannot be specified in a request
+    boolean lockedForUser?;
+    # See [System Columns](/api/smartsheet/openapi/columns)
+    "AUTO_NUMBER"|"CREATED_BY"|"CREATED_DATE"|"MODIFIED_BY"|"MODIFIED_DATE" systemColumnType?;
+    # Column Id
+    decimal id?;
+    # Indicates whether the column is locked. In a response, a value of **true** indicates that the column has been locked by the sheet owner or the admin
+    boolean locked?;
+    # Indicates whether validation has been enabled for the column (value = **true**)
+    boolean validation?;
+    # Returned only if the column is the Primary Column (value = **true**)
+    boolean primary?;
+};
+
+# Represents the Headers record for the operation: discussions-list
+public type DiscussionsListHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Triggered when a dashboard is viewed in the UI or loaded through the API
+public type DashboardLoadAllOf2 record {
+    # The action applied to the specified object
+    "LOAD" action?;
+    # Additional details for bulk account updates, including the responsible user's email address
+    AccountBulkUpdateAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "DASHBOARD" objectType?;
+};
+
+# Updates group properties, including name, description, and owner
+public type GroupUpdate1 record {
+    # name (Optional)
+    # 
+    # Must be unique within the organization account
+    string name?;
+    # Description (optional)
+    string description?;
+    # ownerId (optional)
+    # 
+    # Id of an admin user to whom the group ownership is transferred
+    decimal ownerId?;
+};
+
+# Triggered when a user is added to a group that a sheet has been shared to via the sheet's sharing list, or via a workspace's sharing list.
+# 
+# If a sheet has been shared to a group directly via the sheet's sharing list, and via a workspace's sharing list, then an event will be generated for each of these shares
+public type SheetAddShareMemberAllOf2 record {
+    # The action applied to the specified object
+    "ADD_SHARE_MEMBER" action?;
+    # Additional details for sheet share member events, including email, access level, and group/user IDs
+    SheetAddShareMemberAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "SHEET" objectType?;
+};
+
+# Describes the current user's editing permissions for a specific sheet
+public type SheetUserPermissions record {
+    # One of:
+    #   * ADMIN: full control over fields.
+    #   * READ_DELETE: sheet is owned by an individual account that doesn't have summary capabilities. If a summary exists, the only possible operations are GET and DELETE fields.
+    #   * READ_ONLY.
+    #   * READ_WRITE: can edit values of existing fields, but not create or delete fields, nor modify field type
+    "ADMIN"|"READ_DELETE"|"READ_ONLY"|"READ_WRITE" summaryPermissions?;
+};
+
+# Response object containing an array of search result items from a collection search operation
+public type SearchResultCollectionResponse record {
+    # Array of search result items returned from the search query
+    SearchResultItem[] result?;
+};
+
+# Triggered when a user deletes a recurring backup schedule for a workspace
+public type WorkspaceDeleteRecurringBackupAllOf2 record {
+    # The action applied to the specified object
+    "DELETE_RECURRING_BACKUP" action?;
+    # Additional details for bulk account updates, including the responsible user's email address
+    AccountBulkUpdateAdditionalDetails additionalDetails?;
+    # The Smartsheet resource impacted by the event
+    "WORKSPACE" objectType?;
+};
+
+# Represents the Headers record for the operation: share-sight
+public type ShareSightHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Represents the Headers record for the operation: update-rows
+public type UpdateRowsHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+    # Required for POST and PUT requests. Defines the structure for the request body
+    @http:Header {name: "Content-Type"}
+    string contentType = "application/json";
+};
+
+# Response containing a list of proof discussions with their associated data and metadata
+public type ProofDiscussionListResponse record {
+    # list of proof discussions
+    Discussion[] data?;
+};
+
+# API response containing a collection of folder objects returned as an array in the result field
+public type FolderCollectionApiResponse record {
+    # An array of Folder objects returned by the API response
+    Folder[] result?;
+};
+
+# Represents the Queries record for the operation: home-list-folders
+public type HomeListFoldersQueries record {
+    # The maximum number of items to return per page. Unless otherwise stated for a specific endpoint, defaults to 100. If only page is specified, defaults to a page size of 100. For reports, the default is 100 rows. If you need larger sets of data from your report, returns a maximum of 10,000 rows per request
+    decimal pageSize = 100;
+    # If true, include all results, that is, do not paginate. Mutually exclusive with page and pageSize (they are ignored if includeAll=true is specified)
+    boolean includeAll = false;
+    # Which page to return. Defaults to 1 if not specified. If you specify a value greater than the total number of pages, the last page of results is returned
+    decimal page = 1;
+};
+
+# Represents the Headers record for the operation: updaterequests-get
+public type UpdaterequestsGetHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# The metadata of a Folder
+public type FolderMetadata record {
+    # A read-only timestamp field that accepts either a datetime string or long integer value
+    Timestamp2 createdAt;
+    # A read-only timestamp field that accepts either a datetime string or long integer value
+    Timestamp2 modifiedAt;
+    # Folder name
+    string name;
+    # Folder Id
+    int id;
+    # URL to the folder in Smartsheet
+    string permalink;
+};
+
+# Represents the Headers record for the operation: comment-edit
+public type CommentEditHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+    # Required for POST and PUT requests. Defines the structure for the request body
+    @http:Header {name: "Content-Type"}
+    string contentType = "application/json";
+};
+
+# A contact entity containing a person's full name, unique identifier, and email address
+public type Contact record {
+    # Contact's full name
+    string name?;
+    # Contact Id
     string id?;
-    # The currency and amount for a financial transaction, such as a balance or payment due
-    Money amount?;
-    # The API caller-provided external invoice number for this order. Appears in both the payer's transaction history and the emails that the payer receives.
-    string invoice_id?;
-    # The API caller-provided external ID. Used to reconcile API caller-initiated transactions with PayPal transactions. Appears in transaction and settlement reports.
-    @constraint:String {maxLength: 127, minLength: 1, pattern: re `^[A-Za-z0-9-_.,]*$`}
-    string custom_id?;
-    # Reference ID issued for the card transaction. This ID can be used to track the transaction across processors, card brands and issuing banks.
-    @constraint:String {maxLength: 36, minLength: 1, pattern: re `^[a-zA-Z0-9]+$`}
-    string acquirer_reference_number?;
-    # The reason for the refund. Appears in both the payer's transaction history and the emails that the payer receives.
-    string note_to_payer?;
-    # The breakdown of the refund
-    MerchantPayableBreakdown seller_payable_breakdown?;
-    # The details for the merchant who receives the funds and fulfills the order. The merchant is also known as the payee
-    PayeeBase payer?;
-    # An array of related [HATEOAS links](/docs/api/reference/api-responses/#hateoas-links).
-    LinkDescription[] links?;
+    # Contact's email address
+    string email?;
 };
 
-# The funds that are held on behalf of the merchant
-public type DisbursementMode "INSTANT"|"DELAYED";
-
-# The platform or partner fee, commission, or brokerage fee that is associated with the transaction. Not a separate or isolated transaction leg from the external perspective. The platform fee is limited in scope and is always associated with the original payment for the purchase unit
-public type PlatformFee record {
-    # The details for the merchant who receives the funds and fulfills the order. The merchant is also known as the payee
-    PayeeBase payee?;
-    # The currency and amount for a financial transaction, such as a balance or payment due
-    Money amount;
+# Represents the Headers record for the operation: delete-favorites-by-type
+public type DeleteFavoritesByTypeHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+    # UserId of the user
+    @http:Header {name: "x-smar-sc-actor-id"}
+    string xSmarScActorId?;
 };
 
-# Captures either a portion or the full authorized amount of an authorized payment
-public type CaptureRequest record {
-    *SupplementaryPurchaseData;
-    *CaptureRequestAllOf2;
-    # The API caller-provided external invoice number for this order. Appears in both the payer's transaction history and the emails that the payer receives
-    @jsondata:Name {value: "invoice_id"}
-    string invoiceId?;
-    # An informational note about this settlement. Appears in both the payer's transaction history and the emails that the payer receives
-    @jsondata:Name {value: "note_to_payer"}
-    string noteToPayer?;
+# Array of GroupMember objects representing members within a specific group
+public type GroupsgroupIdmembersOneOf2 GroupMember[];
+
+# Represents the Headers record for the operation: templates-list
+public type TemplatesListHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
 };
 
-# Any additional payments instructions during refund payment processing. This object is only applicable to merchants that have been enabled for PayPal Commerce Platform for Marketplaces and Platforms capability. Please speak to your account manager if you want to use this capability
-public type PaymentInstruction2 record {
-    # Specifies the amount that the API caller will contribute to the refund being processed. The amount needs to be lower than platform_fees amount originally captured or the amount that is remaining if multiple refunds have been processed. This field is only applicable to merchants that have been enabled for PayPal Commerce Platform for Marketplaces and Platforms capability. Please speak to your account manager if you want to use this capability
-    @jsondata:Name {value: "platform_fees"}
-    PlatformFee[] platformFees?;
+# Represents the Headers record for the operation: automationrule-get
+public type AutomationruleGetHeaders record {
+    # API Access Token used to authenticate requests to Smartsheet APIs
+    @http:Header {name: "Authorization"}
+    string authorization?;
+    # Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:
+    # 
+    # - Integration source type
+    # - Organization name
+    # - Integration source name 
+    # 
+    # Format:
+    # 
+    # ```
+    # TYPE,OrgName,SourceName
+    # ```
+    # 
+    # Examples: 
+    # 
+    # `AI,SampleOrg,My-AI-Connector-v2`
+    # 
+    # `SCRIPT,SampleOrg2,Accounting-updater-script`
+    # 
+    # `APPLICATION,SampleOrg3,SheetUpdater`
+    @http:Header {name: "smartsheet-integration-source"}
+    string smartsheetIntegrationSource?;
+};
+
+# Response object containing an array of AddRowsObject results from a bulk row addition operation
+public type AddRowsCollectionResponse record {
+    # Array of objects containing the results of adding rows to the collection
+    AddRowsObject[] result?;
+};
+
+# Additional details for sheet share member removal events, including user email, group, user, and workspace IDs
+public type SheetRemoveShareMemberAdditionalDetails record {
+    # Email address of the user responsible for the event
+    string emailAddress;
+    # Id of the group that the user was removed from
+    @constraint:Int {minValue: 0}
+    int groupId?;
+    # Id of user that was removed from the group
+    @constraint:Int {minValue: 0}
+    int userId?;
+    # Id of the workspace that the group is shared to. (Specific to cases where the sheet is shared to the group via a workspace's sharing list)
+    @constraint:Int {minValue: 0}
+    int workspaceId?;
 };
