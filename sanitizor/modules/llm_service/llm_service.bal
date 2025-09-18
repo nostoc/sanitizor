@@ -5,15 +5,16 @@ import ballerina/os;
 import ballerina/regex;
 import ballerinax/ai.anthropic;
 
-public type LLMServiceError distinct error;
+public type LLMServiceError distinct error; // cutom error type for LLM related failures
 
 ai:ModelProvider? anthropicModel = ();
 
 # Initialize the LLM service
+# 
 # + return - return value description
 public function initLLMService() returns LLMServiceError? {
     string? apiKey = os:getEnv("ANTHROPIC_API_KEY");
-    if (apiKey is ()) {
+    if apiKey is () {
         return error LLMServiceError("ANTHROPIC_API_KEY environment variable not set");
     }
 
@@ -22,7 +23,7 @@ public function initLLMService() returns LLMServiceError? {
         anthropic:CLAUDE_SONNET_4_20250514
     );
 
-    if (modelProvider is error) {
+    if modelProvider is error {
         return error LLMServiceError("Failed to initialize Anthropic model provider", modelProvider);
     }
 
@@ -37,27 +38,31 @@ public function initLLMService() returns LLMServiceError? {
 # + return - Generated description or error
 public function generateFieldDescription(string fieldName, string schemaContext) returns string|LLMServiceError {
     ai:ModelProvider? model = anthropicModel;
-    if (model is ()) {
+    if model is () {
         return error LLMServiceError("LLM service not initialized");
     }
 
+    // user prompt for the LLM
     string prompt = string `Generate a concise description for the field "${fieldName}" based on this OpenAPI schema context:
 
 ${schemaContext}
 
 Return only the description text, no JSON or extra formatting. Keep it professional and under 100 characters.`;
 
+    // wrap the user prompt as a ChatMessage
     ai:ChatMessage[]|ai:ChatUserMessage messages = [
         {role: "user", content: prompt}
     ];
 
+    // call claude chat API
     ai:ChatAssistantMessage|error response = model->chat(messages);
-    if (response is error) {
+    if response is error {
         return error LLMServiceError("Failed to generate description", response);
     }
 
+    // extract the text content from the response
     string? content = response.content;
-    if (content is string) {
+    if content is string {
         return content;
     } else {
         return error LLMServiceError("Empty response from LLM");
@@ -72,32 +77,36 @@ Return only the description text, no JSON or extra formatting. Keep it professio
 public function addMissingDescriptions(string specFilePath) returns int|LLMServiceError {
     log:printInfo("Processing OpenAPI spec for missing descriptions", specPath = specFilePath);
     
-    // Read the OpenAPI spec file
+    // step 1. Read the OpenAPI spec file
     json|error specResult = io:fileReadJson(specFilePath);
     if specResult is error {
         return error LLMServiceError("Failed to read OpenAPI spec file", specResult);
     }
     
+    // store the parsed JSON for manipulation
     json specJson = specResult;
     
-    // Track the number of descriptions added
+    // initialize the counter to track how many descriptions we add
     int descriptionsAdded = 0;
     
-    // Process components/schemas for missing descriptions
+    // step 2. traverse components/schemas
     if specJson is map<json> {
+        // go to components section
         json|error componentsResult = specJson.get("components");
         if componentsResult is map<json> {
+            // go to components > schemas 
             json|error schemasResult = componentsResult.get("schemas");
             if schemasResult is map<json> {
+                // cast to a map for easier manipulation
                 map<json> schemas = <map<json>>schemasResult;
                 
-                // Process each schema
+                // step 3. Process each schema
                 foreach string schemaName in schemas.keys() {
                     json|error schemaResult = schemas.get(schemaName);
                     if schemaResult is map<json> {
                         map<json> schemaMap = <map<json>>schemaResult;
                         
-                        // Check if schema itself needs description
+                        // step 3.1 Add description to schema itself if missing
                         if !schemaMap.hasKey("description") {
                             string context = string `Schema '${schemaName}' definition: ${schemaMap.toString()}`;
                             string|LLMServiceError description = generateFieldDescription(schemaName, context);
@@ -110,7 +119,7 @@ public function addMissingDescriptions(string specFilePath) returns int|LLMServi
                             }
                         }
                         
-                        // Process properties within the schema
+                        // step 3.2 Process properties within the schema recursively
                         if schemaMap.hasKey("properties") {
                             json|error propertiesResult = schemaMap.get("properties");
                             if propertiesResult is map<json> {
@@ -119,25 +128,25 @@ public function addMissingDescriptions(string specFilePath) returns int|LLMServi
                             }
                         }
                         
-                        // Process allOf, oneOf, anyOf arrays
+                        // step 3.3 Process nested schemas (allOf, oneOf, anyOf)
                         descriptionsAdded += processNestedSchemas(schemaMap, schemaName);
                     }
                 }
                 
-                // Update the spec with processed schemas
+                // Write updated schemas back into JSON
                 componentsResult["schemas"] = schemas;
                 specJson["components"] = componentsResult;
             }
         }
     }
     
-    // Write the updated spec back to file
+    // step 4. Save updated spec back to file
     error? writeResult = io:fileWriteJson(specFilePath, specJson);
     if writeResult is error {
         return error LLMServiceError("Failed to write updated OpenAPI spec", writeResult);
     }
     
-    return descriptionsAdded;
+    return descriptionsAdded; // return the count of descriptions added
 }
 
 // Helper function to process schema properties recursively
