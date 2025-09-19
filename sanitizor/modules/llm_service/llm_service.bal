@@ -4,6 +4,7 @@ import ballerina/log;
 import ballerina/os;
 import ballerina/regex;
 import ballerinax/ai.anthropic;
+import sanitizor.command_executor;
 
 public type LLMServiceError distinct error; // cutom error type for LLM related failures
 
@@ -635,62 +636,17 @@ public function renameInlineResponseSchemas(string specFilePath) returns int|LLM
 //     return [true, string `Fixed ${errorMessages.length()} compilation errors in ${typesFilePath}`];
 // }
 
-# Fix compilation errors in generated ballerina code
+// ...existing code...
+
+# Fix Ballerina code using AI with a custom prompt
 #
-# + typesFilePath - Path to the types.bal file with compilation errors
-# + errorMessages - Array of compilation error messages to fix
-# + return - Number of errors fixed or error
-public function fixBallerinaTypeErrors(string typesFilePath, string[] errorMessages) returns int|LLMServiceError {
+# + prompt - The detailed prompt for fixing the code
+# + return - Fixed code content or error
+public function fixBallerinaCode(string prompt) returns string|LLMServiceError {
     ai:ModelProvider? model = anthropicModel;
     if (model is ()) {
         return error LLMServiceError("LLM service not initialized");
     }
-
-    log:printInfo("Analyzing Ballerina type errors", filePath = typesFilePath, errorCount = errorMessages.length());
-
-    // Read the current types.bal file
-    string|error fileContent = io:fileReadString(typesFilePath);
-    if (fileContent is error) {
-        return error LLMServiceError("Failed to read types.bal file", fileContent);
-    }
-
-    // Prepare the error summary for LLM
-    string errorsText = string:'join("\n", ...errorMessages);
-    
-    string prompt = string `You are a Ballerina programming language expert. Fix compilation errors in this auto-generated types.bal file.
-
-COMPILATION ERRORS TO FIX:
-${errorsText}
-
-TYPES.BAL FILE CONTENT:
-${fileContent}
-
-PROBLEM ANALYSIS:
-The main issues are "redeclared symbol" errors where multiple record types include the same fields through record inclusion syntax (*RecordType). This happens when OpenAPI allOf compositions create overlapping field definitions.
-
-FIXING STRATEGY:
-1. IDENTIFY CONFLICTS: Find records with conflicting field inclusions
-2. RESOLVE DUPLICATES: For each record with redeclared symbol errors:
-   - Remove duplicate record inclusions that cause conflicts
-   - Keep only ONE inclusion per field name
-   - If multiple inclusions define the same field, keep the most specific one
-3. PRESERVE STRUCTURE: Maintain all type definitions and field types
-4. MAINTAIN COMPATIBILITY: Ensure all API contracts remain valid
-
-SPECIFIC FIXES NEEDED:
-- Remove redundant *RecordTypeAllOf2 inclusions that conflict with existing fields
-- For records that include multiple AllOf2 types, consolidate to avoid field redeclaration
-- Keep record documentation and annotations intact
-
-CRITICAL REQUIREMENTS:
-- Return ONLY the complete fixed Ballerina code
-- NO explanations, markdown formatting, or additional text
-- All record syntax must be valid Ballerina
-- Preserve all type names and field types exactly
-- Fix ONLY the redeclared symbol conflicts
-
-EXPECTED RESULT:
-A fully compilable types.bal file with all redeclared symbol errors resolved.`;
 
     ai:ChatMessage[] messages = [
         {role: "user", content: prompt}
@@ -698,7 +654,7 @@ A fully compilable types.bal file with all redeclared symbol errors resolved.`;
 
     ai:ChatAssistantMessage|error response = model->chat(messages);
     if (response is error) {
-        return error LLMServiceError("Failed to generate type fixes", response);
+        return error LLMServiceError("Failed to generate code fixes", response);
     }
 
     string? fixedCode = response.content;
@@ -706,22 +662,42 @@ A fully compilable types.bal file with all redeclared symbol errors resolved.`;
         return error LLMServiceError("Empty response from LLM");
     }
 
-    // Create backup of original file
-    string backupPath = typesFilePath + ".backup";
-    error? backupResult = io:fileWriteString(backupPath, fileContent);
-    if (backupResult is error) {
-        log:printWarn("Failed to create backup of types.bal", 'error = backupResult);
-    } else {
-        log:printInfo("Created backup of original types.bal", backupPath = backupPath);
-    }
-
-    // Write the fixed code back to the file
-    error? writeResult = io:fileWriteString(typesFilePath, fixedCode);
-    if (writeResult is error) {
-        return error LLMServiceError("Failed to write fixed types.bal", writeResult);
-    }
-
-    log:printInfo("Fixed Ballerina type errors", fixedErrors = errorMessages.length());
-    return errorMessages.length();
+    return fixedCode.trim();
 }
 
+# Build detailed error context with line numbers and code snippets
+#
+# + errors - Array of compilation errors
+# + fileContent - Content of the file being fixed
+# + return - Formatted error context string
+public function buildDetailedErrorContext(command_executor:CompilationError[] errors, string fileContent) returns string {
+    string[] errorDescriptions = [];
+    string[] lines = regex:split(fileContent, "\\n");
+    
+    foreach command_executor:CompilationError err in errors {
+        string contextLines = "";
+        
+        // Get context around the error line (2 lines before and after)
+        int startLine = (err.line - 3) > 0 ? (err.line - 3) : 0;
+        int endLine = (err.line + 2) < lines.length() ? (err.line + 2) : lines.length() - 1;
+        
+        foreach int i in startLine...endLine {
+            if i < lines.length() {
+                string lineMarker = (i + 1) == err.line ? " -> " : "    ";
+                contextLines += string `${lineMarker}${i + 1}: ${lines[i]}\n`;
+            }
+        }
+        
+        string errorDesc = string `
+ERROR: ${err.message}
+File: ${err.fileName}
+Line: ${err.line}, Column: ${err.column}
+Type: ${err.errorType}
+Context:
+${contextLines}
+`;
+        errorDescriptions.push(errorDesc);
+    }
+    
+    return string:'join("\n---\n", ...errorDescriptions);
+}

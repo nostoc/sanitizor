@@ -11,7 +11,7 @@ public type WorkspaceIdCopyBody ContainerDestinationForCopy;
 # Schema for creating a new discussion event, combining base event properties with discussion-specific fields
 public type DiscussionCreate record {
     *Event;
-    *DiscussionCreateAllOf2;
+    //     *DiscussionCreateAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Additional details for attachment load events, including user email and container information
@@ -464,7 +464,7 @@ public type GroupDetailsResponse record {
 # Event triggered when a folder is deleted from the system
 public type FolderDelete record {
     *Event;
-    *FolderDeleteAllOf2;
+    //     *FolderDeleteAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Represents the Headers record for the operation: share-report-get
@@ -613,13 +613,13 @@ public type AccesstokenRevokeAllOf2 record {
 # Event schema for bulk updating multiple account records in a single operation
 public type AccountBulkUpdate record {
     *Event;
-    *AccountBulkUpdateAllOf2;
+    //     *AccountBulkUpdateAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Event schema for report purge operations, combining base event properties with purge-specific attributes
 public type ReportPurge record {
     *Event;
-    *ReportPurgeAllOf2;
+    //     *ReportPurgeAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Triggered when a dashboard is moved between workspaces and/or folders
@@ -635,7 +635,7 @@ public type DashboardMoveAllOf2 record {
 # Event triggered when a member is removed from a shared sheet's access permissions
 public type SheetRemoveShareMember record {
     *Event;
-    *SheetRemoveShareMemberAllOf2;
+    //     *SheetRemoveShareMemberAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Triggered when a sheet form is activated
@@ -664,7 +664,7 @@ public type ReportsreportIdsharesOneOf2 Share[];
 # Event that occurs when a group is renamed, capturing the group identifier and new name details
 public type GroupRename record {
     *Event;
-    *GroupRenameAllOf2;
+    //     *GroupRenameAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # A child resource item in a paginated list containing basic metadata like ID, name, type, access level, and timestamps
@@ -688,7 +688,7 @@ public type PaginatedChildrenListItem record {
 # Event triggered when a sheet is updated or modified
 public type SheetUpdate record {
     *Event;
-    *SheetUpdateAllOf2;
+    //     *SheetUpdateAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # When applicable for PICKLIST column type. Array of the options available for the field
@@ -697,7 +697,7 @@ public type PropertiesOptions string[];
 # Event triggered when a user saves an existing dashboard as a new dashboard with a different name
 public type DashboardSaveAsNew record {
     *Event;
-    *DashboardSaveAsNewAllOf2;
+    //     *DashboardSaveAsNewAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Describes the sheet's publish settings
@@ -805,7 +805,7 @@ public type SheetVersionUnionType Sheet|SheetVersion;
 # Event triggered when a form is deleted from the system
 public type FormDelete record {
     *Event;
-    *FormDeleteAllOf2;
+    //     *FormDeleteAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Updates User for the following attributes:
@@ -1228,7 +1228,7 @@ public type GetWorkspaceChildrenQueries record {
 # Event triggered when an access token is revoked or invalidated in the system
 public type AccesstokenRevoke record {
     *Event;
-    *AccesstokenRevokeAllOf2;
+    //     *AccesstokenRevokeAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Represents the Headers record for the operation: proofs-deleteVersion
@@ -1358,7 +1358,7 @@ public type AttachmentsVersionsDeleteHeaders record {
 # Event triggered when a workspace's recurring backup configuration is modified or updated
 public type WorkspaceUpdateRecurringBackup record {
     *Event;
-    *WorkspaceUpdateRecurringBackupAllOf2;
+    //     *WorkspaceUpdateRecurringBackupAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # A timestamp that can be represented as either a datetime object or a numeric value
@@ -1614,7 +1614,7 @@ public type AutomationRule record {
 # Event triggered when a sheet is sent as an email attachment to recipients
 public type SheetSendAsAttachment record {
     *Event;
-    *SheetSendAsAttachmentAllOf2;
+    //     *SheetSendAsAttachmentAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Request object for adding a new member to a group by email address
@@ -1626,13 +1626,13 @@ public type GroupMemberAdd record {
 # Event for creating a new sheet with associated data and properties
 public type SheetCreate record {
     *Event;
-    *SheetCreateAllOf2;
+    //     *SheetCreateAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Event report generated when a workspace share is removed or revoked from a user or group
 public type ReportRemoveWorkspaceShare record {
     *Event;
-    *ReportRemoveWorkspaceShareAllOf2;
+    //     *ReportRemoveWorkspaceShareAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Represents the Queries record for the operation: is-favorite
@@ -1765,7 +1765,7 @@ public type DashboardAddShareAllOf2 record {
 # Event representing when a user downloads a sheet access report for a group
 public type GroupDownloadSheetAccessReport record {
     *Event;
-    *GroupDownloadSheetAccessReportAllOf2;
+    //     *GroupDownloadSheetAccessReportAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Additional details for report share removal events, including the responsible user's email and affected user/group IDs
@@ -1880,7 +1880,7 @@ public type TimestampLong int;
 # Event triggered when a user downloads a sheet access report from the system
 public type UserDownloadSheetAccessReport record {
     *Event;
-    *UserDownloadSheetAccessReportAllOf2;
+    //     *UserDownloadSheetAccessReportAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Represents the Queries record for the operation: row-discussions-list
@@ -2038,13 +2038,13 @@ public type Id decimal;
 # Event triggered when a dashboard is renamed, capturing the rename operation details
 public type DashboardRename record {
     *Event;
-    *DashboardRenameAllOf2;
+    //     *DashboardRenameAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Event representing a request to backup a folder, combining base event properties with folder backup-specific data
 public type FolderRequestBackup record {
     *Event;
-    *FolderRequestBackupAllOf2;
+    //     *FolderRequestBackupAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Represents the Headers record for the operation: attachments-delete
@@ -2111,7 +2111,7 @@ public type SentupdaterequestsListQueries record {
 # Event tracking when an account downloads a sheet access report from the system
 public type AccountDownloadSheetAccessReport record {
     *Event;
-    *AccountDownloadSheetAccessReportAllOf2;
+    //     *AccountDownloadSheetAccessReportAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Response object containing a single folder result
@@ -2123,7 +2123,7 @@ public type FolderResultResponse record {
 # Event triggered when a form becomes active or gains focus in the user interface
 public type FormActivate record {
     *Event;
-    *FormActivateAllOf2;
+    //     *FormActivateAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # A dashboard listing containing basic metadata including ID, name, timestamps, and permalink URL
@@ -2201,7 +2201,7 @@ public type TokensGetOrRefreshHeaders record {
 # Event triggered when a workspace is deleted from the system
 public type WorkspaceDelete record {
     *Event;
-    *WorkspaceDeleteAllOf2;
+    //     *WorkspaceDeleteAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Triggered when a user saves a copy of a workspace by using the `Save As New` option via UI or `Copy Workspace` via API. 
@@ -2261,7 +2261,7 @@ public type SharedSecret record {
 # Event triggered when ownership of a dashboard is transferred from one user to another
 public type DashboardTransferOwnership record {
     *Event;
-    *DashboardTransferOwnershipAllOf2;
+    //     *DashboardTransferOwnershipAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Represents the Queries record for the operation: columns-listOnSheet
@@ -2308,7 +2308,7 @@ public type SheetAddShareMemberAdditionalDetails record {
 # Event triggered when a member is removed from a shared workspace
 public type WorkspaceRemoveShareMember record {
     *Event;
-    *WorkspaceRemoveShareMemberAllOf2;
+    //     *WorkspaceRemoveShareMemberAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Request body for sheet row operations that accepts either a single Row object or multiple row data
@@ -2418,7 +2418,7 @@ public type GetFolderQueries record {
 # Event triggered when a sheet is loaded or opened in the application
 public type SheetLoad record {
     *Event;
-    *SheetLoadAllOf2;
+    //     *SheetLoadAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Represents the Headers record for the operation: SetReportPublish
@@ -2455,7 +2455,7 @@ public type SetReportPublishHeaders record {
 # Event triggered when a workspace share is added to a dashboard configuration
 public type DashboardAddWorkspaceShare record {
     *Event;
-    *DashboardAddWorkspaceShareAllOf2;
+    //     *DashboardAddWorkspaceShareAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Triggered when a link to another sheet cell is created in a sheet cell
@@ -2471,7 +2471,7 @@ public type SheetCreateCellLinkAllOf2 record {
 # Event triggered when a user requests a password reset to be sent to their registered email address
 public type UserSendPasswordReset record {
     *Event;
-    *UserSendPasswordResetAllOf2;
+    //     *UserSendPasswordResetAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Response containing validation results for a submitted proof, inheriting all proof properties
@@ -2480,7 +2480,7 @@ public type ProofValidationResponse Proof;
 # Event triggered when a user's sharing permissions are removed from a sheet or spreadsheet document
 public type SheetRemoveShare record {
     *Event;
-    *SheetRemoveShareAllOf2;
+    //     *SheetRemoveShareAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Configuration for emailing a sheet in EXCEL, PDF, or PDF_GANTT format with email details
@@ -2489,7 +2489,7 @@ public type SheetEmail Email;
 # Event representing the transfer of ownership of a sheet from one user to another
 public type SheetTransferOwnership record {
     *Event;
-    *SheetTransferOwnershipAllOf2;
+    //     *SheetTransferOwnershipAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Specifies the recipient of an email. The recipient may be either an individual or a group. To specify an individual, set the email attribute; to specify a group, set the groupId attribute. Either email and groupId may be set, but not both
@@ -2614,7 +2614,7 @@ public type SheetMoveAllOf2 record {
 # A report event that captures system or application load metrics and performance data
 public type ReportLoad record {
     *Event;
-    *ReportLoadAllOf2;
+    //     *ReportLoadAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Maps a source sheet row to a destination sheet row by their respective row IDs
@@ -2823,7 +2823,7 @@ public type ShareWorkspaceGetHeaders record {
 # Event schema for creating an update request, combining base event properties with update-specific fields
 public type UpdateRequestCreate record {
     *Event;
-    *UpdateRequestCreateAllOf2;
+    //     *UpdateRequestCreateAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Triggered when a dashboard is created. Dashboards can be created in the UI with the `Create New` button, by selecting the `Save As New` option on an existing dashboard, or through the API
@@ -2976,7 +2976,7 @@ public type AddImageToCellHeaders record {
 # Event schema for updating user information, combining base event properties with user-specific update fields
 public type UserUpdateUser record {
     *Event;
-    *UserUpdateUserAllOf2;
+    //     *UserUpdateUserAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Array of Share objects representing sheet sharing configurations and permissions
@@ -3443,7 +3443,7 @@ public type SheetssheetIdrowsOneOf21 Row[];
 # Event triggered when a workspace share is removed from a sheet, revoking shared access permissions
 public type SheetRemoveWorkspaceShare record {
     *Event;
-    *SheetRemoveWorkspaceShareAllOf2;
+    //     *SheetRemoveWorkspaceShareAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Triggered when a user is added to an auto-provisioned organization account by an admin or when the user logs in with email associated with an auto-provisioned domain
@@ -3462,7 +3462,7 @@ public type AutomationRuleResponse AutomationRule;
 # Event triggered when a folder is saved as a new copy, inheriting from base Event schema
 public type FolderSaveAsNew record {
     *Event;
-    *FolderSaveAsNewAllOf2;
+    //     *FolderSaveAsNewAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Object representing a calculated datetime
@@ -3527,7 +3527,7 @@ public type AccesstokenRevokeAdditionalDetails record {
 # Event schema for access token authorization processes, combining base event properties with authorization-specific fields
 public type AccesstokenAuthorize record {
     *Event;
-    *AccesstokenAuthorizeAllOf2;
+    //     *AccesstokenAuthorizeAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Triggered when a user requests a backup for a sheet
@@ -3553,7 +3553,7 @@ public type AttachmentsVersionListQueries record {
 # Event triggered when a user sends an invitation to another user or contact
 public type UserSendInvite record {
     *Event;
-    *UserSendInviteAllOf2;
+    //     *UserSendInviteAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Represents the Headers record for the operation: delete-rows
@@ -3611,7 +3611,7 @@ public type IndexedSearchResultsResponse1 record {
 # Event triggered when a user adds or grants sharing permissions to a sheet
 public type SheetAddShare record {
     *Event;
-    *SheetAddShareAllOf2;
+    //     *SheetAddShareAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Response containing indexed search results with index metadata and reports access information
@@ -3711,7 +3711,7 @@ public type ReportRemoveShareAllOf2 record {
 # Event triggered when a member is added to a shared dashboard's access permissions
 public type DashboardAddShareMember record {
     *Event;
-    *DashboardAddShareMemberAllOf2;
+    //     *DashboardAddShareMemberAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Represents the Headers record for the operation: list-sight-shares
@@ -3745,7 +3745,7 @@ public type ListSightSharesHeaders record {
 # Event representing the export operation of a sheet, combining base event properties with export-specific data
 public type SheetExport record {
     *Event;
-    *SheetExportAllOf2;
+    //     *SheetExportAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Represents the Queries record for the operation: move-rows
@@ -3787,7 +3787,7 @@ public type UpdateSheetShareHeaders record {
 # Event triggered when a user declines an invitation to join or participate in something
 public type UserDeclineInvite record {
     *Event;
-    *UserDeclineInviteAllOf2;
+    //     *UserDeclineInviteAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Triggered when a discussion (i.e. whole thread of top comment and replies) is **directly** (i.e. instead of indirectly as part of another operation) sent by email to user(s) or user group(s). An individual `DISCUSSION - SEND` event is issued for each user or user group listed as recipient
@@ -3816,7 +3816,7 @@ public type AccesstokenRefreshAdditionalDetails record {
 # Event triggered when a sheet is restored from a previously deleted or archived state
 public type SheetRestore record {
     *Event;
-    *SheetRestoreAllOf2;
+    //     *SheetRestoreAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Email configuration for sending multiple table rows, extending standard row email functionality
@@ -3887,7 +3887,7 @@ public type ProofVersionCollectionResponse record {
 # The webhook object
 public type Webhook record {
     *UpdateWebhookRequest;
-    *WebhookAllOf2;
+    //     *WebhookAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # A combined response that extends GenericResult with additional user-specific result data and properties
@@ -3984,13 +3984,13 @@ public type UpdateSightQueries record {
 # Event triggered when a recurring backup configuration is deleted from a workspace
 public type WorkspaceDeleteRecurringBackup record {
     *Event;
-    *WorkspaceDeleteRecurringBackupAllOf2;
+    //     *WorkspaceDeleteRecurringBackupAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Event triggered when a dashboard is deleted from the system
 public type DashboardDelete record {
     *Event;
-    *DashboardDeleteAllOf2;
+    //     *DashboardDeleteAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Represents the Queries record for the operation: copy-folder
@@ -4232,7 +4232,7 @@ public type SentUpdateRequestListResponse record {
 # Event triggered when a user saves an existing workspace with a new name or creates a copy of a workspace
 public type WorkspaceSaveAsNew record {
     *Event;
-    *WorkspaceSaveAsNewAllOf2;
+    //     *WorkspaceSaveAsNewAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Represents the Headers record for the operation: update-sight
@@ -4269,7 +4269,7 @@ public type UpdateSightHeaders record {
 # Event triggered when a discussion is modified or updated with new information
 public type DiscussionUpdate record {
     *Event;
-    *DiscussionUpdateAllOf2;
+    //     *DiscussionUpdateAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # A response combining generic result information with numeric array data
@@ -4297,7 +4297,7 @@ public type GenericResultResponse1 record {
 # Event representing the movement or repositioning of a sheet within a document or workbook
 public type SheetMove record {
     *Event;
-    *SheetMoveAllOf2;
+    //     *SheetMoveAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Represents the Headers record for the operation: copy-folder
@@ -4395,7 +4395,7 @@ public type ImageUrlMap record {
 # Event triggered when a group is deleted from the system
 public type GroupDelete record {
     *Event;
-    *GroupDeleteAllOf2;
+    //     *GroupDeleteAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Triggered when a report is in the deleted items bin and is restored (`Undelete`)
@@ -4515,7 +4515,7 @@ public type IndexResultExtendedResponse record {
 # Event triggered when a user saves a sheet as a template for future reuse
 public type SheetSaveAsTemplate record {
     *Event;
-    *SheetSaveAsTemplateAllOf2;
+    //     *SheetSaveAsTemplateAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Represents the Headers record for the operation: move-sight
@@ -4679,19 +4679,19 @@ public type SheetCollectionApiResponse1 record {
 # Event triggered when an attachment is modified or updated with new content or metadata
 public type AttachmentUpdate record {
     *Event;
-    *AttachmentUpdateAllOf2;
+    //     *AttachmentUpdateAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Event schema for access token refresh operations, combining base event properties with refresh-specific attributes
 public type AccesstokenRefresh record {
     *Event;
-    *AccesstokenRefreshAllOf2;
+    //     *AccesstokenRefreshAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Event schema for adding and publishing dashboard content or configurations
 public type DashboardAddPublish record {
     *Event;
-    *DashboardAddPublishAllOf2;
+    //     *DashboardAddPublishAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Represents the Queries record for the operation: list-home-contents
@@ -4829,7 +4829,7 @@ public type ProofsDeleteHeaders record {
 # Event triggered when a sheet is deleted from a workbook or spreadsheet application
 public type SheetDelete record {
     *Event;
-    *SheetDeleteAllOf2;
+    //     *SheetDeleteAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # API response containing indexed workspace results with collection metadata and pagination details
@@ -5166,7 +5166,7 @@ public type DashboardRemoveShareAdditionalDetails record {
 # Event triggered when a user sends a comment in a discussion thread
 public type DiscussionSendcomment record {
     *Event;
-    *DiscussionSendcommentAllOf2;
+    //     *DiscussionSendcommentAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Represents the Queries record for the operation: add-user
@@ -5285,7 +5285,7 @@ public type ObjectValue AbstractDatetimeObjectValue|CheckboxObjectValue|ContactO
 # Event triggered when an attachment is deleted from the system
 public type AttachmentDelete record {
     *Event;
-    *AttachmentDeleteAllOf2;
+    //     *AttachmentDeleteAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Combined index result with user collection data, extending basic index functionality with user-specific collection information
@@ -5482,7 +5482,7 @@ public type DashboardAddShareMemberAdditionalDetails record {
 # Event triggered when a user removes sharing permissions from a dashboard
 public type DashboardRemoveShare record {
     *Event;
-    *DashboardRemoveShareAllOf2;
+    //     *DashboardRemoveShareAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # API response containing a collection of sheet data objects in an array format
@@ -5494,7 +5494,7 @@ public type SheetCollectionApiResponse record {
 # Event for creating a cell link within a sheet, combining base event properties with cell link creation details
 public type SheetCreateCellLink record {
     *Event;
-    *SheetCreateCellLinkAllOf2;
+    //     *SheetCreateCellLinkAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # A numeric timestamp value representing a point in time, typically in seconds or milliseconds since epoch
@@ -5509,7 +5509,7 @@ public type UserProfileImageCollectionResponse record {
 # Event triggered when a workspace share is removed from a dashboard
 public type DashboardRemoveWorkspaceShare record {
     *Event;
-    *DashboardRemoveWorkspaceShareAllOf2;
+    //     *DashboardRemoveWorkspaceShareAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Represents the Headers record for the operation: get-folder-metadata
@@ -5755,7 +5755,7 @@ public type CreateSheetInWorkspaceQueries record {
 # Event report indicating the removal of a shared resource or access permission from a system
 public type ReportRemoveShare record {
     *Event;
-    *ReportRemoveShareAllOf2;
+    //     *ReportRemoveShareAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Represents the Headers record for the operation: list-webhooks
@@ -6139,7 +6139,7 @@ public type WorkspaceIdSharesBody Share|WorkspacesworkspaceIdsharesOneOf2;
 # Event triggered when a report is exported, combining base event properties with export-specific details
 public type ReportExport record {
     *Event;
-    *ReportExportAllOf2;
+    //     *ReportExportAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Represents the Queries record for the operation: rows-addToSheet
@@ -6252,7 +6252,7 @@ public type GroupDownloadSheetAccessReportAllOf2 record {
 # Event triggered when a row is sent or transmitted from a sheet to another destination or system
 public type SheetSendRow record {
     *Event;
-    *SheetSendRowAllOf2;
+    //     *SheetSendRowAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Array of alternate email addresses to be added for the user
@@ -6399,7 +6399,7 @@ public type GetWorkspaceMetadataQueries record {
 # Event triggered when a discussion is deleted from the system
 public type DiscussionDelete record {
     *Event;
-    *DiscussionDeleteAllOf2;
+    //     *DiscussionDeleteAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # API response wrapper containing a simplified folder object in the result field
@@ -6586,7 +6586,7 @@ public type Index decimal;
 # Event representing the removal or unpublishing of a dashboard from a system or platform
 public type DashboardRemovePublish record {
     *Event;
-    *DashboardRemovePublishAllOf2;
+    //     *DashboardRemovePublishAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Request body for creating a sheet in a folder, either from scratch or from a template
@@ -6630,7 +6630,7 @@ public type ItemResultCompositeResponse record {
 # Event triggered when a dashboard is loaded or accessed by a user
 public type DashboardLoad record {
     *Event;
-    *DashboardLoadAllOf2;
+    //     *DashboardLoadAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Describes the sheet's publish settings. Used as a request body to set publish status
@@ -6670,7 +6670,7 @@ public type SheetPublishRequest record {
 # Event schema for sending attachment data, combining base event properties with attachment-specific send parameters
 public type AttachmentSend record {
     *Event;
-    *AttachmentSendAllOf2;
+    //     *AttachmentSendAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # A number that is incremented every time a sheet is modified
@@ -7103,13 +7103,13 @@ public type Subscope record {
 # Event schema for importing multiple users into an account system or platform
 public type AccountImportUsers record {
     *Event;
-    *AccountImportUsersAllOf2;
+    //     *AccountImportUsersAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Event triggered when a row is moved within a sheet, capturing the row relocation operation
 public type SheetMoveRow record {
     *Event;
-    *SheetMoveRowAllOf2;
+    //     *SheetMoveRowAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Triggered when an attachment is **directly** (i.e. instead of indirectly as part of another operation) sent by email to user(s) or user group(s). 
@@ -7453,7 +7453,7 @@ public type ListUsersQueries record {
 # Event triggered when a user adds an item or value to their account
 public type UserAddToAccount record {
     *Event;
-    *UserAddToAccountAllOf2;
+    //     *UserAddToAccountAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Represents the Headers record for the operation: list-users
@@ -7564,7 +7564,7 @@ public type Token record {
 # Event triggered when a workspace backup operation is requested by a user or system process
 public type WorkspaceRequestBackup record {
     *Event;
-    *WorkspaceRequestBackupAllOf2;
+    //     *WorkspaceRequestBackupAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Represents an image with metadata including dimensions, alternate text, and unique identifier
@@ -7670,7 +7670,7 @@ public type ReportTransferOwnershipAdditionalDetails record {
 # Event representing an update to a dashboard configuration or content
 public type DashboardUpdate record {
     *Event;
-    *DashboardUpdateAllOf2;
+    //     *DashboardUpdateAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # When applicable for PICKLIST column type
@@ -7743,13 +7743,13 @@ public type ReportCreateAdditionalDetails record {
 # Schema for creating a new report, combining base event properties with report-specific creation fields
 public type ReportCreate record {
     *Event;
-    *ReportCreateAllOf2;
+    //     *ReportCreateAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Event triggered when a user transfers ownership of groups they currently own to another user
 public type UserTransferOwnedGroups record {
     *Event;
-    *UserTransferOwnedGroupsAllOf2;
+    //     *UserTransferOwnedGroupsAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # A collection of sheet objects containing basic sheet information including name, ID, owner details, and metadata
@@ -7851,13 +7851,13 @@ public type SheetCreateAllOf2 record {
 # Event reporting the transfer of ownership for a report from one user or entity to another
 public type ReportTransferOwnership record {
     *Event;
-    *ReportTransferOwnershipAllOf2;
+    //     *ReportTransferOwnershipAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Event triggered when a user transfers ownership of items to another user or entity
 public type UserTransferOwnedItems record {
     *Event;
-    *UserTransferOwnedItemsAllOf2;
+    //     *UserTransferOwnedItemsAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Array of Row objects representing spreadsheet rows with their data and properties
@@ -8495,7 +8495,7 @@ public type IndexResultResponse record {
 # Event representing the transfer of ownership of a group from one user to another
 public type GroupTransferOwnership record {
     *Event;
-    *GroupTransferOwnershipAllOf2;
+    //     *GroupTransferOwnershipAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Represents a row object for adding to a sheet, containing cells, metadata, and positioning information
@@ -8611,7 +8611,7 @@ public type GetReportHeaders record {
 # Event that captures when a sheet is renamed, including the old and new sheet names
 public type SheetRename record {
     *Event;
-    *SheetRenameAllOf2;
+    //     *SheetRenameAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Represents the Headers record for the operation: list-search-sheet
@@ -8645,7 +8645,7 @@ public type ListSearchSheetHeaders record {
 # Event representing the movement or repositioning of a dashboard within the system
 public type DashboardMove record {
     *Event;
-    *DashboardMoveAllOf2;
+    //     *DashboardMoveAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Represents the result of a sheet operation, including version information for data updates
@@ -8712,7 +8712,7 @@ public type DashboardDeleteAllOf2 record {
 # Event reporting the addition of a new member to a shared resource or collaboration space
 public type ReportAddShareMember record {
     *Event;
-    *ReportAddShareMemberAllOf2;
+    //     *ReportAddShareMemberAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Returned only if the column is the Primary Column (value = **true**)
@@ -8721,13 +8721,13 @@ public type Primary boolean;
 # Event report generated when a workspace share is added to the system
 public type ReportAddWorkspaceShare record {
     *Event;
-    *ReportAddWorkspaceShareAllOf2;
+    //     *ReportAddWorkspaceShareAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Event triggered when a user saves an existing report as a new report with a different name or configuration
 public type ReportSaveAsNew record {
     *Event;
-    *ReportSaveAsNewAllOf2;
+    //     *ReportSaveAsNewAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Request body for creating or updating a workspace containing the workspace name
@@ -8873,7 +8873,7 @@ public type RemoveUserQueries record {
 # Event report generated when a member is removed from a shared resource or folder
 public type ReportRemoveShareMember record {
     *Event;
-    *ReportRemoveShareMemberAllOf2;
+    //     *ReportRemoveShareMemberAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Represents the Headers record for the operation: share-workspace
@@ -8941,7 +8941,7 @@ public type FavoriteResultResponse record {
 # Event schema for creating a new folder, combining base event properties with folder creation specifics
 public type FolderCreate record {
     *Event;
-    *FolderCreateAllOf2;
+    //     *FolderCreateAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Represents the Queries record for the operation: add-summary-fields
@@ -9007,7 +9007,7 @@ public type TokensDeleteQueries record {
 # Event triggered when a user removes or revokes shared access to resources or content
 public type UserRemoveShares record {
     *Event;
-    *UserRemoveSharesAllOf2;
+    //     *UserRemoveSharesAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Object containing a Contact
@@ -9360,7 +9360,7 @@ public type ReportAddShareMemberAdditionalDetails record {
 # Event schema for creating a new form, combining base event properties with form-specific creation fields
 public type FormCreate record {
     *Event;
-    *FormCreateAllOf2;
+    //     *FormCreateAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # API response containing a collection of Group objects in a data array
@@ -9372,7 +9372,7 @@ public type GroupCollectionApiResponse1 record {
 # Event triggered when a user is removed from an account, capturing user and account details
 public type UserRemoveFromAccount record {
     *Event;
-    *UserRemoveFromAccountAllOf2;
+    //     *UserRemoveFromAccountAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # A comment object containing text, creator information, timestamps, attachments, and discussion reference
@@ -9422,7 +9422,7 @@ public type FolderDeleteAllOf2 record {
 # Event schema for reporting when a share is added to a report or sharing configuration
 public type ReportAddShare record {
     *Event;
-    *ReportAddShareAllOf2;
+    //     *ReportAddShareAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Represents the Headers record for the operation: proofs-createDiscussion
@@ -9459,7 +9459,7 @@ public type ProofsCreateDiscussionHeaders record {
 # Event triggered when a member is removed from a dashboard's sharing permissions
 public type DashboardRemoveShareMember record {
     *Event;
-    *DashboardRemoveShareMemberAllOf2;
+    //     *DashboardRemoveShareMemberAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # The error caused by the failed item
@@ -9566,7 +9566,7 @@ public type CrossSheetReferenceCollectionResponse record {
 # Event triggered when workspace ownership is transferred from one user to another
 public type WorkspaceTransferOwnership record {
     *Event;
-    *WorkspaceTransferOwnershipAllOf2;
+    //     *WorkspaceTransferOwnershipAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Represents the Queries record for the operation: attachments-listOnRow
@@ -9600,7 +9600,7 @@ public type ContactOption record {
 # Event tracking when a user downloads their account login history data
 public type AccountDownloadLoginHistory record {
     *Event;
-    *AccountDownloadLoginHistoryAllOf2;
+    //     *AccountDownloadLoginHistoryAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Can contain dashboards, folders, reports, sheets, and templates
@@ -9666,7 +9666,7 @@ public type ResultExtendedApiResponse record {
 # Event triggered when a workspace share is added to a sheet, extending base event properties
 public type SheetAddWorkspaceShare record {
     *Event;
-    *SheetAddWorkspaceShareAllOf2;
+    //     *SheetAddWorkspaceShareAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Triggered when a user requests a backup for a folder
@@ -9708,7 +9708,7 @@ public type DiscussionsListQueries record {
 # Event representing the export of a workspace, combining base event properties with workspace export-specific data
 public type WorkspaceExport record {
     *Event;
-    *WorkspaceExportAllOf2;
+    //     *WorkspaceExportAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Represents the Headers record for the operation: update-folder
@@ -9748,7 +9748,7 @@ public type AddAlternateEmail record {
 # Event schema for tracking when an account downloads a report of their published items
 public type AccountDownloadPublishedItemsReport record {
     *Event;
-    *AccountDownloadPublishedItemsReportAllOf2;
+    //     *AccountDownloadPublishedItemsReportAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Provides a set of configurations for controlling the behaviours when communicating with a remote HTTP endpoint.
@@ -9865,7 +9865,7 @@ public type ProofsGetQueries record {
 # Event schema for requesting a backup operation on a sheet, combining base event properties with backup-specific fields
 public type SheetRequestBackup record {
     *Event;
-    *SheetRequestBackupAllOf2;
+    //     *SheetRequestBackupAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # MiniUser Object
@@ -9925,7 +9925,7 @@ public type UpdateColumnApiResponse record {
 # Schema for creating a new dashboard, combining base event properties with dashboard-specific creation fields
 public type DashboardCreate record {
     *Event;
-    *DashboardCreateAllOf2;
+    //     *DashboardCreateAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Represents the Headers record for the operation: add-crosssheet-reference
@@ -10041,7 +10041,7 @@ public type GetGroupHeaders record {
 # Schema for creating attachment events, combining base event properties with attachment-specific creation fields
 public type AttachmentCreate record {
     *Event;
-    *AttachmentCreateAllOf2;
+    //     *AttachmentCreateAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Triggered when a sheet form is created
@@ -10160,7 +10160,7 @@ public type SearchResultExtendedResponse record {
 # Event schema for retrieving a list of account sheets or worksheets within an account context
 public type AccountListSheets record {
     *Event;
-    *AccountListSheetsAllOf2;
+    //     *AccountListSheetsAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Represents the Headers record for the operation: row-discussions-create
@@ -10363,7 +10363,7 @@ public type DeleteFavoritesByTypeQueries record {
 # Event representing the purging or deletion of sheet data from a system or database
 public type SheetPurge record {
     *Event;
-    *SheetPurgeAllOf2;
+    //     *SheetPurgeAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Triggered when an admin transfers ownership of all groups owned by a user to another user. This can be done through User Management on UI
@@ -10379,7 +10379,7 @@ public type UserTransferOwnedGroupsAllOf2 record {
 # Event triggered when a row is copied within a sheet or between sheets
 public type SheetCopyRow record {
     *Event;
-    *SheetCopyRowAllOf2;
+    //     *SheetCopyRowAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Request body for group membership operations, accepting either a single member or batch member data
@@ -10546,7 +10546,7 @@ public type FolderRequestBackupAdditionalDetails record {
 # Event schema for reporting the restoration of a previously deleted or archived report
 public type ReportRestore record {
     *Event;
-    *ReportRestoreAllOf2;
+    //     *ReportRestoreAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Represents the Headers record for the operation: updateSheet
@@ -10614,7 +10614,7 @@ public type UpdateSightShareQueries record {
 # Event triggered when a user adds sharing permissions to a dashboard, extending base event properties
 public type DashboardAddShare record {
     *Event;
-    *DashboardAddShareAllOf2;
+    //     *DashboardAddShareAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Additional details for sheet export events, including the user's email address and export format type
@@ -10644,7 +10644,7 @@ public type UserRemoveFromGroupsAllOf2 record {
 # Event schema for renaming report operations, combining base event properties with rename-specific data
 public type ReportRename record {
     *Event;
-    *ReportRenameAllOf2;
+    //     *ReportRenameAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Represents the Headers record for the operation: list-summary-fields-paginated
@@ -10835,7 +10835,7 @@ public type ImportSheetIntoFolderHeaders record {
 # Event report indicating a movement or relocation action has occurred
 public type ReportMove record {
     *Event;
-    *ReportMoveAllOf2;
+    //     *ReportMoveAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Object containing image metadata including ID, dimensions, temporary URL, and optional error information
@@ -11074,7 +11074,7 @@ public type DiscussionsCreateHeaders record {
 # Event triggered when dashboard data is purged or deleted from the system
 public type DashboardPurge record {
     *Event;
-    *DashboardPurgeAllOf2;
+    //     *DashboardPurgeAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Array of the options available for the column
@@ -11117,7 +11117,7 @@ public type ItemResultExtendedResponse record {
 # Event triggered when a user accepts an invitation to join a system, organization, or service
 public type UserAcceptInvite record {
     *Event;
-    *UserAcceptInviteAllOf2;
+    //     *UserAcceptInviteAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Represents the Headers record for the operation: list-filtered-events
@@ -11193,7 +11193,7 @@ public type ListSummaryFieldsPaginatedQueries record {
 # Event tracking when a user downloads the complete user list from an account management system
 public type AccountDownloadUserList record {
     *Event;
-    *AccountDownloadUserListAllOf2;
+    //     *AccountDownloadUserListAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # API response containing an array of favorite items in the data field
@@ -11251,7 +11251,7 @@ public type CellHistoryCollectionResponse record {
 # Event triggered when a user adds or creates a new share within a workspace
 public type WorkspaceAddShare record {
     *Event;
-    *WorkspaceAddShareAllOf2;
+    //     *WorkspaceAddShareAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # A composite response combining generic result data with group-specific result information
@@ -11346,7 +11346,7 @@ public type UpdateWebhookHeaders record {
 # Event triggered when an account name is changed or updated in the system
 public type AccountRename record {
     *Event;
-    *AccountRenameAllOf2;
+    //     *AccountRenameAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # CrossSheetReference object to create which will refer to the entire rows in the range from startRowId to endRowId
@@ -11426,7 +11426,7 @@ public type ProofsUpdateHeaders record {
 # Event triggered when a folder is renamed, capturing the rename operation details
 public type FolderRename record {
     *Event;
-    *FolderRenameAllOf2;
+    //     *FolderRenameAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Represents the Queries record for the operation: list-search
@@ -11517,7 +11517,7 @@ public type ImportSheetIntoSheetsFolderQueries record {
 # Event triggered when a new workspace is created in the system
 public type WorkspaceCreate record {
     *Event;
-    *WorkspaceCreateAllOf2;
+    //     *WorkspaceCreateAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Represents the Headers record for the operation: delete-sheet-share
@@ -11582,7 +11582,7 @@ public type CreateHomeFolderHeaders record {
 # Event representing the addition of a new member to a group
 public type GroupAddMember record {
     *Event;
-    *GroupAddMemberAllOf2;
+    //     *GroupAddMemberAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Represents the Queries record for the operation: proofs-getVersions
@@ -12078,13 +12078,13 @@ public type TemplatesListPublicQueries record {
 # Event representing the loading or retrieval of an attachment in the system
 public type AttachmentLoad record {
     *Event;
-    *AttachmentLoadAllOf2;
+    //     *AttachmentLoadAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Event triggered when a user is removed from one or more groups in the system
 public type UserRemoveFromGroups record {
     *Event;
-    *UserRemoveFromGroupsAllOf2;
+    //     *UserRemoveFromGroupsAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Represents the Headers record for the operation: templates-listPublic
@@ -12192,7 +12192,7 @@ public type ListOrgSheetsHeaders record {
 # Event triggered when a report is deleted from the system
 public type ReportDelete record {
     *Event;
-    *ReportDeleteAllOf2;
+    //     *ReportDeleteAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Represents the Headers record for the operation: import-sheet-into-sheets-folder
@@ -12282,7 +12282,7 @@ public type ListSightsHeaders record {
 # Event triggered when a workspace share is removed or revoked from a user or group
 public type WorkspaceRemoveShare record {
     *Event;
-    *WorkspaceRemoveShareAllOf2;
+    //     *WorkspaceRemoveShareAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Represents the Headers record for the operation: proofs-attachToProof
@@ -12363,7 +12363,7 @@ public type DashboardRemoveShareMemberAllOf2 record {
 # Event triggered when a sheet is saved as a new document with a different name or location
 public type SheetSaveAsNew record {
     *Event;
-    *SheetSaveAsNewAllOf2;
+    //     *SheetSaveAsNewAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Triggered when the main contact of the organization account is updated. This can be done through `Account Administration` console on UI
@@ -12437,7 +12437,7 @@ public type AddImageSummaryFieldQueries record {
 # Event triggered when a member is removed from a group, containing group and member details
 public type GroupRemoveMember record {
     *Event;
-    *GroupRemoveMemberAllOf2;
+    //     *GroupRemoveMemberAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # A dashboard name identifier that specifies the display title for a particular dashboard view
@@ -12588,7 +12588,7 @@ public type IndexResultResponse2 record {
 # Event triggered when a new member is added to a shared workspace
 public type WorkspaceAddShareMember record {
     *Event;
-    *WorkspaceAddShareMemberAllOf2;
+    //     *WorkspaceAddShareMemberAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # A combined response containing index results and workspace folder collection data
@@ -12600,7 +12600,7 @@ public type IndexResultResponse3 record {
 # Event triggered when a recurring backup schedule is created for a workspace
 public type WorkspaceCreateRecurringBackup record {
     *Event;
-    *WorkspaceCreateRecurringBackupAllOf2;
+    //     *WorkspaceCreateRecurringBackupAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # A response containing index results combined with folder collection API response data
@@ -12672,7 +12672,7 @@ public type IndexResultResponse5 record {
 # Event triggered when a discussion message is sent or transmitted to participants
 public type DiscussionSend record {
     *Event;
-    *DiscussionSendAllOf2;
+    //     *DiscussionSendAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # A pagination metadata object containing page number, total pages, page size, and total item count for paginated API responses
@@ -12690,7 +12690,7 @@ public type IndexResult record {
 # Event triggered when a member is added to a shared sheet's collaboration settings
 public type SheetAddShareMember record {
     *Event;
-    *SheetAddShareMemberAllOf2;
+    //     *SheetAddShareMemberAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # A combined response containing index results and group collection API data
@@ -12702,7 +12702,7 @@ public type IndexResultResponse8 record {
 # Event triggered when an account's main contact information is updated or changed
 public type AccountUpdateMainContact record {
     *Event;
-    *AccountUpdateMainContactAllOf2;
+    //     *AccountUpdateMainContactAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Represents the Headers record for the operation: deleteSheet
@@ -12786,7 +12786,7 @@ public type SheetCreateAdditionalDetails record {
 # Event triggered when a workspace is renamed, capturing the name change details
 public type WorkspaceRename record {
     *Event;
-    *WorkspaceRenameAllOf2;
+    //     *WorkspaceRenameAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Represents a sharing configuration for an asset, including access level, scope, and recipient details
@@ -12816,7 +12816,7 @@ public type ShareResponse record {
 # Event triggered when a dashboard is restored from a previous state or backup
 public type DashboardRestore record {
     *Event;
-    *DashboardRestoreAllOf2;
+    //     *DashboardRestoreAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Defines column properties for updates including title, type, position, options, and validation settings
@@ -12862,13 +12862,13 @@ public type WebhooksBody record {
 # Event representing the export operation of a folder, combining base event properties with folder export-specific data
 public type FolderExport record {
     *Event;
-    *FolderExportAllOf2;
+    //     *FolderExportAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Event representing an update to a form, combining base event properties with form-specific update data
 public type FormUpdate record {
     *Event;
-    *FormUpdateAllOf2;
+    //     *FormUpdateAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Represents the Headers record for the operation: share-asset
@@ -13010,7 +13010,7 @@ public type RowsSortQueries record {
 # Event triggered when a form loses focus or becomes inactive in the user interface
 public type FormDeactivate record {
     *Event;
-    *FormDeactivateAllOf2;
+    //     *FormDeactivateAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Arbitrary name, must be unique within summary
@@ -13118,7 +13118,7 @@ public type AttachmentCreateAllOf2 record {
 # Event schema for updating report information, combining base event properties with report-specific update fields
 public type ReportUpdate record {
     *Event;
-    *ReportUpdateAllOf2;
+    //     *ReportUpdateAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # Triggered when a group or user is removed from a workspace's sharing list. Note that this event will appear for each dashboard that is in the workspace. If a group or user is removed from a workspace's sharing list and the workspace is empty, then no events will be recorded
@@ -13134,7 +13134,7 @@ public type DashboardRemoveWorkspaceShareAllOf2 record {
 # Event triggered when a report is configured to be sent as an email attachment
 public type ReportSendAsAttachment record {
     *Event;
-    *ReportSendAsAttachmentAllOf2;
+    //     *ReportSendAsAttachmentAllOf2; // Removed to fix redeclared symbol errors
 };
 
 # A column in a Smartsheet that defines data structure, formatting, and behavior for a specific field type
