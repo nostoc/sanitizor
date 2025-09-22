@@ -15,7 +15,7 @@ public function main(string... args) returns error? {
     }
 
     string inputSpecPath = args[0]; // /home/hansika/dev/sanitizor/temp-workspace/docs/spec/openapi.json
-    string outputDir = args[1]; ///home/hansika/dev/sanitizor/temp-workspace
+    string outputDir = args[1]; // /home/hansika/dev/sanitizor/temp-workspace
 
     log:printInfo("Processing OpenAPI spec", inputSpec = inputSpecPath, outputDir = outputDir);
 
