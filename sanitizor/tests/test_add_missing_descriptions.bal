@@ -12,7 +12,7 @@ function testAddMissingDescriptions() returns error? {
     }
 
     // Test the add missing descriptions function
-    string specPath = "/home/hansika/dev/sanitizor/temp-workspace/docs/spec/openapi.json";
+    string specPath = "/home/hansika/dev/sanitizor/temp-workspace/docs/spec/aligned_ballerina_openapi.json";
     int|llm_service:LLMServiceError result = llm_service:addMissingDescriptions(specPath);
 
     if (result is llm_service:LLMServiceError) {

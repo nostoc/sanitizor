@@ -47,7 +47,7 @@ public function generateFieldDescription(string fieldName, string schemaContext)
     // user prompt for the LLM
     string prompt = string `Generate a concise description for the field "${fieldName}" based on this OpenAPI schema context:
 
-${schemaContext}
+${schemaContext} 
 
 Return only the description text, no JSON or extra formatting. Keep it professional and under 100 characters.`;
 
@@ -66,6 +66,54 @@ Return only the description text, no JSON or extra formatting. Keep it professio
     string? content = response.content;
     if content is string {
         return content;
+    } else {
+        return error LLMServiceError("Empty response from LLM");
+    }
+}
+
+# Generate field description using full OpenAPI specification context
+#
+# + fieldName - Name of the field needing description  
+# + fieldContext - Local context about the field (schema name, property definition)
+# + fullSpec - Complete OpenAPI specification for broader context
+# + return - Generated description or error
+public function generateFieldDescriptionWithFullSpec(string fieldName, string fieldContext, json fullSpec) returns string|LLMServiceError {
+    ai:ModelProvider? model = anthropicModel;
+    if model is () {
+        return error LLMServiceError("LLM service not initialized");
+    }
+
+    string prompt = string `You are an API documentation expert. Generate a concise, professional description for the field "${fieldName}".
+
+FIELD CONTEXT:
+${fieldContext}
+
+FULL OPENAPI SPECIFICATION:
+${fullSpec.toJsonString()}
+
+INSTRUCTIONS:
+1. Use the full API specification to understand the broader context
+2. Consider how this field is used across different endpoints
+3. Look at related schemas and field patterns
+4. Generate a description that accurately reflects the field's purpose in the API
+5. Keep it concise (under 100 characters) but informative
+6. Use professional API documentation language
+7. Return ONLY the description text, no JSON formatting or extra text
+
+Description:`;
+
+    ai:ChatMessage[] messages = [
+        {role: "user", content: prompt}
+    ];
+
+    ai:ChatAssistantMessage|error response = model->chat(messages);
+    if response is error {
+        return error LLMServiceError("Failed to generate description with full spec", response);
+    }
+
+    string? content = response.content;
+    if content is string {
+        return content.trim();
     } else {
         return error LLMServiceError("Empty response from LLM");
     }
@@ -111,7 +159,7 @@ public function addMissingDescriptions(string specFilePath) returns int|LLMServi
                         // step 3.1 Add description to schema itself if missing
                         if !schemaMap.hasKey("description") {
                             string context = string `Schema '${schemaName}' definition: ${schemaMap.toString()}`;
-                            string|LLMServiceError description = generateFieldDescription(schemaName, context);
+                            string|LLMServiceError description = generateFieldDescriptionWithFullSpec(schemaName, context, specJson);
                             if description is string {
                                 schemaMap["description"] = description;
                                 descriptionsAdded += 1;
@@ -126,12 +174,12 @@ public function addMissingDescriptions(string specFilePath) returns int|LLMServi
                             json|error propertiesResult = schemaMap.get("properties");
                             if propertiesResult is map<json> {
                                 map<json> properties = <map<json>>propertiesResult;
-                                descriptionsAdded += processSchemaProperties(properties, schemaName);
+                                descriptionsAdded += processSchemaProperties(properties, schemaName, specJson);
                             }
                         }
 
                         // step 3.3 Process nested schemas (allOf, oneOf, anyOf)
-                        descriptionsAdded += processNestedSchemas(schemaMap, schemaName);
+                        descriptionsAdded += processNestedSchemas(schemaMap, schemaName, specJson);
                     }
                 }
 
@@ -152,7 +200,7 @@ public function addMissingDescriptions(string specFilePath) returns int|LLMServi
 }
 
 // Helper function to process schema properties recursively
-function processSchemaProperties(map<json> properties, string parentSchemaName) returns int {
+function processSchemaProperties(map<json> properties, string parentSchemaName, json fullSpec) returns int {
     int descriptionsAdded = 0;
 
     foreach string propertyName in properties.keys() {
@@ -184,7 +232,7 @@ function processSchemaProperties(map<json> properties, string parentSchemaName) 
             // Check if property needs description
             if !propertyMap.hasKey("description") && !propertyMap.hasKey("$ref") {
                 string context = string `Property '${propertyName}' in schema '${parentSchemaName}'. Property definition: ${propertyMap.toString()}`;
-                string|LLMServiceError description = generateFieldDescription(propertyName, context);
+                string|LLMServiceError description = generateFieldDescriptionWithFullSpec(propertyName, context, fullSpec);
                 if description is string {
                     propertyMap["description"] = description;
                     descriptionsAdded += 1;
@@ -200,7 +248,7 @@ function processSchemaProperties(map<json> properties, string parentSchemaName) 
                 json|error nestedPropertiesResult = propertyMap.get("properties");
                 if nestedPropertiesResult is map<json> {
                     map<json> nestedProperties = <map<json>>nestedPropertiesResult;
-                    descriptionsAdded += processSchemaProperties(nestedProperties, parentSchemaName + "." + propertyName);
+                    descriptionsAdded += processSchemaProperties(nestedProperties, parentSchemaName + "." + propertyName, fullSpec);
                 }
             }
 
@@ -213,7 +261,7 @@ function processSchemaProperties(map<json> properties, string parentSchemaName) 
                         json|error itemPropertiesResult = items.get("properties");
                         if itemPropertiesResult is map<json> {
                             map<json> itemProperties = <map<json>>itemPropertiesResult;
-                            descriptionsAdded += processSchemaProperties(itemProperties, parentSchemaName + "." + propertyName + "[]");
+                            descriptionsAdded += processSchemaProperties(itemProperties, parentSchemaName + "." + propertyName + "[]", fullSpec);
                         }
                     }
                 }
@@ -225,7 +273,7 @@ function processSchemaProperties(map<json> properties, string parentSchemaName) 
 }
 
 // Helper function to process nested schemas (allOf, oneOf, anyOf)
-function processNestedSchemas(map<json> schemaMap, string schemaName) returns int {
+function processNestedSchemas(map<json> schemaMap, string schemaName, json fullSpec) returns int {
     int descriptionsAdded = 0;
 
     string[] nestedTypes = ["allOf", "oneOf", "anyOf"];
@@ -245,7 +293,7 @@ function processNestedSchemas(map<json> schemaMap, string schemaName) returns in
                             json|error propertiesResult = nestedItemMap.get("properties");
                             if propertiesResult is map<json> {
                                 map<json> properties = <map<json>>propertiesResult;
-                                descriptionsAdded += processSchemaProperties(properties, schemaName + "." + nestedType + "[" + i.toString() + "]");
+                                descriptionsAdded += processSchemaProperties(properties, schemaName + "." + nestedType + "[" + i.toString() + "]", fullSpec);
                             }
                         }
                     }
@@ -257,108 +305,108 @@ function processNestedSchemas(map<json> schemaMap, string schemaName) returns in
     return descriptionsAdded;
 }
 
-# Generate a meaningful name for an InlineResponse schema
-#
-# + schemaName - Original schema name (e.g., "InlineResponse20048")
-# + schemaDefinition - Schema definition as JSON string
-# + return - Generated meaningful name or error
-public function generateSchemaName(string schemaName, string schemaDefinition) returns string|LLMServiceError {
-    ai:ModelProvider? model = anthropicModel;
-    if (model is ()) {
-        return error LLMServiceError("LLM service not initialized");
-    }
+// # Generate a meaningful name for an InlineResponse schema
+// #
+// # + schemaName - Original schema name (e.g., "InlineResponse20048")
+// # + schemaDefinition - Schema definition as JSON string
+// # + return - Generated meaningful name or error
+// public function generateSchemaName(string schemaName, string schemaDefinition) returns string|LLMServiceError {
+//     ai:ModelProvider? model = anthropicModel;
+//     if (model is ()) {
+//         return error LLMServiceError("LLM service not initialized");
+//     }
 
-    string prompt = string `You are an API schema naming expert. Generate a meaningful, descriptive name for this OpenAPI schema that currently has a generic name "${schemaName}".
+//     string prompt = string `You are an API schema naming expert. Generate a meaningful, descriptive name for this OpenAPI schema that currently has a generic name "${schemaName}".
 
-SCHEMA DEFINITION:
-${schemaDefinition}
+// SCHEMA DEFINITION:
+// ${schemaDefinition}
 
-NAMING GUIDELINES:
-CRITICAL: The generated schema names MUST be globally unique across the entire API specification.
+// NAMING GUIDELINES:
+// CRITICAL: The generated schema names MUST be globally unique across the entire API specification.
 
-1. Use PascalCase (e.g., UserProfile, ContactList, AttachmentResponse)
-2. Make it descriptive but concise (2-4 words max)
-3. Indicate what the schema represents (e.g., Response, Request, List, Details, etc.)
-4. Consider the properties and their purpose
-5. If it's a response with "data" array, consider what type of data it contains
-6. If it uses allOf/oneOf, consider the combined meaning
-7. Avoid generic terms like "Object", "Item", "Thing"
-8. Avoid patterns that likely already exist like:
-   - Simple entity names: User, Group, Sheet, Report, Folder, Workspace
-   - Simple operations: Create, Delete, Update, Get, List
-   - Common combinations: UserCreate, GroupDelete, SheetUpdate, etc.
-   - Generic response names: Response, Result, Data
-9. Be more specific and descriptive to ensure uniqueness
+// 1. Use PascalCase (e.g., UserProfile, ContactList, AttachmentResponse)
+// 2. Make it descriptive but concise (2-4 words max)
+// 3. Indicate what the schema represents (e.g., Response, Request, List, Details, etc.)
+// 4. Consider the properties and their purpose
+// 5. If it's a response with "data" array, consider what type of data it contains
+// 6. If it uses allOf/oneOf, consider the combined meaning
+// 7. Avoid generic terms like "Object", "Item", "Thing"
+// 8. Avoid patterns that likely already exist like:
+//    - Simple entity names: User, Group, Sheet, Report, Folder, Workspace
+//    - Simple operations: Create, Delete, Update, Get, List
+//    - Common combinations: UserCreate, GroupDelete, SheetUpdate, etc.
+//    - Generic response names: Response, Result, Data
+// 9. Be more specific and descriptive to ensure uniqueness
 
-Examples of good UNIQUE names:
-- Schema with user data array -> "UserCollectionApiResponse"
-- Schema with attachment properties -> "AttachmentMetadataDetails" 
-- Schema combining results -> "SearchQueryResultsResponse"
-- Schema with proof attachments -> "ProofAttachmentListApiResponse"
-- Schema with webhook events -> "WebhookEventNotificationResponse"
+// Examples of good UNIQUE names:
+// - Schema with user data array -> "UserCollectionApiResponse"
+// - Schema with attachment properties -> "AttachmentMetadataDetails" 
+// - Schema combining results -> "SearchQueryResultsResponse"
+// - Schema with proof attachments -> "ProofAttachmentListApiResponse"
+// - Schema with webhook events -> "WebhookEventNotificationResponse"
 
-CRITICAL: Return ONLY the new schema name as a single word with no spaces, explanations, punctuation, or additional text. The name must be unique and specific enough to avoid conflicts.
+// CRITICAL: Return ONLY the new schema name as a single word with no spaces, explanations, punctuation, or additional text. The name must be unique and specific enough to avoid conflicts.
 
-Your response:`;
+// Your response:`;
 
-    ai:ChatMessage[] messages = [
-        {role: "user", content: prompt}
-    ];
+//     ai:ChatMessage[] messages = [
+//         {role: "user", content: prompt}
+//     ];
 
-    ai:ChatAssistantMessage|error response = model->chat(messages);
-    if (response is error) {
-        return error LLMServiceError("Failed to generate schema name", response);
-    }
+//     ai:ChatAssistantMessage|error response = model->chat(messages);
+//     if (response is error) {
+//         return error LLMServiceError("Failed to generate schema name", response);
+//     }
 
-    string? content = response.content;
-    if (content is string) {
-        // Clean up the response to ensure it's a valid identifier
-        string cleanName = content.trim();
+//     string? content = response.content;
+//     if (content is string) {
+//         // Clean up the response to ensure it's a valid identifier
+//         string cleanName = content.trim();
 
-        // Remove any quotes or extra characters
-        cleanName = regex:replaceAll(cleanName, "[\"'`]", "");
+//         // Remove any quotes or extra characters
+//         cleanName = regex:replaceAll(cleanName, "[\"'`]", "");
 
-        // Handle cases where LLM returns explanatory text followed by the actual name
-        // Look for the last line that looks like a valid PascalCase identifier
-        string[] lines = regex:split(cleanName, "\n");
-        int i = lines.length() - 1;
-        while (i >= 0) {
-            string trimmedLine = lines[i].trim();
-            // Check if this line looks like a valid schema name (PascalCase, no spaces, reasonable length)
-            if (trimmedLine.length() > 0 &&
-                trimmedLine.length() < 50 &&
-                !trimmedLine.includes(" ") &&
-                !trimmedLine.includes(".") &&
-                !trimmedLine.includes(",") &&
-                !trimmedLine.includes("?") &&
-                !trimmedLine.includes("!") &&
-                regex:matches(trimmedLine, "[A-Z][a-zA-Z0-9]*")) {
-                return trimmedLine;
-            }
-            i = i - 1;
-        }
+//         // Handle cases where LLM returns explanatory text followed by the actual name
+//         // Look for the last line that looks like a valid PascalCase identifier
+//         string[] lines = regex:split(cleanName, "\n");
+//         int i = lines.length() - 1;
+//         while (i >= 0) {
+//             string trimmedLine = lines[i].trim();
+//             // Check if this line looks like a valid schema name (PascalCase, no spaces, reasonable length)
+//             if (trimmedLine.length() > 0 &&
+//                 trimmedLine.length() < 50 &&
+//                 !trimmedLine.includes(" ") &&
+//                 !trimmedLine.includes(".") &&
+//                 !trimmedLine.includes(",") &&
+//                 !trimmedLine.includes("?") &&
+//                 !trimmedLine.includes("!") &&
+//                 regex:matches(trimmedLine, "[A-Z][a-zA-Z0-9]*")) {
+//                 return trimmedLine;
+//             }
+//             i = i - 1;
+//         }
 
-        // If no valid line found, try to extract the first valid identifier from the entire response
-        string[] words = regex:split(cleanName, "\\s+");
-        foreach string word in words {
-            string trimmedWord = word.trim();
-            if (trimmedWord.length() > 0 &&
-                trimmedWord.length() < 50 &&
-                !trimmedWord.includes(".") &&
-                !trimmedWord.includes(",") &&
-                !trimmedWord.includes("?") &&
-                !trimmedWord.includes("!") &&
-                regex:matches(trimmedWord, "[A-Z][a-zA-Z0-9]*")) {
-                return trimmedWord;
-            }
-        }
+//         // If no valid line found, try to extract the first valid identifier from the entire response
+//         string[] words = regex:split(cleanName, "\\s+");
+//         foreach string word in words {
+//             string trimmedWord = word.trim();
+//             if (trimmedWord.length() > 0 &&
+//                 trimmedWord.length() < 50 &&
+//                 !trimmedWord.includes(".") &&
+//                 !trimmedWord.includes(",") &&
+//                 !trimmedWord.includes("?") &&
+//                 !trimmedWord.includes("!") &&
+//                 regex:matches(trimmedWord, "[A-Z][a-zA-Z0-9]*")) {
+//                 return trimmedWord;
+//             }
+//         }
 
-        // As a last resort, return a fallback name
-        return "GeneratedResponse";
-    } else {
-        return error LLMServiceError("Empty response from LLM");
-    }
-}
+//         // As a last resort, return a fallback name
+//         return "GeneratedResponse";
+//     } else {
+//         return error LLMServiceError("Empty response from LLM");
+//     }
+// }
 
 // Helper function to validate if a generated name is safe for schema naming
 function isValidSchemaName(string name) returns boolean {
@@ -502,10 +550,7 @@ public function renameInlineResponseSchemas(string specFilePath) returns int|LLM
         if (schemaName.startsWith("InlineResponse")) {
             json|error schemaResult = schemas.get(schemaName);
             if (schemaResult is map<json>) {
-                map<json> schemaMap = <map<json>>schemaResult;
-                string schemaDefinition = schemaMap.toString();
-
-                string|LLMServiceError newName = generateSchemaName(schemaName, schemaDefinition);
+                string|error newName = generateSchemaNameWithFullSpec(schemaName, specMap);
                 if (newName is string) {
                     // Validate that the generated name is safe for JSON and schema naming
                     if (isValidSchemaName(newName)) {
@@ -576,6 +621,36 @@ public function renameInlineResponseSchemas(string specFilePath) returns int|LLM
     }
 
     return renamedCount;
+}
+
+public function generateSchemaNameWithFullSpec(string schemaName, json spec) returns string|error {
+    ai:ModelProvider? model = anthropicModel;
+    if (model is ()) {
+        return error LLMServiceError("LLM service not initialized");
+    }
+
+    string prompt = string `
+    You are a expert in naming openAPI schemas. You are given this OpenAPI specification: 
+    ${spec.toJsonString()}
+
+    The schema currently has the placeholder name '${schemaName}'.
+    Suggest a meaningful PascalCase name for this schema.
+    Use the context of where it appears (endpoints, request/response bodies, references).
+
+    Output only the new schema name, nothing else.
+    `;
+
+    ai:ChatMessage[] messages = [
+        {role: "user", content: prompt}
+    ];
+
+    ai:ChatAssistantMessage|error result = model->chat(messages);
+
+    if result is ai:ChatAssistantMessage {
+        return result.content.toString().trim();
+    } else {
+        return result;
+    }
 }
 
 # Fix Ballerina code using AI with a custom prompt
