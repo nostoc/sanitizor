@@ -31,12 +31,12 @@ public function fixAllBallerinaErrorsIteratively(string projectPath, int maxAtte
     int attempt = 1;
     string[] allAppliedFixes = [];
     int totalFixed = 0;
-    
+
     while attempt <= maxAttempts {
         log:printInfo("Starting fix attempt", attempt = attempt, maxAttempts = maxAttempts);
-        
+
         command_executor:CommandResult buildResult = command_executor:executeBalBuild(projectPath);
-        
+
         if buildResult.compilationErrors.length() == 0 {
             log:printInfo("All errors fixed successfully", attempt = attempt);
             return {
@@ -47,14 +47,14 @@ public function fixAllBallerinaErrorsIteratively(string projectPath, int maxAtte
                 errorMessage: ()
             };
         }
-        
+
         // Try to fix current errors
         BallerinaFixResult|BallerinaFixerError fixResult = fixAllBallerinaErrors(projectPath);
-        
+
         if fixResult is BallerinaFixResult {
             totalFixed += fixResult.errorsFixed;
             allAppliedFixes.push(...fixResult.appliedFixes);
-            
+
             if fixResult.success {
                 return {
                     success: true,
@@ -67,13 +67,13 @@ public function fixAllBallerinaErrorsIteratively(string projectPath, int maxAtte
         } else {
             return fixResult;
         }
-        
+
         attempt += 1;
     }
-    
+
     // Final build to get remaining errors
     command_executor:CommandResult finalBuild = command_executor:executeBalBuild(projectPath);
-    
+
     return {
         success: false,
         errorsFixed: totalFixed,
@@ -95,9 +95,9 @@ public function fixAllBallerinaErrors(string projectPath) returns BallerinaFixRe
 
     if buildResult.compilationErrors.length() == 0 {
         return {
-            success: true, 
-            errorsFixed: 0, 
-            errorsRemaining: 0, 
+            success: true,
+            errorsFixed: 0,
+            errorsRemaining: 0,
             appliedFixes: [],
             errorMessage: ()
         };
@@ -189,21 +189,21 @@ function groupErrorsByFile(command_executor:CompilationError[] errors) returns m
 function buildDetailedErrorContext(command_executor:CompilationError[] errors, string fileContent) returns string {
     string[] errorDescriptions = [];
     string[] lines = regex:split(fileContent, "\\n");
-    
+
     foreach command_executor:CompilationError err in errors {
         string contextLines = "";
-        
+
         // Get context around the error line (2 lines before and after)
         int startLine = (err.line - 3) > 0 ? (err.line - 3) : 0;
         int endLine = (err.line + 2) < lines.length() ? (err.line + 2) : lines.length() - 1;
-        
-        foreach int i in startLine...endLine {
+
+        foreach int i in startLine ... endLine {
             if i < lines.length() {
                 string lineMarker = (i + 1) == err.line ? " -> " : "    ";
                 contextLines += string `${lineMarker}${i + 1}: ${lines[i]}\n`;
             }
         }
-        
+
         string errorDesc = string `
 ERROR: ${err.message}
 File: ${err.fileName}
@@ -214,7 +214,7 @@ ${contextLines}
 `;
         errorDescriptions.push(errorDesc);
     }
-    
+
     return string:'join("\n---\n", ...errorDescriptions);
 }
 
@@ -231,14 +231,14 @@ function fixTypesFileErrors(string filePath, command_executor:CompilationError[]
             redeclaredSymbolCount += 1;
         }
     }
-    
+
     // If majority are redeclared symbol errors, use programmatic fix first
     if redeclaredSymbolCount > (errors.length() * 2 / 3) {
-        log:printInfo("Most errors are redeclared symbols, trying programmatic fix first", 
-            redeclaredCount = redeclaredSymbolCount, 
-            totalErrors = errors.length()
+        log:printInfo("Most errors are redeclared symbols, trying programmatic fix first",
+                redeclaredCount = redeclaredSymbolCount,
+                totalErrors = errors.length()
         );
-        
+
         FileFixResult|BallerinaFixerError programmaticResult = fixRedeclaredSymbolsProgrammatically(filePath, errors);
         if programmaticResult is FileFixResult && programmaticResult.success && programmaticResult.errorsFixed > 0 {
             return programmaticResult;
@@ -246,7 +246,7 @@ function fixTypesFileErrors(string filePath, command_executor:CompilationError[]
             log:printInfo("Programmatic fix didn't work, falling back to AI approach");
         }
     }
-    
+
     // Fall back to AI-based intelligent approach
     return fixBallerinaFileIntelligently(filePath, errors, "types.bal");
 }
@@ -261,12 +261,12 @@ function fixRedeclaredSymbolsProgrammatically(string filePath, command_executor:
     if content is error {
         return error BallerinaFixerError("Failed to read types.bal for programmatic fix", content);
     }
-    
+
     string[] lines = regex:split(content, "\\n");
     string[] modifiedLines = lines.clone();
     int fixesApplied = 0;
     string[] appliedFixes = [];
-    
+
     // Group errors by the record that contains them
     map<command_executor:CompilationError[]> errorsByRecord = {};
     foreach command_executor:CompilationError err in errors {
@@ -282,24 +282,24 @@ function fixRedeclaredSymbolsProgrammatically(string filePath, command_executor:
             }
         }
     }
-    
+
     log:printInfo("Found records with redeclared symbols", recordCount = errorsByRecord.length());
-    
+
     // Fix each problematic record
     foreach string recordName in errorsByRecord.keys() {
         command_executor:CompilationError[]? recordErrors = errorsByRecord[recordName];
         if recordErrors is command_executor:CompilationError[] {
             log:printInfo("Fixing redeclared symbols in record", recordName = recordName, errorCount = recordErrors.length());
-            
+
             int recordStartLine = findRecordStartLine(recordName, modifiedLines);
             if recordStartLine > 0 {
                 int recordEndLine = findRecordEndLine(recordStartLine, modifiedLines);
-                
+
                 // Find and remove problematic "*RecordAllOf" inclusions
-                foreach int i in recordStartLine..<recordEndLine {
+                foreach int i in recordStartLine ..< recordEndLine {
                     if i < modifiedLines.length() {
                         string line = modifiedLines[i].trim();
-                        
+
                         // Look for lines like "*DiscussionCreateAllOf2;" that cause conflicts
                         if line.startsWith("*") && line.includes("AllOf") && line.endsWith(";") {
                             log:printInfo("Removing conflicting record inclusion", line = line, recordName = recordName);
@@ -312,14 +312,14 @@ function fixRedeclaredSymbolsProgrammatically(string filePath, command_executor:
             }
         }
     }
-    
+
     if fixesApplied > 0 {
         string newContent = string:'join("\n", ...modifiedLines);
         error? writeResult = io:fileWriteString(filePath, newContent);
         if writeResult is error {
             return error BallerinaFixerError("Failed to write programmatic fix", writeResult);
         }
-        
+
         log:printInfo("Applied programmatic fixes", fixesApplied = fixesApplied);
         return {
             success: true,
@@ -328,7 +328,7 @@ function fixRedeclaredSymbolsProgrammatically(string filePath, command_executor:
             errorMessage: ()
         };
     }
-    
+
     return {
         success: false,
         errorsFixed: 0,
@@ -340,7 +340,7 @@ function fixRedeclaredSymbolsProgrammatically(string filePath, command_executor:
 # Find which record contains a specific line number
 function findRecordContainingLine(int lineNumber, string[] lines) returns string {
     // Look backwards from the error line to find the record declaration
-    foreach int i in 0..<lineNumber {
+    foreach int i in 0 ..< lineNumber {
         int lineIdx = lineNumber - 1 - i;
         if lineIdx >= 0 && lineIdx < lines.length() {
             string line = lines[lineIdx].trim();
@@ -357,7 +357,7 @@ function findRecordContainingLine(int lineNumber, string[] lines) returns string
 
 # Find the starting line of a record definition
 function findRecordStartLine(string recordName, string[] lines) returns int {
-    foreach int i in 0..<lines.length() {
+    foreach int i in 0 ..< lines.length() {
         string line = lines[i].trim();
         if line.startsWith("public type " + recordName + " ") && line.includes("record {") {
             return i;
@@ -369,7 +369,7 @@ function findRecordStartLine(string recordName, string[] lines) returns int {
 # Find the ending line of a record definition
 function findRecordEndLine(int startLine, string[] lines) returns int {
     int braceCount = 0;
-    foreach int i in startLine..<lines.length() {
+    foreach int i in startLine ..< lines.length() {
         string line = lines[i];
         foreach string char in line {
             if char == "{" {
@@ -399,12 +399,12 @@ function fixBallerinaFileIntelligently(string filePath, command_executor:Compila
 
     string[] lines = regex:split(content, "\\n");
     int fileSize = content.length();
-    
-    log:printInfo("Analyzing file for fixing strategy", 
-        fileType = fileType, 
-        lineCount = lines.length(), 
-        sizeBytes = fileSize, 
-        errorCount = errors.length()
+
+    log:printInfo("Analyzing file for fixing strategy",
+            fileType = fileType,
+            lineCount = lines.length(),
+            sizeBytes = fileSize,
+            errorCount = errors.length()
     );
 
     // For small files (< 1000 lines or < 50KB), use single-pass approach
@@ -412,7 +412,7 @@ function fixBallerinaFileIntelligently(string filePath, command_executor:Compila
         log:printInfo("Using single-pass approach for small file");
         return fixBallerinaFileSinglePass(filePath, errors, content, fileType);
     }
-    
+
     // For large files, use chunked approach
     log:printInfo("Using chunked approach for large file");
     return fixLargeBallerinaFileInChunks(filePath, errors, content, lines, fileType);
@@ -421,7 +421,7 @@ function fixBallerinaFileIntelligently(string filePath, command_executor:Compila
 # Fix small Ballerina files in a single pass with full context
 function fixBallerinaFileSinglePass(string filePath, command_executor:CompilationError[] errors, string content, string fileType) returns FileFixResult|BallerinaFixerError {
     string errorContext = buildDetailedErrorContext(errors, content);
-    
+
     string prompt = string `You are an expert Ballerina developer. Fix ALL the following compilation errors in this ${fileType} file.
 
 COMPILATION ERRORS TO FIX:
@@ -464,25 +464,25 @@ function fixLargeBallerinaFileInChunks(string filePath, command_executor:Compila
     int totalFixed = 0;
     string[] appliedFixes = [];
     string[] currentLines = initialLines; // Create a local copy we can modify
-    
+
     // Group errors by their line location into logical chunks
     map<command_executor:CompilationError[]> errorChunks = groupErrorsByLogicalChunks(errors, currentLines);
-    
+
     log:printInfo("Grouped errors into chunks", chunkCount = errorChunks.length());
-    
+
     // Process each chunk of errors
     foreach string chunkKey in errorChunks.keys() {
         command_executor:CompilationError[]? chunkErrors = errorChunks[chunkKey];
         if chunkErrors is command_executor:CompilationError[] {
             log:printInfo("Processing error chunk", chunkKey = chunkKey, errorCount = chunkErrors.length());
-            
+
             FileFixResult|BallerinaFixerError chunkResult = fixErrorChunkTargeted(filePath, chunkErrors, fileType);
-            
+
             if chunkResult is FileFixResult && chunkResult.success {
                 totalFixed += chunkResult.errorsFixed;
                 appliedFixes.push(...chunkResult.appliedFixes);
                 log:printInfo("Successfully fixed chunk", chunkKey = chunkKey, fixedCount = chunkResult.errorsFixed);
-                
+
                 // Re-read file for next iteration
                 string|error updatedContent = io:fileReadString(filePath);
                 if updatedContent is string {
@@ -494,7 +494,7 @@ function fixLargeBallerinaFileInChunks(string filePath, command_executor:Compila
             }
         }
     }
-    
+
     return {
         success: totalFixed > 0,
         errorsFixed: totalFixed,
@@ -506,11 +506,11 @@ function fixLargeBallerinaFileInChunks(string filePath, command_executor:Compila
 # Group errors into logical chunks based on code structure and proximity
 function groupErrorsByLogicalChunks(command_executor:CompilationError[] errors, string[] lines) returns map<command_executor:CompilationError[]> {
     map<command_executor:CompilationError[]> chunks = {};
-    
+
     foreach command_executor:CompilationError err in errors {
         // Find the record/type containing this error
         string chunkKey = findLogicalChunkForError(err, lines);
-        
+
         command_executor:CompilationError[]? existing = chunks[chunkKey];
         if existing is command_executor:CompilationError[] {
             existing.push(err);
@@ -518,20 +518,20 @@ function groupErrorsByLogicalChunks(command_executor:CompilationError[] errors, 
             chunks[chunkKey] = [err];
         }
     }
-    
+
     return chunks;
 }
 
 # Find which logical code block (record, type, etc.) contains an error
 function findLogicalChunkForError(command_executor:CompilationError err, string[] lines) returns string {
     int errorLine = err.line - 1; // Convert to 0-based index
-    
+
     // Look backwards from error line to find the containing record/type
-    foreach int i in 0...errorLine {
+    foreach int i in 0 ... errorLine {
         int lineIdx = errorLine - i;
         if lineIdx >= 0 && lineIdx < lines.length() {
             string line = lines[lineIdx].trim();
-            
+
             // Look for record/type declarations
             if line.startsWith("public type ") || line.startsWith("type ") {
                 string[] parts = regex:split(line, "\\s+");
@@ -542,7 +542,7 @@ function findLogicalChunkForError(command_executor:CompilationError err, string[
             }
         }
     }
-    
+
     // If no specific type found, group by line ranges
     int chunkIndex = errorLine / 50; // 50-line chunks
     return string `chunk_${chunkIndex}`;
@@ -554,13 +554,13 @@ function fixErrorChunkTargeted(string filePath, command_executor:CompilationErro
     if content is error {
         return error BallerinaFixerError("Failed to read file for chunk fix", content);
     }
-    
+
     string[] lines = regex:split(content, "\\n");
-    
+
     // Find the range of lines we need to work with
     int minLine = chunkErrors[0].line;
     int maxLine = chunkErrors[0].line;
-    
+
     foreach command_executor:CompilationError err in chunkErrors {
         if err.line < minLine {
             minLine = err.line;
@@ -569,22 +569,22 @@ function fixErrorChunkTargeted(string filePath, command_executor:CompilationErro
             maxLine = err.line;
         }
     }
-    
+
     // Expand context (100 lines before and after to capture full record/type definitions)
     int contextStart = (minLine - 100) > 1 ? (minLine - 100) : 1;
     int contextEnd = (maxLine + 100) < lines.length() ? (maxLine + 100) : lines.length();
-    
+
     // Extract the relevant code section
     string[] contextLines = [];
-    foreach int i in (contextStart-1)..<(contextEnd) {
+    foreach int i in (contextStart - 1) ..< (contextEnd) {
         if i >= 0 && i < lines.length() {
             contextLines.push(lines[i]);
         }
     }
     string contextCode = string:'join("\n", ...contextLines);
-    
+
     string errorContext = buildDetailedErrorContext(chunkErrors, content);
-    
+
     string prompt = string `You are an expert Ballerina developer. Fix the following compilation errors in this section of a ${fileType} file.
 
 COMPILATION ERRORS TO FIX (lines ${minLine}-${maxLine}):
@@ -607,33 +607,33 @@ Fixed code section:`;
     if fixedChunk is llm_service:LLMServiceError {
         return error BallerinaFixerError("AI failed to fix chunk", fixedChunk);
     }
-    
+
     // Replace the relevant section in the file
     string[] fixedLines = regex:split(fixedChunk, "\\n");
     string[] newFileLines = [];
-    
+
     // Add lines before the fixed section
-    foreach int i in 0..<(contextStart-1) {
+    foreach int i in 0 ..< (contextStart - 1) {
         if i < lines.length() {
             newFileLines.push(lines[i]);
         }
     }
-    
+
     // Add the fixed lines  
     newFileLines.push(...fixedLines);
-    
+
     // Add lines after the fixed section
-    foreach int i in contextEnd..<lines.length() {
+    foreach int i in contextEnd ..< lines.length() {
         newFileLines.push(lines[i]);
     }
-    
+
     string newContent = string:'join("\n", ...newFileLines);
-    
+
     error? writeResult = io:fileWriteString(filePath, newContent);
     if writeResult is error {
         return error BallerinaFixerError("Failed to write chunk fix", writeResult);
     }
-    
+
     return {
         success: true,
         errorsFixed: chunkErrors.length(),
@@ -652,9 +652,9 @@ function fixClientFileErrors(string filePath, command_executor:CompilationError[
     if content is error {
         return error BallerinaFixerError("Failed to read client.bal", content);
     }
-    
+
     string errorContext = buildDetailedErrorContext(errors, content);
-    
+
     string prompt = string `You are an expert Ballerina developer. Fix the following compilation errors in this Ballerina client.bal file.
 
 COMPILATION ERRORS:
@@ -696,12 +696,12 @@ Return ONLY the complete corrected Ballerina code without explanations or markdo
     if fixedCode is llm_service:LLMServiceError {
         return error BallerinaFixerError("AI failed to fix client.bal", fixedCode);
     }
-    
+
     error? writeResult = io:fileWriteString(filePath, fixedCode);
     if writeResult is error {
         return error BallerinaFixerError("Failed to write fixed client.bal", writeResult);
     }
-    
+
     return {
         success: true,
         errorsFixed: errors.length(),
@@ -787,6 +787,6 @@ function fixGenericBallerinaFile(string filePath, command_executor:CompilationEr
     // Extract file type from path for better prompting
     string[] pathParts = regex:split(filePath, "/");
     string fileName = pathParts[pathParts.length() - 1];
-    
+
     return fixBallerinaFileIntelligently(filePath, errors, fileName);
 }

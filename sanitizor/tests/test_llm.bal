@@ -1,4 +1,5 @@
 import sanitizor.llm_service;
+
 import ballerina/io;
 import ballerina/log;
 import ballerina/os;
@@ -24,13 +25,13 @@ public function testLLM() returns error? {
     } else {
         io:println("LLM service initialized successfully");
     }
-    
+
     io:println("Testing field description generation...");
     string|llm_service:LLMServiceError descResult = llm_service:generateFieldDescription(
-        "userId", 
-        "A field in a user management schema representing user identification"
+            "userId",
+            "A field in a user management schema representing user identification"
     );
-    
+
     if (descResult is string) {
         io:println("Field description generated: " + descResult);
     } else {

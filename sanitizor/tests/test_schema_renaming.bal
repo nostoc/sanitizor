@@ -1,8 +1,8 @@
 import sanitizor.llm_service;
 
+import ballerina/io;
 import ballerina/log;
 import ballerina/test;
-import ballerina/io;
 
 @test:Config {}
 public function testSchemaRenaming() returns error? {
@@ -14,7 +14,7 @@ public function testSchemaRenaming() returns error? {
         test:assertFail("Failed to initialize LLM service: " + initResult.message());
     }
 
-    string specPath = "/home/hansika/dev/sanitizor/temp-workspace/docs/spec/aligned_ballerina_openapi.json";
+    string specPath = "/home/hansika/dev/sanitizor/temp-workspace/aligned_ballerina_openapi.json";
     log:printInfo("Attempting to rename InlineResponse schemas in OpenAPI spec...");
     int|llm_service:LLMServiceError result = llm_service:renameInlineResponseSchemas(specPath);
     io:println("==============================");
@@ -27,6 +27,5 @@ public function testSchemaRenaming() returns error? {
 
     log:printInfo("Schema renaming completed successfully", renamedCount = result);
     test:assertTrue(result > 0, "Should have generated some schema names or returned 0");
-   
 
 }

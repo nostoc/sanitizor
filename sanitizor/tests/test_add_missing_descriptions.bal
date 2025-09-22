@@ -1,5 +1,6 @@
-import ballerina/test;
 import ballerina/log;
+import ballerina/test;
+
 import hansika/sanitizor.llm_service;
 
 @test:Config {}
@@ -13,7 +14,7 @@ function testAddMissingDescriptions() returns error? {
     // Test the add missing descriptions function
     string specPath = "/home/hansika/dev/sanitizor/temp-workspace/docs/spec/openapi.json";
     int|llm_service:LLMServiceError result = llm_service:addMissingDescriptions(specPath);
-    
+
     if (result is llm_service:LLMServiceError) {
         test:assertFail("Failed to add missing descriptions: " + result.message());
     }
