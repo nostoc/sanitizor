@@ -1,0 +1,757 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Snowpeak",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "{server}:{port}/snowpeak",
+      "variables": {
+        "server": {
+          "default": "http://localhost"
+        },
+        "port": {
+          "default": "9090"
+        }
+      }
+    }
+  ],
+  "paths": {
+    "/locations": {
+      "get": {
+        "summary": "Snowpeak locations resource",
+        "operationId": "getLocations",
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "headers": {
+              "Cache-Control": {
+                "style": "simple",
+                "explode": false,
+                "schema": {
+                  "type": "string",
+                  "default": "must-revalidate,public,max-age=3600"
+                }
+              },
+              "ETag": {
+                "style": "simple",
+                "explode": false,
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Last-Modified": {
+                "style": "simple",
+                "explode": false,
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/vnd.snowpeak.resort+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Locations"
+                }
+              }
+            },
+            "links": {
+              "room": {
+                "operationId": "getLocationsIdRooms"
+              }
+            }
+          },
+          "500": {
+            "content": {
+              "application/vnd.snowpeak.resort+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SnowpeakError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/locations/{id}/rooms": {
+      "get": {
+        "summary": "Snowpeak rooms resource",
+        "operationId": "getLocationsIdRooms",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "startDate",
+            "in": "query",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "endDate",
+            "in": "query",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "content": {
+              "application/vnd.snowpeak.resort+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Rooms"
+                }
+              }
+            },
+            "links": {
+              "reservation": {
+                "operationId": "postReservations"
+              }
+            }
+          },
+          "500": {
+            "content": {
+              "application/vnd.snowpeak.resort+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SnowpeakError"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorPayload"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/reservations": {
+      "post": {
+        "summary": "Snowpeak create reservation resource",
+        "operationId": "postReservations",
+        "requestBody": {
+          "description": "Reservation representation",
+          "content": {
+            "application/vnd.snowpeak.resort+json": {
+              "schema": {
+                "$ref": "#/components/schemas/Reservation"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/vnd.snowpeak.resort+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InlineResponse200897"
+                }
+              }
+            },
+            "links": {
+              "cancel": {
+                "operationId": "deleteReservationsId"
+              },
+              "edit": {
+                "operationId": "putReservationsId"
+              },
+              "payment": {
+                "operationId": "postPaymentsId"
+              }
+            }
+          },
+          "500": {
+            "description": "InternalServerError",
+            "content": {
+              "application/vnd.snowpeak.resort+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SnowpeakError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/vnd.snowpeak.resort+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SnowpeakError"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BadRequest",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorPayload"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/reservations/{id}": {
+      "put": {
+        "summary": "Snowpeak create/update reservation resource",
+        "operationId": "putReservationsId",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/vnd.snowpeak.resort+json": {
+              "schema": {
+                "$ref": "#/components/schemas/Reservation"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "content": {
+              "application/vnd.snowpeak.resort+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InlineResponse200897"
+                }
+              }
+            },
+            "links": {
+              "cancel": {
+                "operationId": "deleteReservationsId"
+              },
+              "payment": {
+                "operationId": "postPaymentsId"
+              }
+            }
+          },
+          "500": {
+            "description": "InternalServerError",
+            "content": {
+              "application/vnd.snowpeak.resort+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SnowpeakError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/vnd.snowpeak.resort+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SnowpeakError"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorPayload"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Snowpeak cancel reservation resource",
+        "operationId": "deleteReservationsId",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Unique identification of reservation",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "content": {
+              "application/vnd.snowpeak.resort+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InlineResponse200897"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "InternalServerError",
+            "content": {
+              "application/vnd.snowpeak.resort+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SnowpeakError"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BadRequest",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorPayload"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/payments/{id}": {
+      "post": {
+        "summary": "Snowpeak payment resource",
+        "operationId": "postPaymentsId",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Unique identification of reservation",
+            "required": true,
+            "style": "simple",
+            "explode": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Payment representation",
+          "content": {
+            "application/vnd.snowpeak.resort+json": {
+              "schema": {
+                "$ref": "#/components/schemas/InlineResponse200456"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/vnd.snowpeak.resort+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentReceipt"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "InternalServerError",
+            "content": {
+              "application/vnd.snowpeak.resort+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SnowpeakError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/vnd.snowpeak.resort+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SnowpeakError"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BadRequest",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorPayload"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "InlineResponse200123": {
+        "type": "string",
+        "enum": [
+          "CANCELED",
+          "VALID"
+        ]
+      },
+      "PaymentReceipt": {
+        "required": [
+          "currency",
+          "id",
+          "lastUpdated",
+          "rooms",
+          "total"
+        ],
+        "type": "object",
+        "properties": {
+          "lastUpdated": {
+            "type": "string",
+            "description": "Last updated time stamp"
+          },
+          "total": {
+            "type": "number",
+            "description": "Total amount paid",
+            "format": "double"
+          },
+          "rooms": {
+            "type": "array",
+            "description": "Booked rooms",
+            "items": {
+              "$ref": "#/components/schemas/Room"
+            }
+          },
+          "currency": {
+            "type": "string",
+            "description": "Currency used in price"
+          },
+          "id": {
+            "type": "string",
+            "description": "Unique identification"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Represents receipt for the payment"
+      },
+      "RoomStatus": {
+        "type": "string",
+        "enum": [
+          "BOOKED",
+          "RESERVED",
+          "AVAILABLE"
+        ]
+      },
+      "Locations": {
+        "required": [
+          "locations"
+        ],
+        "type": "object",
+        "properties": {
+          "locations": {
+            "type": "array",
+            "description": "collection of locations",
+            "items": {
+              "$ref": "#/components/schemas/Location"
+            }
+          }
+        },
+        "description": "Represents a collection of locations"
+      },
+      "Rooms": {
+        "required": [
+          "rooms"
+        ],
+        "type": "object",
+        "properties": {
+          "rooms": {
+            "type": "array",
+            "description": "Array of rooms",
+            "items": {
+              "$ref": "#/components/schemas/Room"
+            }
+          }
+        },
+        "description": "Represents a collection of resort rooms"
+      },
+      "ReserveRoom": {
+        "required": [
+          "count",
+          "id"
+        ],
+        "type": "object",
+        "properties": {
+          "count": {
+            "type": "integer",
+            "description": "Number of rooms",
+            "format": "int64"
+          },
+          "id": {
+            "type": "string",
+            "description": "Unique identification of the room"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Represents rooms be reserved"
+      },
+      "RoomCategory": {
+        "type": "string",
+        "enum": [
+          "FAMILY",
+          "KING",
+          "DELUXE"
+        ]
+      },
+      "ErrorPayload": {
+        "required": [
+          "message",
+          "method",
+          "path",
+          "reason",
+          "status",
+          "timestamp"
+        ],
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "method": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string"
+          },
+          "status": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "InlineResponse200456": {
+        "required": [
+          "cardNumber",
+          "cardholderName",
+          "expiryMonth",
+          "expiryYear"
+        ],
+        "type": "object",
+        "properties": {
+          "cardholderName": {
+            "type": "string",
+            "description": "Name of the card holder"
+          },
+          "expiryMonth": {
+            "type": "integer",
+            "description": "Expiration month of the card in mm",
+            "format": "int64"
+          },
+          "expiryYear": {
+            "type": "integer",
+            "description": "Expiration year of the card in yyyy",
+            "format": "int64"
+          },
+          "cardNumber": {
+            "type": "integer",
+            "description": "Card number",
+            "format": "int64"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Represents payment for rooms"
+      },
+      "Reservation": {
+        "required": [
+          "endDate",
+          "reserveRooms",
+          "startDate"
+        ],
+        "type": "object",
+        "properties": {
+          "endDate": {
+            "type": "string",
+            "description": "End date in yyyy-mm-dd"
+          },
+          "reserveRooms": {
+            "type": "array",
+            "description": "Rooms to be reserved",
+            "items": {
+              "$ref": "#/components/schemas/ReserveRoom"
+            }
+          },
+          "startDate": {
+            "type": "string",
+            "description": "Start date in yyyy-mm-dd"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Represents a reservation of rooms"
+      },
+      "InlineResponse200897": {
+        "required": [
+          "currency",
+          "expiryDate",
+          "id",
+          "lastUpdated",
+          "reservation",
+          "state",
+          "total"
+        ],
+        "type": "object",
+        "properties": {
+          "expiryDate": {
+            "type": "string",
+            "description": "Expiry date in yyyy-mm-dd"
+          },
+          "lastUpdated": {
+            "type": "string",
+            "description": "Last updated time stamp"
+          },
+          "total": {
+            "type": "number",
+            "description": "Total payable",
+            "format": "double"
+          },
+          "reservation": {
+            "$ref": "#/components/schemas/Reservation"
+          },
+          "currency": {
+            "type": "string",
+            "description": "Currency used in price"
+          },
+          "id": {
+            "type": "string",
+            "description": "Unique identification of the receipt"
+          },
+          "state": {
+            "$ref": "#/components/schemas/InlineResponse200123"
+          }
+        },
+        "description": "Represents a receipt for the reservation"
+      },
+      "Room": {
+        "required": [
+          "capacity",
+          "category",
+          "count",
+          "currency",
+          "id",
+          "price",
+          "status",
+          "wifi"
+        ],
+        "type": "object",
+        "properties": {
+          "wifi": {
+            "type": "boolean",
+            "description": "Availability of wifi"
+          },
+          "price": {
+            "type": "number",
+            "description": "Cost for the room",
+            "format": "double"
+          },
+          "count": {
+            "type": "integer",
+            "description": "Number of rooms as per the status",
+            "format": "int64"
+          },
+          "currency": {
+            "type": "string",
+            "description": "Currency used in price"
+          },
+          "id": {
+            "type": "string",
+            "description": "Unique identification of the room"
+          },
+          "category": {
+            "$ref": "#/components/schemas/RoomCategory"
+          },
+          "capacity": {
+            "type": "integer",
+            "description": "Number of people that can be accommodate",
+            "format": "int64"
+          },
+          "status": {
+            "$ref": "#/components/schemas/RoomStatus"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Represents resort room"
+      },
+      "Location": {
+        "required": [
+          "address",
+          "id",
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "address": {
+            "type": "string",
+            "description": "Address of the location"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the location"
+          },
+          "id": {
+            "type": "string",
+            "description": "Unique identification of the location"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Represents location"
+      },
+      "SnowpeakError": {
+        "required": [
+          "msg"
+        ],
+        "type": "object",
+        "properties": {
+          "msg": {
+            "type": "string",
+            "description": "Error message"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Represents the unexpected error"
+      }
+    }
+  }
+}

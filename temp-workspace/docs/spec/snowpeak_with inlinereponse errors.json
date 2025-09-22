@@ -18,10 +18,10 @@
         }
     ],
     "paths": {
-        "/locations": {
+        "/InlineResponse20054": {
             "get": {
-                "summary": "Snowpeak locations resource",
-                "operationId": "getLocations",
+                "summary": "Snowpeak InlineResponse20054 resource",
+                "operationId": "getInlineResponse20054",
                 "responses": {
                     "200": {
                         "description": "Ok",
@@ -52,13 +52,13 @@
                         "content": {
                             "application/vnd.snowpeak.resort+json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/Locations"
+                                    "$ref": "#/components/schemas/InlineResponse20054"
                                 }
                             }
                         },
                         "links": {
                             "room": {
-                                "operationId": "getLocationsIdRooms"
+                                "operationId": "getInlineResponse20054IdRooms"
                             }
                         }
                     },
@@ -74,14 +74,15 @@
                 }
             }
         },
-        "/locations/{id}/rooms": {
+        "/InlineResponse20054/{id}/rooms": {
             "get": {
                 "summary": "Snowpeak rooms resource",
-                "operationId": "getLocationsIdRooms",
+                "operationId": "getInlineResponse20054IdRooms",
                 "parameters": [
                     {
                         "name": "id",
                         "in": "path",
+                        "description": "Unique identification of location",
                         "required": true,
                         "style": "simple",
                         "explode": false,
@@ -92,6 +93,7 @@
                     {
                         "name": "startDate",
                         "in": "query",
+                        "description": "Start date in format yyyy-mm-dd",
                         "required": true,
                         "style": "form",
                         "explode": true,
@@ -102,6 +104,7 @@
                     {
                         "name": "endDate",
                         "in": "query",
+                        "description": "End date in format yyyy-mm-dd",
                         "required": true,
                         "style": "form",
                         "explode": true,
@@ -283,6 +286,7 @@
                         }
                     },
                     "400": {
+                        "description": "BadRequest",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -365,7 +369,7 @@
                     "content": {
                         "application/vnd.snowpeak.resort+json": {
                             "schema": {
-                                "$ref": "#/components/schemas/PaymentRequest"
+                                "$ref": "#/components/schemas/Payment"
                             }
                         }
                     },
@@ -377,7 +381,7 @@
                         "content": {
                             "application/vnd.snowpeak.resort+json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/PaymentReceipt"
+                                    "$ref": "#/components/schemas/InlineResponse200432"
                                 }
                             }
                         }
@@ -418,15 +422,14 @@
     },
     "components": {
         "schemas": {
-            "ReservationState": {
+            "InlineResponse200123": {
                 "type": "string",
                 "enum": [
                     "CANCELED",
                     "VALID"
-                ],
-                "description": "Current status of a reservation, indicating whether it is active and valid or has been canceled."
+                ]
             },
-            "PaymentReceipt": {
+            "InlineResponse200432": {
                 "required": [
                     "currency",
                     "id",
@@ -464,30 +467,29 @@
                 "additionalProperties": false,
                 "description": "Represents receipt for the payment"
             },
-            "RoomStatus": {
+            "InlineResponse200431": {
                 "type": "string",
                 "enum": [
                     "BOOKED",
                     "RESERVED",
                     "AVAILABLE"
-                ],
-                "description": "Current availability status of a room, indicating whether it can be booked, is already reserved, or has been confirmed as booked."
+                ]
             },
-            "Locations": {
+            "InlineResponse20054": {
                 "required": [
-                    "locations"
+                    "InlineResponse20054"
                 ],
                 "type": "object",
                 "properties": {
-                    "locations": {
+                    "InlineResponse20054": {
                         "type": "array",
-                        "description": "collection of locations",
+                        "description": "collection of InlineResponse20054",
                         "items": {
-                            "$ref": "#/components/schemas/Location"
+                            "$ref": "#/components/schemas/InlineResponse60987"
                         }
                     }
                 },
-                "description": "Represents a collection of locations"
+                "description": "Represents a collection of InlineResponse20054"
             },
             "Rooms": {
                 "required": [
@@ -505,7 +507,7 @@
                 },
                 "description": "Represents a collection of resort rooms"
             },
-            "ReserveRoom": {
+            "InlineResponse3405": {
                 "required": [
                     "count",
                     "id"
@@ -531,8 +533,7 @@
                     "FAMILY",
                     "KING",
                     "DELUXE"
-                ],
-                "description": "Type of room accommodation available at the resort, categorized by size, amenities, and guest capacity."
+                ]
             },
             "ErrorPayload": {
                 "required": [
@@ -546,34 +547,27 @@
                 "type": "object",
                 "properties": {
                     "reason": {
-                        "type": "string",
-                        "description": "A human-readable explanation of the specific error condition or failure cause that occurred during request processing."
+                        "type": "string"
                     },
                     "path": {
-                        "type": "string",
-                        "description": "The API endpoint path where the error occurred during request processing."
+                        "type": "string"
                     },
                     "method": {
-                        "type": "string",
-                        "description": "The HTTP method used in the request that resulted in the error."
+                        "type": "string"
                     },
                     "message": {
-                        "type": "string",
-                        "description": "A human-readable error message describing the specific issue that occurred during request processing."
+                        "type": "string"
                     },
                     "timestamp": {
-                        "type": "string",
-                        "description": "The ISO 8601 timestamp indicating when the error occurred during request processing."
+                        "type": "string"
                     },
                     "status": {
                         "type": "integer",
-                        "format": "int64",
-                        "description": "The HTTP status code indicating the type of error that occurred during request processing."
+                        "format": "int64"
                     }
-                },
-                "description": "Represents a standardized error response containing request details, error message, HTTP status, and timestamp for client-side debugging."
+                }
             },
-            "PaymentRequest": {
+            "Payment": {
                 "required": [
                     "cardNumber",
                     "cardholderName",
@@ -621,7 +615,7 @@
                         "type": "array",
                         "description": "Rooms to be reserved",
                         "items": {
-                            "$ref": "#/components/schemas/ReserveRoom"
+                            "$ref": "#/components/schemas/InlineResponse3405"
                         }
                     },
                     "startDate": {
@@ -669,7 +663,7 @@
                         "description": "Unique identification of the receipt"
                     },
                     "state": {
-                        "$ref": "#/components/schemas/ReservationState"
+                        "$ref": "#/components/schemas/InlineResponse200123"
                     }
                 },
                 "description": "Represents a receipt for the reservation"
@@ -718,13 +712,13 @@
                         "format": "int64"
                     },
                     "status": {
-                        "$ref": "#/components/schemas/RoomStatus"
+                        "$ref": "#/components/schemas/InlineResponse200431"
                     }
                 },
                 "additionalProperties": false,
                 "description": "Represents resort room"
             },
-            "Location": {
+            "InlineResponse60987": {
                 "required": [
                     "address",
                     "id",
