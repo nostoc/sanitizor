@@ -8,6 +8,7 @@ import ballerina/time;
 public type CommandExecutorError distinct error;
 
 # Compilation error from a `bal build` output
+
 public type CompilationError record {|
     # name of the file where error occured
     string fileName;
@@ -19,6 +20,8 @@ public type CompilationError record {|
     string message;
     # Type of error (ERROR, WARNING)
     string errorType;
+    # file path
+    string filePath?;
 |};
 
 # result of executing a `bal` command
