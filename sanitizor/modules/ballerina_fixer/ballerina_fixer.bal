@@ -1,11 +1,9 @@
 import sanitizor.command_executor;
 
 import ballerina/ai;
-import ballerina/file;
 import ballerina/io;
 import ballerina/lang.regexp;
 import ballerina/log;
-import ballerina/regex;
 import ballerinax/ai.anthropic;
 
 configurable string apiKey = ?;
@@ -49,7 +47,7 @@ public function fixAllBallerinaErrors(string projectPath) returns BallerinaFixer
 
     while iteration < maxIterations {
         iteration += 1;
-        log:printInfo("STarting iteration: ", iteration = iteration);
+        log:printInfo("Starting iteration: ", iteration = iteration);
 
         // build the project and get diagnostics
 
@@ -122,7 +120,7 @@ function groupErrorsByFile(CompilationError[] errors) returns map<CompilationErr
 
 function parseCompilationErrors(string stderr) returns CompilationError[] {
     CompilationError[] errors = [];
-    string[] lines = regex:split(stderr, "\n");
+    string[] lines = regexp:split(re `\n`, stderr);
 
     foreach string line in lines {
         if line.trim().length() == 0 {
@@ -130,19 +128,35 @@ function parseCompilationErrors(string stderr) returns CompilationError[] {
         }
 
         // parse ballerina error format: ERROR [file.bal:(line,column)] message
-        string pattern = "(ERROR|WARNING)\\s+\\[([^:]+):?\\((\\d+),(\\d+)\\)\\]\\s+(.+)";
-        regex:Match? matches = regex:search(line, pattern);
+        regexp:RegExp pattern = re `(ERROR|WARNING)\s+\[([^:]+):?\((\d+),(\d+)\)\]\s+(.+)`;
+        regexp:Groups? groups = pattern.findGroups(line);
 
-        if matches is regex:Match {
-            CompilationError err = {
-                severity: matches.groups[0].substring,
-                filePath: matches.groups[1].substring,
-                line: check int:fromString(matches.groups[2].substring),
-                column: check int:fromString(matches.groups[3].substring),
-                message: matches.groups[4].substring
-            };
+        if groups is regexp:Groups {
+            var group1 = groups[1];
+            var group2 = groups[2];
+            var group3 = groups[3];
+            var group4 = groups[4];
+            var group5 = groups[5];
+            
+            if group1 is regexp:Span && group2 is regexp:Span && 
+               group3 is regexp:Span && group4 is regexp:Span && 
+               group5 is regexp:Span {
+                
+                int|error lineNum = int:fromString(group3.substring());
+                int|error colNum = int:fromString(group4.substring());
+                
+                if lineNum is int && colNum is int {
+                    CompilationError err = {
+                        severity: group1.substring(),
+                        filePath: group2.substring(),
+                        line: lineNum,
+                        column: colNum,
+                        message: group5.substring()
+                    };
 
-            errors.push(err);
+                    errors.push(err);
+                }
+            }
         }
     }
 
@@ -162,11 +176,27 @@ function fixErrorsInFile(ai:ModelProvider model, string filePath, CompilationErr
     string errorContext = prepareErrorContext(errors);
 
     //Get fix from LLM
-    string prompt = createFixPrompt(codeToFix, errorContext, filePath);
+    string promptText = createFixPrompt(codeToFix, errorContext, filePath);
 
-    FixResponse|error llmResponse = model->generate(prompt);
+    ai:ChatMessage[] messages = [
+        {role: "user", content: promptText}
+    ];
+
+    ai:ChatAssistantMessage|error response = model->chat(messages);
+    if response is error {
+        log:printError("LLM failed to generate a fix", 'error = response);
+        return response;
+    }
+
+    // Parse the JSON response
+    string? content = response.content;
+    if content is () {
+        return error("Empty response from LLM");
+    }
+
+    FixResponse|error llmResponse = parseFixResponse(content);
     if llmResponse is error {
-        log:printError("LLM failed to generate a fix", 'error = llmResponse);
+        log:printError("Failed to parse LLM response", 'error = llmResponse);
         return llmResponse;
     }
 
@@ -194,7 +224,10 @@ function applyFix(string filePath, FixResponse fix, string originalContent) retu
     io:Error? writeResult = io:fileWriteString(filePath, fix.fixedCode);
     if writeResult is error {
         log:printError("Failed to write fixed code", 'error = writeResult);
-        io:Error? backedUp = io:fileWriteString(filePath, originalContent);
+        io:Error? restoreResult = io:fileWriteString(filePath, originalContent);
+        if restoreResult is error {
+            log:printError("Failed to restore original content", 'error = restoreResult);
+        }
         return false;
     }
 
@@ -249,7 +282,7 @@ function extractRelevantCode(string fullCode, CompilationError[] errors) returns
 
     // add some context around the error lines
     int contextLines = 10;
-    string[] lines = regex:split(fullCode, "\n");
+    string[] lines = regexp:split(re `\n`, fullCode);
 
     int startLine = int:max(0, minLine - contextLines - 1);
     int endLine = int:min(lines.length() - 1, maxLine + contextLines - 1);
@@ -266,7 +299,38 @@ type FixResponse record {|
     string confidence;
 |};
 
-function (CompilationError err) returns string {
-    return string `${err.severity} at ${err.filePath}:${err.line}:${err.column} - ${err.message}`;
+function parseFixResponse(string content) returns FixResponse|error {
+    // Try to parse as JSON
+    json|error jsonResult = content.fromJsonString();
+    if jsonResult is error {
+        // If JSON parsing fails, treat the entire content as fixed code with medium confidence
+        return {
+            fixedCode: content,
+            explanation: "LLM provided direct code fix",
+            confidence: "medium"
+        };
+    }
 
+    json jsonData = jsonResult;
+    if jsonData is map<json> {
+        string? fixedCode = jsonData["fixedCode"] is string ? <string>jsonData["fixedCode"] : ();
+        string? explanation = jsonData["explanation"] is string ? <string>jsonData["explanation"] : ();
+        string? confidence = jsonData["confidence"] is string ? <string>jsonData["confidence"] : ();
+
+        if fixedCode is () {
+            return error("Missing 'fixedCode' field in LLM response");
+        }
+
+        return {
+            fixedCode: fixedCode,
+            explanation: explanation ?: "No explanation provided",
+            confidence: confidence ?: "medium"
+        };
+    }
+
+    return error("Invalid JSON structure in LLM response");
+}
+
+function errorToString(CompilationError err) returns string {
+    return string `${err.severity} at ${err.filePath}:${err.line}:${err.column} - ${err.message}`;
 }
