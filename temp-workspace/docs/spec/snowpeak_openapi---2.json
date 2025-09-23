@@ -44,7 +44,7 @@
             "content" : {
               "application/vnd.snowpeak.resort+json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/Locations"
+                  "$ref" : "#/components/schemas/InlineResponse200"
                 }
               }
             },
@@ -55,7 +55,6 @@
             }
           },
           "500" : {
-            "description" : "InternalServerError",
             "content" : {
               "application/vnd.snowpeak.resort+json" : {
                 "schema" : {
@@ -102,7 +101,7 @@
             "content" : {
               "application/vnd.snowpeak.resort+json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/Rooms"
+                  "$ref" : "#/components/schemas/InlineResponse201"
                 }
               }
             },
@@ -113,7 +112,6 @@
             }
           },
           "500" : {
-            "description" : "InternalServerError",
             "content" : {
               "application/vnd.snowpeak.resort+json" : {
                 "schema" : {
@@ -123,7 +121,6 @@
             }
           },
           "400" : {
-            "description" : "BadRequest",
             "content" : {
               "application/json" : {
                 "schema" : {
@@ -218,7 +215,6 @@
           }
         } ],
         "requestBody" : {
-          "description" : "Reservation representation",
           "content" : {
             "application/vnd.snowpeak.resort+json" : {
               "schema" : {
@@ -355,7 +351,7 @@
             "content" : {
               "application/vnd.snowpeak.resort+json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/PaymentReceipt"
+                  "$ref" : "#/components/schemas/InlineResponse202"
                 }
               }
             }
@@ -441,7 +437,7 @@
         "additionalProperties" : false,
         "description" : "Represents location"
       },
-      "Locations" : {
+      "InlineResponse200" : {
         "required" : [ "locations" ],
         "type" : "object",
         "properties" : {
@@ -452,20 +448,17 @@
               "$ref" : "#/components/schemas/Location"
             }
           }
-        },
-        "description" : "Represents a collection of locations"
+        }
       },
       "Payment" : {
         "required" : [ "cardNumber", "cardholderName", "expiryMonth", "expiryYear" ],
         "type" : "object",
         "properties" : {
           "cardholderName" : {
-            "type" : "string",
-            "description" : "Name of the card holder"
+            "type" : "string"
           },
           "cardNumber" : {
             "type" : "integer",
-            "description" : "Card number",
             "format" : "int64"
           },
           "expiryMonth" : {
@@ -482,7 +475,7 @@
         "additionalProperties" : false,
         "description" : "Represents payment for rooms"
       },
-      "PaymentReceipt" : {
+      "InlineResponse202" : {
         "required" : [ "currency", "id", "lastUpdated", "rooms", "total" ],
         "type" : "object",
         "properties" : {
@@ -511,8 +504,7 @@
             }
           }
         },
-        "additionalProperties" : false,
-        "description" : "Represents receipt for the payment"
+        "additionalProperties" : false
       },
       "Reservation" : {
         "required" : [ "endDate", "reserveRooms", "startDate" ],
@@ -520,7 +512,6 @@
         "properties" : {
           "reserveRooms" : {
             "type" : "array",
-            "description" : "Rooms to be reserved",
             "items" : {
               "$ref" : "#/components/schemas/ReserveRoom"
             }
@@ -530,8 +521,7 @@
             "description" : "Start date in yyyy-mm-dd"
           },
           "endDate" : {
-            "type" : "string",
-            "description" : "End date in yyyy-mm-dd"
+            "type" : "string"
           }
         },
         "additionalProperties" : false,
@@ -597,8 +587,7 @@
         "type" : "object",
         "properties" : {
           "id" : {
-            "type" : "string",
-            "description" : "Unique identification of the room"
+            "type" : "string"
           },
           "category" : {
             "$ref" : "#/components/schemas/RoomCategory"
@@ -609,8 +598,7 @@
             "format" : "int64"
           },
           "wifi" : {
-            "type" : "boolean",
-            "description" : "Availability of wifi"
+            "type" : "boolean"
           },
           "status" : {
             "$ref" : "#/components/schemas/RoomStatus"
@@ -621,7 +609,6 @@
           },
           "price" : {
             "type" : "number",
-            "description" : "Cost for the room",
             "format" : "double"
           },
           "count" : {
@@ -641,7 +628,7 @@
         "type" : "string",
         "enum" : [ "BOOKED", "RESERVED", "AVAILABLE" ]
       },
-      "Rooms" : {
+      "InlineResponse201" : {
         "required" : [ "rooms" ],
         "type" : "object",
         "properties" : {
@@ -652,8 +639,7 @@
               "$ref" : "#/components/schemas/Room"
             }
           }
-        },
-        "description" : "Represents a collection of resort rooms"
+        }
       },
       "SnowpeakError" : {
         "required" : [ "msg" ],

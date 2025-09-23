@@ -1,4 +1,3 @@
-import sanitizor.ballerina_fixer;
 import sanitizor.command_executor;
 import sanitizor.llm_service;
 
@@ -83,34 +82,34 @@ public function main(string... args) returns error? {
     }
     log:printInfo("Ballerina client generated successfully", outputPath = clientOutputPath);
 
-    io:println("✓ Checking and fixing Ballerina compilation errors...");
+    // io:println("✓ Checking and fixing Ballerina compilation errors...");
 
-    // step 7
+    // // step 7
 
-    ballerina_fixer:BallerinaFixResult|ballerina_fixer:BallerinaFixerError fixResult =
-    ballerina_fixer:fixAllBallerinaErrors(clientOutputPath);
+    // ballerina_fixer:BallerinaFixResult|ballerina_fixer:BallerinaFixerError fixResult =
+    // ballerina_fixer:fixAllBallerinaErrors(clientOutputPath);
 
-    if fixResult is ballerina_fixer:BallerinaFixResult {
-        if fixResult.success {
-            io:println(string `✓ AI successfully fixed ${fixResult.errorsFixed} compilation errors!`);
-            io:println("✓ All Ballerina files compile without errors!");
-        } else {
-            io:println(string `⚠ AI fixed ${fixResult.errorsFixed} errors, but ${fixResult.errorsRemaining} errors remain`);
-            io:println("⚠ Some errors may require manual intervention");
-            log:printWarn("Some compilation errors could not be automatically fixed",
-                    remainingErrors = fixResult.errorsRemaining);
-        }
+    // if fixResult is ballerina_fixer:BallerinaFixResult {
+    //     if fixResult.success {
+    //         io:println(string `✓ AI successfully fixed ${fixResult.errorsFixed} compilation errors!`);
+    //         io:println("✓ All Ballerina files compile without errors!");
+    //     } else {
+    //         io:println(string `⚠ AI fixed ${fixResult.errorsFixed} errors, but ${fixResult.errorsRemaining} errors remain`);
+    //         io:println("⚠ Some errors may require manual intervention");
+    //         log:printWarn("Some compilation errors could not be automatically fixed",
+    //                 remainingErrors = fixResult.errorsRemaining);
+    //     }
 
-        if fixResult.appliedFixes.length() > 0 {
-            io:println("Applied AI fixes:");
-            foreach string fix in fixResult.appliedFixes {
-                io:println(string `  - ${fix}`);
-            }
-        }
-    } else {
-        log:printError("Failed to fix Ballerina compilation errors", 'error = fixResult);
-        io:println("⚠ Warning: AI-powered error fixing failed. Manual intervention may be required.");
-    }
+    //     if fixResult.appliedFixes.length() > 0 {
+    //         io:println("Applied AI fixes:");
+    //         foreach string fix in fixResult.appliedFixes {
+    //             io:println(string `  - ${fix}`);
+    //         }
+    //     }
+    // } else {
+    //     log:printError("Failed to fix Ballerina compilation errors", 'error = fixResult);
+    //     io:println("⚠ Warning: AI-powered error fixing failed. Manual intervention may be required.");
+    // }
 
     // Sanitization completed successfully
     io:println("✓ All processing completed successfully!");
