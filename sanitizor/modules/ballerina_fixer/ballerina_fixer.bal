@@ -1,6 +1,7 @@
 import sanitizor.command_executor;
 
 import ballerina/ai;
+import ballerina/file;
 import ballerina/io;
 import ballerina/lang.regexp;
 import ballerina/log;
@@ -181,11 +182,21 @@ function parseCompilationErrors(string stderr) returns CompilationError[] {
 function fixErrorsInFile(ai:ModelProvider model, string projectPath, string filePath, CompilationError[] errors) returns boolean|error {
     log:printInfo("Attempting to fix errors in file: ", filePath = filePath, errorCount = errors.length());
 
-    // Construct full file path
-    string fullFilePath = projectPath + "/" + filePath;
+    // Construct full file path using proper path joining
+    string fullFilePath = check file:joinPath(projectPath, filePath);
 
-    // read file 
-    string fileContent = check io:fileReadString(fullFilePath);
+    // Validate file exists before reading
+    boolean exists = check file:test(fullFilePath, file:EXISTS);
+    if !exists {
+        return error(string `File does not exist: ${fullFilePath}`);
+    }
+
+    // Read file with proper error handling
+    string|io:Error fileContent = io:fileReadString(fullFilePath);
+    if fileContent is io:Error {
+        log:printError("Failed to read file", filePath = fullFilePath, 'error = fileContent);
+        return fileContent;
+    }
 
     // if file is too large extract relevant sections
     string codeToFix = extractRelevantCode(fileContent, errors);
@@ -219,34 +230,53 @@ function fixErrorsInFile(ai:ModelProvider model, string projectPath, string file
     }
 
     // Apply the fix
-    boolean applied = applyFix(fullFilePath, llmResponse, fileContent);
+    boolean applied = check applyFix(fullFilePath, llmResponse, fileContent);
     return applied;
 
 }
 
-function applyFix(string filePath, FixResponse fix, string originalContent) returns boolean {
+function applyFix(string filePath, FixResponse fix, string originalContent) returns boolean|error {
     if fix.confidence == "low" {
         log:printWarn("LLM has low confidence in fix, skipping", filePath = filePath);
         return false;
     }
 
-    //create a backup
-    string backupPath = filePath + ".backup";
-    io:Error? backupResult = io:fileWriteString(backupPath, originalContent);
-    if backupResult is error {
-        log:printError("Failed to create backup", 'error = backupResult);
-        return false;
+    // Validate file path and permissions
+    boolean exists = check file:test(filePath, file:EXISTS);
+    if !exists {
+        return error(string `Target file does not exist: ${filePath}`);
     }
 
-    // apply the fix
-    io:Error? writeResult = io:fileWriteString(filePath, fix.fixedCode);
-    if writeResult is error {
-        log:printError("Failed to write fixed code", 'error = writeResult);
-        io:Error? restoreResult = io:fileWriteString(filePath, originalContent);
-        if restoreResult is error {
-            log:printError("Failed to restore original content", 'error = restoreResult);
+    boolean writable = check file:test(filePath, file:WRITABLE);
+    if !writable {
+        return error(string `File is not writable: ${filePath}`);
+    }
+
+    // Create a backup with proper file operations
+    string backupPath = filePath + ".backup";
+    io:Error? backupResult = io:fileWriteString(backupPath, originalContent, io:OVERWRITE);
+    if backupResult is io:Error {
+        log:printError("Failed to create backup", filePath = backupPath, 'error = backupResult);
+        return backupResult;
+    }
+
+    // Apply the fix with proper write options
+    io:Error? writeResult = io:fileWriteString(filePath, fix.fixedCode, io:OVERWRITE);
+    if writeResult is io:Error {
+        log:printError("Failed to write fixed code", filePath = filePath, 'error = writeResult);
+        
+        // Attempt to restore from backup
+        io:Error? restoreResult = io:fileWriteString(filePath, originalContent, io:OVERWRITE);
+        if restoreResult is io:Error {
+            log:printError("Failed to restore original content", filePath = filePath, 'error = restoreResult);
         }
-        return false;
+        return writeResult;
+    }
+
+    // Clean up backup file after successful write
+    file:Error? deleteResult = file:remove(backupPath);
+    if deleteResult is file:Error {
+        log:printWarn("Failed to delete backup file", backupPath = backupPath, 'error = deleteResult);
     }
 
     log:printInfo("Applied fix to file", filePath = filePath, explanation = fix.explanation);
@@ -317,11 +347,11 @@ function parseFixResponse(string content) returns FixResponse|error {
     // Try to parse as JSON
     json|error jsonResult = content.fromJsonString();
     if jsonResult is error {
-        // If JSON parsing fails, treat the entire content as fixed code with medium confidence
+        // If JSON parsing fails, treat the entire content as fixed code with low confidence
         return {
             fixedCode: content,
             explanation: "LLM provided direct code fix",
-            confidence: "medium"
+            confidence: "low"
         };
     }
 
@@ -338,7 +368,7 @@ function parseFixResponse(string content) returns FixResponse|error {
         return {
             fixedCode: fixedCode,
             explanation: explanation ?: "No explanation provided",
-            confidence: confidence ?: "medium"
+            confidence: confidence ?: "low"
         };
     }
 
