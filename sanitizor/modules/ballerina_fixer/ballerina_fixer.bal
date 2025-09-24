@@ -41,7 +41,7 @@ public function fixAllBallerinaErrors(string projectPath) returns BallerinaFixer
         remainingFixes: []
     };
 
-    ai:ModelProvider anthropicModel = check new anthropic:ModelProvider(apiKey, anthropic:CLAUDE_SONNET_4_20250514, maxTokens = 400000);
+    ai:ModelProvider anthropicModel = check new anthropic:ModelProvider(apiKey, anthropic:CLAUDE_SONNET_4_20250514);
 
     int iteration = 0;
 
@@ -77,7 +77,7 @@ public function fixAllBallerinaErrors(string projectPath) returns BallerinaFixer
             CompilationError[] fileErrors = errosByFile.get(filePath);
 
             //try to fix errors in this file
-            boolean|error fixResult = fixErrorsInFile(anthropicModel, filePath, fileErrors);
+            boolean|error fixResult = fixErrorsInFile(anthropicModel, projectPath, filePath, fileErrors);
             if fixResult is boolean && fixResult {
                 anyErrorFixed = true;
                 result.errorsFixed += fileErrors.length();
@@ -123,51 +123,64 @@ function parseCompilationErrors(string stderr) returns CompilationError[] {
     string[] lines = regexp:split(re `\n`, stderr);
 
     foreach string line in lines {
-        if line.trim().length() == 0 {
-            continue;
-        }
+        // Handle both ERROR and WARNING messages
+        if (line.includes("ERROR [") || line.includes("WARNING [")) && line.includes(")]") {
+            string severity = line.includes("ERROR [") ? "ERROR" : "WARNING";
+            string prefix = severity + " [";
 
-        // parse ballerina error format: ERROR [file.bal:(line,column)] message
-        regexp:RegExp pattern = re `(ERROR|WARNING)\s+\[([^:]+):?\((\d+),(\d+)\)\]\s+(.+)`;
-        regexp:Groups? groups = pattern.findGroups(line);
+            int? startBracket = line.indexOf(prefix);
+            int? endBracket = line.indexOf(")]", startBracket ?: 0);
 
-        if groups is regexp:Groups {
-            var group1 = groups[1];
-            var group2 = groups[2];
-            var group3 = groups[3];
-            var group4 = groups[4];
-            var group5 = groups[5];
-            
-            if group1 is regexp:Span && group2 is regexp:Span && 
-               group3 is regexp:Span && group4 is regexp:Span && 
-               group5 is regexp:Span {
-                
-                int|error lineNum = int:fromString(group3.substring());
-                int|error colNum = int:fromString(group4.substring());
-                
-                if lineNum is int && colNum is int {
-                    CompilationError err = {
-                        severity: group1.substring(),
-                        filePath: group2.substring(),
-                        line: lineNum,
-                        column: colNum,
-                        message: group5.substring()
-                    };
+            if startBracket is int && endBracket is int {
+                // Extract the part between prefix and ")]"
+                string errorPart = line.substring(startBracket + prefix.length(), endBracket);
 
-                    errors.push(err);
+                // Find the last occurrence of ":(" to split filename from coordinates
+                int? coordStart = errorPart.lastIndexOf(":(");
+
+                if coordStart is int {
+                    string filePath = errorPart.substring(0, coordStart);
+                    string coordinates = errorPart.substring(coordStart + 2); // Skip ":("
+
+                    // Parse coordinates - format can be (line:col) or (line:col,endLine:endCol)
+                    string[] coordParts = regexp:split(re `,`, coordinates);
+                    if coordParts.length() > 0 {
+                        // Get the first coordinate pair (line:col)
+                        string[] lineCol = regexp:split(re `:`, coordParts[0]);
+                        if lineCol.length() >= 2 {
+                            int|error lineNum = int:fromString(lineCol[0]);
+                            int|error col = int:fromString(lineCol[1]);
+
+                            // Extract message - everything after ")]" plus 2 for ") "
+                            string message = line.substring(endBracket + 2).trim();
+
+                            if lineNum is int && col is int {
+                                CompilationError compilationError = {
+                                    filePath: filePath,
+                                    line: lineNum,
+                                    severity: severity,
+                                    column: col,
+                                    message: message
+                                };
+                                errors.push(compilationError);
+                            }
+                        }
+                    }
                 }
             }
         }
     }
-
     return errors;
 }
 
-function fixErrorsInFile(ai:ModelProvider model, string filePath, CompilationError[] errors) returns boolean|error {
+function fixErrorsInFile(ai:ModelProvider model, string projectPath, string filePath, CompilationError[] errors) returns boolean|error {
     log:printInfo("Attempting to fix errors in file: ", filePath = filePath, errorCount = errors.length());
 
+    // Construct full file path
+    string fullFilePath = projectPath + "/" + filePath;
+    
     // read file 
-    string fileContent = check io:fileReadString(filePath);
+    string fileContent = check io:fileReadString(fullFilePath);
 
     // if file is too large extract relevant sections
     string codeToFix = extractRelevantCode(fileContent, errors);
@@ -176,7 +189,7 @@ function fixErrorsInFile(ai:ModelProvider model, string filePath, CompilationErr
     string errorContext = prepareErrorContext(errors);
 
     //Get fix from LLM
-    string promptText = createFixPrompt(codeToFix, errorContext, filePath);
+    string promptText = createFixPrompt(codeToFix, errorContext, fullFilePath);
 
     ai:ChatMessage[] messages = [
         {role: "user", content: promptText}
@@ -201,7 +214,7 @@ function fixErrorsInFile(ai:ModelProvider model, string filePath, CompilationErr
     }
 
     // Apply the fix
-    boolean applied = applyFix(filePath, llmResponse, fileContent);
+    boolean applied = applyFix(fullFilePath, llmResponse, fileContent);
     return applied;
 
 }
