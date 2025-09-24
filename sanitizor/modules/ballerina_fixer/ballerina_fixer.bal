@@ -1,16 +1,118 @@
 import sanitizor.command_executor;
-
+import ballerina/os;
+import ballerina/io;
 import ballerina/ai;
 import ballerina/file;
-import ballerina/io;
 import ballerina/lang.regexp;
 import ballerina/log;
 import ballerinax/ai.anthropic;
+
 
 configurable string apiKey = ?;
 configurable int maxIterations = ?;
 
 const int MAX_CODE_LENGTH = 1000;
+function applyPatch(string filePath, string diffContent) returns boolean|error {
+    string patchFile = filePath + ".patch";
+    check io:fileWriteString(patchFile, diffContent, io:OVERWRITE);
+    
+    // Use bash to handle the patch command with redirection
+    os:Process|error result = os:exec({
+        value: "bash",
+        arguments: ["-c", string `patch '${filePath}' < '${patchFile}'`]
+    });
+    
+    // Clean up patch file (ignore cleanup errors)
+    error? cleanupResult = file:remove(patchFile);
+    if cleanupResult is error {
+        // Ignore cleanup errors
+    }
+    
+        
+    if result is error {
+        return result;
+    }
+    
+    // Check if patch command was successful
+    os:Process process = result;
+    int exitCode = check process.waitForExit();
+    
+    // Exit code 0 = success, exit code 1 = success with offsets/fuzz, exit code 2+ = failure
+    if exitCode > 1 {
+        return error("Patch command failed with exit code: " + exitCode.toString());
+    }
+    
+    // Verify the patch was actually applied by checking if file still has the same errors
+    // We'll rely on the next build iteration to verify success
+    return true;
+}
+
+function extractDiffBlock(string content) returns string {
+    // Extracts the first diff block between ```diff ... ```
+    int? startOpt = content.indexOf("```diff");
+    if startOpt is () {
+        return "";
+    }
+    int 'start = <int>startOpt;
+    int? endOpt = content.indexOf("```", 'start + 7);
+    if endOpt is () {
+        return "";
+    }
+    int end = <int>endOpt;
+    // Extract the diff block
+    int diffStart = 'start + 7;
+    string diffBlock = content.substring(diffStart, end);
+    return normalizeDiff(diffBlock.trim());
+}
+
+function normalizeDiff(string diff) returns string {
+    string[] lines = regexp:split(re `\n`, diff);
+    string[] normalizedLines = [];
+    
+    foreach string line in lines {
+        if line.startsWith("--- ") {
+            // Extract just the filename from the path
+            string path = line.substring(4);
+            // Remove the a/ prefix and any absolute path, keep just the filename
+            if path.startsWith("a//") || path.startsWith("a/") {
+                int? slashIndexOpt = path.lastIndexOf("/");
+                if slashIndexOpt is int && slashIndexOpt >= 0 {
+                    int slashIndex = slashIndexOpt;
+                    string filename = path.substring(slashIndex + 1);
+                    normalizedLines.push("--- " + filename);
+                } else {
+                    normalizedLines.push("--- " + path.substring(2)); // Remove "a/"
+                }
+            } else {
+                normalizedLines.push(line);
+            }
+        } else if line.startsWith("+++ ") {
+            // Extract just the filename from the path
+            string path = line.substring(4);
+            // Remove the b/ prefix and any absolute path, keep just the filename
+            if path.startsWith("b//") || path.startsWith("b/") {
+                int? slashIndexOpt = path.lastIndexOf("/");
+                if slashIndexOpt is int && slashIndexOpt >= 0 {
+                    int slashIndex = slashIndexOpt;
+                    string filename = path.substring(slashIndex + 1);
+                    normalizedLines.push("+++ " + filename);
+                } else {
+                    normalizedLines.push("+++ " + path.substring(2)); // Remove "b/"
+                }
+            } else {
+                normalizedLines.push(line);
+            }
+        } else {
+            normalizedLines.push(line);
+        }
+    }
+    
+    return string:'join("\n", ...normalizedLines);
+}
+
+
+
+
 
 public type BallerinaFixResult record {|
     boolean success;
@@ -224,22 +326,51 @@ function fixErrorsInFile(ai:ModelProvider model, string projectPath, string file
     io:println("----RESPONSE------");
     io:println(response);
 
-    // Parse the JSON response
+    // Parse the diff from the LLM response
     string? content = response.content;
     if content is () {
         return error("Empty response from LLM");
     }
 
-    FixResponse|error llmResponse = parseFixResponse(content);
-    if llmResponse is error {
-        log:printError("Failed to parse LLM response", 'error = llmResponse);
-        return llmResponse;
+    // Extract the diff block from the response (between ```diff ... ```)
+    string diffBlock = extractDiffBlock(content);
+    if diffBlock == "" {
+        log:printError("No diff block found in LLM response", response = content);
+        return error("No diff block found in LLM response");
     }
 
-    // Apply the fix
-    boolean applied = check applyFix(fullFilePath, llmResponse, fileContent);
-    return applied;
+    // Backup the file before patching
+    string backupPath = fullFilePath + ".backup";
+    io:Error? backupResult = io:fileWriteString(backupPath, fileContent, io:OVERWRITE);
+    if backupResult is io:Error {
+        log:printError("Failed to create backup", filePath = backupPath, 'error = backupResult);
+        return backupResult;
+    }
 
+    // Debug: print the normalized diff
+    io:println("----NORMALIZED DIFF------");
+    io:println(diffBlock);
+    
+    // Apply the patch
+    boolean|error patchResult = applyPatch(fullFilePath, diffBlock);
+    if patchResult is error {
+        log:printError("Failed to apply patch", filePath = fullFilePath, 'error = patchResult);
+        // Attempt to restore from backup
+        io:Error? restoreResult = io:fileWriteString(fullFilePath, fileContent, io:OVERWRITE);
+        if restoreResult is io:Error {
+            log:printError("Failed to restore original content", filePath = fullFilePath, 'error = restoreResult);
+        }
+        return patchResult;
+    }
+
+    // Clean up backup file after successful patch
+    file:Error? deleteResult = file:remove(backupPath);
+    if deleteResult is file:Error {
+        log:printWarn("Failed to delete backup file", backupPath = backupPath, 'error = deleteResult);
+    }
+
+    log:printInfo("Applied patch to file", filePath = fullFilePath);
+    return true;
 }
 
 function applyFix(string filePath, FixResponse fix, string originalContent) returns boolean|error {
@@ -291,30 +422,30 @@ function applyFix(string filePath, FixResponse fix, string originalContent) retu
 }
 
 function createFixPrompt(string code, string errorContext, string filePath) returns string {
-    return string `You are an expert ballerina programmer. I need you to fix compilation errors in the following ballerina code.
-    FIle: ${filePath}
+    // Use escaped triple backticks to avoid Ballerina syntax errors
+    string tripleBacktick = "```";
+    return string `You are an expert Ballerina programmer. I need you to fix compilation errors in the following Ballerina code.
 
-    Compilation Errors: 
-    ${errorContext}
-    
-    Code to fix:
-    ${code}
-    
-    Please provide the corrected code. Your response must be in the follwoing JSON format:
+File: ${filePath}
 
-    {
-    "fixedCode": "the complete corrected code",
-    "explanation": "brief explanation of what was fixed",
-    "confidence": "high|medium|low"
-    }
+Compilation Errors: 
+${errorContext}
 
-    Important guidelines:
-    1. Only fix the specific compilation errors mentioned
-    2. Preserve the original code structure and logic as much as possible
-    3. Ensure the fixed code follows Ballerina best practices
-    4. If you're not confident about a fix, indicate low confidence
-    5. Return the complete code section, not just the changed parts`;
+Code to fix:
+${code}
+
+Please provide the fix as a unified diff (git diff) patch, using the original file as the base. Only include the minimal changes needed to fix the errors. Your response must be in this format:
+
+${tripleBacktick}diff
+--- a/${filePath}
++++ b/${filePath}
+@@ ...
+<diff here>
+${tripleBacktick}
+
+If you are not confident, say so in a comment at the top of the diff.`;
 }
+
 
 function prepareErrorContext(CompilationError[] errors) returns string {
     string[] errorStrings = errors.'map(function(CompilationError err) returns string {
