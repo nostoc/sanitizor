@@ -28,6 +28,12 @@ type CompilationError record {|
     string code?;
 |};
 
+type FixResponse record {|
+    string fixedCode;
+    string explanation;
+    string confidence;
+|};
+
 public type BallerinaFixerError error;
 
 public function fixAllBallerinaErrors(string projectPath) returns BallerinaFixerError|BallerinaFixResult {
@@ -93,7 +99,6 @@ public function fixAllBallerinaErrors(string projectPath) returns BallerinaFixer
 
     }
     // final check 
-
     command_executor:CommandResult finalBuildResult = command_executor:executeBalBuild(projectPath);
     if command_executor:isCommandSuccessfull(finalBuildResult) {
         result.success = true;
@@ -178,7 +183,7 @@ function fixErrorsInFile(ai:ModelProvider model, string projectPath, string file
 
     // Construct full file path
     string fullFilePath = projectPath + "/" + filePath;
-    
+
     // read file 
     string fileContent = check io:fileReadString(fullFilePath);
 
@@ -306,11 +311,7 @@ function extractRelevantCode(string fullCode, CompilationError[] errors) returns
 
 }
 
-type FixResponse record {|
-    string fixedCode;
-    string explanation;
-    string confidence;
-|};
+
 
 function parseFixResponse(string content) returns FixResponse|error {
     // Try to parse as JSON
@@ -344,6 +345,6 @@ function parseFixResponse(string content) returns FixResponse|error {
     return error("Invalid JSON structure in LLM response");
 }
 
-function errorToString(CompilationError err) returns string {
-    return string `${err.severity} at ${err.filePath}:${err.line}:${err.column} - ${err.message}`;
-}
+//function errorToString(CompilationError err) returns string {
+//    return string `${err.severity} at ${err.filePath}:${err.line}:${err.column} - ${err.message}`;
+//}

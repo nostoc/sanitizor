@@ -130,8 +130,8 @@
 //     io:println("  ANTHROPIC_API_KEY: Required for LLM-based fixes");
 // }
 
-
 import sanitizor.ballerina_fixer;
+
 import ballerina/io;
 import ballerina/log;
 
@@ -140,15 +140,15 @@ public function main(string... args) returns error? {
         printCodeFixerUsage();
         return;
     }
-    
+
     string projectPath = args[0];
-    
+
     log:printInfo("Starting Ballerina code fixer", projectPath = projectPath);
     io:println("Starting AI-powered Ballerina code fixer...");
-    
-    ballerina_fixer:BallerinaFixResult|ballerina_fixer:BallerinaFixerError result = 
+
+    ballerina_fixer:BallerinaFixResult|ballerina_fixer:BallerinaFixerError result =
         ballerina_fixer:fixAllBallerinaErrors(projectPath);
-    
+
     if result is ballerina_fixer:BallerinaFixResult {
         if result.success {
             io:println("All compilation errors fixed successfully!");
@@ -162,7 +162,7 @@ public function main(string... args) returns error? {
             //     io:println(string `   • ${err}`);
             // }
         }
-        
+
         if result.appliedFixes.length() > 0 {
             io:println("\n Applied fixes:");
             foreach string fix in result.appliedFixes {
