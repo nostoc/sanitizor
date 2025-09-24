@@ -200,9 +200,14 @@ function fixErrorsInFile(ai:ModelProvider model, string projectPath, string file
 
     // if file is too large extract relevant sections
     string codeToFix = extractRelevantCode(fileContent, errors);
+    io:println("----CODE TO FIX------");
+    io:println(codeToFix);
 
     // prepare error context
     string errorContext = prepareErrorContext(errors);
+    io:println("----ERROR CONTEXT------");
+
+    io:println(errorContext);
 
     //Get fix from LLM
     string promptText = createFixPrompt(codeToFix, errorContext, fullFilePath);
@@ -216,6 +221,8 @@ function fixErrorsInFile(ai:ModelProvider model, string projectPath, string file
         log:printError("LLM failed to generate a fix", 'error = response);
         return response;
     }
+    io:println("----RESPONSE------");
+    io:println(response);
 
     // Parse the JSON response
     string? content = response.content;
@@ -287,9 +294,11 @@ function createFixPrompt(string code, string errorContext, string filePath) retu
     return string `You are an expert ballerina programmer. I need you to fix compilation errors in the following ballerina code.
     FIle: ${filePath}
 
-    Compilation Errors: ${errorContext}
+    Compilation Errors: 
+    ${errorContext}
     
-    Code to fix: ${code}
+    Code to fix:
+    ${code}
     
     Please provide the corrected code. Your response must be in the follwoing JSON format:
 
