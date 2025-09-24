@@ -17,7 +17,7 @@ public type PaymentReceipt record {|
     # Currency used in price
     string currency;
     # Unique identification
-    string id;
+    string id
 |};
 
 # Current availability status of a room indicating whether it can be booked, is already reserved, or is available for booking

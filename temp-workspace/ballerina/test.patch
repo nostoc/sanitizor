@@ -1,5 +1,14 @@
 --- types.bal
 +++ types.bal
+@@ -18,7 +18,7 @@
+     # Currency used in price
+     string currency;
+     # Unique identification
+-    string id
++    string id;
+ |};
+ 
+ # Current availability status of a room indicating whether it can be booked, is already reserved, or is available for booking
 @@ -92,7 +92,7 @@
      # Unique identification of the receipt
      string id;
@@ -9,3 +18,26 @@
  };
  
  # Represents resort room
+# --- types.bal
+# +++ types.bal
+# @@ -92,7 +92,7 @@
+#      # Unique identification of the receipt
+#      string id;
+#      # Current status of a reservation, indicating whether it is active and valid or has been canceled
+# -    ReservationState state
+# +    ReservationState state;
+#  };
+ 
+#  # Represents resort room
+
+# --- types.bal
+# +++ types.bal
+# @@ -92,7 +92,7 @@
+#      # Unique identification of the receipt
+#      string id;
+#      # Current status of a reservation, indicating whether it is active and valid or has been canceled
+# -    ReservationState state
+# +    ReservationState state;
+#  };
+ 
+#  # Represents resort room
