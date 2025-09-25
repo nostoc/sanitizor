@@ -1,29 +1,14 @@
 --- types.bal
 +++ types.bal
-@@ -27,7 +27,7 @@
- # Represents a collection of locations
- public type Locations record {
-     # collection of locations
--    Location[] locations
-+    Location[] locations;
- };
- 
- # Represents a collection of resort rooms
-@@ -33,7 +33,7 @@
- # Represents a collection of resort rooms
- public type Rooms record {
-     # Array of rooms
--    Room[] rooms
-+    Room[] rooms;
- };
- 
- # Represents rooms be reserved
-@@ -52,7 +52,7 @@
-     # End date in yyyy-mm-dd
-     string endDate;
-     # Rooms to be reserved
--    ReserveRoom[] reserveRooms
-+    ReserveRoom[] reserveRooms;
-     # Start date in yyyy-mm-dd
-     string startDate;
- |};
+@@ -9,9 +9,9 @@
+ # Represents receipt for the payment
+ public type PaymentReceipt record {|
+     # Last updated time stamp
+-    string lastUpdated;\
++    string lastUpdated;
+     # Total amount paid
+-    decimal total
++    decimal total;
+     # Booked rooms
+     Room[] rooms;
+     # Currency used in price

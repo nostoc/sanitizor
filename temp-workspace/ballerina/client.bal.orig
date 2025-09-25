@@ -73,6 +73,7 @@ public isolated client class Client {
         string resourcePath = string `/reservations/${getEncodedUri(id)}`;
         return self.clientEp->delete(resourcePath, headers = headers);
     }
+o
     # Snowpeak payment resource
     #
     # + id - Unique identification of reservation
