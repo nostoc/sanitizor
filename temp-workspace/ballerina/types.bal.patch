@@ -1,20 +1,11 @@
 --- types.bal
 +++ types.bal
-@@ -4,7 +4,7 @@
-     # End date in format yyyy-mm-dd
-     string endDate;
-     # Start date in format yyyy-mm-dd
--    string startDate
-+    string startDate;
- };
- 
- # Represents a receipt for the reservation
-@@ -16,7 +16,7 @@
-     # Currency used in price
-     string currency;
-     # Unique identification of the receipt
--    string id
-+    string id;
-     # Current status of a reservation, indicating whether it is active and valid or has been canceled
-     ReservationState state;
- };
+@@ -151,7 +151,7 @@
+     # Provides settings related to client socket configuration
+     http:ClientSocketConfig socketConfig = {};
+     # Enables the inbound payload validation functionality which provided by the constraint package. Enabled by default
+-    boolean validation = true
++    boolean validation = true;
+     # Enables relaxed data binding on the client side. When enabled, `nil` values are treated as optional, 
+     # and absent fields are handled as `nilable` types. Enabled by default.
+     boolean laxDataBinding = true;

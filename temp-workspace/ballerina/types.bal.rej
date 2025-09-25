@@ -1,0 +1,11 @@
+--- types.bal
++++ types.bal
+@@ -164,7 +164,7 @@
+     string name;
+     # Unique identification of the location
+     string id;
+-|}
++|};
+ 
+ # Represents location
+ 
