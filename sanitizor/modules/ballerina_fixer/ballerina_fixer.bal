@@ -352,6 +352,7 @@ function fixErrorsInFile(ai:ModelProvider model, string projectPath, string file
     
     // Apply the patch
     boolean|error patchResult = applyPatch(fullFilePath, diffBlock);
+    io:println(patchResult);
     if patchResult is error {
         log:printError("Failed to apply patch", filePath = fullFilePath, 'error = patchResult);
         // Attempt to restore from backup

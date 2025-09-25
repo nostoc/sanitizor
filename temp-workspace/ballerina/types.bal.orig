@@ -91,7 +91,7 @@ public type ReservationReceipt record {
     # Unique identification of the receipt
     string id;
     # Current status of a reservation, indicating whether it is active and valid or has been canceled
-    ReservationState state
+    ReservationState state;
 };
 
 # Represents resort room
