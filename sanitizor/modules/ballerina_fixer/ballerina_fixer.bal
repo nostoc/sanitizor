@@ -12,38 +12,94 @@ configurable string apiKey = ?;
 configurable int maxIterations = ?;
 
 const int MAX_CODE_LENGTH = 1000;
-function applyPatch(string filePath, string diffContent) returns boolean|error {
-    string patchFile = filePath + ".patch";
+function applyPatch(string filePath, string diffContent, CompilationError[] originalErrors, string projectPath) returns boolean|error {
+    string fileName = extractFileName(filePath);
+    string patchFile = check file:joinPath(projectPath, fileName + ".patch");
     check io:fileWriteString(patchFile, diffContent, io:OVERWRITE);
     
-    // Use bash to handle the patch command with redirection
+    // Use bash to handle the patch command with redirection in the project directory
+    string patchFileName = fileName + ".patch";
+    string patchCommand = string `cd '${projectPath}' && patch '${fileName}' < '${patchFileName}'`;
+    log:printInfo("Executing patch command: " + patchCommand);
     os:Process|error result = os:exec({
         value: "bash",
-        arguments: ["-c", string `patch '${filePath}' < '${patchFile}'`]
+        arguments: ["-c", patchCommand]
     });
-    
-    // Clean up patch file (ignore cleanup errors)
-    error? cleanupResult = file:remove(patchFile);
-    if cleanupResult is error {
-        // Ignore cleanup errors
-    }
-    
+
+    // Temporarily disable cleanup for debugging
+    // error? cleanupResult = file:remove(patchFile);
+    // if cleanupResult is error {
+    //     // Ignore cleanup errors
+    // }
+
     if result is error {
+        log:printError("Failed to execute patch command", 'error = result);
         return result;
     }
-    
+
     // Check if patch command was successful
     os:Process process = result;
     int exitCode = check process.waitForExit();
+    log:printInfo("Patch command exit code: " + exitCode.toString());
     
     // Exit code 0 = success, exit code 1 = success with offsets/fuzz, exit code 2+ = failure
     if exitCode > 1 {
         return error("Patch command failed with exit code: " + exitCode.toString());
     }
     
-    // Verify the patch was actually applied by checking if file still has the same errors
-    // We'll rely on the next build iteration to verify success
+    // Verify the patch was actually applied by checking if the original errors are resolved
+    boolean isVerified = check verifyPatchApplication(filePath, originalErrors, projectPath);
+    if !isVerified {
+        return error("Patch applied but original errors still exist in the file");
+    }
+    
     return true;
+}
+
+function verifyPatchApplication(string filePath, CompilationError[] originalErrors, string projectPath) returns boolean|error {
+    // Build just this file to check if the specific errors are resolved
+    command_executor:CommandResult buildResult = command_executor:executeBalBuild(projectPath);
+    
+    if command_executor:isCommandSuccessfull(buildResult) {
+        // If build is successful, all errors are resolved
+        return true;
+    }
+    
+    // Parse current errors
+    CompilationError[] currentErrors = parseCompilationErrors(buildResult.stderr);
+    
+    // Filter errors for this specific file
+    CompilationError[] currentFileErrors = currentErrors.filter(function(CompilationError err) returns boolean {
+        return err.filePath == extractFileName(filePath);
+    });
+    
+    // Check if any of the original errors still exist
+    foreach CompilationError originalError in originalErrors {
+        foreach CompilationError currentError in currentFileErrors {
+            // Check if this is the same error (same line, column, and message)
+            if originalError.line == currentError.line && 
+               originalError.column == currentError.column &&
+               originalError.message == currentError.message {
+                // Original error still exists, patch didn't work
+                log:printWarn("Original error still exists after patch", 
+                    line = originalError.line, 
+                    column = originalError.column, 
+                    message = originalError.message);
+                return false;
+            }
+        }
+    }
+    
+    // All original errors are resolved (though there might be new errors)
+    return true;
+}
+
+function extractFileName(string fullPath) returns string {
+    int? lastSlashOpt = fullPath.lastIndexOf("/");
+    if lastSlashOpt is int && lastSlashOpt >= 0 {
+        return fullPath.substring(lastSlashOpt + 1);
+    }
+    return fullPath;
 }
 
 function extractDiffBlock(string content) returns string {
@@ -308,6 +364,14 @@ function fixErrorsInFile(ai:ModelProvider model, string projectPath, string file
     string errorContext = prepareErrorContext(errors);
     io:println("----ERROR CONTEXT------");
 
+        // Debug: Print file length and first few errors for verification
+    log:printInfo("DEBUG - File content length: " + fileContent.length().toString());
+    log:printInfo("DEBUG - Number of errors: " + errors.length().toString());
+    if errors.length() > 0 {
+        log:printInfo("DEBUG - First error line: " + errors[0].line.toString() + ", column: " + errors[0].column.toString());
+    }
+
+
     io:println(errorContext);
 
     //Get fix from LLM
@@ -350,8 +414,9 @@ function fixErrorsInFile(ai:ModelProvider model, string projectPath, string file
     io:println("----NORMALIZED DIFF------");
     io:println(diffBlock);
     
-    // Apply the patch
-    boolean|error patchResult = applyPatch(fullFilePath, diffBlock);
+    // Apply the patch with verification
+    boolean|error patchResult = applyPatch(fullFilePath, diffBlock, errors, projectPath);
+    io:println("--------PATCH RESULT STATUS-------");
     io:println(patchResult);
     if patchResult is error {
         log:printError("Failed to apply patch", filePath = fullFilePath, 'error = patchResult);
