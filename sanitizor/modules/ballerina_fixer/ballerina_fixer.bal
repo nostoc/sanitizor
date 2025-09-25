@@ -12,6 +12,33 @@ configurable string apiKey = ?;
 configurable int maxIterations = ?;
 
 const int MAX_CODE_LENGTH = 1000;
+
+
+public type BallerinaFixResult record {|
+    boolean success;
+    int errorsFixed;
+    int errorsRemaining;
+    string[] appliedFixes;
+    string[] remainingFixes;
+|};
+
+type CompilationError record {|
+    string filePath;
+    int line;
+    int column;
+    string message;
+    string severity;
+    string code?;
+|};
+
+type FixResponse record {|
+    string fixedCode;
+    string explanation;
+    string confidence;
+|};
+
+public type BallerinaFixerError error;
+
 function applyPatch(string filePath, string diffContent, CompilationError[] originalErrors, string projectPath) returns boolean|error {
     string fileName = extractFileName(filePath);
     string patchFile = check file:joinPath(projectPath, fileName + ".patch");
@@ -164,35 +191,6 @@ function normalizeDiff(string diff) returns string {
     
     return string:'join("\n", ...normalizedLines);
 }
-
-
-
-
-
-public type BallerinaFixResult record {|
-    boolean success;
-    int errorsFixed;
-    int errorsRemaining;
-    string[] appliedFixes;
-    string[] remainingFixes;
-|};
-
-type CompilationError record {|
-    string filePath;
-    int line;
-    int column;
-    string message;
-    string severity;
-    string code?;
-|};
-
-type FixResponse record {|
-    string fixedCode;
-    string explanation;
-    string confidence;
-|};
-
-public type BallerinaFixerError error;
 
 public function fixAllBallerinaErrors(string projectPath) returns BallerinaFixerError|BallerinaFixResult {
     log:printInfo("Starting ballerina error fixing process", projectPath = projectPath);
