@@ -26,13 +26,13 @@ public type RoomStatus "BOOKED"|"RESERVED"|"AVAILABLE";
 # Represents a collection of locations
 public type Locations record {
     # collection of locations
-    Location[] locations;
+    Location[] locations
 };
 
 # Represents a collection of resort rooms
 public type Rooms record {
     # Array of rooms
-    Room[] rooms;
+    Room[] rooms
 };
 
 # Represents rooms be reserved
@@ -51,7 +51,7 @@ public type Reservation record {|
     # End date in yyyy-mm-dd
     string endDate;
     # Rooms to be reserved
-    ReserveRoom[] reserveRooms;
+    ReserveRoom[] reserveRooms
     # Start date in yyyy-mm-dd
     string startDate;
 |};
@@ -87,7 +87,7 @@ public type ReservationReceipt record {
     # Represents a reservation of rooms
     Reservation reservation;
     # Currency used in price
-    string currency
+    string currency;
     # Unique identification of the receipt
     string id;
     # Current status of a reservation, indicating whether it is active and valid or has been canceled
@@ -159,7 +159,7 @@ public type ConnectionConfig record {|
 # Represents location
 public type Location record {|
     # Address of the location
-    string address
+    string address;
     # Name of the location
     string name;
     # Unique identification of the location

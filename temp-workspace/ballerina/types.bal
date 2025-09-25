@@ -26,13 +26,13 @@ public type RoomStatus "BOOKED"|"RESERVED"|"AVAILABLE";
 # Represents a collection of locations
 public type Locations record {
     # collection of locations
-    Location[] locations
+    Location[] locations;
 };
 
 # Represents a collection of resort rooms
 public type Rooms record {
     # Array of rooms
-    Room[] rooms
+    Room[] rooms;
 };
 
 # Represents rooms be reserved
@@ -51,7 +51,7 @@ public type Reservation record {|
     # End date in yyyy-mm-dd
     string endDate;
     # Rooms to be reserved
-    ReserveRoom[] reserveRooms
+    ReserveRoom[] reserveRooms;
     # Start date in yyyy-mm-dd
     string startDate;
 |};
