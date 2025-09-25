@@ -1,0 +1,19 @@
+--- types.bal
++++ types.bal
+@@ -88,7 +88,7 @@
+     # Represents a reservation of rooms
+     Reservation reservation;
+     # Currency used in price
+-    string currency
++    string currency;
+     # Unique identification of the receipt
+     string id;
+     # Current status of a reservation, indicating whether it is active and valid or has been canceled
+@@ -160,7 +160,7 @@
+ public type Location record {|
+     # Address of the location
+-    string address
++    string address;
+     # Name of the location
+     string name;
+     # Unique identification of the location
