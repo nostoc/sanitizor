@@ -1,18 +1,17 @@
 import sanitizor.command_executor;
-import ballerina/os;
-import ballerina/io;
+
 import ballerina/ai;
 import ballerina/file;
+import ballerina/io;
 import ballerina/lang.regexp;
 import ballerina/log;
+import ballerina/os;
 import ballerinax/ai.anthropic;
-
 
 configurable string apiKey = ?;
 configurable int maxIterations = ?;
 
 const int MAX_CODE_LENGTH = 1000;
-
 
 public type BallerinaFixResult record {|
     boolean success;
@@ -22,7 +21,7 @@ public type BallerinaFixResult record {|
     string[] remainingFixes;
 |};
 
-type CompilationError record {|
+public type CompilationError record {|
     string filePath;
     int line;
     int column;
@@ -31,7 +30,7 @@ type CompilationError record {|
     string code?;
 |};
 
-type FixResponse record {|
+public type FixResponse record {|
     string fixedCode;
     string explanation;
     string confidence;
@@ -43,15 +42,15 @@ function applyPatch(string filePath, string diffContent, CompilationError[] orig
     string fileName = extractFileName(filePath);
     string patchFile = check file:joinPath(projectPath, fileName + ".patch");
     check io:fileWriteString(patchFile, diffContent, io:OVERWRITE);
-    
+
     // Use bash to handle the patch command with redirection in the project directory
     string patchFileName = fileName + ".patch";
     string patchCommand = string `cd '${projectPath}' && patch '${fileName}' < '${patchFileName}'`;
     log:printInfo("Executing patch command: " + patchCommand);
     os:Process|error result = os:exec({
-        value: "bash",
-        arguments: ["-c", patchCommand]
-    });
+                                          value: "bash",
+                                          arguments: ["-c", patchCommand]
+                                      });
 
     // Temporarily disable cleanup for debugging
     // error? cleanupResult = file:remove(patchFile);
@@ -68,55 +67,55 @@ function applyPatch(string filePath, string diffContent, CompilationError[] orig
     os:Process process = result;
     int exitCode = check process.waitForExit();
     log:printInfo("Patch command exit code: " + exitCode.toString());
-    
+
     // Exit code 0 = success, exit code 1 = success with offsets/fuzz, exit code 2+ = failure
     if exitCode > 1 {
         return error("Patch command failed with exit code: " + exitCode.toString());
     }
-    
+
     // Verify the patch was actually applied by checking if the original errors are resolved
     boolean isVerified = check verifyPatchApplication(filePath, originalErrors, projectPath);
     if !isVerified {
         return error("Patch applied but original errors still exist in the file");
     }
-    
+
     return true;
 }
 
 function verifyPatchApplication(string filePath, CompilationError[] originalErrors, string projectPath) returns boolean|error {
     // Build just this file to check if the specific errors are resolved
     command_executor:CommandResult buildResult = command_executor:executeBalBuild(projectPath);
-    
+
     if command_executor:isCommandSuccessfull(buildResult) {
         // If build is successful, all errors are resolved
         return true;
     }
-    
+
     // Parse current errors
     CompilationError[] currentErrors = parseCompilationErrors(buildResult.stderr);
-    
+
     // Filter errors for this specific file
     CompilationError[] currentFileErrors = currentErrors.filter(function(CompilationError err) returns boolean {
         return err.filePath == extractFileName(filePath);
     });
-    
+
     // Check if any of the original errors still exist
     foreach CompilationError originalError in originalErrors {
         foreach CompilationError currentError in currentFileErrors {
             // Check if this is the same error (same line, column, and message)
-            if originalError.line == currentError.line && 
-               originalError.column == currentError.column &&
-               originalError.message == currentError.message {
+            if originalError.line == currentError.line &&
+                originalError.column == currentError.column &&
+                originalError.message == currentError.message {
                 // Original error still exists, patch didn't work
-                log:printWarn("Original error still exists after patch", 
-                    line = originalError.line, 
-                    column = originalError.column, 
-                    message = originalError.message);
+                log:printWarn("Original error still exists after patch",
+                        line = originalError.line,
+                        column = originalError.column,
+                        message = originalError.message);
                 return false;
             }
         }
     }
-    
+
     // All original errors are resolved (though there might be new errors)
     return true;
 }
@@ -150,7 +149,7 @@ function extractDiffBlock(string content) returns string {
 function normalizeDiff(string diff) returns string {
     string[] lines = regexp:split(re `\n`, diff);
     string[] normalizedLines = [];
-    
+
     foreach string line in lines {
         if line.startsWith("--- ") {
             // Extract just the filename from the path
@@ -188,7 +187,7 @@ function normalizeDiff(string diff) returns string {
             normalizedLines.push(line);
         }
     }
-    
+
     return string:'join("\n", ...normalizedLines);
 }
 
@@ -250,7 +249,7 @@ public function fixAllBallerinaErrors(string projectPath) returns BallerinaFixer
         }
         if !anyErrorFixed {
             log:printWarn("No errors were fixed in this ieteration :(");
-            break;
+
         }
 
     }
@@ -362,13 +361,12 @@ function fixErrorsInFile(ai:ModelProvider model, string projectPath, string file
     string errorContext = prepareErrorContext(errors);
     io:println("----ERROR CONTEXT------");
 
-        // Debug: Print file length and first few errors for verification
+    // Debug: Print file length and first few errors for verification
     log:printInfo("DEBUG - File content length: " + fileContent.length().toString());
     log:printInfo("DEBUG - Number of errors: " + errors.length().toString());
     if errors.length() > 0 {
         log:printInfo("DEBUG - First error line: " + errors[0].line.toString() + ", column: " + errors[0].column.toString());
     }
-
 
     io:println(errorContext);
 
@@ -386,6 +384,9 @@ function fixErrorsInFile(ai:ModelProvider model, string projectPath, string file
     }
     io:println("----RESPONSE------");
     io:println(response);
+    io:println("----RESPONSE CONTENT------");
+    io:println(response.content);
+
 
     // Parse the diff from the LLM response
     string? content = response.content;
@@ -411,7 +412,7 @@ function fixErrorsInFile(ai:ModelProvider model, string projectPath, string file
     // Debug: print the normalized diff
     io:println("----NORMALIZED DIFF------");
     io:println(diffBlock);
-    
+
     // Apply the patch with verification
     boolean|error patchResult = applyPatch(fullFilePath, diffBlock, errors, projectPath);
     io:println("--------PATCH RESULT STATUS-------");
@@ -465,7 +466,7 @@ function applyFix(string filePath, FixResponse fix, string originalContent) retu
     io:Error? writeResult = io:fileWriteString(filePath, fix.fixedCode, io:OVERWRITE);
     if writeResult is io:Error {
         log:printError("Failed to write fixed code", filePath = filePath, 'error = writeResult);
-        
+
         // Attempt to restore from backup
         io:Error? restoreResult = io:fileWriteString(filePath, originalContent, io:OVERWRITE);
         if restoreResult is io:Error {
@@ -551,8 +552,6 @@ function extractRelevantCode(string fullCode, CompilationError[] errors) returns
 
 }
 
-
-
 function parseFixResponse(string content) returns FixResponse|error {
     // Try to parse as JSON
     json|error jsonResult = content.fromJsonString();
@@ -584,7 +583,3 @@ function parseFixResponse(string content) returns FixResponse|error {
 
     return error("Invalid JSON structure in LLM response");
 }
-
-//function errorToString(CompilationError err) returns string {
-//    return string `${err.severity} at ${err.filePath}:${err.line}:${err.column} - ${err.message}`;
-//}

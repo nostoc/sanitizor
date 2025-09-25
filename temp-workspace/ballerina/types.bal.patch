@@ -1,14 +1,20 @@
 --- types.bal
 +++ types.bal
-@@ -9,9 +9,9 @@
- # Represents receipt for the payment
- public type PaymentReceipt record {|
-     # Last updated time stamp
--    string lastUpdated;\
-+    string lastUpdated;
-     # Total amount paid
--    decimal total
-+    decimal total;
-     # Booked rooms
-     Room[] rooms;
+@@ -4,7 +4,7 @@
+     # End date in format yyyy-mm-dd
+     string endDate;
+     # Start date in format yyyy-mm-dd
+-    string startDate
++    string startDate;
+ };
+ 
+ # Represents a receipt for the reservation
+@@ -16,7 +16,7 @@
      # Currency used in price
+     string currency;
+     # Unique identification of the receipt
+-    string id
++    string id;
+     # Current status of a reservation, indicating whether it is active and valid or has been canceled
+     ReservationState state;
+ };
