@@ -387,7 +387,6 @@ function fixErrorsInFile(ai:ModelProvider model, string projectPath, string file
     io:println("----RESPONSE CONTENT------");
     io:println(response.content);
 
-
     // Parse the diff from the LLM response
     string? content = response.content;
     if content is () {
@@ -485,37 +484,38 @@ function applyFix(string filePath, FixResponse fix, string originalContent) retu
     return true;
 }
 
+// function to generate the prompt for LLM
 function createFixPrompt(string code, string errorContext, string filePath) returns string {
     string tripleBacktick = "```";
 
     return string `You are an expert Ballerina programmer. I need you to fix compilation errors in the following Ballerina code.
 
-File: ${filePath}
+    File: ${filePath}
 
-Compilation Errors: 
-${errorContext}
+    Compilation Errors: 
+    ${errorContext}
 
-Code to fix:
-${code}
+    Code to fix:
+    ${code}
 
-Please provide the fix as a unified diff (git diff) patch, using the original file as the base.
+    Please provide the fix as a unified diff patch, using the original file as the base.
 
-Important instructions:
-1. Only include the minimal changes needed to fix the errors.
-2. Include **at least 3 context lines before and after each change**.
-3. Preserve all other lines of the file exactly as they are.
-4. Use proper unified diff format with @@ -start,count +start,count @@ headers.
-5. If you are not confident, add a comment at the top of the diff.
-6. Ensure the patch can be applied cleanly using 'git apply'.
+    Important instructions:
+    1. Only include the minimal changes needed to fix the errors.
+    2. Include **at least 3 context lines before and after each change**.
+    3. Preserve all other lines of the file exactly as they are.
+    4. Use proper unified diff format with @@ -start,count +start,count @@ headers.
+    5. If you are not confident, add a comment at the top of the diff.
+    6. Ensure the patch can be applied cleanly using 'git apply'.
 
-Your response must be in this format:
+    Your response must be in this format:
 
-${tripleBacktick}diff
---- a/${filePath}
-+++ b/${filePath}
-@@ ...
-<diff here>
-${tripleBacktick}`;
+    ${tripleBacktick}diff
+    --- a/${filePath}
+    +++ b/${filePath}
+    @@ ...
+    <diff here>
+    ${tripleBacktick}`;
 }
 
 function prepareErrorContext(CompilationError[] errors) returns string {
