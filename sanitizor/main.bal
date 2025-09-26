@@ -47,7 +47,7 @@
 //     log:printInfo("OpenAPI spec aligned successfully", outputPath = alignedSpecPath);
 
 //     // Step 3: Apply schema renaming fix on aligned spec
-//     string alignedSpec = alignedSpecPath + "/aligned_ballerina_openapi.json";
+//     string alignedSpec = alignedSpecPath + "/aligned_openapi.json";
 //     int|llm_service:LLMServiceError schemaRenameResult = llm_service:renameInlineResponseSchemas(alignedSpec);
 //     if schemaRenameResult is llm_service:LLMServiceError {
 //         log:printError("Failed to rename InlineResponse schemas", 'error = schemaRenameResult);
@@ -86,10 +86,10 @@
 
 //     // // step 7
 
-//     // ballerina_fixer:BallerinaFixResult|ballerina_fixer:BallerinaFixerError fixResult =
-//     // ballerina_fixer:fixAllBallerinaErrors(clientOutputPath);
+//     // fixer:FixResult|fixer:BallerinaFixerError fixResult =
+//     // fixer:fixAllBallerinaErrors(clientOutputPath);
 
-//     // if fixResult is ballerina_fixer:BallerinaFixResult {
+//     // if fixResult is fixer:FixResult {
 //     //     if fixResult.success {
 //     //         io:println(string `✓ AI successfully fixed ${fixResult.errorsFixed} compilation errors!`);
 //     //         io:println("✓ All Ballerina files compile without errors!");
@@ -130,7 +130,7 @@
 //     io:println("  ANTHROPIC_API_KEY: Required for LLM-based fixes");
 // }
 
-import sanitizor.ballerina_fixer;
+import sanitizor.fixer;
 
 import ballerina/io;
 import ballerina/log;
@@ -146,10 +146,10 @@ public function main(string... args) returns error? {
     log:printInfo("Starting Ballerina code fixer", projectPath = projectPath);
     io:println("Starting AI-powered Ballerina code fixer...");
 
-    ballerina_fixer:BallerinaFixResult|ballerina_fixer:BallerinaFixerError result =
-        ballerina_fixer:fixAllBallerinaErrors(projectPath);
+    fixer:FixResult|fixer:BallerinaFixerError result =
+        fixer:fixAllErrors(projectPath);
 
-    if result is ballerina_fixer:BallerinaFixResult {
+    if result is fixer:FixResult {
         if result.success {
             io:println("All compilation errors fixed successfully!");
             io:println(string `Fixed ${result.errorsFixed} errors`);
