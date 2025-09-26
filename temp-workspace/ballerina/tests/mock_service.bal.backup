@@ -394,7 +394,7 @@ http:Service mockService = service object {
     resource function get workspaces(@http:Header {name: "Authorization"} string? authorization, decimal accessApiLevel = 0, boolean includeAll = false, decimal page = 1, decimal pageSize = 100) returns WorkspaceShareListResponse|ErrorDefault {
         return {
             pageNumber: page,
-            pageSize: pageSize
+            pageSize: pageSize,
             totalPages: 1,
             totalCount: 2,
             data: [
@@ -482,7 +482,7 @@ http:Service mockService = service object {
                 userSettings: payload.userSettings,
                 projectSettings: payload.projectSettings
             }
-        };
+        }
     }
 
     # Update Rows
