@@ -89,17 +89,17 @@ File: ${filePath}
 Compilation Errors:
 ${errorContext}
 
+
+// Instructions:
+// - Return the full updated copy of the source ballerina file that needed changes.
+// - Do not include explanations, markdown formatting, or code fences
+// - Preserve the original structure, comments, and imports where possible
+// - Fix all compilation errors
+// - Ensure the code follows Ballerina best practices
+
 Current Code:
 ${code}
-
-Instructions:
-- Return ONLY the complete fixed Ballerina code
-- Do not include explanations, markdown formatting, or code fences
-- Preserve the original structure, comments, and imports where possible
-- Fix all compilation errors
-- Ensure the code follows Ballerina best practices
-
-Fixed Code:`;
+`;
 }
 
 // Prepare error context string
@@ -132,6 +132,8 @@ public function fixFileWithLLM(string projectPath, string filePath, CompilationE
 
     // Create fix prompt
     string prompt = createFixPrompt(fileContent, errors, filePath);
+    io:println("----PROMPT--------");
+    io:println(prompt);
 
     log:printInfo("Sending fix request to LLM");
 
@@ -142,6 +144,9 @@ public function fixFileWithLLM(string projectPath, string filePath, CompilationE
         return error(string `LLM failed to generate fix: ${llmResponse.message()}`);
     }
 
+io:println("----LLM RESONSE-------");
+    io:println(llmResponse);
+
     // Return the response
     return {
         success: true,
@@ -151,7 +156,7 @@ public function fixFileWithLLM(string projectPath, string filePath, CompilationE
 }
 
 public function fixBallerinaCode(string prompt) returns string|error {
-    ai:ModelProvider anthropicModel = check new anthropic:ModelProvider(apiKey, anthropic:CLAUDE_SONNET_4_20250514);
+    ai:ModelProvider anthropicModel = check new anthropic:ModelProvider(apiKey, anthropic:CLAUDE_SONNET_4_20250514, maxTokens = 50000, temperature = 0.1);
 
     ai:ChatMessage[] messages = [
         {role: "user", content: prompt}
@@ -167,7 +172,7 @@ public function fixBallerinaCode(string prompt) returns string|error {
         return error("Empty response from LLM");
     }
 
-    return fixedCode.trim();
+    return fixedCode;
 }
 
 // Apply fix to file
