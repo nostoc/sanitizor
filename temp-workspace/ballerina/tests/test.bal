@@ -44,7 +44,7 @@ isolated function testGetSheets() returns error? {
 }
 isolated function testGetSheet() returns error? {
     anydata response = check smartsheet->/sheets/[testSheetId]();
-    time:Utc current = time:utcNow(); 
+    time:Utc current = time:utcNow();
     test:assertTrue(response !is ());
 }
 

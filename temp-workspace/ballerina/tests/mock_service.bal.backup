@@ -67,7 +67,7 @@ http:Service mockService = service object {
                 },
                 {
                     id: 12346,
-                    name: "Sample Sheet 2",
+                    name: "Sample Sheet 2"
                     permalink: "https://app.smartsheet.com/sheets/12346"
                 }
             ],
@@ -482,7 +482,7 @@ http:Service mockService = service object {
                 userSettings: payload.userSettings,
                 projectSettings: payload.projectSettings
             }
-        }
+        };
     }
 
     # Update Rows
