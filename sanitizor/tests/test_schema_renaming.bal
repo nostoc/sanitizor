@@ -1,4 +1,4 @@
-import sanitizor.llm_service;
+import sanitizor.spec_sanitizor;
 
 import ballerina/io;
 import ballerina/log;
@@ -9,18 +9,18 @@ public function testSchemaRenaming() returns error? {
     log:printInfo("Testing schema renaming feature");
 
     // Initialize LLM service
-    llm_service:LLMServiceError? initResult = llm_service:initLLMService();
-    if (initResult is llm_service:LLMServiceError) {
+    spec_sanitizor:LLMServiceError? initResult = spec_sanitizor:initLLMService();
+    if (initResult is spec_sanitizor:LLMServiceError) {
         test:assertFail("Failed to initialize LLM service: " + initResult.message());
     }
 
     string specPath = "/home/hansika/dev/sanitizor/temp-workspace/docs/spec/aligned_ballerina_openapi.json";
     log:printInfo("Attempting to rename InlineResponse schemas in OpenAPI spec...");
-    int|llm_service:LLMServiceError result = llm_service:renameInlineResponseSchemas(specPath);
+    int|spec_sanitizor:LLMServiceError result = spec_sanitizor:renameInlineResponseSchemas(specPath);
     io:println("==============================");
     io:println(result);
 
-    if (result is llm_service:LLMServiceError) {
+    if (result is spec_sanitizor:LLMServiceError) {
         log:printError("Failed to rename schemas", 'error = result);
         test:assertFail("Failed to generate schema names" + result.message());
     }

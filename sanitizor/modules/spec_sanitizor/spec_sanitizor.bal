@@ -1,5 +1,3 @@
-import sanitizor.command_executor;
-
 import ballerina/ai;
 import ballerina/io;
 import ballerina/log;
@@ -22,7 +20,9 @@ public function initLLMService() returns LLMServiceError? {
 
     ai:ModelProvider|error modelProvider = new anthropic:ModelProvider(
         apiKey,
-        anthropic:CLAUDE_SONNET_4_20250514
+        anthropic:CLAUDE_SONNET_4_20250514,
+        maxTokens = 60000,
+        timeout = 120
     );
 
     if modelProvider is error {
@@ -651,68 +651,4 @@ public function generateSchemaNameWithFullSpec(string schemaName, json spec) ret
     } else {
         return result;
     }
-}
-
-# Fix Ballerina code using AI with a custom prompt
-#
-# + prompt - The detailed prompt for fixing the code
-# + return - Fixed code content or error
-public function fixBallerinaCode(string prompt) returns string|LLMServiceError {
-    ai:ModelProvider? model = anthropicModel;
-    if (model is ()) {
-        return error LLMServiceError("LLM service not initialized");
-    }
-
-    ai:ChatMessage[] messages = [
-        {role: "user", content: prompt}
-    ];
-
-    ai:ChatAssistantMessage|error response = model->chat(messages);
-    if (response is error) {
-        return error LLMServiceError("Failed to generate code fixes", response);
-    }
-
-    string? fixedCode = response.content;
-    if (fixedCode is ()) {
-        return error LLMServiceError("Empty response from LLM");
-    }
-
-    return fixedCode.trim();
-}
-
-# Build detailed error context with line numbers and code snippets
-#
-# + errors - Array of compilation errors
-# + fileContent - Content of the file being fixed
-# + return - Formatted error context string
-public function buildDetailedErrorContext(command_executor:CompilationError[] errors, string fileContent) returns string {
-    string[] errorDescriptions = [];
-    string[] lines = regex:split(fileContent, "\\n");
-
-    foreach command_executor:CompilationError err in errors {
-        string contextLines = "";
-
-        // Get context around the error line (2 lines before and after)
-        int startLine = (err.line - 3) > 0 ? (err.line - 3) : 0;
-        int endLine = (err.line + 2) < lines.length() ? (err.line + 2) : lines.length() - 1;
-
-        foreach int i in startLine ... endLine {
-            if i < lines.length() {
-                string lineMarker = (i + 1) == err.line ? " -> " : "    ";
-                contextLines += string `${lineMarker}${i + 1}: ${lines[i]}\n`;
-            }
-        }
-
-        string errorDesc = string `
-ERROR: ${err.message}
-File: ${err.fileName}
-Line: ${err.line}, Column: ${err.column}
-Type: ${err.errorType}
-Context:
-${contextLines}
-`;
-        errorDescriptions.push(errorDesc);
-    }
-
-    return string:'join("\n---\n", ...errorDescriptions);
 }
