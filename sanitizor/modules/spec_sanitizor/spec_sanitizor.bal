@@ -549,23 +549,32 @@ public function renameInlineResponseSchemas(string specFilePath) returns int|LLM
         if (schemaName.startsWith("InlineResponse")) {
             json|error schemaResult = schemas.get(schemaName);
             if (schemaResult is map<json>) {
-                string|error newName = generateSchemaNameWithFullSpec(schemaName, specMap);
+                // Pass existing names to LLM for context-aware unique name generation
+                string|error newName = generateSchemaNameWithFullSpec(schemaName, specMap, allExistingNames);
                 if (newName is string) {
                     // Validate that the generated name is safe for JSON and schema naming
                     if (isValidSchemaName(newName)) {
-                        // Ensure the new name doesn't conflict with ANY existing schema names
-                        string finalName = newName;
-                        int counter = 1;
-                        while (isNameTaken(finalName, allExistingNames, nameMapping)) {
-                            finalName = newName + counter.toString();
-                            counter += 1;
+                        // Double-check uniqueness (LLM should handle this, but safety first)
+                        if (!isNameTaken(newName, allExistingNames, nameMapping)) {
+                            // Add the name to our tracking list to prevent future conflicts
+                            allExistingNames.push(newName);
+                            nameMapping[schemaName] = newName;
+                            log:printInfo("Generated new name for schema", oldName = schemaName, newName = newName);
+                            renamedCount += 1;
+                        } else {
+                            // Fallback if LLM somehow generated a duplicate (shouldn't happen often)
+                            log:printWarn("LLM generated duplicate name, using fallback", 
+                                    schema = schemaName, duplicateName = newName);
+                            string fallbackName = newName + "Alt";
+                            int counter = 1;
+                            while (isNameTaken(fallbackName, allExistingNames, nameMapping)) {
+                                fallbackName = newName + "Alt" + counter.toString();
+                                counter += 1;
+                            }
+                            allExistingNames.push(fallbackName);
+                            nameMapping[schemaName] = fallbackName;
+                            renamedCount += 1;
                         }
-
-                        // Add the final name to our tracking list to prevent future conflicts
-                        allExistingNames.push(finalName);
-                        nameMapping[schemaName] = finalName;
-                        log:printInfo("Generated new name for schema", oldName = schemaName, newName = finalName);
-                        renamedCount += 1;
                     } else {
                         log:printWarn("Generated name is not valid, using fallback",
                                 schema = schemaName, invalidName = newName);
@@ -742,7 +751,7 @@ function containsSchemaReference(json data, string refPattern) returns boolean {
     return false;
 }
 
-public function generateSchemaNameWithFullSpec(string schemaName, json spec) returns string|error {
+public function generateSchemaNameWithFullSpec(string schemaName, json spec, string[] existingNames) returns string|error {
     ai:ModelProvider? model = anthropicModel;
     if (model is ()) {
         return error LLMServiceError("LLM service not initialized");
@@ -752,6 +761,12 @@ public function generateSchemaNameWithFullSpec(string schemaName, json spec) ret
     string apiContext = extractApiContext(spec);
     string schemaContext = extractSchemaContext(schemaName, spec);
     string usageContext = extractSchemaUsageContext(schemaName, spec);
+    
+    // Format existing names for the prompt
+    string existingNamesStr = "";
+    if (existingNames.length() > 0) {
+        existingNamesStr = string:'join(", ", ...existingNames);
+    }
 
     string prompt = string `You are an expert in naming OpenAPI schemas. 
 
@@ -765,15 +780,19 @@ ${schemaContext}
 USAGE CONTEXT:
 ${usageContext}
 
+EXISTING SCHEMA NAMES (avoid conflicts with these):
+${existingNamesStr}
+
 Generate a meaningful, descriptive PascalCase name for this schema based on:
 1. The API's domain and purpose
-2. The schema's structure and properties
+2. The schema's structure and properties  
 3. How and where it's used in the API
+4. ENSURE the name is NOT already in the existing schema names list above
 
 Requirements:
 - Use PascalCase (e.g., UserProfile, AttachmentResponse)
 - Be descriptive but concise (2-4 words max)
-- Make it unique and specific to avoid conflicts
+- Make it unique and specific to avoid conflicts with existing names
 - Consider the schema's role (Request, Response, List, Details, etc.)
 
 Output only the new schema name, nothing else.`;

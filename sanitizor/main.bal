@@ -5,8 +5,8 @@ import ballerina/io;
 import ballerina/log;
 
 public function main(string... args) returns error? {
-    log:printInfo("Starting OpenAPI Sanitizor...");
-
+    log:printInfo("Starting OpenAPI Sanitizor..."" +
+"
     // Check command line arguments
     if args.length() < 2 {
         printUsage();
@@ -44,8 +44,8 @@ public function main(string... args) returns error? {
         log:printError("OpenAPI align failed", result = alignResult);
         return error("Align operation failed: " + alignResult.stderr);
     }
-    log:printInfo("OpenAPI spec aligned successfully", outputPath = alignedSpecPath);
-
+    log:printInfo("OpenAPI spec aligned successfully"" +
+"
     // Step 3: Apply schema renaming fix on aligned spec
     string alignedSpec = alignedSpecPath + "/aligned_ballerina_openapi.json";
     int|spec_sanitizor:LLMServiceError schemaRenameResult = spec_sanitizor:renameInlineResponseSchemas(alignedSpec);
@@ -56,14 +56,14 @@ public function main(string... args) returns error? {
     log:printInfo("Schema renaming completed", schemasRenamed = schemaRenameResult);
     io:println(string `✓ Renamed ${schemaRenameResult} InlineResponse schemas to meaningful names`);
 
-    // Step 4: Apply documentation fix on the same spec (now with schema renaming applied)
-    int|spec_sanitizor:LLMServiceError descriptionsResult = spec_sanitizor:addMissingDescriptions(alignedSpec);
-    if descriptionsResult is spec_sanitizor:LLMServiceError {
-        log:printError("Failed to add missing descriptions", 'error = descriptionsResult);
-        return error("Documentation fix failed: " + descriptionsResult.message());
-    }
-    log:printInfo("Documentation fix completed", descriptionsAdded = descriptionsResult);
-    io:println(string `✓ Added ${descriptionsResult} missing field descriptions`);
+    // // Step 4: Apply documentation fix on the same spec (now with schema renaming applied)
+    // int|spec_sanitizor:LLMServiceError descriptionsResult = spec_sanitizor:addMissingDescriptions(alignedSpec);
+    // if descriptionsResult is spec_sanitizor:LLMServiceError {
+    //     log:printError("Failed to add missing descriptions", 'error = descriptionsResult);
+    //     return error("Documentation fix failed: " + descriptionsResult.message());
+    // }
+    // log:printInfo("Documentation fix completed", descriptionsAdded = descriptionsResult);
+    // io:println(string `✓ Added ${descriptionsResult} missing field descriptions`);
 
     // Step 5: Align the final spec again after applying LLM fixes
     command_executor:CommandResult finalAlignResult = command_executor:executeBalAlign(alignedSpec, alignedSpecPath);
