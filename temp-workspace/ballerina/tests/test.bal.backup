@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/os;
-import ballerina/test;
+import ballerina/time;
 
 configurable boolean isLiveServer = os:getEnv("IS_LIVE_SERVER") == "true";
 configurable string token = isLiveServer ? os:getEnv("SMARTSHEET_TOKEN") : "test-token";
@@ -53,7 +53,7 @@ isolated function testGetSheet() returns error? {
 isolated function testDeleteSheet() returns error? {
     SuccessResult response = check smartsheet->/sheets/[testSheetId].delete();
     test:assertTrue(response.message !is ());
-
+}
 
 @test:Config {
     groups: ["live_tests", "mock_tests"]
@@ -62,7 +62,7 @@ isolated function testUpdateSheet() returns error? {
     UpdateSheet payload = {
         name: "Updated Test Sheet"
     };
-    AttachmentListResponse response = check smartsheet->/sheets/[testSheetId].put(payload);
+    AttachmentListResponse response = smartsheet->/sheets/[testSheetId].put(payload);
     test:assertTrue(response.result !is ());
 }
 
@@ -70,7 +70,7 @@ isolated function testUpdateSheet() returns error? {
     groups: ["live_tests", "mock_tests"]
 }
 isolated function testGetColumns() returns error? {
-    ColumnListResponse response = check smartsheet->/sheets/[testSheetId]/columns();
+    ColumnListRes response = check smartsheet->/sheets/[testSheetId]/columns();
     test:assertTrue(response.data !is ());
 }
 
@@ -174,5 +174,5 @@ isolated function testGetWorkspaces() returns error? {
 isolated function testErrorHandling() {
     decimal invalidSheetId = 999999999;
     anydata|error response = smartsheet->/sheets/[invalidSheetId]();
-    test:assertTrue(response !is error);
+    test:assertTrue(response is error);
 }

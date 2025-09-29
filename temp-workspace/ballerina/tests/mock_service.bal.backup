@@ -26,7 +26,7 @@ http:Service mockService = service object {
     resource function delete sheets/[decimal sheetId](@http:Header {name: "Authorization"} string? authorization) returns SuccessResult|ErrorDefault {
         return {
             resultCode: 0,
-            message: "SUCCESS"
+            message: "SUCCESS",
         };
     }
 
@@ -37,7 +37,7 @@ http:Service mockService = service object {
         string[] rowIds = re `\s*,\s*`.split(ids);
         decimal[] deletedRowIds = [];
 
-        foreach String rowId in rowIds {
+        foreach string rowId in rowIds {
             decimal|error id = decimal:fromString(rowId);
             if id is decimal {
                 deletedRowIds.push(id);
@@ -94,7 +94,7 @@ http:Service mockService = service object {
     resource function get sheets(@http:Header {name: "Authorization"} string? authorization, "sheetVersion"|"source"? include, string? modifiedSince, decimal accessApiLevel = 0, boolean includeAll = false, boolean numericDates = false, decimal page = 1, decimal pageSize = 100) returns AlternateEmailListResponse|ErrorDefault {
         return {
             pageNumber: page,
-            pageSize: pageSize
+            pageSize: pageSize,
             totalPages: 1,
             totalCount: 3,
             data: [
@@ -212,7 +212,7 @@ http:Service mockService = service object {
                         {columnId: 1002, value: "john.doe@example.com", displayValue: "John Doe"},
                         {columnId: 1003, value: "In Progress", displayValue: "In Progress"},
                         {columnId: 1004, value: "2024-02-15", displayValue: "02/15/24"}
-                    
+                    ]
                 }
             ]
         };
