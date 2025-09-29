@@ -461,6 +461,6 @@ modules = [
 	{org = "hansika", packageName = "sanitizor", moduleName = "sanitizor.error_registry"},
 	{org = "hansika", packageName = "sanitizor", moduleName = "sanitizor.file_management"},
 	{org = "hansika", packageName = "sanitizor", moduleName = "sanitizor.fixer"},
-	{org = "hansika", packageName = "sanitizor", moduleName = "sanitizor.llm_service"}
+	{org = "hansika", packageName = "sanitizor", moduleName = "sanitizor.spec_sanitizor"}
 ]
 

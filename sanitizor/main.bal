@@ -47,7 +47,7 @@ public function main(string... args) returns error? {
     log:printInfo("OpenAPI spec aligned successfully", outputPath = alignedSpecPath);
 
     // Step 3: Apply schema renaming fix on aligned spec
-    string alignedSpec = alignedSpecPath + "/aligned_openapi.json";
+    string alignedSpec = alignedSpecPath + "/aligned_ballerina_openapi.json";
     int|spec_sanitizor:LLMServiceError schemaRenameResult = spec_sanitizor:renameInlineResponseSchemas(alignedSpec);
     if schemaRenameResult is spec_sanitizor:LLMServiceError {
         log:printError("Failed to rename InlineResponse schemas", 'error = schemaRenameResult);

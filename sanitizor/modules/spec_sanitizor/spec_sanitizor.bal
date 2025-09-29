@@ -1,11 +1,12 @@
 import ballerina/ai;
 import ballerina/io;
 import ballerina/log;
-import ballerina/os;
 import ballerina/regex;
 import ballerinax/ai.anthropic;
 
 public type LLMServiceError distinct error; // cutom error type for LLM related failures
+
+configurable string apiKey = ?;
 
 ai:ModelProvider? anthropicModel = ();
 
@@ -13,10 +14,6 @@ ai:ModelProvider? anthropicModel = ();
 #
 # + return - return value description
 public function initLLMService() returns LLMServiceError? {
-    string? apiKey = os:getEnv("ANTHROPIC_API_KEY");
-    if apiKey is () {
-        return error LLMServiceError("ANTHROPIC_API_KEY environment variable not set");
-    }
 
     ai:ModelProvider|error modelProvider = new anthropic:ModelProvider(
         apiKey,
@@ -71,7 +68,7 @@ Return only the description text, no JSON or extra formatting. Keep it professio
     }
 }
 
-# Generate field description using full OpenAPI specification context
+# Generate field description using relevant OpenAPI specification context
 #
 # + fieldName - Name of the field needing description  
 # + fieldContext - Local context about the field (schema name, property definition)
@@ -83,22 +80,24 @@ public function generateFieldDescriptionWithFullSpec(string fieldName, string fi
         return error LLMServiceError("LLM service not initialized");
     }
 
+    // Extract only relevant context instead of passing the full spec
+    string apiContext = extractApiContext(fullSpec);
+
     string prompt = string `You are an API documentation expert. Generate a concise, professional description for the field "${fieldName}".
+
+API CONTEXT:
+${apiContext}
 
 FIELD CONTEXT:
 ${fieldContext}
 
-FULL OPENAPI SPECIFICATION:
-${fullSpec.toJsonString()}
-
 INSTRUCTIONS:
-1. Use the full API specification to understand the broader context
-2. Consider how this field is used across different endpoints
-3. Look at related schemas and field patterns
-4. Generate a description that accurately reflects the field's purpose in the API
-5. Keep it concise (under 100 characters) but informative
-6. Use professional API documentation language
-7. Return ONLY the description text, no JSON formatting or extra text
+1. Use the API context to understand the domain and purpose
+2. Consider the field's context within its schema
+3. Generate a description that accurately reflects the field's purpose in the API
+4. Keep it concise (under 100 characters) but informative
+5. Use professional API documentation language
+6. Return ONLY the description text, no JSON formatting or extra text
 
 Description:`;
 
@@ -623,22 +622,161 @@ public function renameInlineResponseSchemas(string specFilePath) returns int|LLM
     return renamedCount;
 }
 
+// Helper function to extract API context (info section)
+function extractApiContext(json spec) returns string {
+    if (spec is map<json>) {
+        json|error infoResult = spec.get("info");
+        if (infoResult is map<json>) {
+            string title = infoResult.get("title") is string ? <string>infoResult.get("title") : "Unknown API";
+            string description = infoResult.get("description") is string ? <string>infoResult.get("description") : "";
+            
+            // Truncate description if too long to avoid token limits
+            if (description.length() > 500) {
+                description = description.substring(0, 500) + "...";
+            }
+            
+            return string `API: ${title}
+Description: ${description}`;
+        }
+    }
+    return "API context not available";
+}
+
+// Helper function to extract schema definition
+function extractSchemaContext(string schemaName, json spec) returns string {
+    if (spec is map<json>) {
+        json|error componentsResult = spec.get("components");
+        if (componentsResult is map<json>) {
+            map<json> components = <map<json>>componentsResult;
+            json|error schemasResult = components.get("schemas");
+            if (schemasResult is map<json>) {
+                map<json> schemas = <map<json>>schemasResult;
+                json|error schemaResult = schemas.get(schemaName);
+                if (schemaResult is json) {
+                    return schemaResult.toJsonString();
+                }
+            }
+        }
+    }
+    return string `Schema '${schemaName}' definition not found`;
+}
+
+// Helper function to extract usage context (where schema is referenced)
+function extractSchemaUsageContext(string schemaName, json spec) returns string {
+    string[] usages = [];
+    string refPattern = string `#/components/schemas/${schemaName}`;
+    
+    if (spec is map<json>) {
+        // Check paths for usage
+        json|error pathsResult = spec.get("paths");
+        if (pathsResult is map<json>) {
+            map<json> paths = <map<json>>pathsResult;
+            foreach string path in paths.keys() {
+                json|error pathItem = paths.get(path);
+                if (pathItem is map<json>) {
+                    string pathUsages = findSchemaUsageInPathItem(path, <map<json>>pathItem, refPattern);
+                    if (pathUsages.length() > 0) {
+                        usages.push(pathUsages);
+                    }
+                }
+            }
+        }
+    }
+    
+    if (usages.length() > 0) {
+        return string:'join("\n", ...usages);
+    }
+    return string `Schema '${schemaName}' usage context not found`;
+}
+
+// Helper function to find schema usage in a path item
+function findSchemaUsageInPathItem(string path, map<json> pathItem, string refPattern) returns string {
+    string[] usages = [];
+    
+    // Define the possible HTTP methods to check for
+    string[] possibleMethods = ["get", "post", "put", "delete", "patch", "head", "options", "trace"];
+    
+    // Dynamically check what methods are actually available in this path item
+    foreach string method in possibleMethods {
+        if (pathItem.hasKey(method)) {
+            json|error operationResult = pathItem.get(method);
+            if (operationResult is map<json>) {
+                map<json> operation = <map<json>>operationResult;
+                
+                // Check if this operation uses the schema in request/response
+                if (containsSchemaReference(operation, refPattern)) {
+                    string? operationId = operation.get("operationId") is string ? <string>operation.get("operationId") : ();
+                    string? summary = operation.get("summary") is string ? <string>operation.get("summary") : ();
+                    
+                    string operationDesc = operationId ?: (summary ?: string `${method.toUpperAscii()} ${path}`);
+                    usages.push(string `- Used in: ${operationDesc}`);
+                }
+            }
+        }
+    }
+    
+    return string:'join("\n", ...usages);
+}
+
+// Helper function to recursively check if JSON contains schema reference
+function containsSchemaReference(json data, string refPattern) returns boolean {
+    if (data is map<json>) {
+        foreach string key in data.keys() {
+            json|error value = data.get(key);
+            if (value is json) {
+                if (key == "$ref" && value is string && (<string>value).includes(refPattern)) {
+                    return true;
+                }
+                if (containsSchemaReference(value, refPattern)) {
+                    return true;
+                }
+            }
+        }
+    } else if (data is json[]) {
+        foreach json item in data {
+            if (containsSchemaReference(item, refPattern)) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 public function generateSchemaNameWithFullSpec(string schemaName, json spec) returns string|error {
     ai:ModelProvider? model = anthropicModel;
     if (model is ()) {
         return error LLMServiceError("LLM service not initialized");
     }
 
-    string prompt = string `
-    You are a expert in naming openAPI schemas. You are given this OpenAPI specification: 
-    ${spec.toJsonString()}
+    // Extract relevant context instead of passing the full spec
+    string apiContext = extractApiContext(spec);
+    string schemaContext = extractSchemaContext(schemaName, spec);
+    string usageContext = extractSchemaUsageContext(schemaName, spec);
 
-    The schema currently has the placeholder name '${schemaName}'.
-    Suggest a meaningful PascalCase name for this schema.
-    Use the context of where it appears (endpoints, request/response bodies, references).
+    string prompt = string `You are an expert in naming OpenAPI schemas. 
 
-    Output only the new schema name, nothing else.
-    `;
+API CONTEXT:
+${apiContext}
+
+SCHEMA TO RENAME: '${schemaName}'
+SCHEMA DEFINITION:
+${schemaContext}
+
+USAGE CONTEXT:
+${usageContext}
+
+Generate a meaningful, descriptive PascalCase name for this schema based on:
+1. The API's domain and purpose
+2. The schema's structure and properties
+3. How and where it's used in the API
+
+Requirements:
+- Use PascalCase (e.g., UserProfile, AttachmentResponse)
+- Be descriptive but concise (2-4 words max)
+- Make it unique and specific to avoid conflicts
+- Consider the schema's role (Request, Response, List, Details, etc.)
+
+Output only the new schema name, nothing else.`;
 
     ai:ChatMessage[] messages = [
         {role: "user", content: prompt}
