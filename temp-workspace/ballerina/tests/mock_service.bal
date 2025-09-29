@@ -26,7 +26,7 @@ http:Service mockService = service object {
     resource function delete sheets/[decimal sheetId](@http:Header {name: "Authorization"} string? authorization) returns SuccessResult|ErrorDefault {
         return {
             resultCode: 0,
-            message: "SUCCESS"
+            message: "SUCCESS",
         };
     }
 

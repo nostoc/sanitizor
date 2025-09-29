@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/os;
-import ballerina/test;
 import ballerina/time;
 
 configurable boolean isLiveServer = os:getEnv("IS_LIVE_SERVER") == "true";
@@ -63,7 +62,7 @@ isolated function testUpdateSheet() returns error? {
     UpdateSheet payload = {
         name: "Updated Test Sheet"
     };
-    AttachmentListResponse response = check smartsheet->/sheets/[testSheetId].put(payload);
+    AttachmentListResponse response = smartsheet->/sheets/[testSheetId].put(payload);
     test:assertTrue(response.result !is ());
 }
 
@@ -71,7 +70,7 @@ isolated function testUpdateSheet() returns error? {
     groups: ["live_tests", "mock_tests"]
 }
 isolated function testGetColumns() returns error? {
-    ColumnListResponse response = check smartsheet->/sheets/[testSheetId]/columns();
+    ColumnListRes response = check smartsheet->/sheets/[testSheetId]/columns();
     test:assertTrue(response.data !is ());
 }
 
