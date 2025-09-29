@@ -16,7 +16,6 @@
 
 import ballerina/os;
 import ballerina/test;
-import ballerina/time;
 
 configurable boolean isLiveServer = os:getEnv("IS_LIVE_SERVER") == "true";
 configurable string token = isLiveServer ? os:getEnv("SMARTSHEET_TOKEN") : "test-token";
@@ -54,7 +53,7 @@ isolated function testGetSheet() returns error? {
 isolated function testDeleteSheet() returns error? {
     SuccessResult response = check smartsheet->/sheets/[testSheetId].delete();
     test:assertTrue(response.message !is ());
-}
+
 
 @test:Config {
     groups: ["live_tests", "mock_tests"]
@@ -166,7 +165,7 @@ isolated function testGetCurrentUser() returns error? {
 }
 isolated function testGetWorkspaces() returns error? {
     WorkspaceShareListResponse response = check smartsheet->/workspaces();
-    test:assertTrue(response.data !is ));
+    test:assertTrue(response.data !is ());
 }
 
 @test:Config {

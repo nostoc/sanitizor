@@ -175,5 +175,5 @@ isolated function testGetWorkspaces() returns error? {
 isolated function testErrorHandling() {
     decimal invalidSheetId = 999999999;
     anydata|error response = smartsheet->/sheets/[invalidSheetId]();
-    test:assertTrue(response !is error);
+    test:assertTrue(response is error);
 }
