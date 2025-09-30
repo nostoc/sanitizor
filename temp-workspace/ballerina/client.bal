@@ -46,7 +46,7 @@ public isolated client class Client {
     # + headers - Headers to be sent with the request 
     # + queries - Queries to be sent with the request 
     # + return - IndexResult object containing an array of Contact objects 
-    resource isolated function get contacts(ListContactsHeaders headers = {}, *ListContactsQueries queries) returns IndexedOperationResponse|error {
+    resource isolated function get contacts(ListContactsHeaders headers = {}, *ListContactsQueries queries) returns IndexedListResponse|error {
         string resourcePath = string `/contacts`;
         map<Encoding> queryParamEncoding = {"modifiedSince": {style: FORM, explode: true}};
         resourcePath = resourcePath + check getPathForQueryParam(queries, queryParamEncoding);
@@ -72,7 +72,7 @@ public isolated client class Client {
     # + headers - Headers to be sent with the request 
     # + queries - Queries to be sent with the request 
     # + return - OK 
-    resource isolated function get events(ListEventsHeaders headers = {}, *ListEventsQueries queries) returns StreamingListResponse|error {
+    resource isolated function get events(ListEventsHeaders headers = {}, *ListEventsQueries queries) returns StreamListResponse|error {
         string resourcePath = string `/events`;
         resourcePath = resourcePath + check getPathForQueryParam(queries);
         map<string|string[]> httpHeaders = http:getHeaderMap(headers);
@@ -84,7 +84,7 @@ public isolated client class Client {
     # + headers - Headers to be sent with the request 
     # + queries - Queries to be sent with the request 
     # + return - IndexResult object containing an array of Favorite objects 
-    resource isolated function get favorites(GetFavoritesHeaders headers = {}, *GetFavoritesQueries queries) returns IndexedListResponse|error {
+    resource isolated function get favorites(GetFavoritesHeaders headers = {}, *GetFavoritesQueries queries) returns IndexedResourceResponse|error {
         string resourcePath = string `/favorites`;
         resourcePath = resourcePath + check getPathForQueryParam(queries);
         map<string|string[]> httpHeaders = http:getHeaderMap(headers);
@@ -96,7 +96,7 @@ public isolated client class Client {
     # + headers - Headers to be sent with the request 
     # + payload - A list of favorites to be added 
     # + return - Result object containing either a single Favorite object or an array of Favorite objects 
-    resource isolated function post favorites(FavoritesBody payload, AddFavoriteHeaders headers = {}) returns GenericOperationResponse|error {
+    resource isolated function post favorites(FavoritesBody payload, AddFavoriteHeaders headers = {}) returns GenericResourceResponse|error {
         string resourcePath = string `/favorites`;
         map<string|string[]> httpHeaders = http:getHeaderMap(headers);
         http:Request request = new;
@@ -148,7 +148,7 @@ public isolated client class Client {
     #
     # + headers - Headers to be sent with the request 
     # + return - OK 
-    resource isolated function post filteredEvents(FilteredEventsRequest payload, ListFilteredEventsHeaders headers = {}) returns StreamingOperationResponse|error {
+    resource isolated function post filteredEvents(FilteredEventsRequest payload, ListFilteredEventsHeaders headers = {}) returns StreamDataResponse|error {
         string resourcePath = string `/filteredEvents`;
         map<string|string[]> httpHeaders = http:getHeaderMap(headers);
         http:Request request = new;
@@ -178,7 +178,7 @@ public isolated client class Client {
     # + folderId - Folder Id where you can create sheets, sights, reports, templates, and other folders
     # + headers - Headers to be sent with the request 
     # + return - Result object containing the modified Folder object 
-    resource isolated function put folders/[decimal folderId](Folder payload, UpdateFolderHeaders headers = {}) returns ActionResultResponse|error {
+    resource isolated function put folders/[decimal folderId](Folder payload, UpdateFolderHeaders headers = {}) returns ResultWithDataResponse|error {
         string resourcePath = string `/folders/${getEncodedUri(folderId)}`;
         map<string|string[]> httpHeaders = http:getHeaderMap(headers);
         http:Request request = new;
@@ -250,7 +250,7 @@ public isolated client class Client {
     # 
     # # Deprecated
     @deprecated
-    resource isolated function get folders/[decimal folderId]/folders(ListFoldersHeaders headers = {}, *ListFoldersQueries queries) returns PaginatedIndexResponse|error {
+    resource isolated function get folders/[decimal folderId]/folders(ListFoldersHeaders headers = {}, *ListFoldersQueries queries) returns IndexedDataResponse|error {
         string resourcePath = string `/folders/${getEncodedUri(folderId)}/folders`;
         resourcePath = resourcePath + check getPathForQueryParam(queries);
         map<string|string[]> httpHeaders = http:getHeaderMap(headers);
@@ -264,7 +264,7 @@ public isolated client class Client {
     # + queries - Queries to be sent with the request 
     # + payload - Folder to create 
     # + return - Result object containing a Folder object for newly created folder 
-    resource isolated function post folders/[decimal folderId]/folders(FolderIdFoldersBody payload, CreateFolderFolderHeaders headers = {}, *CreateFolderFolderQueries queries) returns GenericListResponse|error {
+    resource isolated function post folders/[decimal folderId]/folders(FolderIdFoldersBody payload, CreateFolderFolderHeaders headers = {}, *CreateFolderFolderQueries queries) returns GenericDataResponse|error {
         string resourcePath = string `/folders/${getEncodedUri(folderId)}/folders`;
         resourcePath = resourcePath + check getPathForQueryParam(queries);
         map<string|string[]> httpHeaders = http:getHeaderMap(headers);
@@ -296,7 +296,7 @@ public isolated client class Client {
     # + queries - Queries to be sent with the request 
     # + payload - Sheet to create 
     # + return - Result object containing a Sheet object for newly created sheet, corresponding to what was specified in the request 
-    resource isolated function post folders/[decimal folderId]/sheets(FolderIdSheetsBody payload, CreateSheetInFolderHeaders headers = {}, *CreateSheetInFolderQueries queries) returns SheetOperationResponse|error {
+    resource isolated function post folders/[decimal folderId]/sheets(FolderIdSheetsBody payload, CreateSheetInFolderHeaders headers = {}, *CreateSheetInFolderQueries queries) returns MultiResourceResponse|error {
         string resourcePath = string `/folders/${getEncodedUri(folderId)}/sheets`;
         resourcePath = resourcePath + check getPathForQueryParam(queries);
         map<string|string[]> httpHeaders = http:getHeaderMap(headers);
@@ -313,7 +313,7 @@ public isolated client class Client {
     # + queries - Queries to be sent with the request 
     # + payload - Binary content for the CSV / XLSX file 
     # + return - Result object containing a Sheet object for imported sheet 
-    resource isolated function post folders/[decimal folderId]/sheets/'import(ImportSheetIntoFolderHeaders headers, byte[] payload, *ImportSheetIntoFolderQueries queries) returns WorkspaceOperationResponse|error {
+    resource isolated function post folders/[decimal folderId]/sheets/'import(ImportSheetIntoFolderHeaders headers, byte[] payload, *ImportSheetIntoFolderQueries queries) returns GenericResultResponse|error {
         string resourcePath = string `/folders/${getEncodedUri(folderId)}/sheets/import`;
         resourcePath = resourcePath + check getPathForQueryParam(queries);
         map<string|string[]> httpHeaders = http:getHeaderMap(headers);
@@ -342,7 +342,7 @@ public isolated client class Client {
     # + headers - Headers to be sent with the request 
     # + queries - Queries to be sent with the request 
     # + return - IndexResult object containing an array of [Group objects](/api/smartsheet/openapi/groups/group) 
-    resource isolated function get groups(ListGroupsHeaders headers = {}, *ListGroupsQueries queries) returns GroupListResponse|error {
+    resource isolated function get groups(ListGroupsHeaders headers = {}, *ListGroupsQueries queries) returns GroupListIndexResponse|error {
         string resourcePath = string `/groups`;
         map<Encoding> queryParamEncoding = {"modifiedSince": {style: FORM, explode: true}};
         resourcePath = resourcePath + check getPathForQueryParam(queries, queryParamEncoding);
@@ -369,7 +369,7 @@ public isolated client class Client {
     # + groupId - Group Id
     # + headers - Headers to be sent with the request 
     # + return - [Group](/api/smartsheet/openapi/groups/group) object that includes the list of [GroupMember](/api/smartsheet/openapi/groupmembers/groupmember) objects 
-    resource isolated function get groups/[decimal groupId](GetGroupHeaders headers = {}) returns GroupGetResponse|error {
+    resource isolated function get groups/[decimal groupId](GetGroupHeaders headers = {}) returns GroupDetailsResponse|error {
         string resourcePath = string `/groups/${getEncodedUri(groupId)}`;
         map<string|string[]> httpHeaders = http:getHeaderMap(headers);
         return self.clientEp->get(resourcePath, httpHeaders);
@@ -406,7 +406,7 @@ public isolated client class Client {
     # + groupId - Group Id
     # + headers - Headers to be sent with the request 
     # + return - Returns a Result object containing the members added to the group -- either a single [GroupMember](/api/smartsheet/openapi/groupmembers/groupmember) or array of [GroupMember](/api/smartsheet/openapi/groupmembers/groupmember) objects, corresponding to what was specified in the request. **_This operation is asynchronous,_** _meaning the users may not yet have sharing access to sheets for a period of time after this operation returns. For small groups with limited sharing, the operation should complete quickly (within a few seconds). For large groups with many shares, this operation could possibly take more than a minute to complete._ 
-    resource isolated function post groups/[decimal groupId]/members(GroupIdMembersBody payload, AddGroupMembersHeaders headers = {}) returns GroupMemberAddResponse|error {
+    resource isolated function post groups/[decimal groupId]/members(GroupIdMembersBody payload, AddGroupMembersHeaders headers = {}) returns GroupMemberOperationResponse|error {
         string resourcePath = string `/groups/${getEncodedUri(groupId)}/members`;
         map<string|string[]> httpHeaders = http:getHeaderMap(headers);
         http:Request request = new;
@@ -435,7 +435,7 @@ public isolated client class Client {
     # 
     # # Deprecated
     @deprecated
-    resource isolated function get home/folders(HomeListFoldersHeaders headers = {}, *HomeListFoldersQueries queries) returns PaginatedIndexResponse|error {
+    resource isolated function get home/folders(HomeListFoldersHeaders headers = {}, *HomeListFoldersQueries queries) returns IndexedDataResponse|error {
         string resourcePath = string `/home/folders`;
         resourcePath = resourcePath + check getPathForQueryParam(queries);
         map<string|string[]> httpHeaders = http:getHeaderMap(headers);
@@ -450,7 +450,7 @@ public isolated client class Client {
     # 
     # # Deprecated
     @deprecated
-    resource isolated function post home/folders(HomeFoldersBody payload, CreateHomeFolderHeaders headers = {}) returns GenericListResponse|error {
+    resource isolated function post home/folders(HomeFoldersBody payload, CreateHomeFolderHeaders headers = {}) returns GenericDataResponse|error {
         string resourcePath = string `/home/folders`;
         map<string|string[]> httpHeaders = http:getHeaderMap(headers);
         http:Request request = new;
@@ -463,7 +463,7 @@ public isolated client class Client {
     #
     # + headers - Headers to be sent with the request 
     # + return - OK 
-    resource isolated function post imageurls(InlineBodyItemsApplicationjsonimageurls[] payload, ListImageUrlsHeaders headers = {}) returns ImageUrlListResponse|error {
+    resource isolated function post imageurls(InlineBodyItemsApplicationjsonimageurls[] payload, ListImageUrlsHeaders headers = {}) returns ImageUrlMapResponse|error {
         string resourcePath = string `/imageurls`;
         map<string|string[]> httpHeaders = http:getHeaderMap(headers);
         http:Request request = new;
@@ -477,7 +477,7 @@ public isolated client class Client {
     # + headers - Headers to be sent with the request 
     # + queries - Queries to be sent with the request 
     # + return - Object containing an array of all accessible reports, referenced by their ID, name, access level, and summary report flag values 
-    resource isolated function get reports(GetReportsHeaders headers = {}, *GetReportsQueries queries) returns ReportListResponse|error {
+    resource isolated function get reports(GetReportsHeaders headers = {}, *GetReportsQueries queries) returns ReportsListResponse|error {
         string resourcePath = string `/reports`;
         map<Encoding> queryParamEncoding = {"modifiedSince": {style: FORM, explode: true}};
         resourcePath = resourcePath + check getPathForQueryParam(queries, queryParamEncoding);
@@ -528,7 +528,7 @@ public isolated client class Client {
     # + reportId - reportID of the report being accessed
     # + headers - Headers to be sent with the request 
     # + return - ReportPublish object 
-    resource isolated function put reports/[decimal reportId]/publish(ReportPublish payload, SetReportPublishHeaders headers = {}) returns ReportPublishStatusResponse|error {
+    resource isolated function put reports/[decimal reportId]/publish(ReportPublish payload, SetReportPublishHeaders headers = {}) returns ReportPublishResponseAlt|error {
         string resourcePath = string `/reports/${getEncodedUri(reportId)}/publish`;
         map<string|string[]> httpHeaders = http:getHeaderMap(headers);
         http:Request request = new;
@@ -546,7 +546,7 @@ public isolated client class Client {
     # 
     # # Deprecated
     @deprecated
-    resource isolated function get reports/[decimal reportId]/shares(ListReportSharesHeaders headers = {}, *ListReportSharesQueries queries) returns AssetShareListResponseAlt|error {
+    resource isolated function get reports/[decimal reportId]/shares(ListReportSharesHeaders headers = {}, *ListReportSharesQueries queries) returns SharesListResponse|error {
         string resourcePath = string `/reports/${getEncodedUri(reportId)}/shares`;
         resourcePath = resourcePath + check getPathForQueryParam(queries);
         map<string|string[]> httpHeaders = http:getHeaderMap(headers);
@@ -562,7 +562,7 @@ public isolated client class Client {
     # 
     # # Deprecated
     @deprecated
-    resource isolated function post reports/[decimal reportId]/shares(ReportIdSharesBody payload, ShareReportHeaders headers = {}, *ShareReportQueries queries) returns AssetShareCreateResponse|error {
+    resource isolated function post reports/[decimal reportId]/shares(ReportIdSharesBody payload, ShareReportHeaders headers = {}, *ShareReportQueries queries) returns ShareCreateResponse|error {
         string resourcePath = string `/reports/${getEncodedUri(reportId)}/shares`;
         resourcePath = resourcePath + check getPathForQueryParam(queries);
         map<string|string[]> httpHeaders = http:getHeaderMap(headers);
@@ -735,7 +735,7 @@ public isolated client class Client {
     # + headers - Headers to be sent with the request 
     # + queries - Queries to be sent with the request 
     # + return - SUCCESS 
-    resource isolated function get sheets(ListSheetsHeaders headers = {}, *ListSheetsQueries queries) returns SheetListResponse|error {
+    resource isolated function get sheets(ListSheetsHeaders headers = {}, *ListSheetsQueries queries) returns SheetListIndexResponse|error {
         string resourcePath = string `/sheets`;
         map<Encoding> queryParamEncoding = {"modifiedSince": {style: FORM, explode: true}};
         resourcePath = resourcePath + check getPathForQueryParam(queries, queryParamEncoding);
@@ -752,7 +752,7 @@ public isolated client class Client {
     # 
     # # Deprecated
     @deprecated
-    resource isolated function post sheets(SheetsBody payload, CreateSheetInSheetsFolderHeaders headers = {}, *CreateSheetInSheetsFolderQueries queries) returns SheetOperationResponse|error {
+    resource isolated function post sheets(SheetsBody payload, CreateSheetInSheetsFolderHeaders headers = {}, *CreateSheetInSheetsFolderQueries queries) returns MultiResourceResponse|error {
         string resourcePath = string `/sheets`;
         resourcePath = resourcePath + check getPathForQueryParam(queries);
         map<string|string[]> httpHeaders = http:getHeaderMap(headers);
@@ -771,7 +771,7 @@ public isolated client class Client {
     # 
     # # Deprecated
     @deprecated
-    resource isolated function post sheets/'import(ImportSheetIntoSheetsFolderHeaders headers, byte[] payload, *ImportSheetIntoSheetsFolderQueries queries) returns WorkspaceOperationResponse|error {
+    resource isolated function post sheets/'import(ImportSheetIntoSheetsFolderHeaders headers, byte[] payload, *ImportSheetIntoSheetsFolderQueries queries) returns GenericResultResponse|error {
         string resourcePath = string `/sheets/import`;
         resourcePath = resourcePath + check getPathForQueryParam(queries);
         map<string|string[]> httpHeaders = http:getHeaderMap(headers);
@@ -828,7 +828,7 @@ public isolated client class Client {
     # + headers - Headers to be sent with the request 
     # + queries - Queries to be sent with the request 
     # + return - OK 
-    resource isolated function get sheets/[decimal sheetId]/attachments(AttachmentsListOnSheetHeaders headers = {}, *AttachmentsListOnSheetQueries queries) returns AttachmentListResponse|error {
+    resource isolated function get sheets/[decimal sheetId]/attachments(AttachmentsListOnSheetHeaders headers = {}, *AttachmentsListOnSheetQueries queries) returns AttachmentListIndexResponse|error {
         string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/attachments`;
         resourcePath = resourcePath + check getPathForQueryParam(queries);
         map<string|string[]> httpHeaders = http:getHeaderMap(headers);
@@ -840,7 +840,7 @@ public isolated client class Client {
     # + sheetId - Sheet Id of the sheet being accessed
     # + headers - Headers to be sent with the request 
     # + return - SUCCESS 
-    resource isolated function post sheets/[decimal sheetId]/attachments(byte[] payload, AttachmentsAttachToSheetHeaders headers = {}) returns AttachmentCreateResponse|error {
+    resource isolated function post sheets/[decimal sheetId]/attachments(byte[] payload, AttachmentsAttachToSheetHeaders headers = {}) returns AttachmentResultResponse|error {
         string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/attachments`;
         map<string|string[]> httpHeaders = http:getHeaderMap(headers);
         http:Request request = new;
@@ -879,7 +879,7 @@ public isolated client class Client {
     # + headers - Headers to be sent with the request 
     # + queries - Queries to be sent with the request 
     # + return - OK 
-    resource isolated function get sheets/[decimal sheetId]/attachments/[string attachmentId]/versions(AttachmentsVersionListHeaders headers = {}, *AttachmentsVersionListQueries queries) returns AttachmentListResponse|error {
+    resource isolated function get sheets/[decimal sheetId]/attachments/[string attachmentId]/versions(AttachmentsVersionListHeaders headers = {}, *AttachmentsVersionListQueries queries) returns AttachmentListIndexResponse|error {
         string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/attachments/${getEncodedUri(attachmentId)}/versions`;
         resourcePath = resourcePath + check getPathForQueryParam(queries);
         map<string|string[]> httpHeaders = http:getHeaderMap(headers);
@@ -892,7 +892,7 @@ public isolated client class Client {
     # + attachmentId - ID of the attachment
     # + headers - Headers to be sent with the request 
     # + return - SUCCESS 
-    resource isolated function post sheets/[decimal sheetId]/attachments/[string attachmentId]/versions(byte[] payload, AttachmentsVersionUploadHeaders headers = {}) returns AttachmentCreateResponse|error {
+    resource isolated function post sheets/[decimal sheetId]/attachments/[string attachmentId]/versions(byte[] payload, AttachmentsVersionUploadHeaders headers = {}) returns AttachmentResultResponse|error {
         string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/attachments/${getEncodedUri(attachmentId)}/versions`;
         map<string|string[]> httpHeaders = http:getHeaderMap(headers);
         http:Request request = new;
@@ -931,7 +931,7 @@ public isolated client class Client {
     # + automationRuleId - The Id of an Automation Rule
     # + headers - Headers to be sent with the request 
     # + return - AutomationRule object 
-    resource isolated function get sheets/[decimal sheetId]/automationrules/[string automationRuleId](AutomationruleGetHeaders headers = {}) returns AutomationRuleGetResponse|error {
+    resource isolated function get sheets/[decimal sheetId]/automationrules/[string automationRuleId](AutomationruleGetHeaders headers = {}) returns AutomationRuleResponse|error {
         string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/automationrules/${getEncodedUri(automationRuleId)}`;
         map<string|string[]> httpHeaders = http:getHeaderMap(headers);
         return self.clientEp->get(resourcePath, httpHeaders);
@@ -983,7 +983,7 @@ public isolated client class Client {
     # + headers - Headers to be sent with the request 
     # + payload - A [Column object]() that contains the following attributes 
     # + return - Returns [Result object](/api/smartsheet/openapi/schemas/result) containing the newly created columns -- either a single [Column object](/api/smartsheet/openapi/columns/column) or an array of Column objects, corresponding to what was specified in the request 
-    resource isolated function post sheets/[decimal sheetId]/columns(ColumnObjectAttributes payload, ColumnsAddToSheetHeaders headers = {}) returns ColumnsAddToSheetResponse|error {
+    resource isolated function post sheets/[decimal sheetId]/columns(ColumnObjectAttributes payload, ColumnsAddToSheetHeaders headers = {}) returns ColumnAddResponse|error {
         string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/columns`;
         map<string|string[]> httpHeaders = http:getHeaderMap(headers);
         http:Request request = new;
@@ -1052,7 +1052,7 @@ public isolated client class Client {
     # + commentId - ID of the comment
     # + headers - Headers to be sent with the request 
     # + return - SUCCESS 
-    resource isolated function put sheets/[decimal sheetId]/comments/[string commentId](CommentCreationRequest payload, CommentEditHeaders headers = {}) returns CommentEditResponse|error {
+    resource isolated function put sheets/[decimal sheetId]/comments/[string commentId](CommentCreationRequest payload, CommentEditHeaders headers = {}) returns CommentUpdateResponse|error {
         string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/comments/${getEncodedUri(commentId)}`;
         map<string|string[]> httpHeaders = http:getHeaderMap(headers);
         http:Request request = new;
@@ -1079,7 +1079,7 @@ public isolated client class Client {
     # + commentId - ID of the comment
     # + headers - Headers to be sent with the request 
     # + return - SUCCESS 
-    resource isolated function post sheets/[decimal sheetId]/comments/[string commentId]/attachments(byte[] payload, AttachmentsAttachToCommentHeaders headers = {}) returns AttachmentCreateResponse|error {
+    resource isolated function post sheets/[decimal sheetId]/comments/[string commentId]/attachments(byte[] payload, AttachmentsAttachToCommentHeaders headers = {}) returns AttachmentResultResponse|error {
         string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/comments/${getEncodedUri(commentId)}/attachments`;
         map<string|string[]> httpHeaders = http:getHeaderMap(headers);
         http:Request request = new;
@@ -1110,7 +1110,7 @@ public isolated client class Client {
     # + headers - Headers to be sent with the request 
     # + queries - Queries to be sent with the request 
     # + return - IndexResult object containing an array of CrossSheetReference objects 
-    resource isolated function get sheets/[decimal sheetId]/crosssheetreferences(ListCrosssheetReferencesHeaders headers = {}, *ListCrosssheetReferencesQueries queries) returns CrossSheetReferenceListResponse|error {
+    resource isolated function get sheets/[decimal sheetId]/crosssheetreferences(ListCrosssheetReferencesHeaders headers = {}, *ListCrosssheetReferencesQueries queries) returns CrossSheetReferencesListResponse|error {
         string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/crosssheetreferences`;
         resourcePath = resourcePath + check getPathForQueryParam(queries);
         map<string|string[]> httpHeaders = http:getHeaderMap(headers);
@@ -1202,7 +1202,7 @@ public isolated client class Client {
     # + headers - Headers to be sent with the request 
     # + queries - Queries to be sent with the request 
     # + return - OK 
-    resource isolated function get sheets/[decimal sheetId]/discussions/[string discussionId]/attachments(DiscussionListAttachmentsHeaders headers = {}, *DiscussionListAttachmentsQueries queries) returns AttachmentListResponse|error {
+    resource isolated function get sheets/[decimal sheetId]/discussions/[string discussionId]/attachments(DiscussionListAttachmentsHeaders headers = {}, *DiscussionListAttachmentsQueries queries) returns AttachmentListIndexResponse|error {
         string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/discussions/${getEncodedUri(discussionId)}/attachments`;
         resourcePath = resourcePath + check getPathForQueryParam(queries);
         map<string|string[]> httpHeaders = http:getHeaderMap(headers);
@@ -1215,7 +1215,7 @@ public isolated client class Client {
     # + discussionId - ID of the discussion
     # + headers - Headers to be sent with the request 
     # + return - SUCCESS 
-    resource isolated function post sheets/[decimal sheetId]/discussions/[string discussionId]/comments(CommentCreationRequest payload, CommentsCreateHeaders headers = {}) returns CommentCreateResult|error {
+    resource isolated function post sheets/[decimal sheetId]/discussions/[string discussionId]/comments(CommentCreationRequest payload, CommentsCreateHeaders headers = {}) returns CommentCreateResponse|error {
         string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/discussions/${getEncodedUri(discussionId)}/comments`;
         map<string|string[]> httpHeaders = http:getHeaderMap(headers);
         http:Request request = new;
@@ -1230,7 +1230,7 @@ public isolated client class Client {
     # + headers - Headers to be sent with the request 
     # + payload - [SheetEmail object](/api/smartsheet/openapi/sendviaemail/sheetemail) 
     # + return - SUCCESS 
-    resource isolated function post sheets/[decimal sheetId]/emails(SheetEmail payload, SheetSendHeaders headers = {}) returns GenericOperationResult|error {
+    resource isolated function post sheets/[decimal sheetId]/emails(SheetEmail payload, SheetSendHeaders headers = {}) returns GenericOperationResponse|error {
         string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/emails`;
         map<string|string[]> httpHeaders = http:getHeaderMap(headers);
         http:Request request = new;
@@ -1260,7 +1260,7 @@ public isolated client class Client {
     # + headers - Headers to be sent with the request 
     # + queries - Queries to be sent with the request 
     # + return - OK 
-    resource isolated function get sheets/[decimal sheetId]/proofs(ProofsGetAllProofsHeaders headers = {}, *ProofsGetAllProofsQueries queries) returns ProofListResult|error {
+    resource isolated function get sheets/[decimal sheetId]/proofs(ProofsGetAllProofsHeaders headers = {}, *ProofsGetAllProofsQueries queries) returns ProofListResponse|error {
         string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/proofs`;
         resourcePath = resourcePath + check getPathForQueryParam(queries);
         map<string|string[]> httpHeaders = http:getHeaderMap(headers);
@@ -1274,7 +1274,7 @@ public isolated client class Client {
     # + headers - Headers to be sent with the request 
     # + queries - Queries to be sent with the request 
     # + return - SUCCESS 
-    resource isolated function get sheets/[decimal sheetId]/proofs/[string proofId](ProofsGetHeaders headers = {}, *ProofsGetQueries queries) returns ProofGetResult|error {
+    resource isolated function get sheets/[decimal sheetId]/proofs/[string proofId](ProofsGetHeaders headers = {}, *ProofsGetQueries queries) returns ProofGetResponse|error {
         string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/proofs/${getEncodedUri(proofId)}`;
         resourcePath = resourcePath + check getPathForQueryParam(queries);
         map<string|string[]> httpHeaders = http:getHeaderMap(headers);
@@ -1287,7 +1287,7 @@ public isolated client class Client {
     # + proofId - Proof Id of the original proof
     # + headers - Headers to be sent with the request 
     # + return - SUCCESS 
-    resource isolated function put sheets/[decimal sheetId]/proofs/[string proofId](UpdateProofStatusRequest payload, ProofsUpdateHeaders headers = {}) returns ProofGetResult|error {
+    resource isolated function put sheets/[decimal sheetId]/proofs/[string proofId](UpdateProofStatusRequest payload, ProofsUpdateHeaders headers = {}) returns ProofGetResponse|error {
         string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/proofs/${getEncodedUri(proofId)}`;
         map<string|string[]> httpHeaders = http:getHeaderMap(headers);
         http:Request request = new;
@@ -1315,7 +1315,7 @@ public isolated client class Client {
     # + headers - Headers to be sent with the request 
     # + queries - Queries to be sent with the request 
     # + return - OK 
-    resource isolated function get sheets/[decimal sheetId]/proofs/[string proofId]/attachments(ProofsListAttachmentsHeaders headers = {}, *ProofsListAttachmentsQueries queries) returns ProofAttachmentListResult|error {
+    resource isolated function get sheets/[decimal sheetId]/proofs/[string proofId]/attachments(ProofsListAttachmentsHeaders headers = {}, *ProofsListAttachmentsQueries queries) returns ProofAttachmentListResponseAlt|error {
         string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/proofs/${getEncodedUri(proofId)}/attachments`;
         resourcePath = resourcePath + check getPathForQueryParam(queries);
         map<string|string[]> httpHeaders = http:getHeaderMap(headers);
@@ -1328,7 +1328,7 @@ public isolated client class Client {
     # + proofId - Proof Id of the original proof
     # + headers - Headers to be sent with the request 
     # + return - SUCCESS 
-    resource isolated function post sheets/[decimal sheetId]/proofs/[string proofId]/attachments(byte[] payload, ProofsAttachToProofHeaders headers = {}) returns AttachmentCreateResponse|error {
+    resource isolated function post sheets/[decimal sheetId]/proofs/[string proofId]/attachments(byte[] payload, ProofsAttachToProofHeaders headers = {}) returns AttachmentResultResponse|error {
         string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/proofs/${getEncodedUri(proofId)}/attachments`;
         map<string|string[]> httpHeaders = http:getHeaderMap(headers);
         http:Request request = new;
@@ -1372,7 +1372,7 @@ public isolated client class Client {
     # + headers - Headers to be sent with the request 
     # + queries - Queries to be sent with the request 
     # + return - OK 
-    resource isolated function get sheets/[decimal sheetId]/proofs/[string proofId]/requestactions(ProofsListRequestActionsHeaders headers = {}, *ProofsListRequestActionsQueries queries) returns ProofActionListResult|error {
+    resource isolated function get sheets/[decimal sheetId]/proofs/[string proofId]/requestactions(ProofsListRequestActionsHeaders headers = {}, *ProofsListRequestActionsQueries queries) returns ProofActionListResponse|error {
         string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/proofs/${getEncodedUri(proofId)}/requestactions`;
         resourcePath = resourcePath + check getPathForQueryParam(queries);
         map<string|string[]> httpHeaders = http:getHeaderMap(headers);
@@ -1525,7 +1525,7 @@ public isolated client class Client {
     # + headers - Headers to be sent with the request 
     # + payload - The columns included for each row in the email are populated according to the following rules: 
     # + return - SUCCESS 
-    resource isolated function post sheets/[decimal sheetId]/rows/emails(MultiRowEmail payload, RowsSendHeaders headers = {}) returns GenericOperationResult|error {
+    resource isolated function post sheets/[decimal sheetId]/rows/emails(MultiRowEmail payload, RowsSendHeaders headers = {}) returns GenericOperationResponse|error {
         string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/rows/emails`;
         map<string|string[]> httpHeaders = http:getHeaderMap(headers);
         http:Request request = new;
@@ -1587,7 +1587,7 @@ public isolated client class Client {
     # + headers - Headers to be sent with the request 
     # + queries - Queries to be sent with the request 
     # + return - OK 
-    resource isolated function get sheets/[decimal sheetId]/rows/[decimal rowId]/attachments(AttachmentsListOnRowHeaders headers = {}, *AttachmentsListOnRowQueries queries) returns AttachmentListResponse|error {
+    resource isolated function get sheets/[decimal sheetId]/rows/[decimal rowId]/attachments(AttachmentsListOnRowHeaders headers = {}, *AttachmentsListOnRowQueries queries) returns AttachmentListIndexResponse|error {
         string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/rows/${getEncodedUri(rowId)}/attachments`;
         resourcePath = resourcePath + check getPathForQueryParam(queries);
         map<string|string[]> httpHeaders = http:getHeaderMap(headers);
@@ -1600,7 +1600,7 @@ public isolated client class Client {
     # + rowId - Row Id in the sheet being accessed
     # + headers - Headers to be sent with the request 
     # + return - SUCCESS 
-    resource isolated function post sheets/[decimal sheetId]/rows/[decimal rowId]/attachments(byte[] payload, RowAttachmentsAttachFileHeaders headers = {}) returns AttachmentCreateResponse|error {
+    resource isolated function post sheets/[decimal sheetId]/rows/[decimal rowId]/attachments(byte[] payload, RowAttachmentsAttachFileHeaders headers = {}) returns AttachmentResultResponse|error {
         string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/rows/${getEncodedUri(rowId)}/attachments`;
         map<string|string[]> httpHeaders = http:getHeaderMap(headers);
         http:Request request = new;
@@ -1616,7 +1616,7 @@ public isolated client class Client {
     # + headers - Headers to be sent with the request 
     # + queries - Queries to be sent with the request 
     # + return - SUCCESS 
-    resource isolated function post sheets/[decimal sheetId]/rows/[decimal rowId]/columns/[decimal columnId]/cellimages(byte[] payload, AddImageToCellHeaders headers = {}, *AddImageToCellQueries queries) returns CellImageAddResponse|error {
+    resource isolated function post sheets/[decimal sheetId]/rows/[decimal rowId]/columns/[decimal columnId]/cellimages(byte[] payload, AddImageToCellHeaders headers = {}, *AddImageToCellQueries queries) returns CellImageResultResponse|error {
         string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/rows/${getEncodedUri(rowId)}/columns/${getEncodedUri(columnId)}/cellimages`;
         resourcePath = resourcePath + check getPathForQueryParam(queries);
         map<string|string[]> httpHeaders = http:getHeaderMap(headers);
@@ -1633,7 +1633,7 @@ public isolated client class Client {
     # + headers - Headers to be sent with the request 
     # + queries - Queries to be sent with the request 
     # + return - OK 
-    resource isolated function get sheets/[decimal sheetId]/rows/[decimal rowId]/columns/[decimal columnId]/history(CellHistoryGetHeaders headers = {}, *CellHistoryGetQueries queries) returns CellHistoryResponse|error {
+    resource isolated function get sheets/[decimal sheetId]/rows/[decimal rowId]/columns/[decimal columnId]/history(CellHistoryGetHeaders headers = {}, *CellHistoryGetQueries queries) returns CellHistoryListResponseAlt|error {
         string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/rows/${getEncodedUri(rowId)}/columns/${getEncodedUri(columnId)}/history`;
         resourcePath = resourcePath + check getPathForQueryParam(queries);
         map<string|string[]> httpHeaders = http:getHeaderMap(headers);
@@ -1689,7 +1689,7 @@ public isolated client class Client {
     # + headers - Headers to be sent with the request 
     # + queries - Queries to be sent with the request 
     # + return - The list of SentUpdateRequest objects 
-    resource isolated function get sheets/[decimal sheetId]/sentupdaterequests(SentupdaterequestsListHeaders headers = {}, *SentupdaterequestsListQueries queries) returns SentUpdateRequestsResponse|error {
+    resource isolated function get sheets/[decimal sheetId]/sentupdaterequests(SentupdaterequestsListHeaders headers = {}, *SentupdaterequestsListQueries queries) returns SentUpdateRequestsListResponse|error {
         string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/sentupdaterequests`;
         resourcePath = resourcePath + check getPathForQueryParam(queries);
         map<string|string[]> httpHeaders = http:getHeaderMap(headers);
@@ -1739,7 +1739,7 @@ public isolated client class Client {
     # + headers - Headers to be sent with the request 
     # + queries - Queries to be sent with the request 
     # + return - OK 
-    resource isolated function get sheets/[decimal sheetId]/summary/fields(ListSummaryFieldsPaginatedHeaders headers = {}, *ListSummaryFieldsPaginatedQueries queries) returns SummaryFieldListResponse|error {
+    resource isolated function get sheets/[decimal sheetId]/summary/fields(ListSummaryFieldsPaginatedHeaders headers = {}, *ListSummaryFieldsPaginatedQueries queries) returns SummaryFieldsListResponse|error {
         string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/summary/fields`;
         resourcePath = resourcePath + check getPathForQueryParam(queries);
         map<string|string[]> httpHeaders = http:getHeaderMap(headers);
@@ -1753,7 +1753,7 @@ public isolated client class Client {
     # + queries - Queries to be sent with the request 
     # + payload - Array of SummaryField objects 
     # + return - OK 
-    resource isolated function put sheets/[decimal sheetId]/summary/fields(SummaryFieldUpdateRequest[] payload, UpdateSummaryFieldsHeaders headers = {}, *UpdateSummaryFieldsQueries queries) returns SummaryFieldUpdateResponse|error {
+    resource isolated function put sheets/[decimal sheetId]/summary/fields(SummaryFieldUpdateRequest[] payload, UpdateSummaryFieldsHeaders headers = {}, *UpdateSummaryFieldsQueries queries) returns SummaryFieldsUpdateResponse|error {
         string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/summary/fields`;
         resourcePath = resourcePath + check getPathForQueryParam(queries);
         map<string|string[]> httpHeaders = http:getHeaderMap(headers);
@@ -1770,7 +1770,7 @@ public isolated client class Client {
     # + queries - Queries to be sent with the request 
     # + payload - Array of SummaryField objects 
     # + return - OK 
-    resource isolated function post sheets/[decimal sheetId]/summary/fields(SummaryFieldCreateRequest[] payload, AddSummaryFieldsHeaders headers = {}, *AddSummaryFieldsQueries queries) returns SummaryFieldCreateResponse|error {
+    resource isolated function post sheets/[decimal sheetId]/summary/fields(SummaryFieldCreateRequest[] payload, AddSummaryFieldsHeaders headers = {}, *AddSummaryFieldsQueries queries) returns SummaryFieldAddResponse|error {
         string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/summary/fields`;
         resourcePath = resourcePath + check getPathForQueryParam(queries);
         map<string|string[]> httpHeaders = http:getHeaderMap(headers);
@@ -1786,7 +1786,7 @@ public isolated client class Client {
     # + headers - Headers to be sent with the request 
     # + queries - Queries to be sent with the request 
     # + return - OK 
-    resource isolated function delete sheets/[decimal sheetId]/summary/fields(DeleteSummaryFieldsHeaders headers = {}, *DeleteSummaryFieldsQueries queries) returns SummaryFieldDeleteResponse|error {
+    resource isolated function delete sheets/[decimal sheetId]/summary/fields(DeleteSummaryFieldsHeaders headers = {}, *DeleteSummaryFieldsQueries queries) returns SummaryFieldDeleteResponseAlt|error {
         string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/summary/fields`;
         resourcePath = resourcePath + check getPathForQueryParam(queries);
         map<string|string[]> httpHeaders = http:getHeaderMap(headers);
@@ -1882,7 +1882,7 @@ public isolated client class Client {
     # 
     # # Deprecated
     @deprecated
-    resource isolated function get sheets/[decimal sheetId]/shares(ListSheetSharesHeaders headers = {}, *ListSheetSharesQueries queries) returns AssetShareListResponseAlt|error {
+    resource isolated function get sheets/[decimal sheetId]/shares(ListSheetSharesHeaders headers = {}, *ListSheetSharesQueries queries) returns SharesListResponse|error {
         string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/shares`;
         resourcePath = resourcePath + check getPathForQueryParam(queries);
         map<string|string[]> httpHeaders = http:getHeaderMap(headers);
@@ -1898,7 +1898,7 @@ public isolated client class Client {
     # 
     # # Deprecated
     @deprecated
-    resource isolated function post sheets/[decimal sheetId]/shares(SheetIdSharesBody payload, ShareSheetHeaders headers = {}, *ShareSheetQueries queries) returns AssetShareCreateResponse|error {
+    resource isolated function post sheets/[decimal sheetId]/shares(SheetIdSharesBody payload, ShareSheetHeaders headers = {}, *ShareSheetQueries queries) returns ShareCreateResponse|error {
         string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/shares`;
         resourcePath = resourcePath + check getPathForQueryParam(queries);
         map<string|string[]> httpHeaders = http:getHeaderMap(headers);
@@ -2037,7 +2037,7 @@ public isolated client class Client {
     # + sightId - SightID of the sight being accessed
     # + headers - Headers to be sent with the request 
     # + return - Generic response result 
-    resource isolated function delete sights/[string sightId](DeleteSightHeaders headers = {}) returns GenericOperationResult|error {
+    resource isolated function delete sights/[string sightId](DeleteSightHeaders headers = {}) returns GenericOperationResponse|error {
         string resourcePath = string `/sights/${getEncodedUri(sightId)}`;
         map<string|string[]> httpHeaders = http:getHeaderMap(headers);
         return self.clientEp->delete(resourcePath, headers = httpHeaders);
@@ -2048,7 +2048,7 @@ public isolated client class Client {
     # + sightId - SightID of the sight being accessed
     # + headers - Headers to be sent with the request 
     # + return - Result object containing a dashboard with a subset of attributes for the newly created dashboard 
-    resource isolated function post sights/[string sightId]/copy(ContainerDestinationForCopy payload, CopySightHeaders headers = {}) returns SightOperationResponse|error {
+    resource isolated function post sights/[string sightId]/copy(ContainerDestinationForCopy payload, CopySightHeaders headers = {}) returns SightCopyMoveResponse|error {
         string resourcePath = string `/sights/${getEncodedUri(sightId)}/copy`;
         map<string|string[]> httpHeaders = http:getHeaderMap(headers);
         http:Request request = new;
@@ -2062,7 +2062,7 @@ public isolated client class Client {
     # + sightId - SightID of the sight being accessed
     # + headers - Headers to be sent with the request 
     # + return - Result object containing a Dashboard object with a subset of attributes for the moved dashboard 
-    resource isolated function post sights/[string sightId]/move(ContainerDestinationForMove payload, MoveSightHeaders headers = {}) returns SightOperationResponse|error {
+    resource isolated function post sights/[string sightId]/move(ContainerDestinationForMove payload, MoveSightHeaders headers = {}) returns SightCopyMoveResponse|error {
         string resourcePath = string `/sights/${getEncodedUri(sightId)}/move`;
         map<string|string[]> httpHeaders = http:getHeaderMap(headers);
         http:Request request = new;
@@ -2105,7 +2105,7 @@ public isolated client class Client {
     # 
     # # Deprecated
     @deprecated
-    resource isolated function get sights/[string sightId]/shares(ListSightSharesHeaders headers = {}, *ListSightSharesQueries queries) returns AssetShareListResponseAlt|error {
+    resource isolated function get sights/[string sightId]/shares(ListSightSharesHeaders headers = {}, *ListSightSharesQueries queries) returns SharesListResponse|error {
         string resourcePath = string `/sights/${getEncodedUri(sightId)}/shares`;
         resourcePath = resourcePath + check getPathForQueryParam(queries);
         map<string|string[]> httpHeaders = http:getHeaderMap(headers);
@@ -2121,7 +2121,7 @@ public isolated client class Client {
     # 
     # # Deprecated
     @deprecated
-    resource isolated function post sights/[string sightId]/shares(Share payload, ShareSightHeaders headers = {}, *ShareSightQueries queries) returns AssetShareCreateResponse|error {
+    resource isolated function post sights/[string sightId]/shares(Share payload, ShareSightHeaders headers = {}, *ShareSightQueries queries) returns ShareCreateResponse|error {
         string resourcePath = string `/sights/${getEncodedUri(sightId)}/shares`;
         resourcePath = resourcePath + check getPathForQueryParam(queries);
         map<string|string[]> httpHeaders = http:getHeaderMap(headers);
@@ -2271,7 +2271,7 @@ public isolated client class Client {
     # + headers - Headers to be sent with the request 
     # + queries - Queries to be sent with the request 
     # + return - IndexResultUnknownPages object containing a UserProfile object 
-    resource isolated function get users/me(GetCurrentUserHeaders headers = {}, *GetCurrentUserQueries queries) returns CurrentUserResponse|error {
+    resource isolated function get users/me(GetCurrentUserHeaders headers = {}, *GetCurrentUserQueries queries) returns CurrentUserProfileResponse|error {
         string resourcePath = string `/users/me`;
         resourcePath = resourcePath + check getPathForQueryParam(queries);
         map<string|string[]> httpHeaders = http:getHeaderMap(headers);
@@ -2283,7 +2283,7 @@ public isolated client class Client {
     # + headers - Headers to be sent with the request 
     # + queries - Queries to be sent with the request 
     # + return - IndexResultUnknownPages object containing an array of Sheet objects, limited to the following attributes: * id * name * owner: empty string * ownerId: (static "0") 
-    resource isolated function get users/sheets(ListOrgSheetsHeaders headers = {}, *ListOrgSheetsQueries queries) returns OrganizationSheetsResponse|error {
+    resource isolated function get users/sheets(ListOrgSheetsHeaders headers = {}, *ListOrgSheetsQueries queries) returns OrganizationSheetsListResponse|error {
         string resourcePath = string `/users/sheets`;
         map<Encoding> queryParamEncoding = {"modifiedSince": {style: FORM, explode: true}};
         resourcePath = resourcePath + check getPathForQueryParam(queries, queryParamEncoding);
@@ -2507,7 +2507,7 @@ public isolated client class Client {
     # + headers - Headers to be sent with the request 
     # + queries - Queries to be sent with the request 
     # + return - IndexResultWorkspaces object containing an array of Workspace objects. The response structure varies based on the paginationType parameter. When using token-based pagination (default), includes lastKey field. When using legacy page-based pagination, includes pageNumber and totalPages 
-    resource isolated function get workspaces(ListWorkspacesHeaders headers = {}, *ListWorkspacesQueries queries) returns WorkspaceListResponse|error {
+    resource isolated function get workspaces(ListWorkspacesHeaders headers = {}, *ListWorkspacesQueries queries) returns WorkspaceIndexResponse|error {
         string resourcePath = string `/workspaces`;
         resourcePath = resourcePath + check getPathForQueryParam(queries);
         map<string|string[]> httpHeaders = http:getHeaderMap(headers);
@@ -2625,7 +2625,7 @@ public isolated client class Client {
     # 
     # # Deprecated
     @deprecated
-    resource isolated function get workspaces/[string workspaceId]/folders(GetWorkspaceFoldersHeaders headers = {}, *GetWorkspaceFoldersQueries queries) returns WorkspaceFolderListResponse|error {
+    resource isolated function get workspaces/[string workspaceId]/folders(GetWorkspaceFoldersHeaders headers = {}, *GetWorkspaceFoldersQueries queries) returns WorkspaceFoldersListResponse|error {
         string resourcePath = string `/workspaces/${getEncodedUri(workspaceId)}/folders`;
         resourcePath = resourcePath + check getPathForQueryParam(queries);
         map<string|string[]> httpHeaders = http:getHeaderMap(headers);
@@ -2656,7 +2656,7 @@ public isolated client class Client {
     # 
     # # Deprecated
     @deprecated
-    resource isolated function get workspaces/[string workspaceId]/shares(ListWorkspaceSharesHeaders headers = {}, *ListWorkspaceSharesQueries queries) returns AssetShareListResponseAlt|error {
+    resource isolated function get workspaces/[string workspaceId]/shares(ListWorkspaceSharesHeaders headers = {}, *ListWorkspaceSharesQueries queries) returns SharesListResponse|error {
         string resourcePath = string `/workspaces/${getEncodedUri(workspaceId)}/shares`;
         resourcePath = resourcePath + check getPathForQueryParam(queries);
         map<string|string[]> httpHeaders = http:getHeaderMap(headers);
@@ -2672,7 +2672,7 @@ public isolated client class Client {
     # 
     # # Deprecated
     @deprecated
-    resource isolated function post workspaces/[string workspaceId]/shares(WorkspaceIdSharesBody payload, ShareWorkspaceHeaders headers = {}, *ShareWorkspaceQueries queries) returns AssetShareCreateResponse|error {
+    resource isolated function post workspaces/[string workspaceId]/shares(WorkspaceIdSharesBody payload, ShareWorkspaceHeaders headers = {}, *ShareWorkspaceQueries queries) returns ShareCreateResponse|error {
         string resourcePath = string `/workspaces/${getEncodedUri(workspaceId)}/shares`;
         resourcePath = resourcePath + check getPathForQueryParam(queries);
         map<string|string[]> httpHeaders = http:getHeaderMap(headers);
@@ -2741,7 +2741,7 @@ public isolated client class Client {
     # + queries - Queries to be sent with the request 
     # + payload - Sheet to create 
     # + return - Result object containing a Sheet object for newly created sheet, corresponding to what was specified in the request 
-    resource isolated function post workspaces/[string workspaceId]/sheets(WorkspaceIdSheetsBody payload, CreateSheetInWorkspaceHeaders headers = {}, *CreateSheetInWorkspaceQueries queries) returns SheetOperationResponse|error {
+    resource isolated function post workspaces/[string workspaceId]/sheets(WorkspaceIdSheetsBody payload, CreateSheetInWorkspaceHeaders headers = {}, *CreateSheetInWorkspaceQueries queries) returns MultiResourceResponse|error {
         string resourcePath = string `/workspaces/${getEncodedUri(workspaceId)}/sheets`;
         resourcePath = resourcePath + check getPathForQueryParam(queries);
         map<string|string[]> httpHeaders = http:getHeaderMap(headers);
@@ -2758,7 +2758,7 @@ public isolated client class Client {
     # + queries - Queries to be sent with the request 
     # + payload - Binary content for the CSV / XLSX file 
     # + return - Result object containing a Sheet object for imported sheet 
-    resource isolated function post workspaces/[string workspaceId]/sheets/'import(ImportSheetIntoWorkspaceHeaders headers, byte[] payload, *ImportSheetIntoWorkspaceQueries queries) returns WorkspaceOperationResponse|error {
+    resource isolated function post workspaces/[string workspaceId]/sheets/'import(ImportSheetIntoWorkspaceHeaders headers, byte[] payload, *ImportSheetIntoWorkspaceQueries queries) returns GenericResultResponse|error {
         string resourcePath = string `/workspaces/${getEncodedUri(workspaceId)}/sheets/import`;
         resourcePath = resourcePath + check getPathForQueryParam(queries);
         map<string|string[]> httpHeaders = http:getHeaderMap(headers);

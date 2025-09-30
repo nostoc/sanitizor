@@ -367,7 +367,7 @@ public function renameInlineResponseSchemasBatchWithRetry(string specFilePath, i
     string apiContext = extractApiContext(specMap);
 
     foreach string schemaName in schemas.keys() {
-        if (schemaName.startsWith("InlineResponse")) {
+        if (schemaName.startsWith("InlineResponse") || schemaName.endsWith("AllOf2") || schemaName.endsWith("OneOf2") ) {
             json|error schemaResult = schemas.get(schemaName);
             if (schemaResult is map<json>) {
                 string schemaDefinition = (<map<json>>schemaResult).toJsonString();
@@ -1344,7 +1344,7 @@ public function renameInlineResponseSchemas(string specFilePath) returns int|LLM
     // First, collect all existing schema names to ensure global uniqueness
     string[] allExistingNames = [];
     foreach string schemaName in schemas.keys() {
-        if (!schemaName.startsWith("InlineResponse")) {
+        if (!schemaName.startsWith("InlineResponse") || !schemaName.endsWith("AllOf2") || !schemaName.endsWith("OneOf2")) {
             allExistingNames.push(schemaName);
         }
     }
@@ -1354,7 +1354,7 @@ public function renameInlineResponseSchemas(string specFilePath) returns int|LLM
     int renamedCount = 0;
 
     foreach string schemaName in schemas.keys() {
-        if (schemaName.startsWith("InlineResponse")) {
+        if (schemaName.startsWith("InlineResponse") || schemaName.endsWith("AllOf2") || schemaName.endsWith("OneOf2")  )  {
             json|error schemaResult = schemas.get(schemaName);
             if (schemaResult is map<json>) {
                 // Pass existing names to LLM for context-aware unique name generation
@@ -1488,7 +1488,7 @@ public function renameInlineResponseSchemasBatch(string specFilePath, int batchS
     string apiContext = extractApiContext(specMap);
 
     foreach string schemaName in schemas.keys() {
-        if (schemaName.startsWith("InlineResponse")) {
+        if (schemaName.startsWith("InlineResponse") || schemaName.endsWith("AllOf2") || schemaName.endsWith("OneOf2")) {
             json|error schemaResult = schemas.get(schemaName);
             if (schemaResult is map<json>) {
                 string schemaDefinition = (<map<json>>schemaResult).toJsonString();

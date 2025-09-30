@@ -60,18 +60,18 @@ public function main(string... args) returns error? {
     log:printInfo("Batch schema renaming completed", schemasRenamed = schemaRenameResult);
     io:println(string `✅ BATCH: Renamed ${schemaRenameResult} InlineResponse schemas to meaningful names`);
 
-    // Step 4: Apply documentation fix on the same spec (BATCH VERSION)
-    io:println("🚀 Testing BATCH processing for missing descriptions...");
-    int|spec_sanitizor:LLMServiceError descriptionsResult = spec_sanitizor:addMissingDescriptionsBatchWithRetry(
-        alignedSpec,
-        batchSize = 15  // Process 15 items per batch
-    );
-    if descriptionsResult is spec_sanitizor:LLMServiceError {
-        log:printError("Failed to add missing descriptions (batch)", 'error = descriptionsResult);
-        return error("Documentation fix failed: " + descriptionsResult.message());
-    }
-    log:printInfo("Batch documentation fix completed", descriptionsAdded = descriptionsResult);
-    io:println(string `✅ BATCH: Added ${descriptionsResult} missing field descriptions`);
+    // // Step 4: Apply documentation fix on the same spec (BATCH VERSION)
+    // io:println("🚀 Testing BATCH processing for missing descriptions...");
+    // int|spec_sanitizor:LLMServiceError descriptionsResult = spec_sanitizor:addMissingDescriptionsBatchWithRetry(
+    //     alignedSpec,
+    //     batchSize = 15  // Process 15 items per batch
+    // );
+    // if descriptionsResult is spec_sanitizor:LLMServiceError {
+    //     log:printError("Failed to add missing descriptions (batch)", 'error = descriptionsResult);
+    //     return error("Documentation fix failed: " + descriptionsResult.message());
+    // }
+    // log:printInfo("Batch documentation fix completed", descriptionsAdded = descriptionsResult);
+    // io:println(string `✅ BATCH: Added ${descriptionsResult} missing field descriptions`);
 
     // Optional: Compare with individual processing for cost analysis
     io:println("\n📊 BATCH PROCESSING ANALYSIS:");
