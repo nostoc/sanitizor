@@ -54,7 +54,7 @@ public function initLLMService() returns LLMServiceError? {
         apiKey,
         anthropic:CLAUDE_SONNET_4_20250514,
         maxTokens = 60000,
-        timeout = 120
+        timeout = 300
     );
 
     if modelProvider is error {

@@ -50,7 +50,7 @@ public function main(string... args) returns error? {
     io:println("🚀 Testing BATCH processing for schema renaming...");
     int|spec_sanitizor:LLMServiceError schemaRenameResult = spec_sanitizor:renameInlineResponseSchemasBatchWithRetry(
         alignedSpec,
-        batchSize = 10 // Process 8 schemas per batch
+        batchSize = 8 // Process 8 schemas per batch
         
     );
     if schemaRenameResult is spec_sanitizor:LLMServiceError {
@@ -64,7 +64,7 @@ public function main(string... args) returns error? {
     io:println("🚀 Testing BATCH processing for missing descriptions...");
     int|spec_sanitizor:LLMServiceError descriptionsResult = spec_sanitizor:addMissingDescriptionsBatchWithRetry(
         alignedSpec,
-        batchSize = 20  // Process 15 items per batch
+        batchSize = 15  // Process 15 items per batch
     );
     if descriptionsResult is spec_sanitizor:LLMServiceError {
         log:printError("Failed to add missing descriptions (batch)", 'error = descriptionsResult);
