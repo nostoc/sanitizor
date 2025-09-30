@@ -45,8 +45,8 @@ public function main(string... args) returns error? {
     }
     log:printInfo("OpenAPI spec aligned successfully");
 
-    // Step 3: Apply schema renaming fix on aligned spec (BATCH VERSION)
-    string alignedSpec = alignedSpecPath + "/aligned_ballerina_openapi.json";
+    // // Step 3: Apply schema renaming fix on aligned spec (BATCH VERSION)
+     string alignedSpec = alignedSpecPath + "/aligned_ballerina_openapi.json";
     io:println("🚀 Testing BATCH processing for schema renaming...");
     int|spec_sanitizor:LLMServiceError schemaRenameResult = spec_sanitizor:renameInlineResponseSchemasBatchWithRetry(
         alignedSpec,
@@ -60,37 +60,26 @@ public function main(string... args) returns error? {
     log:printInfo("Batch schema renaming completed", schemasRenamed = schemaRenameResult);
     io:println(string `✅ BATCH: Renamed ${schemaRenameResult} InlineResponse schemas to meaningful names`);
 
-    // // Step 4: Apply documentation fix on the same spec (BATCH VERSION)
-    // io:println("🚀 Testing BATCH processing for missing descriptions...");
-    // int|spec_sanitizor:LLMServiceError descriptionsResult = spec_sanitizor:addMissingDescriptionsBatchWithRetry(
-    //     alignedSpec,
-    //     batchSize = 15  // Process 15 items per batch
-    // );
-    // if descriptionsResult is spec_sanitizor:LLMServiceError {
-    //     log:printError("Failed to add missing descriptions (batch)", 'error = descriptionsResult);
-    //     return error("Documentation fix failed: " + descriptionsResult.message());
-    // }
-    // log:printInfo("Batch documentation fix completed", descriptionsAdded = descriptionsResult);
-    // io:println(string `✅ BATCH: Added ${descriptionsResult} missing field descriptions`);
-
-    // Optional: Compare with individual processing for cost analysis
-    io:println("\n📊 BATCH PROCESSING ANALYSIS:");
-    io:println("   • Used configurable batch sizes:");
-    io:println("     - Schema renaming: 8 schemas per batch");
-    io:println("     - Description generation: 15 items per batch");
-    io:println("   • Expected benefits:");
-    io:println("     - 80-90% reduction in API calls");
-    io:println("     - 50-70% faster processing");
-    io:println("     - 30-50% cost savings");
-    io:println("     - Better token utilization");
+    // Step 4: Apply documentation fix on the same spec (BATCH VERSION)
+    io:println("🚀 Testing BATCH processing for missing descriptions...");
+    int|spec_sanitizor:LLMServiceError descriptionsResult = spec_sanitizor:addMissingDescriptionsBatchWithRetry(
+        alignedSpec,
+        batchSize = 15  // Process 15 items per batch
+    );
+    if descriptionsResult is spec_sanitizor:LLMServiceError {
+        log:printError("Failed to add missing descriptions (batch)", 'error = descriptionsResult);
+        return error("Documentation fix failed: " + descriptionsResult.message());
+    }
+    log:printInfo("Batch documentation fix completed", descriptionsAdded = descriptionsResult);
+    io:println(string `✅ BATCH: Added ${descriptionsResult} missing field descriptions`);
 
     // Step 5: Align the final spec again after applying LLM fixes
-    command_executor:CommandResult finalAlignResult = command_executor:executeBalAlign(alignedSpec, alignedSpecPath);
-    if !command_executor:isCommandSuccessfull(finalAlignResult) {
-        log:printError("Failed to align final spec", alignResult = finalAlignResult);
-        return error("Final OpenAPI align command failed: " + finalAlignResult.stderr);
-    }
-    log:printInfo("Final spec alignment completed successfully", outputPath = alignedSpecPath);
+    // command_executor:CommandResult finalAlignResult = command_executor:executeBalAlign(alignedSpec, alignedSpecPath);
+    // if !command_executor:isCommandSuccessfull(finalAlignResult) {
+    //     log:printError("Failed to align final spec", alignResult = finalAlignResult);
+    //     return error("Final OpenAPI align command failed: " + finalAlignResult.stderr);
+    // }
+    // log:printInfo("Final spec alignment completed successfully", outputPath = alignedSpecPath);
 
     // Step 6: Generate Ballerina client from the final sanitized spec
     string clientOutputPath = outputDir + "/ballerina";
