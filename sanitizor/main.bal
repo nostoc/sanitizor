@@ -5,8 +5,7 @@ import ballerina/io;
 import ballerina/log;
 
 public function main(string... args) returns error? {
-    log:printInfo("Starting OpenAPI Sanitizor..."" +
-"
+    log:printInfo("Starting OpenAPI Sanitizor...");
     // Check command line arguments
     if args.length() < 2 {
         printUsage();
@@ -44,8 +43,8 @@ public function main(string... args) returns error? {
         log:printError("OpenAPI align failed", result = alignResult);
         return error("Align operation failed: " + alignResult.stderr);
     }
-    log:printInfo("OpenAPI spec aligned successfully"" +
-"
+    log:printInfo("OpenAPI spec aligned successfully");
+
     // Step 3: Apply schema renaming fix on aligned spec
     string alignedSpec = alignedSpecPath + "/aligned_ballerina_openapi.json";
     int|spec_sanitizor:LLMServiceError schemaRenameResult = spec_sanitizor:renameInlineResponseSchemas(alignedSpec);

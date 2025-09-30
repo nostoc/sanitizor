@@ -578,7 +578,7 @@ public function renameInlineResponseSchemas(string specFilePath) returns int|LLM
                     } else {
                         log:printWarn("Generated name is not valid, using fallback",
                                 schema = schemaName, invalidName = newName);
-                        string fallbackBaseName = "Schema" + schemaName.substring(14); // Remove "InlineResponse"
+                        string fallbackBaseName = "Schema" + schemaName.substring(14); 
                         string fallbackName = fallbackBaseName;
                         int counter = 1;
                         while (isNameTaken(fallbackName, allExistingNames, nameMapping)) {
