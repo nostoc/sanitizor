@@ -1066,43 +1066,53 @@ function updateDescriptionInSpec(map<json> schemas, string location, string desc
         if schemaResult is map<json> {
             map<json> schemaMap = <map<json>>schemaResult;
             schemaMap["description"] = description;
-            schemas[schemaName] = schemaMap;
+            // No need to reassign since we're modifying the original reference
         }
     } else {
         // Property-level description - navigate to the correct location
         string schemaName = pathParts[0];
         json|error schemaResult = schemas.get(schemaName);
         if schemaResult is map<json> {
-            map<json> current = <map<json>>schemaResult;
+            error? result = updateNestedDescription(<map<json>>schemaResult, pathParts, 1, description);
+            if result is error {
+                return result;
+            }
+        }
+    }
 
-            // Navigate to the parent of the target property
-            foreach int i in 1 ..< (pathParts.length() - 1) {
-                string part = pathParts[i];
-                if part.includes("[") {
-                    // Handle array indices like "allOf[0]"
-                    string[] indexParts = regex:split(part, "\\[");
-                    string arrayName = indexParts[0];
-                    string indexStr = regex:replaceAll(indexParts[1], "\\]", "");
-                    int|error indexResult = int:fromString(indexStr);
-                    if indexResult is int {
-                        json|error arrayResult = current.get(arrayName);
-                        if arrayResult is json[] {
-                            json[] array = arrayResult;
-                            if indexResult < array.length() && array[indexResult] is map<json> {
-                                current = <map<json>>array[indexResult];
-                            }
-                        }
-                    }
-                } else {
-                    json|error nextResult = current.get(part);
-                    if nextResult is map<json> {
-                        current = <map<json>>nextResult;
-                    }
+    return ();
+}
+
+// Recursive helper to safely update nested descriptions
+function updateNestedDescription(map<json> current, string[] pathParts, int index, string description) returns error? {
+    if index == pathParts.length() {
+        // We've reached the target - add description
+        current["description"] = description;
+        return ();
+    }
+
+    string part = pathParts[index];
+    
+    if part.includes("[") {
+        // Handle array indices like "allOf[0]"
+        string[] indexParts = regex:split(part, "\\[");
+        string arrayName = indexParts[0];
+        string indexStr = regex:replaceAll(indexParts[1], "\\]", "");
+        int|error indexResult = int:fromString(indexStr);
+        
+        if indexResult is int {
+            json|error arrayResult = current.get(arrayName);
+            if arrayResult is json[] {
+                json[] array = arrayResult;
+                if indexResult < array.length() && array[indexResult] is map<json> {
+                    return updateNestedDescription(<map<json>>array[indexResult], pathParts, index + 1, description);
                 }
             }
-
-            // Set the description at the final location
-            current["description"] = description;
+        }
+    } else {
+        json|error nextResult = current.get(part);
+        if nextResult is map<json> {
+            return updateNestedDescription(<map<json>>nextResult, pathParts, index + 1, description);
         }
     }
 
@@ -1121,19 +1131,13 @@ function processSchemaProperties(map<json> properties, string parentSchemaName, 
             // Handle $ref with description pattern - convert to allOf
             if propertyMap.hasKey("$ref") && propertyMap.hasKey("description") {
                 string refValue = <string>propertyMap.get("$ref");
-                string description = <string>propertyMap.get("description");
+                // Description already exists, no need to extract it
 
-                // Convert to allOf format
-                map<json> newPropertyMap = {
-                    "description": description,
-                    "allOf": [{"$ref": refValue}]
-                };
-
-                // Remove the original $ref
+                // Clear the existing $ref and add allOf structure directly to existing property map
                 _ = propertyMap.removeIfHasKey("$ref");
-
-                // Update the property with the new format
-                properties[propertyName] = newPropertyMap;
+                json[] allOfArray = [{"$ref": refValue}];
+                propertyMap["allOf"] = allOfArray;
+                
                 log:printInfo("Converted $ref with description to allOf format",
                         schema = parentSchemaName, property = propertyName);
                 continue;
