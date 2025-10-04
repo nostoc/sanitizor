@@ -91,7 +91,6 @@ File: ${filePath}
 Compilation Errors:
 ${errorContext}
 
-
 Instructions:
 - Return the full updated copy of the source ballerina file that needed changes.
 - Do not include explanations, markdown formatting, or code fences

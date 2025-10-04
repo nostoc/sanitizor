@@ -1,4 +1,4 @@
-import sanitizor.llm_service;
+import sanitizor.spec_sanitizor;
 
 import ballerina/io;
 import ballerina/log;
@@ -16,8 +16,8 @@ public function testLLM() returns error? {
         io:println("ANTHROPIC_API_KEY is set");
     }
 
-    llm_service:LLMServiceError? initResult = llm_service:initLLMService();
-    if (initResult is llm_service:LLMServiceError) {
+    spec_sanitizor:LLMServiceError? initResult = spec_sanitizor:initLLMService();
+    if (initResult is spec_sanitizor:LLMServiceError) {
         io:println("LLM service initialization failed:");
         io:println("Error: " + initResult.message());
         io:println("Details: " + initResult.toString());
@@ -27,7 +27,7 @@ public function testLLM() returns error? {
     }
 
     io:println("Testing field description generation...");
-    string|llm_service:LLMServiceError descResult = llm_service:generateFieldDescription(
+    string|spec_sanitizor:LLMServiceError descResult = spec_sanitizor:generateFieldDescription(
             "userId",
             "A field in a user management schema representing user identification"
     );
