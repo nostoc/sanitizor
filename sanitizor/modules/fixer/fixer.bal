@@ -210,41 +210,6 @@ public function applyFix(string projectPath, string filePath, string fixedCode) 
     return true;
 }
 
-// Verify fix by checking if errors are resolved
-public function verifyFix(string projectPath, CompilationError[] originalErrors) returns boolean|error {
-    // Build the project
-    command_executor:CommandResult buildResult = command_executor:executeBalBuild(projectPath);
-
-    if command_executor:isCommandSuccessfull(buildResult) {
-        // If build is successful, all errors are resolved
-        return true;
-    }
-
-    // Parse current errors
-    CompilationError[] currentErrors = parseCompilationErrors(buildResult.stderr);
-
-    // Check if any of the original errors still exist
-    foreach CompilationError originalError in originalErrors {
-        foreach CompilationError currentError in currentErrors {
-            // Check if this is the same error (same line, column, and message)
-            if originalError.filePath == currentError.filePath &&
-                originalError.line == currentError.line &&
-                originalError.column == currentError.column &&
-                originalError.message == currentError.message {
-                // Original error still exists
-                log:printWarn("Original error still exists after fix",
-                        filePath = originalError.filePath,
-                        line = originalError.line,
-                        column = originalError.column,
-                        message = originalError.message);
-                return false;
-            }
-        }
-    }
-
-    // All original errors are resolved
-    return true;
-}
 
 // Main function to fix all errors in a project
 public function fixAllErrors(string projectPath) returns FixResult|error {
