@@ -10,7 +10,7 @@ distribution-version = "2201.12.7"
 [[package]]
 org = "ballerina"
 name = "ai"
-version = "1.5.3"
+version = "1.5.4"
 dependencies = [
 	{org = "ballerina", name = "constraint"},
 	{org = "ballerina", name = "data.jsondata"},
@@ -70,7 +70,7 @@ dependencies = [
 [[package]]
 org = "ballerina"
 name = "crypto"
-version = "2.9.0"
+version = "2.9.1"
 dependencies = [
 	{org = "ballerina", name = "jballerina.java"},
 	{org = "ballerina", name = "time"}
@@ -111,7 +111,7 @@ modules = [
 [[package]]
 org = "ballerina"
 name = "http"
-version = "2.14.5"
+version = "2.14.6"
 dependencies = [
 	{org = "ballerina", name = "auth"},
 	{org = "ballerina", name = "cache"},
@@ -157,7 +157,7 @@ version = "0.0.0"
 [[package]]
 org = "ballerina"
 name = "jwt"
-version = "2.15.0"
+version = "2.15.1"
 dependencies = [
 	{org = "ballerina", name = "cache"},
 	{org = "ballerina", name = "crypto"},
@@ -200,15 +200,6 @@ dependencies = [
 
 [[package]]
 org = "ballerina"
-name = "lang.error"
-version = "0.0.0"
-scope = "testOnly"
-dependencies = [
-	{org = "ballerina", name = "jballerina.java"}
-]
-
-[[package]]
-org = "ballerina"
 name = "lang.int"
 version = "0.0.0"
 dependencies = [
@@ -239,6 +230,9 @@ name = "lang.runtime"
 version = "0.0.0"
 dependencies = [
 	{org = "ballerina", name = "jballerina.java"}
+]
+modules = [
+	{org = "ballerina", packageName = "lang.runtime", moduleName = "lang.runtime"}
 ]
 
 [[package]]
@@ -280,7 +274,7 @@ version = "1.2.0"
 [[package]]
 org = "ballerina"
 name = "mcp"
-version = "0.9.3"
+version = "1.0.0"
 dependencies = [
 	{org = "ballerina", name = "http"},
 	{org = "ballerina", name = "jballerina.java"},
@@ -322,7 +316,7 @@ dependencies = [
 [[package]]
 org = "ballerina"
 name = "os"
-version = "1.10.0"
+version = "1.10.1"
 dependencies = [
 	{org = "ballerina", name = "io"},
 	{org = "ballerina", name = "jballerina.java"}
@@ -346,25 +340,11 @@ modules = [
 [[package]]
 org = "ballerina"
 name = "task"
-version = "2.10.0"
+version = "2.11.0"
 dependencies = [
 	{org = "ballerina", name = "jballerina.java"},
 	{org = "ballerina", name = "time"},
 	{org = "ballerina", name = "uuid"}
-]
-
-[[package]]
-org = "ballerina"
-name = "test"
-version = "0.0.0"
-scope = "testOnly"
-dependencies = [
-	{org = "ballerina", name = "jballerina.java"},
-	{org = "ballerina", name = "lang.array"},
-	{org = "ballerina", name = "lang.error"}
-]
-modules = [
-	{org = "ballerina", packageName = "test", moduleName = "test"}
 ]
 
 [[package]]
@@ -424,7 +404,7 @@ modules = [
 [[package]]
 org = "ballerinax"
 name = "ai.anthropic"
-version = "1.1.1"
+version = "1.1.2"
 dependencies = [
 	{org = "ballerina", name = "ai"},
 	{org = "ballerina", name = "constraint"},
@@ -446,21 +426,20 @@ dependencies = [
 	{org = "ballerina", name = "io"},
 	{org = "ballerina", name = "lang.array"},
 	{org = "ballerina", name = "lang.regexp"},
+	{org = "ballerina", name = "lang.runtime"},
 	{org = "ballerina", name = "log"},
 	{org = "ballerina", name = "os"},
 	{org = "ballerina", name = "regex"},
-	{org = "ballerina", name = "test"},
 	{org = "ballerina", name = "time"},
 	{org = "ballerinai", name = "observe"},
 	{org = "ballerinax", name = "ai.anthropic"}
 ]
 modules = [
 	{org = "hansika", packageName = "sanitizor", moduleName = "sanitizor"},
-	{org = "hansika", packageName = "sanitizor", moduleName = "sanitizor.ballerina_fixer"},
 	{org = "hansika", packageName = "sanitizor", moduleName = "sanitizor.command_executor"},
 	{org = "hansika", packageName = "sanitizor", moduleName = "sanitizor.error_registry"},
 	{org = "hansika", packageName = "sanitizor", moduleName = "sanitizor.file_management"},
 	{org = "hansika", packageName = "sanitizor", moduleName = "sanitizor.fixer"},
-	{org = "hansika", packageName = "sanitizor", moduleName = "sanitizor.llm_service"}
+	{org = "hansika", packageName = "sanitizor", moduleName = "sanitizor.spec_sanitizor"}
 ]
 

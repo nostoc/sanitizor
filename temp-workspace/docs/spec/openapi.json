@@ -25,7 +25,7 @@
     {
       "name": "attachments",
       "x-displayName": "Attachments",
-      "description": "Attachments can exist on a [comment](/api/smartsheet/openapi/comments) (that is,\nwithin a discussion), on a [row](/api/smartsheet/openapi/rows), or on a\n[sheet](/api/smartsheet/openapi/sheets).\n\n<h2>Post an Attachment</h2>\n\nLike the Smartsheet app, the Smartsheet API allows uploading files to\nsheets, rows, and comments.\n\nYou can upload a file by performing either a simple upload or a multipart\nupload.\n\n\nA simple upload allows you\nto add a single file attachment to the specified object.\n\nFor example, you can perform a simple upload to attach a file to a\nsheet, [attach a\nfile to a row](/api/smartsheet/openapi/attachments/row-attachments-attachfile), or\n[attach a file to a\ncomment](/api/smartsheet/openapi/attachments/attachments-attachtocomment).\n\n\nA multipart upload\nallows you to add a single file attachment to the specified object (that\nis, attach a file to a sheet, row, or comment), or to create an object and\nattach a file using a single request.\n\nFor example, you can perform a multipart upload to [add a new\ncomment](/api/smartsheet/openapi/comments/comments-create) that contains a single\nfile attachment or to [add a new discussion to a\nsheet](/api/smartsheet/openapi/discussions/discussions-create) that contains a\nsingle file attachment.\n\n\nThe max file size for uploads through the API is limited to 30mb.\n\n\nNOTE: This is a resource-intensive operation. If you encounter an error,\nsee [Rate Limiting](/api/smartsheet/guides/advanced-topics/scalability-options).\n\n\n<h3>Multipart Uploads</h3>\n\n\nA multipart upload request must include the following HTTP headers:\n\n\n| Header | Description |\n| -----|-----|\n| **Content-Length** | The length of the request payload. |\n| **Content-Type** | Must be set to **multipart/form-data**, and include the\nboundary string that separates the parts in the request payload. |\n\n\nThe request body of a multipart upload request contains one or more parts,\neach part containing either JSON or a file to upload.\n\nThe request body must contain at least one part.\n\nEach part must start with the boundary string specified in the\n**Content-Type** request header, and must contain the following part\nheaders:\n\n\n| Header | Description |\n| -----|-----|\n| **Content-Disposition** | Contains the following semicolon-delimited items:<ul><li>**form-data**</li><li>**name=\"*partname*\"**</li><li>**filename=\"*filename*\"** (only required for file parts)</li></ul>NOTE: Values specified in the Content-Disposition header must be URL-encoded. |\n| **Content-Type** | The content type of the part: **application/json** for JSON objects, or the applicable MIME type for file parts |\n\n\nThe last part in the request must be followed by the boundary string,\nfollowed by two hyphens.\n\n\nThe documentation for each operation that supports multipart uploads\nspecifies the number and names of parts that are expected for the\noperation.\n\nFile parts must have the part name \"file\", and documentation for\noperations which allow for JSON object parts specify the required part\nname for the JSON part.\n\n\nThe following example shows a multipart upload request that creates a\ncomment containing the specified text and file attachment:\n\n\n`POST\nhttps://api.smartsheet.com/2.0/sheets/4509093797881732/discussions/2889925487028100/comments`\n\n`Authorization: Bearer JKlMNOpQ12RStUVwxYZAbcde3F5g6hijklM789`\n\n`Content-Length: 29008`\n\n`Content-Type: multipart/form-data; boundary=----gU8h01zAAp3LagBr`\n\n\n`------gU8h01zAAp3LagBr`\n\n`Content-Disposition: form-data; name=\"comment\"`\n\n`Content-Type: application/json`\n\n\n`{ \"text\": \"Please review the attached image.\" }`\n\n`------gU8h01zAAp3LagBr`\n\n`Content-Disposition: form-data; name=\"file\"; filename=\"picture.jpg\"`\n\n`Content-Type: image/jpeg`\n\n\n*< Binary content for file >*\n\n`------gU8h01zAAp3LagBr--`\n\n\nNOTE: Most programming languages have libraries that can be used to\nassemble multipart requests.\n\n\n<h3>Simple Uploads</h3>\n\n\nTo perform this kind of upload, you must set specific headers to tell\nSmartsheet about the file. The following three headers are required:\n\n\nHeader | Description |\n-----|-----|\n**Content-Disposition** | **attachment** to tell the API that a file is in the body of the `POST` request, followed by a semicolon, followed by **filename=** and the URL-encoded filename in quotes\n**Content-Length** | Must be set to the size of the file, in bytes. For example to determine file size using in UNIX: <p>`$ ls -l ProgressReport.docx`<br/>`5463 ProgressReport.docx`</p>\n**Content-Type** | Can be left blank if it is not known (but must be present); Smartsheet makes its best guess based on the extension of the file.\n\n\nThe following example request shows a simple upload that adds a file\nattachment to a sheet:\n\n\n`POST https://api.smartsheet.com/2.0/sheets/4509093797881732/attachments`\n\n`Authorization: Bearer JKlMNOpQ12RStUVwxYZAbcde3F5g6hijklM789`\n\n`Content-Disposition: attachment; filename=\"ProgressReport.docx\"`\n\n`Content-Type: application/msword`\n\n`Content-Length: 5463`\n\n\n*< Binary content for file >*\n\n\nAs shown in this example, the contents of the file is included in the body\nof the `POST` request. In most programming languages, this is done by\nreading the file from an input stream and writing it out to the output\nstream of the HTTP request.\n"
+      "description": "Attachments can exist on a [comment](/api/smartsheet/openapi/comments) (that is,\nwithin a discussion), on a [row](/api/smartsheet/openapi/rows), or on a\n[sheet](/api/smartsheet/openapi/sheets).\n\n<h2>Post an Attachment</h2>\n\nLike the Smartsheet app, the Smartsheet API allows uploading files to\nsheets, rows, and comments.\n\nYou can upload a file by performing either a simple upload or a multipart\nupload.\n\n\nA simple upload allows you\nto add a single file attachment to the specified object.\n\nFor example, you can perform a simple upload to attach a file to a\nsheet, [attach a\nfile to a row](/api/smartsheet/openapi/attachments/row-attachments-attachfile), or\n[attach a file to a\ncomment](/api/smartsheet/openapi/attachments/attachments-attachtocomment).\n\n\nA multipart upload\nallows you to add a single file attachment to the specified object (that\nis, attach a file to a sheet, row, or comment), or to create an object and\nattach a file using a single request.\n\nFor example, you can perform a multipart upload to [add a new\ncomment](/api/smartsheet/openapi/comments/comments-create) that contains a single\nfile attachment or to [add a new discussion to a\nsheet](/api/smartsheet/openapi/discussions/discussions-create) that contains a\nsingle file attachment.\n\n\nThe max file size for uploads through the API is limited to 30mb.\n\n\nNOTE: This is a resource-intensive operation. If you encounter an error,\nsee [Rate Limiting](/api/smartsheet/guides/advanced-topics/scalability-options).\n\n\n<h3>Multipart Uploads</h3>\n\n\nA multipart upload request must include the following HTTP headers:\n\n\n| Header | Description |\n| -----|-----|\n| **Content-Length** | The length of the request payload. |\n| **Content-Type** | Must be set to **multipart/form-data**, and include the\nboundary string that separates the parts in the request payload. |\n\n\nThe request body of a multipart upload request contains one or more parts,\neach part containing either JSON or a file to upload.\n\nThe request body must contain at least one part.\n\nEach part must start with the boundary string specified in the\n**Content-Type** request header, and must contain the following part\nheaders:\n\n\n| Header | Description |\n| -----|-----|\n| **Content-Disposition** | Contains the following semicolon-delimited items:<ul><li>form-data</li><li>name='*partname*'</li><li>filename='*filename*' (only required for file parts)</li></ul>NOTE: Values specified in the Content-Disposition header must be URL-encoded. |\n| **Content-Type** | The content type of the part: **application/json** for JSON objects, or the applicable MIME type for file parts |\n\n\nThe last part in the request must be followed by the boundary string,\nfollowed by two hyphens.\n\n\nThe documentation for each operation that supports multipart uploads\nspecifies the number and names of parts that are expected for the\noperation.\n\nFile parts must have the part name \"file\", and documentation for\noperations which allow for JSON object parts specify the required part\nname for the JSON part.\n\n\nThe following example shows a multipart upload request that creates a\ncomment containing the specified text and file attachment:\n\n\n`POST\nhttps://api.smartsheet.com/2.0/sheets/4509093797881732/discussions/2889925487028100/comments`\n\n`Authorization: Bearer JKlMNOpQ12RStUVwxYZAbcde3F5g6hijklM789`\n\n`Content-Length: 29008`\n\n`Content-Type: multipart/form-data; boundary=----gU8h01zAAp3LagBr`\n\n\n`------gU8h01zAAp3LagBr`\n\n`Content-Disposition: form-data; name=\"comment\"`\n\n`Content-Type: application/json`\n\n\n`{ \"text\": \"Please review the attached image.\" }`\n\n`------gU8h01zAAp3LagBr`\n\n`Content-Disposition: form-data; name=\"file\"; filename=\"picture.jpg\"`\n\n`Content-Type: image/jpeg`\n\n\n*< Binary content for file >*\n\n`------gU8h01zAAp3LagBr--`\n\n\nNOTE: Most programming languages have libraries that can be used to\nassemble multipart requests.\n\n\n<h3>Simple Uploads</h3>\n\n\nTo perform this kind of upload, you must set specific headers to tell\nSmartsheet about the file. The following three headers are required:\n\n\nHeader | Description |\n-----|-----|\n**Content-Disposition** | **attachment** to tell the API that a file is in the body of the `POST` request, followed by a semicolon, followed by **filename=** and the URL-encoded filename in quotes\n**Content-Length** | Must be set to the size of the file, in bytes. For example to determine file size using in UNIX: <p>`$ ls -l ProgressReport.docx`<br/>`5463 ProgressReport.docx`</p>\n**Content-Type** | Can be left blank if it is not known (but must be present); Smartsheet makes its best guess based on the extension of the file.\n\n\nThe following example request shows a simple upload that adds a file\nattachment to a sheet:\n\n\n`POST https://api.smartsheet.com/2.0/sheets/4509093797881732/attachments`\n\n`Authorization: Bearer JKlMNOpQ12RStUVwxYZAbcde3F5g6hijklM789`\n\n`Content-Disposition: attachment; filename=\"ProgressReport.docx\"`\n\n`Content-Type: application/msword`\n\n`Content-Length: 5463`\n\n\n*< Binary content for file >*\n\n\nAs shown in this example, the contents of the file is included in the body\nof the `POST` request. In most programming languages, this is done by\nreading the file from an input stream and writing it out to the output\nstream of the HTTP request.\n"
     },
     {
       "name": "automationRules",
@@ -155,7 +155,7 @@
     {
       "name": "templates",
       "x-displayName": "Templates",
-      "description": "A template can be used to create a sheet, as described in [Create Sheet from Template](/api/smartsheet/openapi/sheets/create-sheet-in-folder).\n"
+      "description": "A template can be used to create a sheet, as described for the [Create sheet in folder](/api/smartsheet/openapi/sheets/create-sheet-in-folder) endpoint and the [Create sheet in workspace](/api/smartsheet/openapi/sheets/create-sheet-in-workspace) endpoint.\n"
     },
     {
       "name": "tokens",
@@ -175,7 +175,7 @@
     {
       "name": "webhooks",
       "x-displayName": "Webhooks",
-      "description": "<h2>Webhooks introduction</h2>\n\nAt a high-level, here's how our webhooks work:\n\n1. Your application subscribes to callbacks.</span><br/>First, subscribe to event notifications (callbacks) by creating one or more webhooks.  You can create a webhook manually via the API or have your application create a webhook dynamically.  Each webhook must specify:\n    * Which Smartsheet object to monitor for events\n    * Which events in that object should trigger a callback\n    * The HTTPS URL (that is, \"callback URL\") where Smartsheet should send callbacks when any of the specified events occur within the scope of the specified Smartsheet object. (**NOTE:** Smartsheet webhooks do not support callbacks to servers using self-signed certificates)\n\n\t  <b>Webhook examples in plain English:</b>\n\t  * \"When any changes occur in Sheet_A, send a callback to https://www.example.com/abc\"\n\t  * \"When a new row is added to Sheet_B, send a callback to https://www.example.com/def\"\n\t  * \"When a cell value is changed in Sheet_C, send a callback to https://www.example.com/ghi\"\n\n2. When any of the specified events occur within an object that is being monitored by a webhook, Smartsheet sends an <b>HTTP POST</b> (that is, a \"callback\") to the callback URL that is associated with the webhook.\n\n    NOTE: The callback payload is a \"skinny\" payload -- it indicates which objects changed and the type of events that occurred, but does not contain any data from the objects themselves.\n3. Your application receives, acknowledges, and processes callbacks.</span><br/>Your application receives the <code>HTTP POST</code>, acknowledges the callback by responding with HTTP status 200, and processes the callback. Because the callbacks are \"skinny\", you can make additional Smartsheet API requests to retrieve the actual data associated with the event.\n\nYou manage your webhooks using the webhooks endpoints described in this section.\n\n<h3>Webhook Ownership & Access</h3>\n\n> **IMPORTANT:** Webhooks are automatically disabled on sheets that exceed 20,000 rows, 400 columns, or 500,000 cells (whichever comes first). Stay within the specified limits to keep webhooks enabled on your sheets.\n\nWebhooks can be created and managed via direct API access or by a third-party application.\n\nA webhook that is created via Direct API Access:\n\n* is owned by the user who created it\n* can be managed only by the user who created it\n* is not affected if the access token that was used to create it is revoked, as long as the user remains active\n\nA webhook that is created by a third-party app:\n\n* is owned by the user who authorized the third-party app (and is associated with the third-party app)\n* can be managed by the third-party app (as long as it maintains authorization) or by the user who owns it\n* is permanently disabled if the third-party app's permissions are revoked\n\n<h3>Webhook Scope & Events</h3>\n\nA webhook monitors the specified **scope** for the specified **events**.\n\nA [Webhook object's](/api/smartsheet/openapi/webhooks/webhook) **scope** attribute indicates the scope of the subscription. It is specified when creating a webhook (see **Creating a Webhook**, below), and cannot subsequently be changed.\n\n* Currently, **sheet** is the only supported value for the **scope** attribute. However, you can set an array of columns as a **subscope** if you want to limit the webhook to specific columns.\n\nA [Webhook object's](/api/smartsheet/openapi/webhooks/webhook) **event** attribute indicates the set of events that a webhook is subscribed to (that is, which events trigger a callback).\n\n* Events are represented as a dot-separated string in the format \"*object*.*event*\", where an asterisk (&#42;) can be used to represent \"all objects\" or \"all events\".\n* Currently, <b>&#42;.&#42;</b> is the only supported value for the **events** attribute. This indicates a subscription to all objects in the scope, and all events for those objects.\n\nNOTE: When a row is deleted on a sheet, even if you are using a <b>subscope</b> to monitor columns only and the cell in that column for that row is empty, you will receive a \"row.deleted\" event.\n\n<h3>Example</h3>\n\nConsider a [Webhook object](/api/smartsheet/openapi/webhooks/webhook) with the following attribute values:\n\n* **scopeObjectId** = 12345678901234\n* **scope** = \"sheet\"\n* **events** = \"&#42;.&#42;\"\n\nThis webhook monitors the specified sheet (id: 12345678901234) for all types of events. For example, if a row is added to the sheet, cell values are updated in the sheet, a column is deleted from the sheet, etc., a callback is sent to the webhook's **callbackUrl**.\n\n<h2>Creating a Webhook</h2>\n\nAn API client can create a webhook by using the [Create Webhook](/api/smartsheet/openapi/webhooks/createwebhook) operation. A newly created webhook is disabled by default.\nAfter successfully creating a webhook, the API client must subsequently initiate and complete the verification process (see **Webhook Verification** below) before the webhook is enabled.\nThe following diagram illustrates the process of creating and enabling a webhook.\n\n<img src=\"./images/v4-CreateAndEnableWebhook.png\" alt=\"Workflow to create a webhook\" />\n\n<h3>Step-by-Step</h3>\n\nThe process occurs synchronously:\n\n1. API client submits a [Create Webhook](/api/smartsheet/openapi/webhooks/createwebhook) request.\n\n2. Smartsheet creates the webhook, but does not initially enable the webhook (**enabled: false** and **status: \"NEW_NOT_VERIFIED\"**).\n\n3. To initiate the verification process, the API client submits an [Update Webhook](/api/smartsheet/openapi/webhooks/updatewebhook) request to specify **enabled: true**. (**NOTE:** The API client does not receive a response to this request until the verification process (steps 4 and 5) has completed.)\n\n4. When Smartsheet receives the request to enable the webhook, it sends a verification request (see the **Webhook-Verification** section) to the subscriber (that is, to the **callbackUrl** that the API client specified in the Create Webhook request).\nThe request specifies a unique random value in the **Smartsheet-Hook-Challenge** header and contains only **challenge** and **webhookId** in the request body. The **challenge** value is a repeat of the header value for API clients that don't interpret header values.\n\n5. The subscriber responds to the verification request by echoing back the same unique random value in the **Smartsheet-Hook-Response** header of the response. For API clients that don't interpret header values, you can also send a JSON body with a **smartsheetHookResponse** attribute and the same value that would have been in the header.\n\n6. Once the subscriber has successfully acknowledged the verification request, Smartsheet enables the webhook and responds to the API client's Update Webhook request to confirm that the webhook has been enabled (**enabled: true** and **status: \"ENABLED\"**).\n\n<h3>Webhook Verification</h3>\n\nWhen an API client attempts to enable a webhook, Smartsheet sends a verification request to the webhook's **callbackUrl** to verify that the subscriber expects and is able to successfully receive callbacks.\nThe request specifies a unique random value in the **Smartsheet-Hook-Challenge** header and contains a JSON object in the request body with only **challenge** and **webhookId** attributes in the request body. The **challenge** attribute is a repeat of the header value for API clients that don't interpret header values.\n\n* To verify the webhook, the subscriber's response to the verification request must return a 200 HTTP status code and must echo back the same unique random value in the **Smartsheet-Hook-Response** header of the response or with a JSON **smartsheetHookResponse** attribute. Once Smartsheet receives this verification response, the webhook is enabled (**enabled: true** and **status: \"ENABLED\"**).\n\n* If the subscriber does not successfully respond to the verification request, the webhook remains disabled (**enabled: false** and **status: \"DISABLED_VERIFICATION_FAILED\"**).\n\nWhen a webhook is initially [created through the API](/api/smartsheet/openapi/webhooks/createwebhook), the response contains the webhook's Id.  If you wish to guarantee that your server only receives callbacks for webhooks that you created,\nyou can check the verification request's **webhookId** attribute against your list of created webhook Ids.  If the Id is not in the list, return a response with a non-200 status code (for example, 403 Forbidden),\nand the webhook that initiated the verification request is disabled as described above.\n\nNOTE: <b>IMPORTANT:</b> ONGOING VERIFICATION. Once a webhook has been enabled, Smartsheet sends a verification request to the webhook's <b>callbackUrl</b> once every 100 callbacks. The subscriber should respond to the verification request as described above -- failure to do so results in the webhook being disabled (<b>enabled: false</b> and <b>status: \"DISABLED_VERIFICATION_FAILED\"</b>).\n\n<h3>Duplicate Webhooks</h3>\n\n*Duplicate webhooks* are defined as two or more webhooks that meet the following conditions:\n\n* on the same sheet\n* created by the same user\n* have identical: **callbackUrl** and **subscope** properties.\n\nBecause duplicate webhooks are functionally identical, this would ordinarily result in the callback URL being called simultaneously once for each duplicate webhook in the sheet when the sheet changes. Many duplicates can lead to too much traffic which can cause a *denial of service* (DOS) on the callback server.\n\nThere are no known valid use cases for duplicate webhooks; they are usually created unintentionally by API clients due to faulty or missing logic.\n\nFor this reason, **as of January 2023, Smartsheet will now deduplicate webhook callbacks**.  This means for every set of duplicate webhooks on a sheet, Smartsheet will no longer issue one callback per webhook, and will instead only issue **one total callback**, for only the oldest enabled webhook.\n\n**Recommendation:** When creating a webhook, first check to make sure that the sheet doesn't already contain an identical webhook.  If it does, and it's disabled, re-enable it.  If it's already enabled, do nothing.\n\n<h2>Webhook Status</h2>\n\nA [Webhook](/api/smartsheet/openapi/webhooks/webhook) object's **enabled** attribute indicates whether a webhook is enabled or disabled, while the **status** attribute describes the *reason* that the webhook is enabled or disabled.\n\nThe following table lists all possible combinations of **enabled** and **status** attribute values.\n\nWebhook.enabled | Webhook.status | Meaning | Notes\n----- | ----- | ------ | -----\nfalse  | **DISABLED_ADMINISTRATIVE** | Webhook has been disabled by Smartsheet support. | A webhook in this state can only be re-enabled by Smartsheet (contact Support).  Attempting to re-enable a webhook in this state results in error code 1154.\nfalse  | **DISABLED_APP_REVOKED** | Webhook has been disabled because the third-party app associated with the webhook has had its access revoked. | This is a terminal state (that is, webhook in this state cannot be re-enabled, and attempts to do so result in error code 1153). If the third-party app's access is subsequently restored, it must create new webhooks.\nfalse  | **DISABLED_BY_OWNER** | Webhook has been disabled by the owner. | Owner can re-enable the webhook by using the [Update Webhook](/api/smartsheet/openapi/webhooks/updatewebhook) operation to set **enabled** to **true**. Once the subscriber successfully acknowledges the verification request (See the **Webhook Verification** section), the webhook is enabled.\nfalse  | **DISABLED_CALLBACK_FAILED** | Webhook has been disabled because callback was not successfully delivered to the callback URL. |  Owner can re-enable the webhook by using the [Update Webhook](/api/smartsheet/openapi/webhooks/updatewebhook) operation to set **enabled** to **true**. Once the subscriber successfully acknowledges the verification request (see the **Webhook Verification** section), the webhook is enabled.\nfalse | **DISABLED_EXCEEDED_GRID_LIMITS** | Webhook has been disabled because the sheet has 20,000 rows, 400 columns, or 500,000 cells. | Owner can enable the webhook by first reducing the sheet size to within the specified limits and then executing the [Update Webhook](/api/smartsheet/openapi/webhooks/updatewebhook) operation with the `enabled` body attribute set to `true`.\nfalse  | **DISABLED_SCOPE_INACCESSIBLE** | Webhook has been disabled because its owner lost access to the corresponding data in Smartsheet (either because the object was deleted or sharing permissions were revoked). | Webhook is automatically re-enabled if access to data is restored (for example, if deleted object is restored or sharing permissions are restored).\nfalse  | **DISABLED_VERIFICATION_FAILED** | Webhook verification has failed. |  Owner can re-enable the webhook by using the [Update Webhook](/api/smartsheet/openapi/webhooks/updatewebhook) operation to set **enabled** to **true**. Once the subscriber successfully acknowledges the verification request (see the **Webhook Verification section), the webhook is enabled.\ntrue  | **ENABLED** | Webhook is active. |\nfalse | **NEW_NOT_VERIFIED** | Webhook has been created but is not enabled because it has not yet been verified. |  Owner can re-enable the webhook by using the [Update Webhook](/api/smartsheet/openapi/webhooks/updatewebhook) operation to set **enabled** to **true**. Once the subscriber successfully acknowledges the verification request (see the **Webhook Verification** section), the webhook is enabled.\n\n**NOTES:**\n\n* When a Webhook object's <b>enabled</b> attribute is set to <b>true</b>, Smartsheet is monitoring for the specified events and sends a callback (see the **Event Callbacks** section) to the <b>callbackUrl</b> when the events occur.\n* When a Webhook object's <b>enabled</b> attribute is set to <b>false</b>, Smartsheet is not monitoring for the specified events and does not send a callback to the <b>callbackUrl</b> when the events occur. Depending on the value of the <b>status</b> attribute, it may be possible to (re-)enable the webhook. (See below for details).\n\n<h2>Webhook Callbacks</h2>\n\nA callback is the notification that Smartsheet sends to a webhook's **callbackUrl**. There are two types of callbacks:\n\n* Event callback (see the **Event Callbacks** section): Alerts the subscriber when the specified events have occurred in Smartsheet. This is the most common type of callback.\n\n* Status Change callback (see the **Status Change Callbacks** section): Alerts the subscriber that a webhook has been automatically disabled due to loss of access or automatically re-enabled due to restoration of access.\n\nA Subscriber has the ability to verify the integrity of a callback payload (that is, ensure that the message was not tampered with en route) and authenticate the identity of its sender (that is, ensure that the callback did indeed originate from Smartsheet).\nFor more information, see Authenticating Callbacks (see the **Authenticating Callbacks(optional)** section).\n\n**NOTES:**\n\n* Smartsheet webhooks do not support callbacks to servers using self-signed certificates. The callback server must be using a signed certificate from a certificate authority.\n* The callbackURL cannot be a private IP address.\n* The callbackURL must use one of the following ports: 443 (default for HTTPS), 8000, 8008, 8080, or 8443.\n* Smartsheet webhooks alway let a running callback for a given sheet finish before making another, that is the second call will wait on the first one to finish.\n\n<h3>Event Callbacks</h3>\n\nSmartsheet sends an event callback to notify the subscriber when the specified events occur in Smartsheet.\n\n**WARNING:** Any events that occur while a webhook is disabled are not communicated via callback if/when webhook is enabled.\n\n**IMPORTANT:** For Smartsheet US and Smartsheet Regions Europe since October 14th 2024, a one-minute debounce was introduced to optimize event trigger handling in the Webhooks event callback API. It reduces traffic and prevents workflows from acting on incomplete or transitional data.\n\n<h3>Callback Acknowledgement</h3>\n\nThe subscriber must respond to an event callback with a 200 <a href=\"https://en.wikipedia.org/wiki/List_of_HTTP_status_codes#2xx_Success\" target=\"_blank\" rel=\"noopener noreferrer\">HTTP status code</a> to acknowledge that the callback was received.\n\n<h3>Retry Logic</h3>\n\nIf the subscriber fails to respond with a 200 status, depending on the response, Smartsheet may retry delivery up to 14 times. (The first 7 retry attempts occur with a frequency that's determined using exponential backoff; thereafter, retry attempts occur once every three hours until all retries have been exhausted.)\n\nSubscriber response | Is retried?\n----- | -----\nHTTP 201 through 299 | No\nHTTP 309 through 399 | No\nHTTP 400 through 499 (except 410) | Yes\nHTTP 410 | No\nHTTP 500 through 599 | Yes\nAny other HTTP status | No\nRequest timeout | Yes\n\nIf the response is not retriable or retry attempts have been exhausted, the webhook is disabled (**enabled: false** and **status: \"DISABLED_CALLBACK_FAILED\"**).\nA webhook in this state can be re-enabled if the subscriber completes the verification process. (See the **Webhook Status** section for details.)\n\n<h3>Status Change Callbacks</h3>\n\nIf a webhook's owner loses access to the object that a webhook is monitoring (either because the object was deleted or the webhook owner's access to the object was revoked in Smartsheet),\nSmartsheet automatically disables the webhook and sends a status change callback to alert the subscriber of this change in status.\nThe **newWebhookStatus** attribute indicates that the webhook is now disabled (because the scope is inaccessible).\n\nIf the webhook owner's access to the object is subsequently restored,\nSmartsheet automatically re-enables the webhook and sends a status change callback to alert the subscriber of this change in status.\nThe **newWebhookStatus** attribute indicates that the webhook is now enabled.\n\n<h3>Authenticating Callbacks (optional)</h3>\n\nA subscriber has the ability to verify the integrity of a callback payload (that is, ensure that the message was not tampered with en route) and authenticate the identity of its sender (that is, ensure that the callback did indeed originate from Smartsheet).\n\nWhen you create a new [webhook](/api/smartsheet/openapi/webhooks/webhook), it is assigned a randomly generated **sharedSecret** value.  The shared secret is used by Smartsheet to sign callback payloads, and should not be shared with any third parties.\n\nTo authenticate a callback request:\n\n1. Calculate the <a href=\"https://en.wikipedia.org/wiki/Hash-based_message_authentication_code\" target=\"_blank\" rel=\"noopener noreferrer\">HMAC</a> of the webhook's **sharedSecret** and the request body.  This must be done using the <a href=\"https://en.wikipedia.org/wiki/SHA-2\" target=\"_blank\" rel=\"noopener noreferrer\">SHA-256</a> cryptographic hash algorithm.\n\n2. Format the calculated value as a string in base 16.\n\n3. Compare your result with the value of the **Smartsheet-Hmac-SHA256** header of the request.\n\nIf the values match, you can be sure the request originated from Smartsheet and that the data has not been tampered with.\n\nNOTE: For maximum security, you may also choose to [reset your webhook's shared secret](/api/smartsheet/openapi/webhooks/resetsharedsecret) at periodic intervals.\n\n<h2>Preventing Infinite Loops</h2>\n\nIt's possible that an application which subscribes to callbacks (using webhooks) might react to those callbacks by using the API to make additional changes in Smartsheet.\nBut, consider the following scenario:\n\n1. **App1** creates a webhook to monitor **Sheet-A** for changes, specifying an **App-1** URL as the **callbackUrl** for the webhook.\n\n2. **App-1** updates **Sheet-A** using the API.\n\n3. Smartsheet detects that **Sheet-A** has changed and sends a callback to **App-1** (as the webhook specified).\n\n4. **App-1** processes the callback, and in the course of doing so, updates **Sheet-A** again using the API.\n\n5. Return to Step 3.\n\nTo protect against infinite loops like the one outlined above, Smartsheet introduced support for a new header that an API client can include with any API request that adds, updates, or deletes data in Smartsheet.\nHere's how it works:\n\n* An API client includes the **Smartsheet-Change-Agent** header in any API request that adds, updates, or deletes data in Smartsheet.\n  * The header value should be set to a string that the API client recognizes as identifying itself.\n* If any [event callbacks](/api/smartsheet/openapi/webhooks/callbackevent) fire as a result of an API request that contains the **Smartsheet-Change-Agent** header, the value of the **Smartsheet-Change-Agent** header is included in the [callback](/api/smartsheet/openapi/webhooks/callback) in the value of the **changeAgent** attribute.\n* If a webhook subscriber receives a [callback](/api/smartsheet/openapi/webhooks/callback) that contains the **changeAgent** attribute, it should evaluate the attribute value:\n  * If the attribute value's comma-delimited list contains the subscriber API client's change agent value, this indicates that the change which triggered the callback *was* caused by the subscriber itself, and the subscriber can choose to ignore the callback, thus preventing an infinite loop.\n  * Else, the change which triggered the callback was *not* caused by the subscriber itself, and if the subscriber is going to subsequently react to the callback by making a change in Smartsheet (via API request), the API client should append a comma and its own identifier to the original attribute value, and pass that value through using the **Smartsheet-Change-Agent** header of the API request. Doing so protects against cross-system infinite loops.\n\nNOTE: The <b>Smartsheet-Change-Agent</b> header value has a maximum length of 512 characters. If its length exceeds 512 characters, the excess is trimmed from the front of the string, so that the most recent agent information remains.\n\n<h2>Webhook Errors</h2>\n\nThe following table specifies the recommended action for each Smartsheet-specific error code.\nUse this information to implement error handling logic according to the following guidelines:\n\n* If the error code indicates a permanent error condition, do not retry the request.\n* If the error code indicates a problem that can be fixed, do not retry the request until the problem has been fixed.\n* If the error code indicates a problem that could be overcome by retrying the request after a period of time, retry the request using exponential backoff.\n\nHTTP status code | Smartsheet errorCode | Smartsheet message | Recommended Action |\n-----|-----|-----|-----|\n400 | 1151 | Scope '{0}', object id {1} was not found. | Do not retry without fixing the problem.\n400 | 1152 | Only URLs with a protocol of 'https' are supported for attribute '{0}'. | Do not retry without fixing the problem.\n403 | 1153 | This webhook cannot be enabled because access was revoked for the application that created it. | <span class=\"doNotRetry\">Do not retry.</span>\n403 | 1154 | Please contact Support in order to enable this webhook. | <span class=\"doNotRetry\">Do not retry.</span>\n"
+      "description": "Smartsheet webhooks are powerful tools for building custom integrations and automating processes. Instead of constantly polling for changes, with webhooks you can configure your applications to receive real-time notifications when specific Smartsheet events occur.\n\nTo learn more about webhooks and how to use them, see the [Webhooks guide articles](/api/smartsheet/guides/webhooks), including these:\n\n- [Webhooks overview](/api/smartsheet/guides/webhooks.md)\n- [Create an event-handling endpoint](/api/smartsheet/guides/webhooks/create-an-event-handling-endpoint.md)\n- [Launch a webhook](/api/smartsheet/guides/webhooks/launch-a-webhook.md)\n- [Webhook callbacks](/api/smartsheet/guides/webhooks/webhook-callbacks.md)\n- [Webhook verification](/api/smartsheet/guides/webhooks/webhook-verification.md)\n- [Webhook access](/api/smartsheet/guides/webhooks/webhook-access.md)\n\nContinue on to dive into webhook object schemas and operations.\n"
     },
     {
       "name": "workspaces",
@@ -188,6 +188,9 @@
       "parameters": [
         {
           "$ref": "#/components/parameters/Authorization"
+        },
+        {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
         }
       ],
       "get": {
@@ -296,6 +299,9 @@
           "$ref": "#/components/parameters/Authorization"
         },
         {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
+        },
+        {
           "$ref": "#/components/parameters/contactId"
         }
       ],
@@ -373,6 +379,11 @@
       }
     },
     "/events": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
+        }
+      ],
       "get": {
         "operationId": "list-events",
         "summary": "List events",
@@ -960,6 +971,9 @@
           "$ref": "#/components/parameters/Authorization"
         },
         {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
+        },
+        {
           "$ref": "#/components/parameters/ActorId"
         }
       ],
@@ -1184,6 +1198,9 @@
           "$ref": "#/components/parameters/Authorization"
         },
         {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
+        },
+        {
           "$ref": "#/components/parameters/ActorId"
         }
       ],
@@ -1270,6 +1287,9 @@
         },
         {
           "$ref": "#/components/parameters/Authorization"
+        },
+        {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
         },
         {
           "$ref": "#/components/parameters/ActorId"
@@ -1396,6 +1416,11 @@
       }
     },
     "/filteredEvents": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
+        }
+      ],
       "post": {
         "operationId": "list-filtered-events",
         "summary": "List filtered events",
@@ -1520,12 +1545,16 @@
           "$ref": "#/components/parameters/Authorization"
         },
         {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
+        },
+        {
           "$ref": "#/components/parameters/folderId"
         }
       ],
       "get": {
-        "summary": "Get Folder",
-        "description": "Gets a Folder object.",
+        "summary": "Get folder",
+        "deprecated": true,
+        "description": "**DEPRECATED - As early as the sunset date specified in this [Changelog entry](/api/smartsheet/changelog#2025-08-04), this endpoint will be removed.** See the [Get folder metadata](/api/smartsheet/openapi/folders/get-folder-metadata) and the [Get folder children](/api/smartsheet/openapi/folders/get-folder-children) endpoints for replacement functionality. \n\nGets a Folder object.\n",
         "tags": [
           "folders"
         ],
@@ -1596,7 +1625,7 @@
         ]
       },
       "delete": {
-        "summary": "Delete Folder",
+        "summary": "Delete folder",
         "description": "Deletes a folder.",
         "tags": [
           "folders"
@@ -1663,7 +1692,7 @@
         ]
       },
       "put": {
-        "summary": "Update Folder",
+        "summary": "Update folder",
         "description": "Updates a folder.",
         "operationId": "update-folder",
         "tags": [
@@ -1751,17 +1780,176 @@
         ]
       }
     },
+    "/folders/{folderId}/metadata": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/Authorization"
+        },
+        {
+          "name": "folderId",
+          "in": "path",
+          "required": true,
+          "description": "The ID of the folder",
+          "schema": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      ],
+      "get": {
+        "summary": "Get folder metadata",
+        "description": "Gets the metadata of a folder.",
+        "tags": [
+          "folders"
+        ],
+        "security": [
+          {
+            "APIToken": []
+          },
+          {
+            "OAuth2": [
+              "READ_SHEETS"
+            ]
+          }
+        ],
+        "operationId": "get-folder-metadata",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/includeSource"
+          },
+          {
+            "$ref": "#/components/parameters/numericDates"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The metadata of a folder.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FolderMetadata"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "503": {
+            "$ref": "#/components/responses/503"
+          }
+        }
+      }
+    },
+    "/folders/{folderId}/children": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/Authorization"
+        },
+        {
+          "name": "folderId",
+          "in": "path",
+          "required": true,
+          "description": "The ID of the folder",
+          "schema": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      ],
+      "get": {
+        "summary": "Get folder children",
+        "description": "Gets a page of a folder's children of the specified type(s).",
+        "tags": [
+          "folders"
+        ],
+        "security": [
+          {
+            "APIToken": []
+          },
+          {
+            "OAuth2": [
+              "READ_SHEETS"
+            ]
+          }
+        ],
+        "operationId": "get-folder-children",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/childrenResourceTypes"
+          },
+          {
+            "$ref": "#/components/parameters/includeForChildren"
+          },
+          {
+            "$ref": "#/components/parameters/numericDates"
+          },
+          {
+            "$ref": "#/components/parameters/accessApiLevel"
+          },
+          {
+            "$ref": "#/components/parameters/lastKey"
+          },
+          {
+            "name": "maxItems",
+            "in": "query",
+            "required": false,
+            "description": "The maximum number of items to return in the response.",
+            "schema": {
+              "type": "integer",
+              "default": 100,
+              "minimum": 100,
+              "multipleOf": 100,
+              "maximum": 1000
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "An array of asset references with a pagination token if there are more results.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedChildrenResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "503": {
+            "$ref": "#/components/responses/503"
+          }
+        }
+      }
+    },
     "/folders/{folderId}/copy": {
       "parameters": [
         {
           "$ref": "#/components/parameters/Authorization"
         },
         {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
+        },
+        {
           "$ref": "#/components/parameters/folderId"
         }
       ],
       "post": {
-        "summary": "Copy Folder",
+        "summary": "Copy folder",
         "description": "Copies a folder.",
         "tags": [
           "folders"
@@ -1863,12 +2051,16 @@
           "$ref": "#/components/parameters/Authorization"
         },
         {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
+        },
+        {
           "$ref": "#/components/parameters/folderId"
         }
       ],
       "get": {
-        "summary": "List Folders",
-        "description": "Gets a list of folders in a given folder. The list contains an abbreviated Folder object for each folder.\n",
+        "summary": "List folders",
+        "deprecated": true,
+        "description": "**DEPRECATED - As early as the sunset date specified in this [Changelog entry](/api/smartsheet/changelog#2025-08-04), this endpoint will be removed.** See the [Get folder children](/api/smartsheet/openapi/folders/get-folder-children) endpoint for replacement functionality. \n\nGets a list of folders in a given folder. The list contains an abbreviated\nFolder object for each folder.\n",
         "tags": [
           "folders"
         ],
@@ -1960,7 +2152,7 @@
         ]
       },
       "post": {
-        "summary": "Create Folder",
+        "summary": "Create folder",
         "description": "Creates a new folder.\n",
         "operationId": "create-folder-folder",
         "tags": [
@@ -2078,11 +2270,14 @@
           "$ref": "#/components/parameters/Authorization"
         },
         {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
+        },
+        {
           "$ref": "#/components/parameters/folderId"
         }
       ],
       "post": {
-        "summary": "Move Folder",
+        "summary": "Move folder",
         "description": "Moves a folder.",
         "tags": [
           "folders"
@@ -2173,6 +2368,9 @@
       "parameters": [
         {
           "$ref": "#/components/parameters/Authorization"
+        },
+        {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
         },
         {
           "$ref": "#/components/parameters/folderId"
@@ -2297,6 +2495,9 @@
           "$ref": "#/components/parameters/Authorization"
         },
         {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
+        },
+        {
           "$ref": "#/components/parameters/folderId"
         }
       ],
@@ -2412,12 +2613,15 @@
       "parameters": [
         {
           "$ref": "#/components/parameters/Authorization"
+        },
+        {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
         }
       ],
       "get": {
         "summary": "List Contents",
         "deprecated": true,
-        "description": "> **Deprecated** since March 25, 2025, and will be removed. To adapt to this change, please see [Migrate from using the Sheets folder](/api/smartsheet/guides/updating-code/migrate-from-using-the-sheets-folder).\n\nGets a nested list of all Home objects shared to the user, including \ndashboards, folders, reports, sheets, and templates, as shown on the \"Home\"\ntab.\n",
+        "description": "**DEPRECATED - As early as the sunset date specified in this [Changelog entry](/api/smartsheet/changelog#2025-06-23), this endpoint will be removed.**\n\nGets a nested list of all Home objects shared to the user, including \ndashboards, folders, reports, sheets, and templates, as shown on the \"Home\"\ntab.\n",
         "tags": [
           "home"
         ],
@@ -2472,6 +2676,9 @@
       "parameters": [
         {
           "$ref": "#/components/parameters/Authorization"
+        },
+        {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
         }
       ],
       "get": {
@@ -2667,6 +2874,9 @@
       "parameters": [
         {
           "$ref": "#/components/parameters/Authorization"
+        },
+        {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
         },
         {
           "$ref": "#/components/parameters/groupId"
@@ -2910,6 +3120,9 @@
           "$ref": "#/components/parameters/Authorization"
         },
         {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
+        },
+        {
           "$ref": "#/components/parameters/groupId"
         }
       ],
@@ -3028,6 +3241,9 @@
           "$ref": "#/components/parameters/Authorization"
         },
         {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
+        },
+        {
           "$ref": "#/components/parameters/groupId"
         },
         {
@@ -3106,11 +3322,15 @@
       "parameters": [
         {
           "$ref": "#/components/parameters/Authorization"
+        },
+        {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
         }
       ],
       "get": {
         "summary": "List Folders in Home",
-        "description": "> **IMPORTANT:** The `GET /home/folders` method is deprecated and will be removed. To adapt to this change, please see [Migrate from using the Sheets folder](/api/smartsheet/guides/updating-code/migrate-from-using-the-sheets-folder).\n\nLists the folders in your **Sheets** folder. The list contains an abbreviated Folder object for each folder.\n",
+        "deprecated": true,
+        "description": "**DEPRECATED - As early as the sunset date specified in this [Changelog entry](/api/smartsheet/changelog#2025-03-25), this endpoint will be removed.** To adapt to this change, please see [Migrate from using the Sheets folder](/api/smartsheet/guides/updating-code/migrate-from-using-the-sheets-folder).\n\nLists the folders in your **Sheets** folder. The list contains an abbreviated Folder object for each folder.\n",
         "tags": [
           "home"
         ],
@@ -3204,7 +3424,7 @@
       "post": {
         "summary": "Create Folder",
         "deprecated": true,
-        "description": "> **Deprecated** since March 25, 2025, and will be removed. To adapt to this change, please see [Migrate from using the Sheets folder](/api/smartsheet/guides/updating-code/migrate-from-using-the-sheets-folder).\n\nCreates a new folder.\n",
+        "description": "**DEPRECATED - As early as the sunset date specified in this [Changelog entry](/api/smartsheet/changelog#2025-03-25), this endpoint will be removed.**\n\nCreates a new folder.\n",
         "operationId": "create-home-folder",
         "tags": [
           "home"
@@ -3312,6 +3532,9 @@
           "$ref": "#/components/parameters/Authorization"
         },
         {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
+        },
+        {
           "$ref": "#/components/parameters/Content-Type"
         }
       ],
@@ -3397,6 +3620,9 @@
       "parameters": [
         {
           "$ref": "#/components/parameters/Authorization"
+        },
+        {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
         }
       ],
       "get": {
@@ -3515,6 +3741,9 @@
           "$ref": "#/components/parameters/Authorization"
         },
         {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
+        },
+        {
           "$ref": "#/components/parameters/Accept"
         },
         {
@@ -3629,6 +3858,9 @@
           "$ref": "#/components/parameters/Authorization"
         },
         {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
+        },
+        {
           "$ref": "#/components/parameters/reportId"
         }
       ],
@@ -3718,6 +3950,9 @@
       "parameters": [
         {
           "$ref": "#/components/parameters/Authorization"
+        },
+        {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
         },
         {
           "$ref": "#/components/parameters/reportId"
@@ -3890,12 +4125,16 @@
           "$ref": "#/components/parameters/Authorization"
         },
         {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
+        },
+        {
           "$ref": "#/components/parameters/reportId"
         }
       ],
       "post": {
-        "summary": "Share Report",
-        "description": "Shares a Report with the specified users and groups.",
+        "summary": "Share report",
+        "description": "**DEPRECATED - As early as the sunset date specified in this [Changelog entry](/api/smartsheet/changelog#2025-08-04), this endpoint will be discontinued.** Please refer to the [Changelog entry](/api/smartsheet/changelog#2025-08-04) for more details.\n\nShares a Report with the specified users and groups.\n",
+        "deprecated": true,
         "operationId": "share-report",
         "tags": [
           "sharing",
@@ -4018,8 +4257,9 @@
         ]
       },
       "get": {
-        "summary": "List Report Shares",
-        "description": "Gets a list of all users and groups to whom the specified Report is shared, and their access level.\nThis operation supports query string parameters for pagination of results.\n",
+        "summary": "List report shares",
+        "description": "**DEPRECATED - As early as the sunset date specified in this [Changelog entry](/api/smartsheet/changelog#2025-08-04), this endpoint will be discontinued.** Please refer to the [Changelog entry](/api/smartsheet/changelog#2025-08-04) for more details.\n\nGets a list of all users and groups to whom the specified Report is shared,\nand their access level.\n\nThis operation supports query string parameters for pagination of results.\n",
+        "deprecated": true,
         "operationId": "list-report-shares",
         "tags": [
           "sharing",
@@ -4128,11 +4368,15 @@
         },
         {
           "$ref": "#/components/parameters/Authorization"
+        },
+        {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
         }
       ],
       "get": {
-        "summary": "Get Report Share",
-        "description": "Gets the share specified in the URL.",
+        "summary": "Get report share",
+        "description": "**DEPRECATED - As early as the sunset date specified in this [Changelog entry](/api/smartsheet/changelog#2025-08-04), this endpoint will be discontinued.** Please refer to the [Changelog entry](/api/smartsheet/changelog#2025-08-04) for more details.\n\nGets the share specified in the URL.\n",
+        "deprecated": true,
         "operationId": "share-report-get",
         "tags": [
           "sharing",
@@ -4199,8 +4443,9 @@
         ]
       },
       "delete": {
-        "summary": "Delete Report Share",
-        "description": "Deletes the share specified in the URL.",
+        "summary": "Delete report share",
+        "description": "**DEPRECATED - As early as the sunset date specified in this [Changelog entry](/api/smartsheet/changelog#2025-08-04), this endpoint will be discontinued.** Please refer to the [Changelog entry](/api/smartsheet/changelog#2025-08-04) for more details.\n\nDeletes the share specified in the URL.\n",
+        "deprecated": true,
         "operationId": "delete-report-share",
         "tags": [
           "sharing",
@@ -4267,8 +4512,9 @@
         ]
       },
       "put": {
-        "summary": "Update Report Share",
-        "description": "Updates the access level of a user or group for the specified report.",
+        "summary": "Update report share",
+        "description": "**DEPRECATED - As early as the sunset date specified in this [Changelog entry](/api/smartsheet/changelog#2025-08-04), this endpoint will be discontinued.** Please refer to the [Changelog entry](/api/smartsheet/changelog#2025-08-04) for more details.\n\nUpdates the access level of a user or group for the specified report.\n",
+        "deprecated": true,
         "operationId": "update-report-share",
         "tags": [
           "sharing",
@@ -4368,6 +4614,9 @@
       "parameters": [
         {
           "$ref": "#/components/parameters/Authorization"
+        },
+        {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
         }
       ],
       "get": {
@@ -4469,6 +4718,9 @@
         },
         {
           "$ref": "#/components/parameters/Authorization"
+        },
+        {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
         }
       ],
       "get": {
@@ -4581,6 +4833,420 @@
         ]
       }
     },
+    "/shares": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/Authorization"
+        }
+      ],
+      "get": {
+        "summary": "List asset shares",
+        "description": "Retrieves a list of all users and groups to whom the specified asset is shared, and their access level. This \noperation supports query string parameters for pagination of results. \n\nFor more information, see our [pagination documentation.](https://developers.smartsheet.com/api/smartsheet/guides/advanced-topics/scalability-options#token-based-pagination).\n",
+        "operationId": "list-asset-shares",
+        "tags": [
+          "sharing"
+        ],
+        "security": [
+          {
+            "APIToken": []
+          },
+          {
+            "OAuth2": [
+              "ADMIN_WORKSPACES",
+              "SHARE_SHEETS",
+              "SHARE_SIGHTS"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/assetType"
+          },
+          {
+            "$ref": "#/components/parameters/assetId"
+          },
+          {
+            "$ref": "#/components/parameters/maxItems"
+          },
+          {
+            "$ref": "#/components/parameters/lastKey"
+          },
+          {
+            "$ref": "#/components/parameters/sharingInclude"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Object containing an array of [Share response](/api/smartsheet/openapi/sharing/shareresponse) objects. By default, this operation returns only item-level shares \n(scope=ITEM). Use the sharingInclude parameter to request that workspace level shares also be returned.\n\nThe response result will always exist, but the list may be empty if there are no shares for the specified asset.\n",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "required": [
+                    "result"
+                  ],
+                  "allOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "lastKey": {
+                          "$ref": "#/components/schemas/LastKey"
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "result": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/ShareResponse"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Generic Error Payload",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "cURL",
+            "source": "curl https://api.smartsheet.com/2.0/shares?assetId=1234567890&assetType=sheet \\\n-H \"Authorization: Bearer JKlMNOpQ12RStUVwxYZAbcde3F5g6hijklM789\"\n"
+          }
+        ]
+      },
+      "post": {
+        "summary": "Share asset",
+        "description": "Shares an asset with the specified users and/or groups.\n\n**One (and only one) of the following is required (alongside accessLevel)**:\n  - email\n  - groupId\n",
+        "operationId": "share-asset",
+        "tags": [
+          "sharing"
+        ],
+        "security": [
+          {
+            "APIToken": []
+          },
+          {
+            "OAuth2": [
+              "ADMIN_WORKSPACES",
+              "SHARE_SHEETS",
+              "SHARE_SIGHTS"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/assetType"
+          },
+          {
+            "$ref": "#/components/parameters/assetId"
+          },
+          {
+            "$ref": "#/components/parameters/sendEmail"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/CreateShareRequest"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Result object containing an array of [Share response](/api/smartsheet/openapi/sharing/shareresponse) objects, corresponding to what was specified in the request.\n\nIf the users and/or groups are already shared to the specified asset, they will be omitted from the response. \nAn empty response indicates that all the users and/or groups in the request are already shared to the asset.\n",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/SuccessResult"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "result": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/ShareResponse"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "4XX errors typically indicate client input validation failures.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Generic Error Payload",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "cURL",
+            "source": "curl 'https://api.smartsheet.com/2.0/shares?assetType=sheet&assetId=1234567890' \\\n-H \"Authorization: Bearer JKlMNOpQ12RStUVwxYZAbcde3F5g6hijklM789\" \\\n-H \"Content-Type: application/json\" \\\n-X POST \\\n-d '[{\"email\": \"jane.doe@smartsheet.com\", \"accessLevel\": \"EDITOR\"}]'\n"
+          }
+        ]
+      }
+    },
+    "/shares/{shareId}": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/Authorization"
+        }
+      ],
+      "get": {
+        "summary": "Get asset share",
+        "description": "Retrieves a specific share for the specified asset.\n",
+        "operationId": "get-asset-share",
+        "tags": [
+          "sharing"
+        ],
+        "security": [
+          {
+            "APIToken": []
+          },
+          {
+            "OAuth2": [
+              "ADMIN_WORKSPACES",
+              "SHARE_SHEETS",
+              "SHARE_SIGHTS"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/shareId"
+          },
+          {
+            "$ref": "#/components/parameters/assetType"
+          },
+          {
+            "$ref": "#/components/parameters/assetId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The share specified by the shareId.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShareResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Generic Error Payload",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "cURL",
+            "source": "curl https://api.smartsheet.com/2.0/shares/AbcdEFGhIjKlmNoPqRstUvWxyZ?assetId=1234567890&assetType=sheet \\\n-H \"Authorization: Bearer JKlMNOpQ12RStUVwxYZAbcde3F5g6hijklM789\"\n"
+          }
+        ]
+      },
+      "patch": {
+        "summary": "Update asset share",
+        "description": "Updates the share for a specified asset.",
+        "operationId": "update-asset-share",
+        "tags": [
+          "sharing"
+        ],
+        "security": [
+          {
+            "APIToken": []
+          },
+          {
+            "OAuth2": [
+              "ADMIN_WORKSPACES",
+              "SHARE_SHEETS",
+              "SHARE_SIGHTS"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/shareId"
+          },
+          {
+            "$ref": "#/components/parameters/assetType"
+          },
+          {
+            "$ref": "#/components/parameters/assetId"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateShareRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Result object containing a [Share response](/api/smartsheet/openapi/sharing/shareresponse) object, corresponding to what was specified in the request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShareResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "4XX errors typically indicate client input validation failures.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Generic Error Payload",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "C#",
+            "label": "C#",
+            "source": "// Specify share (to one user as Editor)\nShare[] shareSpecification = new Share[] { new Share\n  {\n    Email = \"jane.doe@smartsheet.com\",\n    AccessLevel = AccessLevel.EDITOR\n  }\n};\n\n// Share sheet\nIList<Share> addressList = smartsheet.SheetResources.ShareResources.ShareTo(\n  4583614634583940,               // sheetId\n  shareSpecification,\n  true                            // Nullable<bool> sendEmail\n);\n"
+          },
+          {
+            "lang": "cURL",
+            "label": "cURL",
+            "source": "curl 'https://api.smartsheet.com/2.0/shares/abcDefgHjiKlmnoPqRstuVwxyZ?assetType=sheet&assetId=1234567890' \\\n-H \"Authorization: Bearer JKlMNOpQ12RStUVwxYZAbcde3F5g6hijklM789\" \\\n-H \"Content-Type: application/json\" \\\n-X PUT \\\n-d '{\"accessLevel\": \"ADMIN\"}'\n"
+          }
+        ]
+      },
+      "delete": {
+        "summary": "Delete asset share",
+        "description": "Deletes the share for a specified asset.",
+        "operationId": "delete-asset-share",
+        "tags": [
+          "sharing"
+        ],
+        "security": [
+          {
+            "APIToken": []
+          },
+          {
+            "OAuth2": [
+              "ADMIN_WORKSPACES",
+              "SHARE_SHEETS",
+              "SHARE_SIGHTS"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/shareId"
+          },
+          {
+            "$ref": "#/components/parameters/assetType"
+          },
+          {
+            "$ref": "#/components/parameters/assetId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Result object indicating a successful deletion of the share for the specified asset.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "4XX errors typically indicate client input validation failures.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Generic Error Payload",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "label": "cURL",
+            "source": "curl 'https://api.smartsheet.com/2.0/shares/abcDefgHjiKlmnoPqRstuVwxyZ?assetType=sheet&assetId=1234567890' \\\n-H \"Authorization: Bearer JKlMNOpQ12RStUVwxYZAbcde3F5g6hijklM789\" \\\n-H \"Content-Type: application/json\" \\\n-X DELETE \\\n"
+          }
+        ]
+      }
+    },
     "/sheets": {
       "parameters": [
         {
@@ -4588,6 +5254,9 @@
         },
         {
           "$ref": "#/components/parameters/Authorization"
+        },
+        {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
         }
       ],
       "get": {
@@ -4695,7 +5364,7 @@
       "post": {
         "summary": "Create Sheet in \"Sheets\" Folder",
         "deprecated": true,
-        "description": "> **Deprecated** since March 25, 2025, and will be removed. To adapt to this change, please see [Migrate from using the Sheets folder](/api/smartsheet/guides/updating-code/migrate-from-using-the-sheets-folder).\n\nCreates a sheet from scratch or from the specified template in the user's\nSheets folder (Home).\n\nFor subfolders, use Create Sheet in Folder.\n",
+        "description": "**DEPRECATED - As early as the sunset date specified in this [Changelog entry](/api/smartsheet/changelog#2025-03-25), this endpoint will be removed.**\n\nCreates a sheet from scratch or from the specified template in the user's\nSheets folder (Home).\n\nFor subfolders, use Create Sheet in Folder.\n",
         "operationId": "create-sheet-in-sheets-folder",
         "tags": [
           "sheets"
@@ -4810,12 +5479,15 @@
       "parameters": [
         {
           "$ref": "#/components/parameters/Authorization"
+        },
+        {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
         }
       ],
       "post": {
         "summary": "Import Sheet from CSV / XLSX",
         "deprecated": true,
-        "description": "> **Deprecated** since March 25, 2025, and will be removed. To adapt to this change, please see [Migrate from using the Sheets folder](/api/smartsheet/guides/updating-code/migrate-from-using-the-sheets-folder).\n\nImports CSV or XLSX data into a new sheet in the top-level \"Sheets\" folder.\n\nNote the following:\n\n* Both sheetName and the file name must use ASCII characters.\n\n* The source data must be basic text. To include rich formula data, import\nand create a sheet first, and then use Update Rows. To work with images, see\nCell Images.\n\n* XLS is not supported. You must use XLSX.\n\n* Hierarchical relationships between rows in an external file won't import.\n",
+        "description": "**DEPRECATED - As early as the sunset date specified in this [Changelog entry](/api/smartsheet/changelog#2025-03-25), this endpoint will be removed.**\n\nImports CSV or XLSX data into a new sheet in the top-level \"Sheets\" folder.\n\nNote the following:\n\n* Both sheetName and the file name must use ASCII characters.\n\n* The source data must be basic text. To include rich formula data, import\nand create a sheet first, and then use Update Rows. To work with images, see\nCell Images.\n\n* XLS is not supported. You must use XLSX.\n\n* Hierarchical relationships between rows in an external file won't import.\n",
         "operationId": "import-sheet-into-sheets-folder",
         "tags": [
           "imports"
@@ -4925,6 +5597,9 @@
       "parameters": [
         {
           "$ref": "#/components/parameters/Authorization"
+        },
+        {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
         },
         {
           "$ref": "#/components/parameters/sheetId"
@@ -5228,6 +5903,9 @@
         },
         {
           "$ref": "#/components/parameters/Authorization"
+        },
+        {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
         }
       ],
       "get": {
@@ -5435,6 +6113,9 @@
         },
         {
           "$ref": "#/components/parameters/Authorization"
+        },
+        {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
         }
       ],
       "get": {
@@ -5566,6 +6247,9 @@
         },
         {
           "$ref": "#/components/parameters/Authorization"
+        },
+        {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
         }
       ],
       "get": {
@@ -5822,6 +6506,9 @@
         },
         {
           "$ref": "#/components/parameters/Authorization"
+        },
+        {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
         }
       ],
       "get": {
@@ -5914,6 +6601,9 @@
         },
         {
           "$ref": "#/components/parameters/Authorization"
+        },
+        {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
         }
       ],
       "get": {
@@ -6110,6 +6800,9 @@
         },
         {
           "$ref": "#/components/parameters/Authorization"
+        },
+        {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
         }
       ],
       "get": {
@@ -6291,6 +6984,9 @@
         },
         {
           "$ref": "#/components/parameters/Authorization"
+        },
+        {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
         }
       ],
       "get": {
@@ -6506,6 +7202,9 @@
         },
         {
           "$ref": "#/components/parameters/Authorization"
+        },
+        {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
         }
       ],
       "get": {
@@ -6733,6 +7432,9 @@
         },
         {
           "$ref": "#/components/parameters/Authorization"
+        },
+        {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
         }
       ],
       "post": {
@@ -6855,6 +7557,9 @@
           "$ref": "#/components/parameters/Authorization"
         },
         {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
+        },
+        {
           "$ref": "#/components/parameters/Content-Type"
         },
         {
@@ -6962,6 +7667,9 @@
         },
         {
           "$ref": "#/components/parameters/Authorization"
+        },
+        {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
         }
       ],
       "post": {
@@ -7169,6 +7877,9 @@
           "$ref": "#/components/parameters/Authorization"
         },
         {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
+        },
+        {
           "$ref": "#/components/parameters/sheetId"
         },
         {
@@ -7250,6 +7961,9 @@
         },
         {
           "$ref": "#/components/parameters/Authorization"
+        },
+        {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
         }
       ],
       "get": {
@@ -7453,6 +8167,9 @@
         },
         {
           "$ref": "#/components/parameters/Authorization"
+        },
+        {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
         }
       ],
       "get": {
@@ -7584,6 +8301,9 @@
         },
         {
           "$ref": "#/components/parameters/Authorization"
+        },
+        {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
         }
       ],
       "get": {
@@ -7682,6 +8402,9 @@
         },
         {
           "$ref": "#/components/parameters/Authorization"
+        },
+        {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
         }
       ],
       "post": {
@@ -7790,6 +8513,9 @@
           "$ref": "#/components/parameters/Authorization"
         },
         {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
+        },
+        {
           "$ref": "#/components/parameters/Content-Type"
         }
       ],
@@ -7872,6 +8598,9 @@
         },
         {
           "$ref": "#/components/parameters/Authorization"
+        },
+        {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
         },
         {
           "$ref": "#/components/parameters/Content-Type"
@@ -7975,6 +8704,9 @@
         },
         {
           "$ref": "#/components/parameters/Authorization"
+        },
+        {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
         }
       ],
       "get": {
@@ -8052,6 +8784,9 @@
         },
         {
           "$ref": "#/components/parameters/Authorization"
+        },
+        {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
         }
       ],
       "get": {
@@ -8198,6 +8933,9 @@
         },
         {
           "$ref": "#/components/parameters/Authorization"
+        },
+        {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
         }
       ],
       "get": {
@@ -8346,6 +9084,9 @@
         },
         {
           "$ref": "#/components/parameters/Authorization"
+        },
+        {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
         }
       ],
       "get": {
@@ -8507,6 +9248,9 @@
         },
         {
           "$ref": "#/components/parameters/Authorization"
+        },
+        {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
         }
       ],
       "get": {
@@ -8584,6 +9328,9 @@
         },
         {
           "$ref": "#/components/parameters/Authorization"
+        },
+        {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
         }
       ],
       "delete": {
@@ -8697,6 +9444,9 @@
         },
         {
           "$ref": "#/components/parameters/Authorization"
+        },
+        {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
         }
       ],
       "get": {
@@ -8898,6 +9648,9 @@
         },
         {
           "$ref": "#/components/parameters/Authorization"
+        },
+        {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
         }
       ],
       "get": {
@@ -9069,6 +9822,9 @@
         },
         {
           "$ref": "#/components/parameters/Authorization"
+        },
+        {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
         }
       ],
       "post": {
@@ -9394,6 +10150,9 @@
         },
         {
           "$ref": "#/components/parameters/Authorization"
+        },
+        {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
         }
       ],
       "post": {
@@ -9480,6 +10239,9 @@
         },
         {
           "$ref": "#/components/parameters/Authorization"
+        },
+        {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
         }
       ],
       "post": {
@@ -9567,6 +10329,9 @@
         },
         {
           "$ref": "#/components/parameters/Authorization"
+        },
+        {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
         }
       ],
       "post": {
@@ -9657,6 +10422,9 @@
         },
         {
           "$ref": "#/components/parameters/Authorization"
+        },
+        {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
         }
       ],
       "get": {
@@ -9745,6 +10513,9 @@
         },
         {
           "$ref": "#/components/parameters/Authorization"
+        },
+        {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
         }
       ],
       "get": {
@@ -9955,6 +10726,9 @@
         },
         {
           "$ref": "#/components/parameters/Authorization"
+        },
+        {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
         }
       ],
       "post": {
@@ -10067,6 +10841,9 @@
         },
         {
           "$ref": "#/components/parameters/Authorization"
+        },
+        {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
         }
       ],
       "get": {
@@ -10177,6 +10954,9 @@
         },
         {
           "$ref": "#/components/parameters/Authorization"
+        },
+        {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
         }
       ],
       "get": {
@@ -10380,6 +11160,9 @@
         },
         {
           "$ref": "#/components/parameters/Authorization"
+        },
+        {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
         }
       ],
       "post": {
@@ -10461,6 +11244,9 @@
         },
         {
           "$ref": "#/components/parameters/Authorization"
+        },
+        {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
         }
       ],
       "get": {
@@ -10564,6 +11350,9 @@
         },
         {
           "$ref": "#/components/parameters/Authorization"
+        },
+        {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
         }
       ],
       "get": {
@@ -10689,6 +11478,9 @@
         },
         {
           "$ref": "#/components/parameters/Authorization"
+        },
+        {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
         }
       ],
       "get": {
@@ -10774,6 +11566,9 @@
         },
         {
           "$ref": "#/components/parameters/Authorization"
+        },
+        {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
         }
       ],
       "get": {
@@ -11182,6 +11977,9 @@
         },
         {
           "$ref": "#/components/parameters/Authorization"
+        },
+        {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
         }
       ],
       "post": {
@@ -11298,6 +12096,9 @@
         },
         {
           "$ref": "#/components/parameters/Authorization"
+        },
+        {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
         }
       ],
       "get": {
@@ -11484,6 +12285,9 @@
         },
         {
           "$ref": "#/components/parameters/Authorization"
+        },
+        {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
         }
       ],
       "get": {
@@ -11682,6 +12486,9 @@
           "$ref": "#/components/parameters/Authorization"
         },
         {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
+        },
+        {
           "$ref": "#/components/parameters/sheetId"
         },
         {
@@ -11689,8 +12496,9 @@
         }
       ],
       "post": {
-        "summary": "Share Sheet",
-        "description": "Shares a sheet with the specified users and groups.",
+        "summary": "Share sheet",
+        "description": "**DEPRECATED - As early as the sunset date specified in this [Changelog entry](/api/smartsheet/changelog#2025-08-04), this endpoint will be discontinued.** Please refer to the [Changelog entry](/api/smartsheet/changelog#2025-08-04) for more details.\n\nShares a sheet with the specified users and groups.\n",
+        "deprecated": true,
         "operationId": "share-sheet",
         "tags": [
           "sharing",
@@ -11813,8 +12621,9 @@
         ]
       },
       "get": {
-        "summary": "List Sheet Shares",
-        "description": "Gets a list of all users and groups to whom the specified Sheet is shared, and their access level. This operation\nsupports query string parameters for pagination of results. For more information, see Paging Query String Parameters.\n",
+        "summary": "List sheet shares",
+        "description": "**DEPRECATED - As early as the sunset date specified in this [Changelog entry](/api/smartsheet/changelog#2025-08-04), this endpoint will be discontinued.** Please refer to the [Changelog entry](/api/smartsheet/changelog#2025-08-04) for more details.\n\nGets a list of all users and groups to whom the specified Sheet is shared,\nand their access level. This operation\n\nsupports query string parameters for pagination of results. For more\ninformation, see Paging Query String Parameters.\n",
+        "deprecated": true,
         "operationId": "list-sheet-shares",
         "tags": [
           "sharing",
@@ -11923,11 +12732,15 @@
         },
         {
           "$ref": "#/components/parameters/Authorization"
+        },
+        {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
         }
       ],
       "get": {
-        "summary": "Get Sheet Share.",
-        "description": "Gets the share specified in the URL.",
+        "summary": "Get sheet share",
+        "description": "**DEPRECATED - As early as the sunset date specified in this [Changelog entry](/api/smartsheet/changelog#2025-08-04), this endpoint will be discontinued.** Please refer to the [Changelog entry](/api/smartsheet/changelog#2025-08-04) for more details.\n\nGets the share specified in the URL.\n",
+        "deprecated": true,
         "operationId": "share-sheet-get",
         "tags": [
           "sharing",
@@ -11994,8 +12807,9 @@
         ]
       },
       "delete": {
-        "summary": "Delete Sheet Share",
-        "description": "Deletes the share specified in the URL.",
+        "summary": "Delete sheet share",
+        "description": "**DEPRECATED - As early as the sunset date specified in this [Changelog entry](/api/smartsheet/changelog#2025-08-04), this endpoint will be discontinued.** Please refer to the [Changelog entry](/api/smartsheet/changelog#2025-08-04) for more details.\n\nDeletes the share specified in the URL.\n",
+        "deprecated": true,
         "operationId": "delete-sheet-share",
         "tags": [
           "sharing",
@@ -12062,8 +12876,9 @@
         ]
       },
       "put": {
-        "summary": "Update Sheet Share.",
-        "description": "Updates the access level of a user or group for the specified sheet.",
+        "summary": "Update sheet share",
+        "description": "**DEPRECATED - As early as the sunset date specified in this [Changelog entry](/api/smartsheet/changelog#2025-08-04), this endpoint will be discontinued.** Please refer to the [Changelog entry](/api/smartsheet/changelog#2025-08-04) for more details.\n\nUpdates the access level of a user or group for the specified sheet.\n",
+        "deprecated": true,
         "operationId": "update-sheet-share",
         "tags": [
           "sharing",
@@ -12168,6 +12983,9 @@
           "$ref": "#/components/parameters/Authorization"
         },
         {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
+        },
+        {
           "$ref": "#/components/parameters/Content-Type"
         }
       ],
@@ -12255,6 +13073,9 @@
         },
         {
           "$ref": "#/components/parameters/Authorization"
+        },
+        {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
         }
       ],
       "get": {
@@ -12350,6 +13171,9 @@
         ],
         "parameters": [
           {
+            "$ref": "#/components/parameters/accessApiLevel"
+          },
+          {
             "$ref": "#/components/parameters/includeAll"
           },
           {
@@ -12423,11 +13247,6 @@
             "lang": "Node.js",
             "label": "Node.js",
             "source": "smartsheet.sights.listSights()\n  .then(function(sights) {\n    console.log(sights.data);\n  })\n  .catch(function(error) {\n    console.log(error);\n  })\n"
-          },
-          {
-            "lang": "Python",
-            "label": "Python",
-            "source": "# Sample 1: List All\nresponse = smartsheet_client.Sights.list_sights(include_all=True)\nsights = response.data\n\n# Sample 2: Paginate the list of dashboards\nresponse = smartsheet_client.Sights.list_sights(\n  page_size=10,\n  page=1)\npages = response.total_pages\nsights = response.data\n"
           }
         ]
       }
@@ -12436,6 +13255,9 @@
       "parameters": [
         {
           "$ref": "#/components/parameters/Authorization"
+        },
+        {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
         },
         {
           "$ref": "#/components/parameters/sightId"
@@ -12691,6 +13513,11 @@
       }
     },
     "/sights/{sightId}/copy": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
+        }
+      ],
       "post": {
         "summary": "Copy Dashboard",
         "description": "Creates a copy of the specified dashboard.",
@@ -12792,6 +13619,11 @@
       }
     },
     "/sights/{sightId}/move": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
+        }
+      ],
       "post": {
         "summary": "Move Dashboard",
         "description": "Moves the specified dashboard to a new location.",
@@ -12896,6 +13728,9 @@
       "parameters": [
         {
           "$ref": "#/components/parameters/Authorization"
+        },
+        {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
         },
         {
           "$ref": "#/components/parameters/sightId"
@@ -13068,6 +13903,9 @@
           "$ref": "#/components/parameters/Authorization"
         },
         {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
+        },
+        {
           "$ref": "#/components/parameters/accessApiLevel"
         },
         {
@@ -13075,8 +13913,9 @@
         }
       ],
       "post": {
-        "summary": "Share Dashboard",
-        "description": "Shares a dashboard with the specified users and groups.",
+        "summary": "Share dashboard",
+        "description": "**DEPRECATED - As early as the sunset date specified in this [Changelog entry](/api/smartsheet/changelog#2025-08-04), this endpoint will be discontinued.** Please refer to the [Changelog entry](/api/smartsheet/changelog#2025-08-04) for more details.\n\nShares a dashboard with the specified users and groups.\n",
+        "deprecated": true,
         "operationId": "share-sight",
         "tags": [
           "dashboards",
@@ -13189,8 +14028,9 @@
         ]
       },
       "get": {
-        "summary": "List Dashboard Shares",
-        "description": "Gets a list of all users and groups to whom the specified dashboard is shared, and their access level.",
+        "summary": "List dashboard shares",
+        "description": "**DEPRECATED - As early as the sunset date specified in this [Changelog entry](/api/smartsheet/changelog#2025-08-04), this endpoint will be discontinued.** Please refer to the [Changelog entry](/api/smartsheet/changelog#2025-08-04) for more details.\n\nGets a list of all users and groups to whom the specified dashboard is\nshared, and their access level.\n",
+        "deprecated": true,
         "operationId": "list-sight-shares",
         "tags": [
           "dashboards",
@@ -13296,11 +14136,15 @@
         },
         {
           "$ref": "#/components/parameters/Authorization"
+        },
+        {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
         }
       ],
       "get": {
-        "summary": "Get Dashboard Share",
-        "description": "Gets a list of all users and groups to whom the specified dashboard is shared, and their access level.",
+        "summary": "Get dashboard share",
+        "description": "**DEPRECATED - As early as the sunset date specified in this [Changelog entry](/api/smartsheet/changelog#2025-08-04), this endpoint will be discontinued.** Please refer to the [Changelog entry](/api/smartsheet/changelog#2025-08-04) for more details.\n\nGets a list of all users and groups to whom the specified dashboard is\nshared, and their access level.\n",
+        "deprecated": true,
         "operationId": "share-sight-get",
         "parameters": [
           {
@@ -13372,8 +14216,9 @@
         ]
       },
       "delete": {
-        "summary": "Delete Dashboard Share",
-        "description": "Deletes the share specified in the URL.",
+        "summary": "Delete dashboard share",
+        "description": "**DEPRECATED - As early as the sunset date specified in this [Changelog entry](/api/smartsheet/changelog#2025-08-04), this endpoint will be discontinued.** Please refer to the [Changelog entry](/api/smartsheet/changelog#2025-08-04) for more details.\n\nDeletes the share specified in the URL.\n",
+        "deprecated": true,
         "operationId": "delete-sight-share",
         "tags": [
           "dashboards",
@@ -13440,8 +14285,9 @@
         ]
       },
       "put": {
-        "summary": "Update Dashboard Share",
-        "description": "Updates the access level of a user or group for the specified dashboard.",
+        "summary": "Update dashboard share",
+        "description": "**DEPRECATED - As early as the sunset date specified in this [Changelog entry](/api/smartsheet/changelog#2025-08-04), this endpoint will be discontinued.** Please refer to the [Changelog entry](/api/smartsheet/changelog#2025-08-04) for more details.\n\nUpdates the access level of a user or group for the specified dashboard.\n",
+        "deprecated": true,
         "operationId": "update-sight-share",
         "parameters": [
           {
@@ -13546,11 +14392,15 @@
       "parameters": [
         {
           "$ref": "#/components/parameters/Authorization"
+        },
+        {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
         }
       ],
       "get": {
-        "summary": "List User-Created Templates",
-        "description": "Gets a list of user-created templates that the user has access to.",
+        "summary": "List user-created templates",
+        "deprecated": true,
+        "description": "**DEPRECATED - As early as the sunset date specified in this [Changelog entry](/api/smartsheet/changelog#2025-08-04), this endpoint will be discontinued.**\n\nGets a list of user-created templates that the user has access to.\n",
         "operationId": "templates-list",
         "tags": [
           "templates"
@@ -13640,11 +14490,15 @@
       "parameters": [
         {
           "$ref": "#/components/parameters/Authorization"
+        },
+        {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
         }
       ],
       "get": {
-        "summary": "List Public Templates",
-        "description": "Gets a list of public templates that the user has access to.",
+        "summary": "List public templates",
+        "deprecated": true,
+        "description": "**DEPRECATED - As early as the sunset date specified in this [Changelog entry](/api/smartsheet/changelog#2025-08-04), this endpoint will be discontinued.**\n\nGets a list of public templates that the user has access to.\n",
         "operationId": "templates-listPublic",
         "tags": [
           "templates"
@@ -13718,6 +14572,11 @@
       }
     },
     "/token": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
+        }
+      ],
       "post": {
         "summary": "Gets or Refreshes an Access Token",
         "description": "Gets or refreshes an access token, as part of the OAuth process.",
@@ -13923,6 +14782,9 @@
       "parameters": [
         {
           "$ref": "#/components/parameters/Authorization"
+        },
+        {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
         }
       ],
       "get": {
@@ -14124,6 +14986,11 @@
       }
     },
     "/users/me": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
+        }
+      ],
       "get": {
         "operationId": "get-current-user",
         "summary": "Get Current User",
@@ -14215,6 +15082,11 @@
       }
     },
     "/users/sheets": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
+        }
+      ],
       "get": {
         "operationId": "list-org-sheets",
         "summary": "List Org Sheets",
@@ -14311,6 +15183,9 @@
       "parameters": [
         {
           "$ref": "#/components/parameters/Authorization"
+        },
+        {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
         },
         {
           "$ref": "#/components/parameters/userId"
@@ -14591,6 +15466,9 @@
           "$ref": "#/components/parameters/Authorization"
         },
         {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
+        },
+        {
           "$ref": "#/components/parameters/userId"
         }
       ],
@@ -14786,6 +15664,9 @@
           "$ref": "#/components/parameters/Authorization"
         },
         {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
+        },
+        {
           "$ref": "#/components/parameters/userId"
         },
         {
@@ -14933,6 +15814,9 @@
           "$ref": "#/components/parameters/Authorization"
         },
         {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
+        },
+        {
           "$ref": "#/components/parameters/userId"
         },
         {
@@ -15032,6 +15916,9 @@
           "$ref": "#/components/parameters/Authorization"
         },
         {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
+        },
+        {
           "$ref": "#/components/parameters/userId"
         }
       ],
@@ -15093,6 +15980,9 @@
       "parameters": [
         {
           "$ref": "#/components/parameters/Authorization"
+        },
+        {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
         },
         {
           "$ref": "#/components/parameters/userId"
@@ -15222,6 +16112,9 @@
           "$ref": "#/components/parameters/Authorization"
         },
         {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
+        },
+        {
           "$ref": "#/components/parameters/userId"
         }
       ],
@@ -15283,12 +16176,15 @@
       "parameters": [
         {
           "$ref": "#/components/parameters/Authorization"
+        },
+        {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
         }
       ],
       "get": {
         "operationId": "list-webhooks",
-        "summary": "List Webhooks",
-        "description": "Gets the list of all *webhooks* that the user owns (if a user-generated token was used to make the request) or the list of all webhooks associated with the third-party app (if a third-party app made the request). Items in the response are ordered by API cient name > webhook name > creation date.",
+        "summary": "List webhooks",
+        "description": "**DEPRECATED - As early as the sunset date specified in this [Changelog entry](/api/smartsheet/changelog#2025-08-04), webhooks will be sorted by creation date (most recent first) instead of name.** See the [Changelog entry](/api/smartsheet/changelog#2025-08-04) for migration instructions and details.\n\nGets the list of all *webhooks* that the user owns (if a user-generated\ntoken was used to make the request) or the list of all webhooks associated\nwith the third-party app (if a third-party app made the request). Items in\nthe response are ordered by API cient name > webhook name > creation date.\n",
         "tags": [
           "webhooks"
         ],
@@ -15304,13 +16200,29 @@
         ],
         "parameters": [
           {
-            "$ref": "#/components/parameters/includeAll"
+            "name": "includeAll",
+            "in": "query",
+            "deprecated": true,
+            "required": false,
+            "description": "**DEPRECATED - As early as the sunset date specified in this [Changelog entry](/api/smartsheet/changelog#2025-08-04), this parameter will be discontinued (sunset) to reduce latency, mitigate performance issues, and add stability, especially for users with many webhooks.** See the [Changelog entry](/api/smartsheet/changelog#2025-08-04) for migration instructions and details.\n\nIf true, include all results, that is, do not paginate. Mutually exclusive\nwith page and pageSize (they are ignored if includeAll=true is specified).\n",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
           },
           {
             "$ref": "#/components/parameters/page"
           },
           {
-            "$ref": "#/components/parameters/pageSize"
+            "name": "pageSize",
+            "in": "query",
+            "deprecated": true,
+            "required": false,
+            "description": "**DEPRECATED - As early as the sunset date specified in this [Changelog entry](/api/smartsheet/changelog#2025-08-04), the unlimited value range will be discontinued (sunset) to reduce latency, mitigate performance issues, and add stability, especially for users with many webhooks.** See the [Changelog entry](/api/smartsheet/changelog#2025-08-04) for migration instructions and details.\n\nThe maximum number of items to return per page. Unless otherwise stated for a\nspecific endpoint, defaults to 100. If only page is specified, defaults to a\npage size of 100. For reports, the default is 100 rows. If you need larger\nsets of data from your report, returns a maximum of 10,000 rows per request.\n",
+            "schema": {
+              "type": "number",
+              "default": 100
+            }
           }
         ],
         "responses": {
@@ -15321,7 +16233,36 @@
                 "schema": {
                   "allOf": [
                     {
-                      "$ref": "#/components/schemas/IndexResult"
+                      "type": "object",
+                      "properties": {
+                        "pageNumber": {
+                          "description": "The current page in the full result set that the data array represents.\nNOTE when a page number greater than totalPages is requested, the last\npage is instead returned.\n",
+                          "type": "number",
+                          "example": 1,
+                          "readOnly": true
+                        },
+                        "pageSize": {
+                          "description": "The number of items in a page. Omitted if there is no limit to page size (and hence, all results are included). Unless otherwise specified, this defaults to 100 for most endpoints.",
+                          "type": "number",
+                          "example": 50,
+                          "nullable": true,
+                          "readOnly": true
+                        },
+                        "totalPages": {
+                          "description": "**DEPRECATED - As early as the sunset date specified in this [Changelog entry](/api/smartsheet/changelog#2025-08-04), this response property value will be `-1`.** See the [Changelog entry](/api/smartsheet/changelog#2025-08-04) for migration instructions and details.\n\nThe total number of pages in the full result set.\n",
+                          "type": "number",
+                          "deprecated": true,
+                          "example": 25,
+                          "readOnly": true
+                        },
+                        "totalCount": {
+                          "description": "**DEPRECATED - As early as the sunset date specified in this [Changelog entry](/api/smartsheet/changelog#2025-08-04), this response property value will be `-1`.** See the [Changelog entry](/api/smartsheet/changelog#2025-08-04) for migration instructions and details.\n\nThe total number of items in the full result set.\n",
+                          "type": "number",
+                          "deprecated": true,
+                          "example": 136,
+                          "readOnly": true
+                        }
+                      }
                     },
                     {
                       "type": "object",
@@ -15371,17 +16312,12 @@
             "lang": "Node.js",
             "label": "Node.js",
             "source": "// Set options\nvar options = {\n};\n\n// List webhooks\nsmartsheet.webhooks.listWebhooks(options)\n    .then(function(webhookList) {\n        console.log(webhookList);\n    })\n    .catch(function(error) {\n        console.log(error);\n    });\n"
-          },
-          {
-            "lang": "Python",
-            "label": "Python",
-            "source": "IndexResult = smartsheet_client.Webhooks.list_webhooks(\n  page_size=100,\n  page=1,\n  include_all=False\n)\n"
           }
         ]
       },
       "post": {
-        "summary": "Create Webhook",
-        "description": "Creates a new Webhook.\n\nA webhook is not enabled by default when it is created.\nOnce you've created a webhook, you can enable it by using the Update Webhook operation to set **enabled** to **true**.\n\nWhen a row is deleted on a sheet, even if you are using a **subscope** to monitor columns only\nand the cell in that column for that row is empty, you will receive a \"row.deleted\" event.\n",
+        "summary": "Create webhook",
+        "description": "Creates a new Webhook.\n\n> **Important:** On creation, a webhook isn't enabled by default. You can enable the webhook by calling the [Update webhook](/api/smartsheet/openapi/webhooks/updatewebhook) operation on it with `enabled` set to `true`.\n\n> **Note:** If you have a sheet-scoped webhook that uses `subscope` to monitor columns only and a cell in one of the columns is deleted as part of a row deletion, Smartsheet still sends you a `\"row.deleted\"` callback event.\n",
         "operationId": "createWebhook",
         "tags": [
           "webhooks"
@@ -15494,12 +16430,15 @@
           "$ref": "#/components/parameters/Authorization"
         },
         {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
+        },
+        {
           "$ref": "#/components/parameters/webhookId"
         }
       ],
       "get": {
-        "summary": "Get Webhook",
-        "description": "Gets a Webhook based on the specified ID",
+        "summary": "Get webhook",
+        "description": "Gets a matching webhook based on the specified ID.",
         "operationId": "getWebhook",
         "tags": [
           "webhooks"
@@ -15555,8 +16494,8 @@
         ]
       },
       "put": {
-        "summary": "Update Webhook",
-        "description": "Updates the specified Webhook. The following properties can be updated:\n* callbackUrl (optional)\n* enabled (optional)\n* events (optional)\n* name (optional)\n* version (optional)\n\nWhen setting a webhook's **enabled** to **true** using this operation,\nthe behavior and result depend on the webhook's **status** and may result in a webhook verification being triggered,\nor in some cases, an error being returned. See Webhook Status for more details.\n",
+        "summary": "Update webhook",
+        "description": "Updates the matching Webhook. The following properties can be updated:\n\n* `callbackUrl` (optional)\n* `enabled` (optional)\n* `events` (optional)\n* `name` (optional)\n* `version` (optional)\n\nIf you set `enabled` to `true`, the behavior and result depend on the webhook's `status` and may trigger a webhook verification  or in some cases, cause an error. See [Webhook status](/api/smartsheet/guides/webhooks/webhook-status) for details.\n",
         "operationId": "updateWebhook",
         "tags": [
           "webhooks"
@@ -15638,8 +16577,8 @@
         ]
       },
       "delete": {
-        "summary": "Delete Webhook",
-        "description": "Deletes the specified Webhook.\n\nUsing this operation permanently deletes the specified webhook.\nTo temporarily disable a webhook, use the Update Webhook operation to set **enabled** to **false**.\n",
+        "summary": "Delete webhook",
+        "description": "Permanently deletes the specified webhook.\n\n> **Important:** This operation permanently deletes the webhook. Alternatively, to temporarily disable the webhook, use the [Update webhook](/api/smartsheet/openapi/webhooks/updatewebhook) operation with `enabled` set to `false`.\n",
         "operationId": "deleteWebhook",
         "tags": [
           "webhooks"
@@ -15705,12 +16644,15 @@
           "$ref": "#/components/parameters/Authorization"
         },
         {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
+        },
+        {
           "$ref": "#/components/parameters/webhookId"
         }
       ],
       "post": {
-        "summary": "Reset Shared Secret",
-        "description": "Resets the shared secret for the specified webhook. For more information about how a shared secret is used, see Authenticating Callbacks.\nThis operation can be used to rotate an API client's webhooks' shared secrets at periodic intervals to provide additional security.",
+        "summary": "Reset shared secret",
+        "description": "Resets the shared secret for the specified webhook.\n\nYou can improve security by using this operation to rotate an API client webhooks' shared secrets at periodic intervals.\n\nFor more information about how a shared secret is used, see the **Authenticating callbacks** section in [Webhook callbacks](/api/smartsheet/guides/webhooks/webhook-callbacks#authenticating-callbacks-optional).\n",
         "operationId": "resetSharedSecret",
         "tags": [
           "webhooks"
@@ -15789,12 +16731,15 @@
           "$ref": "#/components/parameters/Authorization"
         },
         {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
+        },
+        {
           "$ref": "#/components/parameters/accessApiLevel"
         }
       ],
       "get": {
-        "summary": "List Workspaces",
-        "description": "Gets a list of workspaces that the user has access to. The list contains an abbreviated Workspace object for each workspace.\n",
+        "summary": "List workspaces",
+        "description": "Gets a list of workspaces that the user has access to. The list contains an\nabbreviated Workspace object for each workspace.\n",
         "tags": [
           "workspaces"
         ],
@@ -15811,28 +16756,64 @@
         "operationId": "list-workspaces",
         "parameters": [
           {
-            "$ref": "#/components/parameters/includeAll"
+            "$ref": "#/components/parameters/paginationType"
           },
           {
-            "$ref": "#/components/parameters/page"
+            "$ref": "#/components/parameters/maxItemsListWorkspaces"
           },
           {
-            "$ref": "#/components/parameters/pageSize"
+            "$ref": "#/components/parameters/lastKey"
+          },
+          {
+            "name": "includeAll",
+            "in": "query",
+            "required": false,
+            "description": "**DEPRECATED - As early as the sunset date specified in this \n[Changelog entry](/api/smartsheet/changelog#2025-08-04), this request parameter will no longer be supported.**\n\nIf true, include all results, that is, do not paginate. Mutually exclusive with page and pageSize\n(they are ignored if includeAll=true is specified).\n",
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "deprecated": true
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "description": "**DEPRECATED - As early as the sunset date specified in this\n[Changelog entry](/api/smartsheet/changelog#2025-08-04), this request parameter will no longer be supported.**\n\nWhich page to return. Defaults to 1 if not specified. If you specify a value\ngreater than the total number of pages, the last page of results is returned.\n",
+            "schema": {
+              "type": "number",
+              "default": 1,
+              "deprecated": true
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "description": "**DEPRECATED - As early as the sunset date specified in this\n[Changelog entry](/api/smartsheet/changelog#2025-08-04), this request parameter will no longer be supported.**\n\nThe maximum number of items to return per page. Unless otherwise stated for a\nspecific endpoint, defaults to 100. If only page is specified, defaults to a\npage size of 100. For reports, the default is 100 rows. If you need larger\nsets of data from your report, returns a maximum of 10,000 rows per request.\n",
+            "schema": {
+              "type": "number",
+              "default": 100,
+              "deprecated": true
+            }
           }
         ],
         "responses": {
           "200": {
-            "description": "IndexResult object containing an array of Workspace objects.",
+            "description": "IndexResultWorkspaces object containing an array of Workspace objects. The response structure varies based on the paginationType parameter. When using token-based pagination (default), includes lastKey field. When using legacy page-based pagination, includes pageNumber and totalPages.",
             "content": {
               "application/json": {
                 "schema": {
                   "allOf": [
                     {
-                      "$ref": "#/components/schemas/IndexResult"
+                      "$ref": "#/components/schemas/IndexResultWorkspaces"
                     },
                     {
                       "type": "object",
                       "properties": {
+                        "lastKey": {
+                          "$ref": "#/components/schemas/LastKey"
+                        },
                         "data": {
                           "type": "array",
                           "items": {
@@ -15877,16 +16858,11 @@
             "lang": "Node.js",
             "label": "Node.js",
             "source": "smartsheet.workspaces.listWorkspaces()\n  .then(function(workspaceList) {\n    console.log(workspaceList);\n  })\n  .catch(function(error) {\n    console.log(error);\n  });\n"
-          },
-          {
-            "lang": "Python",
-            "label": "Python",
-            "source": "# Sample 1: List all\nresponse = smartsheet_client.Workspaces.list_workspaces(include_all=True)\nworkspaces = response.data\n\n# Sample 2: Paginate the list\nresponse = smartsheet_client.Workspaces.list_workspaces(\n  page_size=20,\n  page=1)\npages = response.total_pages\nworkspaces = response.data\n"
           }
         ]
       },
       "post": {
-        "summary": "Create Workspace",
+        "summary": "Create workspace",
         "description": "Creates a new workspace.\n",
         "operationId": "create-workspace",
         "tags": [
@@ -16004,12 +16980,16 @@
           "$ref": "#/components/parameters/Authorization"
         },
         {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
+        },
+        {
           "$ref": "#/components/parameters/workspaceId"
         }
       ],
       "get": {
-        "summary": "Get Workspace",
-        "description": "Gets a Workspace object.",
+        "summary": "Get workspace",
+        "deprecated": true,
+        "description": "**DEPRECATED - As early as the sunset date specified in this [Changelog entry](/api/smartsheet/changelog#2025-08-04), this endpoint will be removed.** See the [Get workspace metadata](/api/smartsheet/openapi/workspaces/get-workspace-metadata) and the [Get workspace children](/api/smartsheet/openapi/workspaces/get-workspace-children) endpoints for replacement functionality.\n\nGets a Workspace object.\n",
         "tags": [
           "workspaces"
         ],
@@ -16093,7 +17073,7 @@
         ]
       },
       "delete": {
-        "summary": "Delete Workspace",
+        "summary": "Delete workspace",
         "description": "Deletes a workspace.",
         "tags": [
           "workspaces"
@@ -16160,7 +17140,7 @@
         ]
       },
       "put": {
-        "summary": "Update Workspace",
+        "summary": "Update workspace",
         "description": "Updates a workspace.",
         "operationId": "update-workspace",
         "parameters": [
@@ -16259,17 +17239,179 @@
         ]
       }
     },
+    "/workspaces/{workspaceId}/metadata": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/Authorization"
+        },
+        {
+          "name": "workspaceId",
+          "in": "path",
+          "required": true,
+          "description": "The ID of the workspace",
+          "schema": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      ],
+      "get": {
+        "summary": "Get workspace metadata",
+        "description": "Gets the metadata of a workspace.",
+        "tags": [
+          "workspaces"
+        ],
+        "security": [
+          {
+            "APIToken": []
+          },
+          {
+            "OAuth2": [
+              "READ_SHEETS"
+            ]
+          }
+        ],
+        "operationId": "get-workspace-metadata",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/includeSource"
+          },
+          {
+            "$ref": "#/components/parameters/numericDates"
+          },
+          {
+            "$ref": "#/components/parameters/accessApiLevel"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The metadata of a workspace.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkspaceMetadata"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "503": {
+            "$ref": "#/components/responses/503"
+          }
+        }
+      }
+    },
+    "/workspaces/{workspaceId}/children": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/Authorization"
+        },
+        {
+          "name": "workspaceId",
+          "in": "path",
+          "required": true,
+          "description": "The ID of the workspace",
+          "schema": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      ],
+      "get": {
+        "summary": "Get workspace children",
+        "description": "Gets a page of a workspace's children of the specified type(s).",
+        "tags": [
+          "workspaces"
+        ],
+        "security": [
+          {
+            "APIToken": []
+          },
+          {
+            "OAuth2": [
+              "READ_SHEETS"
+            ]
+          }
+        ],
+        "operationId": "get-workspace-children",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/childrenResourceTypes"
+          },
+          {
+            "$ref": "#/components/parameters/includeForChildren"
+          },
+          {
+            "$ref": "#/components/parameters/numericDates"
+          },
+          {
+            "$ref": "#/components/parameters/accessApiLevel"
+          },
+          {
+            "$ref": "#/components/parameters/lastKey"
+          },
+          {
+            "name": "maxItems",
+            "in": "query",
+            "required": false,
+            "description": "The maximum number of items to return in the response.",
+            "schema": {
+              "type": "integer",
+              "default": 100,
+              "minimum": 100,
+              "multipleOf": 100,
+              "maximum": 1000
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "An array of asset references with a pagination token if there are more results.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedChildrenResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "503": {
+            "$ref": "#/components/responses/503"
+          }
+        }
+      }
+    },
     "/workspaces/{workspaceId}/copy": {
       "parameters": [
         {
           "$ref": "#/components/parameters/Authorization"
         },
         {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
+        },
+        {
           "$ref": "#/components/parameters/workspaceId"
         }
       ],
       "post": {
-        "summary": "Copy Workspace",
+        "summary": "Copy workspace",
         "description": "Copies a workspace.",
         "tags": [
           "workspaces"
@@ -16368,12 +17510,16 @@
           "$ref": "#/components/parameters/Authorization"
         },
         {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
+        },
+        {
           "$ref": "#/components/parameters/workspaceId"
         }
       ],
       "get": {
-        "summary": "List Workspace Folders",
-        "description": "Lists a workspace's folders.",
+        "summary": "List workspace folders",
+        "deprecated": true,
+        "description": "**DEPRECATED - As early as the sunset date specified in this [Changelog entry](/api/smartsheet/changelog#2025-08-04), this endpoint will be removed.** See the [Get workspace children](/api/smartsheet/openapi/workspaces/get-workspace-children) endpoint for replacement functionality.\n\nLists a workspace's folders.\n",
         "tags": [
           "workspaces"
         ],
@@ -16483,8 +17629,8 @@
         ]
       },
       "post": {
-        "summary": "Create a Folder",
-        "description": "Creates a new folder.\n",
+        "summary": "Create folder in workspace",
+        "description": "Creates a new folder in the workspace.\n",
         "operationId": "create-workspace-folder",
         "tags": [
           "workspaces"
@@ -16584,6 +17730,9 @@
           "$ref": "#/components/parameters/Authorization"
         },
         {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
+        },
+        {
           "$ref": "#/components/parameters/accessApiLevel"
         },
         {
@@ -16591,8 +17740,9 @@
         }
       ],
       "post": {
-        "summary": "Share Workspace",
-        "description": "Shares a Workspace with the specified users and groups. This operation supports both single-object and bulk semantics.\n\n**_This operation is only available to system administrators._**\n",
+        "summary": "Share workspace",
+        "description": "**DEPRECATED - As early as the sunset date specified in this [Changelog entry](/api/smartsheet/changelog#2025-08-04), this endpoint will be discontinued.** Please refer to the [Changelog entry](/api/smartsheet/changelog#2025-08-04) for more details.\n\nShares a Workspace with the specified users and groups. This operation\nsupports both single-object and bulk semantics.\n\n**_This operation is only available to system administrators._**\n",
+        "deprecated": true,
         "operationId": "share-workspace",
         "tags": [
           "sharing",
@@ -16715,8 +17865,9 @@
         ]
       },
       "get": {
-        "summary": "List Workspace Shares",
-        "description": "Gets a list of all users and groups to whom the specified Workspace is shared, and their access level.",
+        "summary": "List workspace shares",
+        "description": "**DEPRECATED - As early as the sunset date specified in this [Changelog entry](/api/smartsheet/changelog#2025-08-04), this endpoint will be discontinued.** Please refer to the [Changelog entry](/api/smartsheet/changelog#2025-08-04) for more details.\n\nGets a list of all users and groups to whom the specified Workspace is\nshared, and their access level.\n",
+        "deprecated": true,
         "operationId": "list-workspace-shares",
         "tags": [
           "sharing",
@@ -16819,11 +17970,15 @@
         },
         {
           "$ref": "#/components/parameters/Authorization"
+        },
+        {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
         }
       ],
       "get": {
-        "summary": "Get Workspace Share",
-        "description": "Gets the share specified in the URL.",
+        "summary": "Get workspace share",
+        "description": "**DEPRECATED - As early as the sunset date specified in this [Changelog entry](/api/smartsheet/changelog#2025-08-04), this endpoint will be discontinued.** Please refer to the [Changelog entry](/api/smartsheet/changelog#2025-08-04) for more details.\n\nGets the share specified in the URL.\n",
+        "deprecated": true,
         "operationId": "share-workspace-get",
         "parameters": [
           {
@@ -16895,8 +18050,9 @@
         ]
       },
       "delete": {
-        "summary": "Delete Workspace Share",
-        "description": "Deletes the share specified in the URL.\n\n**_This operation is only available to system administrators._**\n",
+        "summary": "Delete workspace share",
+        "description": "**DEPRECATED - As early as the sunset date specified in this [Changelog entry](/api/smartsheet/changelog#2025-08-04), this endpoint will be discontinued.** Please refer to the [Changelog entry](/api/smartsheet/changelog#2025-08-04) for more details.\n\nDeletes the share specified in the URL.\n\n**_This operation is only available to system administrators._**\n",
+        "deprecated": true,
         "operationId": "delete-workspace-share",
         "tags": [
           "sharing",
@@ -16963,8 +18119,9 @@
         ]
       },
       "put": {
-        "summary": "Update Workspace Share",
-        "description": "Updates the access level of a user or group for the specified workspace.\n\n**_This operation is only available to system administrators._**\n",
+        "summary": "Update workspace share",
+        "description": "**DEPRECATED - As early as the sunset date specified in this [Changelog entry](/api/smartsheet/changelog#2025-08-04), this endpoint will be discontinued.** Please refer to the [Changelog entry](/api/smartsheet/changelog#2025-08-04) for more details.\n\nUpdates the access level of a user or group for the specified workspace.\n\n**_This operation is only available to system administrators._**\n",
+        "deprecated": true,
         "operationId": "update-workspace-share",
         "parameters": [
           {
@@ -17069,6 +18226,9 @@
       "parameters": [
         {
           "$ref": "#/components/parameters/Authorization"
+        },
+        {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
         },
         {
           "$ref": "#/components/parameters/workspaceId"
@@ -17194,6 +18354,9 @@
       "parameters": [
         {
           "$ref": "#/components/parameters/Authorization"
+        },
+        {
+          "$ref": "#/components/parameters/smartsheetIntegrationSourceHeader"
         },
         {
           "$ref": "#/components/parameters/workspaceId"
@@ -17648,6 +18811,8 @@
         }
       },
       "Callback": {
+        "title": "Callback",
+        "description": "The webhooks callback object.",
         "type": "object",
         "x-tags": [
           "webhooks"
@@ -17692,6 +18857,8 @@
         }
       },
       "CallbackEvent": {
+        "title": "CallbackEvent",
+        "description": "The webhooks callback event object.",
         "type": "object",
         "x-tags": [
           "webhooks"
@@ -17733,7 +18900,7 @@
           },
           "changeAgent": {
             "type": "string",
-            "description": "A comma-delimited list of values that uniquely identify the agents responsible for making the changes that caused the callback to occur. Only present if the change agent included the Smartsheet-Change-Agent header in the API request that changed data in Smartsheet. For more information, see [Preventing Infinite Loops](/api/smartsheet/openapi/webhooks)."
+            "description": "A comma-delimited list of values that uniquely identify the agents responsible for making the changes that caused the callback to occur. Only present if the change agent included the Smartsheet-Change-Agent header in the API request that changed data in Smartsheet. For more information, see [Preventing Infinite Loops](/api/smartsheet/guides/webhooks/preventing-webhook-infinite-loops)."
           },
           "eventType": {
             "type": "string",
@@ -20583,6 +21750,7 @@
         "x-tags": [
           "sharing"
         ],
+        "description": "**DEPRECATED - As early as the sunset date specified in this [Changelog entry](/api/smartsheet/changelog#2025-08-04), this endpoint will be discontinued.** Please refer to the [changelog entry](/api/smartsheet/changelog#2025-08-04) for more details.\n\nShare object used for various sharing relation operations.\n",
         "properties": {
           "id": {
             "description": "Share Id.\n\n**NOTE**: unlike other Smartsheet object Ids, this Id is an alphanumeric string.\n",
@@ -20611,7 +21779,7 @@
             "$ref": "#/components/schemas/Timestamp"
           },
           "email": {
-            "description": "User's primary email address for user shares; null for group shares.",
+            "description": "User's primary email address for user shares.",
             "type": "string"
           },
           "message": {
@@ -21875,6 +23043,11 @@
         }
       },
       "Webhook": {
+        "title": "Webhook",
+        "description": "The webhook object.",
+        "x-tags": [
+          "webhooks"
+        ],
         "allOf": [
           {
             "$ref": "#/components/schemas/Update_Webhook_Request"
@@ -21932,7 +23105,7 @@
                 "example": "sheet"
               },
               "sharedSecret": {
-                "description": "Shared secret for this Webhook, randomly generated by Smartsheet. Read-only. See [Authenticating Callbacks](/api/smartsheet/openapi/webhooks) for details about how this value can be used.",
+                "description": "Shared secret for this Webhook, randomly generated by Smartsheet. Read-only. See [Authenticating Callbacks](/api/smartsheet/guides/webhooks/webhook-callbacks#authenticating-callbacks-optional) for details about how this value can be used.",
                 "type": "string",
                 "readOnly": true,
                 "example": "216ejjzdnq17mq1q8xs7d4hu8b"
@@ -21961,7 +23134,7 @@
                 }
               },
               "status": {
-                "description": "Webhook status. Read-only. See Webhook Status for list of possible values.",
+                "description": "The webhook's status.\n\nSee [Webhook Status](/api/smartsheet/guides/webhooks/webhook-status) for details.\n",
                 "type": "string",
                 "readOnly": true,
                 "enum": [
@@ -21981,9 +23154,6 @@
               }
             }
           }
-        ],
-        "x-tags": [
-          "webhooks"
         ]
       },
       "Widget": {
@@ -29344,6 +30514,182 @@
           }
         }
       },
+      "Timestamp_long": {
+        "title": "Timestamp long",
+        "type": "integer",
+        "format": "int64"
+      },
+      "Timestamp2": {
+        "title": "Timestamp2",
+        "readOnly": true,
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/Timestamp_date-time"
+          },
+          {
+            "$ref": "#/components/schemas/Timestamp_long"
+          }
+        ]
+      },
+      "FolderMetadata": {
+        "title": "Folder metadata",
+        "description": "The metadata of a Folder",
+        "type": "object",
+        "x-tags": [
+          "folders"
+        ],
+        "required": [
+          "id",
+          "name",
+          "permalink",
+          "createdAt",
+          "modifiedAt"
+        ],
+        "properties": {
+          "id": {
+            "description": "Folder Id.",
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "description": "Folder name.",
+            "type": "string"
+          },
+          "permalink": {
+            "description": "URL to the folder in Smartsheet.",
+            "type": "string",
+            "format": "uri"
+          },
+          "createdAt": {
+            "$ref": "#/components/schemas/Timestamp2"
+          },
+          "modifiedAt": {
+            "$ref": "#/components/schemas/Timestamp2"
+          }
+        }
+      },
+      "PaginatedChildrenListItem": {
+        "title": "Paginated children list item",
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "permalink",
+          "createdAt",
+          "modifiedAt",
+          "resourceType",
+          "accessLevel"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Resource ID."
+          },
+          "name": {
+            "type": "string",
+            "description": "Resource name."
+          },
+          "permalink": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL to the resource in Smartsheet."
+          },
+          "createdAt": {
+            "$ref": "#/components/schemas/Timestamp2"
+          },
+          "modifiedAt": {
+            "$ref": "#/components/schemas/Timestamp2"
+          },
+          "accessLevel": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AccessLevel"
+              }
+            ]
+          },
+          "resourceType": {
+            "type": "string",
+            "description": "The type of the child resource",
+            "enum": [
+              "sheet",
+              "report",
+              "sight"
+            ]
+          }
+        }
+      },
+      "PaginatedFolderListItem": {
+        "title": "Paginated folder list item",
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "permalink",
+          "createdAt",
+          "modifiedAt",
+          "resourceType"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Resource ID."
+          },
+          "name": {
+            "type": "string",
+            "description": "Resource name."
+          },
+          "permalink": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL to the resource in Smartsheet."
+          },
+          "createdAt": {
+            "$ref": "#/components/schemas/Timestamp2"
+          },
+          "modifiedAt": {
+            "$ref": "#/components/schemas/Timestamp2"
+          },
+          "resourceType": {
+            "type": "string",
+            "description": "The type of the resource",
+            "enum": [
+              "folder"
+            ]
+          }
+        }
+      },
+      "LastKey": {
+        "type": "string",
+        "example": "abcDefGhIjKlMnOpQrStUvWxYz",
+        "description": "A token that is used to retrieve the next page of results when passed as the\n`lastKey` query parameter. This value will be absent when there are no \nfurther pages.\n"
+      },
+      "PaginatedChildrenResponse": {
+        "title": "Paginated children response",
+        "type": "object",
+        "description": "Paginated response object containing an array of asset references. Call again\nwith the `lastKey` query parameter to retrieve the next page of results.\n",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "description": "Array of assets of the requested type in this folder.",
+            "type": "array",
+            "items": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/PaginatedChildrenListItem"
+                },
+                {
+                  "$ref": "#/components/schemas/PaginatedFolderListItem"
+                }
+              ]
+            }
+          },
+          "lastKey": {
+            "$ref": "#/components/schemas/LastKey"
+          }
+        }
+      },
       "ContainerDestinationForCopy": {
         "type": "object",
         "title": "Container destination for copy",
@@ -30179,6 +31525,134 @@
           }
         }
       },
+      "ShareResponse": {
+        "title": "Share response",
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "accessLevel",
+          "scope"
+        ],
+        "x-tags": [
+          "sharing"
+        ],
+        "properties": {
+          "id": {
+            "description": "The id of the share.\n",
+            "type": "string",
+            "example": "AAAMCmYGFOeE"
+          },
+          "email": {
+            "description": "User's primary email address for user shares.",
+            "type": "string",
+            "example": "test.email@smartsheet.com"
+          },
+          "userId": {
+            "description": "User Id if the share is a user share.",
+            "type": "number",
+            "example": 9876543210
+          },
+          "groupId": {
+            "description": "Group Id if the share is a group share.",
+            "type": "number",
+            "example": 1234567890
+          },
+          "name": {
+            "description": "If present, the name of the user or group to which the asset is shared.\n",
+            "type": "string",
+            "example": "Example Name"
+          },
+          "type": {
+            "description": "The type of this share. One of the following values: GROUP or USER.\n",
+            "type": "string",
+            "example": "USER"
+          },
+          "accessLevel": {
+            "$ref": "#/components/schemas/AccessLevel"
+          },
+          "scope": {
+            "description": "The scope of this share. One of the following values:\n  * **ITEM**: an item-level share (that is, the specific object to which the share applies is shared with\n    the user or group).\n  * **WORKSPACE**: a workspace-level share (that is, the workspace that contains the asset to which the\n    share applies is shared with the user or group).\n",
+            "type": "string",
+            "enum": [
+              "ITEM",
+              "WORKSPACE"
+            ]
+          }
+        }
+      },
+      "CreateShareRequest": {
+        "title": "Create share request",
+        "type": "object",
+        "required": [
+          "accessLevel"
+        ],
+        "x-tags": [
+          "sharing"
+        ],
+        "properties": {
+          "email": {
+            "description": "The primary email address of a user to share to. Must be provided if `groupId` is not provided.",
+            "type": "string",
+            "example": "test.email@smartsheet.com"
+          },
+          "groupId": {
+            "description": "The id of the group to share to. Must be provided if `email` is not provided.",
+            "type": "number",
+            "example": 1234567890
+          },
+          "accessLevel": {
+            "$ref": "#/components/schemas/AccessLevel"
+          },
+          "subject": {
+            "description": "The subject of the email that is optionally sent to notify the recipient.\n\nMust set the `sendEmail` query parameter to **true** for this parameter to take effect.\n",
+            "type": "string"
+          },
+          "message": {
+            "description": "The message included in the body of the email that is optionally sent to the recipient.\n\nMust set the `sendEmail` query parameter to **true** for this parameter to take effect.\n",
+            "type": "string"
+          },
+          "ccMe": {
+            "description": "Indicates whether to send a copy of the email to the sharer of the sheet.\n\nMust set the `sendEmail` query parameter to **true** for this parameter to take effect.\n",
+            "type": "boolean"
+          }
+        }
+      },
+      "SuccessResult": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "description": "Message that indicates the request was successful.",
+            "type": "string",
+            "enum": [
+              "SUCCESS"
+            ],
+            "example": "SUCCESS"
+          },
+          "resultCode": {
+            "description": "* '0' Success",
+            "type": "number",
+            "enum": [
+              0
+            ]
+          }
+        }
+      },
+      "UpdateShareRequest": {
+        "title": "Update share request",
+        "type": "object",
+        "required": [
+          "accessLevel"
+        ],
+        "x-tags": [
+          "sharing"
+        ],
+        "properties": {
+          "accessLevel": {
+            "$ref": "#/components/schemas/AccessLevel"
+          }
+        }
+      },
       "version": {
         "description": "A number that is incremented every time a sheet is modified.",
         "type": "number"
@@ -30233,26 +31707,6 @@
           },
           "userSettings": {
             "$ref": "#/components/schemas/SheetUserSettings"
-          }
-        }
-      },
-      "SuccessResult": {
-        "type": "object",
-        "properties": {
-          "message": {
-            "description": "Message that indicates the request was successful.",
-            "type": "string",
-            "enum": [
-              "SUCCESS"
-            ],
-            "example": "SUCCESS"
-          },
-          "resultCode": {
-            "description": "* '0' Success",
-            "type": "number",
-            "enum": [
-              0
-            ]
           }
         }
       },
@@ -31319,6 +32773,78 @@
           }
         ]
       },
+      "IndexResultWorkspaces": {
+        "type": "object",
+        "title": "IndexResultWorkspaces",
+        "properties": {
+          "pageNumber": {
+            "description": "**DEPRECATED - As early as the sunset date specified in this \n[Changelog entry](/api/smartsheet/changelog#2025-08-04), this response property will not be part \nof the response.**\n\nThe current page in the full result set that the data array represents.\nNOTE when a page number greater than totalPages is requested, the last\npage is instead returned.\n",
+            "deprecated": true,
+            "type": "number",
+            "example": 1,
+            "readOnly": true
+          },
+          "pageSize": {
+            "description": "**DEPRECATED - As early as the sunset date specified in this \n[Changelog entry](/api/smartsheet/changelog#2025-08-04), this response property will not be part \nof the response.**\n\nThe number of items in a page. Omitted if there is no limit to page size\n(and hence, all results are included). Unless otherwise specified, this\ndefaults to 100 for most endpoints. Only present when using page-based pagination.\n",
+            "deprecated": true,
+            "type": "number",
+            "example": 50,
+            "nullable": true,
+            "readOnly": true
+          },
+          "totalPages": {
+            "description": "**DEPRECATED - As early as the sunset date specified in this \n[Changelog entry](/api/smartsheet/changelog#2025-08-04), this response property will not be part \nof the response.**\n\nThe total number of pages in the full result set. Only present when\nusing page-based pagination.\n",
+            "deprecated": true,
+            "type": "number",
+            "example": 25,
+            "readOnly": true
+          },
+          "totalCount": {
+            "description": "**DEPRECATED - As early as the sunset date specified in this \n[Changelog entry](/api/smartsheet/changelog#2025-08-04), this response property will not be part \nof the response.**\n\nThe total number of items in the full result set. Only present when\nusing page-based pagination.\n",
+            "deprecated": true,
+            "type": "number",
+            "example": 136,
+            "readOnly": true
+          }
+        }
+      },
+      "WorkspaceMetadata": {
+        "title": "Workspace metadata",
+        "description": "The metadata of a Workspace",
+        "type": "object",
+        "x-tags": [
+          "workspaces"
+        ],
+        "required": [
+          "id",
+          "name",
+          "permalink",
+          "createdAt",
+          "modifiedAt"
+        ],
+        "properties": {
+          "id": {
+            "description": "Workspace Id.",
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "description": "Workspace name.",
+            "type": "string"
+          },
+          "permalink": {
+            "description": "URL to the workspace in Smartsheet.",
+            "type": "string",
+            "format": "uri"
+          },
+          "createdAt": {
+            "$ref": "#/components/schemas/Timestamp2"
+          },
+          "modifiedAt": {
+            "$ref": "#/components/schemas/Timestamp2"
+          }
+        }
+      },
       "FolderNameOnly": {
         "description": "Can contain dashboards, folders, reports, sheets, or templates.",
         "type": "object",
@@ -31390,6 +32916,15 @@
         "schema": {
           "type": "string",
           "example": "Bearer JKlMNOpQ12RStUVwxYZAbcde3F5g6hijklM789"
+        }
+      },
+      "smartsheetIntegrationSourceHeader": {
+        "in": "header",
+        "name": "smartsheet-integration-source",
+        "schema": {
+          "type": "string",
+          "description": "Uses the following metadata to distinguish between human-initiated API requests and third-party service-initiated calls by AI Connectors or ITSM:\n\n- Integration source type\n- Organization name\n- Integration source name \n\nFormat:\n\n```\nTYPE,OrgName,SourceName\n```\n\nExamples: \n\n`AI,SampleOrg,My-AI-Connector-v2`\n\n`SCRIPT,SampleOrg2,Accounting-updater-script`\n\n`APPLICATION,SampleOrg3,SheetUpdater`\n",
+          "example": "AI,SampleOrg,My-AI-Connector-v2"
         }
       },
       "includeAll": {
@@ -31564,6 +33099,66 @@
           ]
         }
       },
+      "includeSource": {
+        "name": "include",
+        "in": "query",
+        "required": false,
+        "description": "A comma-separated list of optional elements to include in the response:\n  * **source** - adds the Source object indicating which object this resource was created from, if any\n",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "source"
+          ]
+        }
+      },
+      "childrenResourceTypes": {
+        "name": "childrenResourceTypes",
+        "in": "query",
+        "required": true,
+        "description": "A comma-separated list of the child types to include in the response.\n",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "sheets",
+            "reports",
+            "sights",
+            "folders"
+          ]
+        }
+      },
+      "includeForChildren": {
+        "name": "include",
+        "in": "query",
+        "required": false,
+        "description": "A comma-separated list of optional elements to include in the response:\n  * **source** - adds the Source object indicating which object this resource was created from, if any\n  * **ownerInfo** Returns the user with owner permissions, or the user with admin permissions if there is no owner assigned. If no owner or admins are assigned, the Plan Asset Admin is returned. If no Plan Asset Admin is assigned, the System Admin is returned.\n",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "source",
+            "ownerInfo"
+          ]
+        }
+      },
+      "accessApiLevel": {
+        "name": "accessApiLevel",
+        "in": "query",
+        "required": false,
+        "description": "Allows COMMENTER access for inputs and return values. For backwards-compatibility, VIEWER is the default. For example, to see whether a user has COMMENTER access for a sheet, use accessApiLevel=1.\n",
+        "schema": {
+          "type": "number",
+          "default": 0
+        }
+      },
+      "lastKey": {
+        "name": "lastKey",
+        "in": "query",
+        "required": false,
+        "description": "The lastKey token returned from the previous page of results. If not specified,\nthe first page of results is returned.\n",
+        "schema": {
+          "type": "string",
+          "example": "abcDefGhIjKlMnOpQrStUvWxYz"
+        }
+      },
       "sheetCopyInclude": {
         "name": "include",
         "in": "query",
@@ -31707,16 +33302,6 @@
         },
         "required": false
       },
-      "accessApiLevel": {
-        "name": "accessApiLevel",
-        "in": "query",
-        "required": false,
-        "description": "Allows COMMENTER access for inputs and return values. For backwards-compatibility, VIEWER is the default. For example, to see whether a user has COMMENTER access for a sheet, use accessApiLevel=1.\n",
-        "schema": {
-          "type": "number",
-          "default": 0
-        }
-      },
       "reportId": {
         "name": "reportId",
         "in": "path",
@@ -31798,7 +33383,7 @@
           "type": "string"
         },
         "required": true,
-        "description": "Share Id."
+        "description": "The unique identifier for the share."
       },
       "query": {
         "name": "query",
@@ -31862,6 +33447,46 @@
         },
         "required": true,
         "description": "Sheet Id of the sheet being accessed."
+      },
+      "assetType": {
+        "name": "assetType",
+        "in": "query",
+        "required": true,
+        "description": "The type of the asset. Used in combination with assetId to determine the asset.\n",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "sheet",
+            "report",
+            "sight",
+            "workspace",
+            "collection",
+            "file"
+          ],
+          "example": "sheet"
+        }
+      },
+      "assetId": {
+        "name": "assetId",
+        "in": "query",
+        "required": true,
+        "description": "The id of the asset. Used in combination with assetType to determine the asset.\n\nDepending on the asset, this may be a numeric or string value.\n",
+        "schema": {
+          "type": "string",
+          "example": "1234567890"
+        }
+      },
+      "maxItems": {
+        "name": "maxItems",
+        "in": "query",
+        "description": "Request query parameter used in endpoints that support token based pagination.\n\nThe maximum amount of items to return in the response. The default and minimum are 100.\n",
+        "schema": {
+          "type": "integer",
+          "format": "int32",
+          "default": 100,
+          "minimum": 100,
+          "example": 100
+        }
       },
       "sheetInclude": {
         "name": "include",
@@ -32394,6 +34019,32 @@
           "type": "string"
         }
       },
+      "paginationType": {
+        "name": "paginationType",
+        "in": "query",
+        "required": false,
+        "description": "Specifies the type of pagination to use. When set to 'token', enables\ntoken-based pagination.\n",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "token"
+          ]
+        }
+      },
+      "maxItemsListWorkspaces": {
+        "name": "maxItems",
+        "in": "query",
+        "description": "Request query parameter used in ListWorkspaces endpoints that support token based pagination.\n\nThe maximum amount of items to return in the response. The default and minimum are 100.\n",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "format": "int32",
+          "default": 100,
+          "minimum": 100,
+          "maximum": 1000,
+          "example": 100
+        }
+      },
       "workspaceCreateInclude": {
         "name": "include",
         "in": "query",
@@ -32423,7 +34074,7 @@
           "type": "string"
         },
         "required": true,
-        "description": "WorkspaceID of the worksheet being accessed."
+        "description": "The ID of the workspace"
       }
     },
     "responses": {
@@ -32744,6 +34395,26 @@
                 "value": {
                   "errorCode": 5502,
                   "message": "You must have sheet admin permission to save a notification with recipients other than yourself.",
+                  "refId": "exlxshtxlpl8"
+                }
+              }
+            }
+          }
+        }
+      },
+      "503": {
+        "description": "Service Unavailable.  See Smartsheet Error Code and Message for details.\n",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "examples": {
+              "4001Example": {
+                "summary": "503 - 4001 - Service Unavailable",
+                "value": {
+                  "errorCode": 4001,
+                  "message": "Smartsheet.com is currently offline for system maintenance. Please check back again shortly.",
                   "refId": "exlxshtxlpl8"
                 }
               }

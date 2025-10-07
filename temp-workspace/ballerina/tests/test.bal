@@ -16,7 +16,6 @@
 
 import ballerina/os;
 import ballerina/test;
-import ballerina/time;
 
 configurable boolean isLiveServer = os:getEnv("IS_LIVE_SERVER") == "true";
 configurable string token = isLiveServer ? os:getEnv("SMARTSHEET_TOKEN") : "test-token";
@@ -44,7 +43,6 @@ isolated function testGetSheets() returns error? {
 }
 isolated function testGetSheet() returns error? {
     anydata response = check smartsheet->/sheets/[testSheetId]();
-    time:Utc current = time:utcNow();
     test:assertTrue(response !is ());
 }
 

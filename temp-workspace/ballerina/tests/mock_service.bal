@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/http;
+import ballerina/log;
 
 listener http:Listener httpListener = new (9090);
 
@@ -387,7 +388,6 @@ http:Service mockService = service object {
                 ] : []
         };
     }
-
     # List Workspaces
     #
     # + return - returns can be any of following types; `WorkspaceShareListResponse`, `ErrorDefault`
