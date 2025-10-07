@@ -1,5 +1,4 @@
 import sanitizor.command_executor;
-// import sanitizor.fixer;
 import sanitizor.spec_sanitizor;
 
 import ballerina/io;
@@ -186,46 +185,6 @@ public function main(string... args) returns error? {
         showOperationSummary("Client Generation", generateResult);
     }
 
-    // io:println("\n=== Step 6: AI-Powered Error Fixing (Optional) ===");
-    // io:println("This step will attempt to automatically fix any compilation errors in the generated Ballerina code.");
-
-    // if getUserConfirmation("Run AI-powered error fixing on the generated client?") {
-    //     io:println("🤖 Checking and fixing Ballerina compilation errors...");
-
-    //     fixer:FixResult|fixer:BallerinaFixerError fixResult = fixer:fixAllErrors(clientOutputPath);
-
-    //     if fixResult is fixer:FixResult {
-    //         if fixResult.success {
-    //             io:println(string `✓ AI successfully fixed ${fixResult.errorsFixed} compilation errors!`);
-    //             io:println("✓ All Ballerina files compile without errors!");
-    //         } else {
-    //             io:println(string `⚠ AI fixed ${fixResult.errorsFixed} errors, but ${fixResult.errorsRemaining} errors remain`);
-    //             io:println("⚠ Some errors may require manual intervention");
-    //             log:printWarn("Some compilation errors could not be automatically fixed",
-    //                     remainingErrors = fixResult.errorsRemaining);
-    //         }
-    //         if fixResult.appliedFixes.length() > 0 {
-    //             io:println("Applied AI fixes:");
-    //             foreach string fix in fixResult.appliedFixes {
-    //                 io:println(string `  - ${fix}`);
-    //             }
-    //         }
-    //     } else {
-    //         log:printError("Failed to fix Ballerina compilation errors", 'error = fixResult);
-    //         io:println("⚠ Warning: AI-powered error fixing failed. Manual intervention may be required.");
-    //     }
-
-    io:println("⚠ Error fixing module is currently disabled. Please manually check for compilation errors.");
-    // }
-    // else  {
-    //         io: println("⚠ Skipping error fixing. Please manually check the generated Ballerina code for compilation errors.");
-    // }
-
-    // // Sanitization completed successfully
-    // log:printInfo("Batch processing sanitization completed successfully");
-    // io:println ( "\n🎉 OpenAPI Sanitization completed successfully!") ;
-    // return;
-
 }
 
 // Helper function to get user confirmation
@@ -273,60 +232,3 @@ function printUsage() {
     io:println("  • Continue/skip options for failed operations");
     io:println("  • Progress feedback and operation summaries");
 }
-
-// import sanitizor.fixer;
-
-// import ballerina/io;
-// import ballerina/log;
-
-// public function main(string... args) returns error? {
-//     if args.length() < 1 {
-//         printCodeFixerUsage();
-//         return;
-//     }
-
-//     string projectPath = args[0];
-
-//     log:printInfo("Starting Ballerina code fixer", projectPath = projectPath);
-//     io:println("Starting AI-powered Ballerina code fixer...");
-
-//     fixer:FixResult|fixer:BallerinaFixerError result =
-//         fixer:fixAllErrors(projectPath);
-
-//     if result is fixer:FixResult {
-//         if result.success {
-//             io:println("All compilation errors fixed successfully!");
-//             io:println(string `Fixed ${result.errorsFixed} errors`);
-//         } else {
-//             io:println("Partial success:");
-//             io:println(string `Fixed ${result.errorsFixed} errors`);
-//             io:println(string `${result.errorsRemaining} errors remain`);
-//             // io:println("\nRemaining errors that need manual fixing:");
-//             // foreach string err in result.errorsRemaining {
-//             //     io:println(string `   • ${err}`);
-//             // }
-//         }
-
-//         if result.appliedFixes.length() > 0 {
-//             io:println("\n Applied fixes:");
-//             foreach string fix in result.appliedFixes {
-//                 io:println(string `   • ${fix}`);
-//             }
-//         }
-//     } else {
-//         log:printError("Code fixer failed", 'error = result);
-//         io:println("Code fixing failed. Please check logs for details.");
-//         return result;
-//     }
-// }
-
-// function printCodeFixerUsage() {
-//     io:println("Ballerina AI Code Fixer");
-//     io:println("Usage: bal run code_fixer_cli.bal -- <project-path>");
-//     io:println("");
-//     io:println("Environment Variables:");
-//     io:println("  ANTHROPIC_API_KEY: Required for AI-powered fixes");
-//     io:println("");
-//     io:println("Example:");
-//     io:println("  bal run code_fixer_cli.bal -- ./my-ballerina-project");
-// }

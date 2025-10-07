@@ -1,4 +1,4 @@
-import sanitizor.command_executor;
+import fixer.command_executor;
 
 import ballerina/ai;
 import ballerina/file;
@@ -93,10 +93,11 @@ ${errorContext}
 
 Instructions:
 - Return the full updated copy of the source ballerina file that needed changes.
-- Do not include explanations, markdown formatting, or code fences
-- Preserve the original structure, comments, and imports where possible
-- Fix all compilation errors
-- Ensure the code follows Ballerina best practices
+- Do not include explanations, markdown formatting, or code fences.
+- Preserve the original structure, comments, and imports where possible.
+- Fix all compilation errors. 
+- Ensure the code follows Ballerina best practices. 
+- Try to resolve the error with minumum changes. 
 
 Current Code:
 ${code}
@@ -157,7 +158,7 @@ public function fixFileWithLLM(string projectPath, string filePath, CompilationE
 }
 
 public function fixBallerinaCode(string prompt) returns string|error {
-    ai:ModelProvider anthropicModel = check new anthropic:ModelProvider(apiKey, anthropic:CLAUDE_SONNET_4_20250514, maxTokens = 50000, temperature = 0.2, timeout = 120);
+    ai:ModelProvider anthropicModel = check new anthropic:ModelProvider(apiKey, anthropic:CLAUDE_SONNET_4_20250514, maxTokens = 64000, temperature = 0.4d, timeout = 300);
 
     ai:ChatMessage[] messages = [
         {role: "user", content: prompt}
