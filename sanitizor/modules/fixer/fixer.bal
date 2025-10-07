@@ -210,7 +210,6 @@ public function applyFix(string projectPath, string filePath, string fixedCode) 
     return true;
 }
 
-
 // Main function to fix all errors in a project
 public function fixAllErrors(string projectPath) returns FixResult|error {
     log:printInfo("Starting error fixing process", projectPath = projectPath);
