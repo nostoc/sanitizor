@@ -954,12 +954,21 @@ function extractApiContext(json spec) returns string {
     if (spec is map<json>) {
         json|error infoResult = spec.get("info");
         if (infoResult is map<json>) {
-            string title = infoResult.get("title") is string ? <string>infoResult.get("title") : "Unknown API";
-            string description = infoResult.get("description") is string ? <string>infoResult.get("description") : "";
+            map<json> infoMap = <map<json>>infoResult;
+            
+            string title = "Unknown API";
+            if (infoMap.hasKey("title") && infoMap.get("title") is string) {
+                title = <string>infoMap.get("title");
+            }
+
+            string description = "";
+            if (infoMap.hasKey("description") && infoMap.get("description") is string) {
+                description = <string>infoMap.get("description");
+            }
 
             // Truncate description if too long to avoid token limits
-            if (description.length() > 500) {
-                description = description.substring(0, 500) + "...";
+            if (description.length() > 1000) {
+                description = description.substring(0, 1000) + "...";
             }
 
             return string `API: ${title}
