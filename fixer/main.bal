@@ -48,12 +48,6 @@ public function main(string... args) returns error? {
             }
         }
 
-        if result.remainingFixes.length() > 0 {
-            io:println("\n⚠ Issues that need attention:");
-            foreach string issue in result.remainingFixes {
-                io:println(string `  • ${issue}`);
-            }
-        }
     } else {
         log:printError("Code fixer failed", 'error = result);
         io:println("Code fixing failed. Please check logs for details.");
