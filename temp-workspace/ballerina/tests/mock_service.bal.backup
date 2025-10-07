@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/http;
-import ballerina/log;
 
 
 
@@ -539,3 +538,5 @@ public type ErrorNotFound record {|
     *http:NotFound;
     Error body;
 |};
+
+};

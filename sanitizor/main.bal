@@ -1,5 +1,4 @@
 import sanitizor.command_executor;
-// import sanitizor.fixer;
 import sanitizor.spec_sanitizor;
 
 import ballerina/io;
@@ -57,7 +56,7 @@ public function main(string... args) returns error? {
     command_executor:CommandResult flattenResult = command_executor:executeBalFlatten(inputSpecPath, flattenedSpecPath);
     if !command_executor:isCommandSuccessfull(flattenResult) {
         log:printError("OpenAPI flatten failed", result = flattenResult);
-        io:println("❌ Flatten operation failed:");
+        io:println("Flatten operation failed:");
         io:println(flattenResult.stderr);
 
         if !getUserConfirmation("Continue despite flatten failure?") {
@@ -76,7 +75,7 @@ public function main(string... args) returns error? {
     command_executor:CommandResult alignResult = command_executor:executeBalAlign(flattenedSpec, alignedSpecPath);
     if !command_executor:isCommandSuccessfull(alignResult) {
         log:printError("OpenAPI align failed", result = alignResult);
-        io:println("❌ Align operation failed:");
+        io:println("Align operation failed:");
         io:println(alignResult.stderr);
 
         if !getUserConfirmation("Continue despite align failure?") {
@@ -98,14 +97,14 @@ public function main(string... args) returns error? {
     if !getUserConfirmation("Proceed with AI-powered schema renaming?") {
         io:println("⚠ Skipping schema renaming. Generic schema names will be preserved.");
     } else {
-        io:println("🤖 Processing schema renaming with AI...");
+        io:println("Processing schema renaming with AI...");
         int|spec_sanitizor:LLMServiceError schemaRenameResult = spec_sanitizor:renameInlineResponseSchemasBatchWithRetry(
                 alignedSpec,
                 batchSize = 8 // Process 8 schemas per batch
         );
         if schemaRenameResult is spec_sanitizor:LLMServiceError {
             log:printError("Failed to rename InlineResponse schemas (batch)", 'error = schemaRenameResult);
-            io:println("❌ Schema renaming failed:");
+            io:println("Schema renaming failed:");
             io:println(schemaRenameResult.message());
 
             if !getUserConfirmation("Continue despite schema renaming failure?") {
@@ -133,14 +132,14 @@ public function main(string... args) returns error? {
     if !getUserConfirmation("Proceed with AI-powered documentation enhancement?") {
         io:println("⚠ Skipping documentation enhancement. Missing descriptions will remain.");
     } else {
-        io:println("🤖 Processing documentation enhancement with AI...");
+        io:println("Processing documentation enhancement with AI...");
         int|spec_sanitizor:LLMServiceError descriptionsResult = spec_sanitizor:addMissingDescriptionsBatchWithRetry(
                 alignedSpec,
                 batchSize = 15 // Process 15 items per batch
         );
         if descriptionsResult is spec_sanitizor:LLMServiceError {
             log:printError("Failed to add missing descriptions (batch)", 'error = descriptionsResult);
-            io:println("❌ Documentation enhancement failed:");
+            io:println("Documentation enhancement failed:");
             io:println(descriptionsResult.message());
 
             if !getUserConfirmation("Continue despite documentation enhancement failure?") {
@@ -174,7 +173,7 @@ public function main(string... args) returns error? {
     command_executor:CommandResult generateResult = command_executor:executeBalClientGenerate(alignedSpec, clientOutputPath);
     if !command_executor:isCommandSuccessfull(generateResult) {
         log:printError("Client generation failed", result = generateResult);
-        io:println("❌ Client generation failed:");
+        io:println("Client generation failed:");
         io:println(generateResult.stderr);
 
         if !getUserConfirmation("Continue to error fixing despite client generation failure?") {
@@ -185,46 +184,6 @@ public function main(string... args) returns error? {
         io:println("✓ Ballerina client generated successfully");
         showOperationSummary("Client Generation", generateResult);
     }
-
-    // io:println("\n=== Step 6: AI-Powered Error Fixing (Optional) ===");
-    // io:println("This step will attempt to automatically fix any compilation errors in the generated Ballerina code.");
-
-    // if getUserConfirmation("Run AI-powered error fixing on the generated client?") {
-    //     io:println("🤖 Checking and fixing Ballerina compilation errors...");
-
-    //     fixer:FixResult|fixer:BallerinaFixerError fixResult = fixer:fixAllErrors(clientOutputPath);
-
-    //     if fixResult is fixer:FixResult {
-    //         if fixResult.success {
-    //             io:println(string `✓ AI successfully fixed ${fixResult.errorsFixed} compilation errors!`);
-    //             io:println("✓ All Ballerina files compile without errors!");
-    //         } else {
-    //             io:println(string `⚠ AI fixed ${fixResult.errorsFixed} errors, but ${fixResult.errorsRemaining} errors remain`);
-    //             io:println("⚠ Some errors may require manual intervention");
-    //             log:printWarn("Some compilation errors could not be automatically fixed",
-    //                     remainingErrors = fixResult.errorsRemaining);
-    //         }
-    //         if fixResult.appliedFixes.length() > 0 {
-    //             io:println("Applied AI fixes:");
-    //             foreach string fix in fixResult.appliedFixes {
-    //                 io:println(string `  - ${fix}`);
-    //             }
-    //         }
-    //     } else {
-    //         log:printError("Failed to fix Ballerina compilation errors", 'error = fixResult);
-    //         io:println("⚠ Warning: AI-powered error fixing failed. Manual intervention may be required.");
-    //     }
-
-    io:println("⚠ Error fixing module is currently disabled. Please manually check for compilation errors.");
-    // }
-    // else  {
-    //         io: println("⚠ Skipping error fixing. Please manually check the generated Ballerina code for compilation errors.");
-    // }
-
-    // // Sanitization completed successfully
-    // log:printInfo("Batch processing sanitization completed successfully");
-    // io:println ( "\n🎉 OpenAPI Sanitization completed successfully!") ;
-    // return;
 
 }
 
@@ -242,9 +201,9 @@ function getUserConfirmation(string message) returns boolean {
 
 // Helper function to show operation summary
 function showOperationSummary(string operationName, command_executor:CommandResult result) {
-    io:println(string `  ⏱ Execution time: ${result.executionTime} seconds`);
+    io:println(string `Execution time: ${result.executionTime} seconds`);
     if result.stdout.length() > 0 {
-        io:println("  📝 Output summary:");
+        io:println("Output summary:");
         string[] lines = regex:split(result.stdout, "\n");
         int maxLines = lines.length() > 3 ? 3 : lines.length();
         foreach int i in 0 ..< maxLines {
@@ -273,60 +232,3 @@ function printUsage() {
     io:println("  • Continue/skip options for failed operations");
     io:println("  • Progress feedback and operation summaries");
 }
-
-// import sanitizor.fixer;
-
-// import ballerina/io;
-// import ballerina/log;
-
-// public function main(string... args) returns error? {
-//     if args.length() < 1 {
-//         printCodeFixerUsage();
-//         return;
-//     }
-
-//     string projectPath = args[0];
-
-//     log:printInfo("Starting Ballerina code fixer", projectPath = projectPath);
-//     io:println("Starting AI-powered Ballerina code fixer...");
-
-//     fixer:FixResult|fixer:BallerinaFixerError result =
-//         fixer:fixAllErrors(projectPath);
-
-//     if result is fixer:FixResult {
-//         if result.success {
-//             io:println("All compilation errors fixed successfully!");
-//             io:println(string `Fixed ${result.errorsFixed} errors`);
-//         } else {
-//             io:println("Partial success:");
-//             io:println(string `Fixed ${result.errorsFixed} errors`);
-//             io:println(string `${result.errorsRemaining} errors remain`);
-//             // io:println("\nRemaining errors that need manual fixing:");
-//             // foreach string err in result.errorsRemaining {
-//             //     io:println(string `   • ${err}`);
-//             // }
-//         }
-
-//         if result.appliedFixes.length() > 0 {
-//             io:println("\n Applied fixes:");
-//             foreach string fix in result.appliedFixes {
-//                 io:println(string `   • ${fix}`);
-//             }
-//         }
-//     } else {
-//         log:printError("Code fixer failed", 'error = result);
-//         io:println("Code fixing failed. Please check logs for details.");
-//         return result;
-//     }
-// }
-
-// function printCodeFixerUsage() {
-//     io:println("Ballerina AI Code Fixer");
-//     io:println("Usage: bal run code_fixer_cli.bal -- <project-path>");
-//     io:println("");
-//     io:println("Environment Variables:");
-//     io:println("  ANTHROPIC_API_KEY: Required for AI-powered fixes");
-//     io:println("");
-//     io:println("Example:");
-//     io:println("  bal run code_fixer_cli.bal -- ./my-ballerina-project");
-// }
