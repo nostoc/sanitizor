@@ -134,8 +134,6 @@ public function fixFileWithLLM(string projectPath, string filePath, CompilationE
 
     // Create fix prompt
     string prompt = createFixPrompt(fileContent, errors, filePath);
-    io:println("----PROMPT--------");
-    io:println(prompt);
 
     log:printInfo("Sending fix request to LLM");
 
@@ -145,9 +143,6 @@ public function fixFileWithLLM(string projectPath, string filePath, CompilationE
         log:printError("LLM failed to generate fix", 'error = llmResponse);
         return error(string `LLM failed to generate fix: ${llmResponse.message()}`);
     }
-
-    io:println("----LLM RESONSE-------");
-    io:println(llmResponse);
 
     // Return the response
     return {
@@ -243,7 +238,7 @@ public function fixAllErrors(string projectPath) returns FixResult|error {
         CompilationError[] currentErrors = parseCompilationErrors(buildResult.stderr);
 
         if currentErrors.length() == 0 {
-            log:printInfo("No compilation errors found.", stderr = buildResult.stderr);
+            log:printInfo("No compilation errors found.");
             result.remainingFixes.push("no compilation errors detected");
             break;
         }

@@ -20,7 +20,7 @@ import ballerina/log;
 
 listener http:Listener httpListener = new (9090);
 
-http:Service mockService = service object {
+service http:Service mockService = service object {
     # Delete Sheet
     #
     # + return - returns can be any of following types; `SuccessResult`, `ErrorDefault`
