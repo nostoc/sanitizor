@@ -15,6 +15,19 @@ public function main(string... args) returns error? {
 
     string inputSpecPath = args[0]; // /home/hansika/dev/sanitizor/temp-workspace/docs/spec/openapi.json
     string outputDir = args[1]; // /home/hansika/dev/sanitizor/temp-workspace
+    
+    // Check for auto flag for automated mode
+    boolean autoYes = false;
+    foreach string arg in args {
+        if arg == "yes" {
+            autoYes = true;
+            break;
+        }
+    }
+    
+    if autoYes {
+        log:printInfo("Running in automated mode - all prompts will be auto-confirmed");
+    }
 
     log:printInfo("Processing OpenAPI spec", inputSpec = inputSpecPath, outputDir = outputDir);
 
@@ -28,9 +41,9 @@ public function main(string... args) returns error? {
     io:println("3. Rename inline response schemas using AI");
     io:println("4. Add missing field descriptions using AI");
     io:println("5. Generate Ballerina client code");
-    io:println("6. Fix compilation errors using AI (if needed)");
+    
 
-    if !getUserConfirmation("\nProceed with sanitization?") {
+    if !getUserConfirmation("\nProceed with sanitization?", autoYes) {
         io:println("Operation cancelled by user.");
         return;
     }
@@ -41,7 +54,7 @@ public function main(string... args) returns error? {
         log:printError("Failed to initialize LLM service", 'error = llmInitResult);
         io:println("⚠ Warning: LLM service not available. Only programmatic fixes will be applied.");
 
-        if !getUserConfirmation("Continue without AI-powered features?") {
+        if !getUserConfirmation("Continue without AI-powered features?", autoYes) {
             io:println("Operation cancelled. Please check your ANTHROPIC_API_KEY configuration.");
             return;
         }
@@ -59,7 +72,7 @@ public function main(string... args) returns error? {
         io:println("Flatten operation failed:");
         io:println(flattenResult.stderr);
 
-        if !getUserConfirmation("Continue despite flatten failure?") {
+        if !getUserConfirmation("Continue despite flatten failure?", autoYes) {
             return error("Flatten operation failed: " + flattenResult.stderr);
         }
     } else {
@@ -78,7 +91,7 @@ public function main(string... args) returns error? {
         io:println("Align operation failed:");
         io:println(alignResult.stderr);
 
-        if !getUserConfirmation("Continue despite align failure?") {
+        if !getUserConfirmation("Continue despite align failure?", autoYes) {
             return error("Align operation failed: " + alignResult.stderr);
         }
     } else {
@@ -94,7 +107,7 @@ public function main(string... args) returns error? {
     io:println("This step will rename generic 'InlineResponse' schemas to meaningful names using AI.");
     io:println("The AI will analyze the schema structure and usage context to suggest better names.");
 
-    if !getUserConfirmation("Proceed with AI-powered schema renaming?") {
+    if !getUserConfirmation("Proceed with AI-powered schema renaming?", autoYes) {
         io:println("⚠ Skipping schema renaming. Generic schema names will be preserved.");
     } else {
         io:println("Processing schema renaming with AI...");
@@ -107,7 +120,7 @@ public function main(string... args) returns error? {
             io:println("Schema renaming failed:");
             io:println(schemaRenameResult.message());
 
-            if !getUserConfirmation("Continue despite schema renaming failure?") {
+            if !getUserConfirmation("Continue despite schema renaming failure?", autoYes) {
                 return error("Schema renaming failed: " + schemaRenameResult.message());
             }
         } else {
@@ -115,10 +128,12 @@ public function main(string... args) returns error? {
             io:println(string `✓ Renamed ${schemaRenameResult} InlineResponse schemas to meaningful names`);
 
             if schemaRenameResult > 0 {
-                if getUserConfirmation("Review the renamed schemas in the spec file?") {
+                if getUserConfirmation("Review the renamed schemas in the spec file?", autoYes) {
                     io:println(string `You can check the updated schema names in: ${alignedSpec}`);
-                    io:println("Press Enter to continue...");
-                    _ = io:readln();
+                    if !autoYes {
+                        io:println("Press Enter to continue...");
+                        _ = io:readln();
+                    }
                 }
             }
         }
@@ -129,7 +144,7 @@ public function main(string... args) returns error? {
     io:println("This step will add meaningful descriptions to fields that are missing documentation.");
     io:println("The AI will analyze field names, types, and context to generate appropriate descriptions.");
 
-    if !getUserConfirmation("Proceed with AI-powered documentation enhancement?") {
+    if !getUserConfirmation("Proceed with AI-powered documentation enhancement?", autoYes) {
         io:println("⚠ Skipping documentation enhancement. Missing descriptions will remain.");
     } else {
         io:println("Processing documentation enhancement with AI...");
@@ -142,7 +157,7 @@ public function main(string... args) returns error? {
             io:println("Documentation enhancement failed:");
             io:println(descriptionsResult.message());
 
-            if !getUserConfirmation("Continue despite documentation enhancement failure?") {
+            if !getUserConfirmation("Continue despite documentation enhancement failure?", autoYes) {
                 return error("Documentation fix failed: " + descriptionsResult.message());
             }
         } else {
@@ -150,10 +165,12 @@ public function main(string... args) returns error? {
             io:println(string `✓ Added ${descriptionsResult} missing field descriptions`);
 
             if descriptionsResult > 0 {
-                if getUserConfirmation("Review the enhanced documentation in the spec file?") {
+                if getUserConfirmation("Review the enhanced documentation in the spec file?", autoYes) {
                     io:println(string `You can check the updated descriptions in: ${alignedSpec}`);
-                    io:println("Press Enter to continue...");
-                    _ = io:readln();
+                    if !autoYes {
+                        io:println("Press Enter to continue...");
+                        _ = io:readln();
+                    }
                 }
             }
         }
@@ -164,7 +181,7 @@ public function main(string... args) returns error? {
     string clientOutputPath = outputDir + "/ballerina";
     io:println(string `Generating Ballerina client code to: ${clientOutputPath}`);
 
-    if !getUserConfirmation("Proceed with Ballerina client generation?") {
+    if !getUserConfirmation("Proceed with Ballerina client generation?", autoYes) {
         io:println("⚠ Skipping client generation.");
         io:println("✓ OpenAPI sanitization completed successfully (without client generation)");
         return;
@@ -176,7 +193,7 @@ public function main(string... args) returns error? {
         io:println("Client generation failed:");
         io:println(generateResult.stderr);
 
-        if !getUserConfirmation("Continue to error fixing despite client generation failure?") {
+        if !getUserConfirmation("Continue to error fixing despite client generation failure?", autoYes) {
             return error("Client generation failed: " + generateResult.stderr);
         }
     } else {
@@ -188,7 +205,12 @@ public function main(string... args) returns error? {
 }
 
 // Helper function to get user confirmation
-function getUserConfirmation(string message) returns boolean {
+function getUserConfirmation(string message, boolean autoYes = false) returns boolean {
+    if autoYes {
+        io:println(string `${message} (y/n): y [auto-confirmed]`);
+        return true;
+    }
+    
     io:print(string `${message} (y/n): `);
     string|io:Error userInput = io:readln();
     if userInput is io:Error {
@@ -196,7 +218,7 @@ function getUserConfirmation(string message) returns boolean {
         return false;
     }
     string trimmedInput = userInput.trim().toLowerAscii();
-    return trimmedInput == "y" || trimmedInput == "yes";
+    return trimmedInput == "y" || trimmedInput == "Y" || trimmedInput == "yes";
 }
 
 // Helper function to show operation summary
@@ -216,12 +238,14 @@ function showOperationSummary(string operationName, command_executor:CommandResu
 }
 
 function printUsage() {
-    io:println("Usage: bal run -- <input-openapi-spec> <output-directory>");
+    io:println("Usage: bal run -- <input-openapi-spec> <output-directory> [auto]");
     io:println("  <input-openapi-spec>: Path to the OpenAPI specification file");
     io:println("  <output-directory>: Directory where processed files will be stored");
+    io:println("  auto: Automatically answer 'yes' to all prompts ");
     io:println("");
     io:println("Example:");
     io:println("  bal run -- /path/to/openapi.yaml ./output");
+    io:println("  bal run -- /path/to/openapi.yaml ./output yes");
     io:println("");
     io:println("Environment Variables:");
     io:println("  ANTHROPIC_API_KEY: Required for LLM-based fixes");
@@ -231,4 +255,5 @@ function printUsage() {
     io:println("  • Review AI-generated changes before applying");
     io:println("  • Continue/skip options for failed operations");
     io:println("  • Progress feedback and operation summaries");
+    io:println("  • Use 'yes' argument to skip all prompts for automated execution");
 }
