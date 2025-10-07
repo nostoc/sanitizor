@@ -14,8 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/os;
+
 import ballerina/test;
+import ballerina/os;
+
 
 configurable boolean isLiveServer = os:getEnv("IS_LIVE_SERVER") == "true";
 configurable string token = isLiveServer ? os:getEnv("SMARTSHEET_TOKEN") : "test-token";

@@ -134,6 +134,7 @@ public function fixFileWithLLM(string projectPath, string filePath, CompilationE
 
     // Create fix prompt
     string prompt = createFixPrompt(fileContent, errors, filePath);
+    io:println(prompt);
 
     log:printInfo("Sending fix request to LLM");
 

@@ -14,8 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/os;
+
 import ballerina/test;
+
 
 configurable boolean isLiveServer = os:getEnv("IS_LIVE_SERVER") == "true";
 configurable string token = isLiveServer ? os:getEnv("SMARTSHEET_TOKEN") : "test-token";
@@ -65,7 +66,6 @@ isolated function testUpdateSheet() returns error? {
     test:assertTrue(response.result !is ());
 }
 
-}}
 @test:Config {
     groups: ["live_tests", "mock_tests"]
 }
@@ -111,7 +111,8 @@ isolated function testAddRows() returns error? {
     test:assertTrue(response.result !is ());
 }
 
-@test:Config {
+
+test:Config {
     groups: ["live_tests", "mock_tests"]
 }
 isolated function testUpdateRows() returns error? {

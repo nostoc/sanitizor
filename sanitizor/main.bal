@@ -56,7 +56,7 @@ public function main(string... args) returns error? {
     command_executor:CommandResult flattenResult = command_executor:executeBalFlatten(inputSpecPath, flattenedSpecPath);
     if !command_executor:isCommandSuccessfull(flattenResult) {
         log:printError("OpenAPI flatten failed", result = flattenResult);
-        io:println("❌ Flatten operation failed:");
+        io:println("Flatten operation failed:");
         io:println(flattenResult.stderr);
 
         if !getUserConfirmation("Continue despite flatten failure?") {
@@ -75,7 +75,7 @@ public function main(string... args) returns error? {
     command_executor:CommandResult alignResult = command_executor:executeBalAlign(flattenedSpec, alignedSpecPath);
     if !command_executor:isCommandSuccessfull(alignResult) {
         log:printError("OpenAPI align failed", result = alignResult);
-        io:println("❌ Align operation failed:");
+        io:println("Align operation failed:");
         io:println(alignResult.stderr);
 
         if !getUserConfirmation("Continue despite align failure?") {
@@ -97,14 +97,14 @@ public function main(string... args) returns error? {
     if !getUserConfirmation("Proceed with AI-powered schema renaming?") {
         io:println("⚠ Skipping schema renaming. Generic schema names will be preserved.");
     } else {
-        io:println("🤖 Processing schema renaming with AI...");
+        io:println("Processing schema renaming with AI...");
         int|spec_sanitizor:LLMServiceError schemaRenameResult = spec_sanitizor:renameInlineResponseSchemasBatchWithRetry(
                 alignedSpec,
                 batchSize = 8 // Process 8 schemas per batch
         );
         if schemaRenameResult is spec_sanitizor:LLMServiceError {
             log:printError("Failed to rename InlineResponse schemas (batch)", 'error = schemaRenameResult);
-            io:println("❌ Schema renaming failed:");
+            io:println("Schema renaming failed:");
             io:println(schemaRenameResult.message());
 
             if !getUserConfirmation("Continue despite schema renaming failure?") {
@@ -132,14 +132,14 @@ public function main(string... args) returns error? {
     if !getUserConfirmation("Proceed with AI-powered documentation enhancement?") {
         io:println("⚠ Skipping documentation enhancement. Missing descriptions will remain.");
     } else {
-        io:println("🤖 Processing documentation enhancement with AI...");
+        io:println("Processing documentation enhancement with AI...");
         int|spec_sanitizor:LLMServiceError descriptionsResult = spec_sanitizor:addMissingDescriptionsBatchWithRetry(
                 alignedSpec,
                 batchSize = 15 // Process 15 items per batch
         );
         if descriptionsResult is spec_sanitizor:LLMServiceError {
             log:printError("Failed to add missing descriptions (batch)", 'error = descriptionsResult);
-            io:println("❌ Documentation enhancement failed:");
+            io:println("Documentation enhancement failed:");
             io:println(descriptionsResult.message());
 
             if !getUserConfirmation("Continue despite documentation enhancement failure?") {
@@ -173,7 +173,7 @@ public function main(string... args) returns error? {
     command_executor:CommandResult generateResult = command_executor:executeBalClientGenerate(alignedSpec, clientOutputPath);
     if !command_executor:isCommandSuccessfull(generateResult) {
         log:printError("Client generation failed", result = generateResult);
-        io:println("❌ Client generation failed:");
+        io:println("Client generation failed:");
         io:println(generateResult.stderr);
 
         if !getUserConfirmation("Continue to error fixing despite client generation failure?") {
@@ -201,9 +201,9 @@ function getUserConfirmation(string message) returns boolean {
 
 // Helper function to show operation summary
 function showOperationSummary(string operationName, command_executor:CommandResult result) {
-    io:println(string `  ⏱ Execution time: ${result.executionTime} seconds`);
+    io:println(string `Execution time: ${result.executionTime} seconds`);
     if result.stdout.length() > 0 {
-        io:println("  📝 Output summary:");
+        io:println("Output summary:");
         string[] lines = regex:split(result.stdout, "\n");
         int maxLines = lines.length() > 3 ? 3 : lines.length();
         foreach int i in 0 ..< maxLines {

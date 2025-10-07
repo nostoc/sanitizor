@@ -14,13 +14,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
-
 import ballerina/http;
-import ballerina/log;
+
+
+
 
 listener http:Listener httpListener = new (9090);
 
-service http:Service mockService = service object {
+http:Service mockService = service object {
     # Delete Sheet
     #
     # + return - returns can be any of following types; `SuccessResult`, `ErrorDefault`
@@ -537,3 +538,5 @@ public type ErrorNotFound record {|
     *http:NotFound;
     Error body;
 |};
+
+};
