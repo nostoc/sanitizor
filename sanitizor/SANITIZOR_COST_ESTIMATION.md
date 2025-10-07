@@ -100,7 +100,7 @@ The total cost comprises two main operations: schema renaming and documentation 
 | **Development Team** | 15-25 | Medium-Large | $29-62 |
 | **Enterprise** | 30-50 | Large | $75-199 |
 
-## 7. Conclusion
+## 5. Conclusion
 
 The OpenAPI Sanitizor powered by **Claude Sonnet 4** provides exceptional value with typical costs of $0.78-$3.98 per API sanitization. The investment delivers:
 
