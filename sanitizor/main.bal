@@ -6,7 +6,7 @@ import ballerina/log;
 import ballerina/regex;
 
 public function main(string... args) returns error? {
-    log:printInfo("Starting OpenAPI Sanitizor...");
+    io:println("Starting OpenAPI Sanitizor...");
     // Check command line arguments
     if args.length() < 2 {
         printUsage();
@@ -16,7 +16,33 @@ public function main(string... args) returns error? {
     string inputSpecPath = args[0]; // /home/hansika/dev/sanitizor/temp-workspace/docs/spec/openapi.json
     string outputDir = args[1]; // /home/hansika/dev/sanitizor/temp-workspace
 
-    log:printInfo("Processing OpenAPI spec", inputSpec = inputSpecPath, outputDir = outputDir);
+    // Check for auto flag for automated mode and quiet mode for log control
+    boolean autoYes = false;
+    boolean quietMode = false;
+    foreach string arg in args {
+        if arg == "yes" {
+            autoYes = true;
+        } else if arg == "quiet" {
+            quietMode = true;
+        }
+    }
+
+    if autoYes {
+        if !quietMode {
+            io:println("Running in automated mode - all prompts will be auto-confirmed");
+        }
+    }
+    
+    if quietMode {
+        if !autoYes {
+            io:println("Running in quiet mode - reduced logging output");
+        }
+        io:println("Quiet mode enabled - minimal logging output");
+    }
+
+    if !quietMode {
+        log:printInfo("Processing OpenAPI spec", inputSpec = inputSpecPath, outputDir = outputDir);
+    }
 
     // Human acknowledgment: Show operation plan
     io:println("=== OpenAPI Sanitization Plan ===");
@@ -28,25 +54,28 @@ public function main(string... args) returns error? {
     io:println("3. Rename inline response schemas using AI");
     io:println("4. Add missing field descriptions using AI");
     io:println("5. Generate Ballerina client code");
-    io:println("6. Fix compilation errors using AI (if needed)");
 
-    if !getUserConfirmation("\nProceed with sanitization?") {
+    if !getUserConfirmation("\nProceed with sanitization?", autoYes) {
         io:println("Operation cancelled by user.");
         return;
     }
 
     // Initialize LLM service
-    spec_sanitizor:LLMServiceError? llmInitResult = spec_sanitizor:initLLMService();
+    spec_sanitizor:LLMServiceError? llmInitResult = spec_sanitizor:initLLMService(quietMode);
     if llmInitResult is spec_sanitizor:LLMServiceError {
-        log:printError("Failed to initialize LLM service", 'error = llmInitResult);
+        if !quietMode {
+            log:printError("Failed to initialize LLM service", 'error = llmInitResult);
+        }
         io:println("⚠ Warning: LLM service not available. Only programmatic fixes will be applied.");
 
-        if !getUserConfirmation("Continue without AI-powered features?") {
+        if !getUserConfirmation("Continue without AI-powered features?", autoYes) {
             io:println("Operation cancelled. Please check your ANTHROPIC_API_KEY configuration.");
             return;
         }
     } else {
-        log:printInfo("LLM service initialized successfully");
+        if !quietMode {
+            log:printInfo("LLM service initialized successfully");
+        }
         io:println("✓ LLM service initialized successfully");
     }
 
@@ -55,17 +84,23 @@ public function main(string... args) returns error? {
     string flattenedSpecPath = outputDir + "/docs/spec";
     command_executor:CommandResult flattenResult = command_executor:executeBalFlatten(inputSpecPath, flattenedSpecPath);
     if !command_executor:isCommandSuccessfull(flattenResult) {
-        log:printError("OpenAPI flatten failed", result = flattenResult);
+        if !quietMode {
+            log:printError("OpenAPI flatten failed", result = flattenResult);
+        }
         io:println("Flatten operation failed:");
         io:println(flattenResult.stderr);
 
-        if !getUserConfirmation("Continue despite flatten failure?") {
+        if !getUserConfirmation("Continue despite flatten failure?", autoYes) {
             return error("Flatten operation failed: " + flattenResult.stderr);
         }
     } else {
-        log:printInfo("OpenAPI spec flattened successfully", outputPath = flattenedSpecPath);
+        if !quietMode {
+            log:printInfo("OpenAPI spec flattened successfully", outputPath = flattenedSpecPath);
+        }
         io:println("✓ OpenAPI spec flattened successfully");
-        showOperationSummary("Flatten", flattenResult);
+        if !quietMode {
+            showOperationSummary("Flatten", flattenResult);
+        }
     }
 
     // Step 2: Execute OpenAPI align on flattened spec
@@ -74,17 +109,23 @@ public function main(string... args) returns error? {
     string flattenedSpec = flattenedSpecPath + "/flattened_openapi.json";
     command_executor:CommandResult alignResult = command_executor:executeBalAlign(flattenedSpec, alignedSpecPath);
     if !command_executor:isCommandSuccessfull(alignResult) {
-        log:printError("OpenAPI align failed", result = alignResult);
+        if !quietMode {
+            log:printError("OpenAPI align failed", result = alignResult);
+        }
         io:println("Align operation failed:");
         io:println(alignResult.stderr);
 
-        if !getUserConfirmation("Continue despite align failure?") {
+        if !getUserConfirmation("Continue despite align failure?", autoYes) {
             return error("Align operation failed: " + alignResult.stderr);
         }
     } else {
-        log:printInfo("OpenAPI spec aligned successfully");
+        if !quietMode {
+            log:printInfo("OpenAPI spec aligned successfully");
+        }
         io:println("✓ OpenAPI spec aligned successfully");
-        showOperationSummary("Align", alignResult);
+        if !quietMode {
+            showOperationSummary("Align", alignResult);
+        }
     }
 
     // Step 3: Apply schema renaming fix on aligned spec (BATCH VERSION)
@@ -94,31 +135,38 @@ public function main(string... args) returns error? {
     io:println("This step will rename generic 'InlineResponse' schemas to meaningful names using AI.");
     io:println("The AI will analyze the schema structure and usage context to suggest better names.");
 
-    if !getUserConfirmation("Proceed with AI-powered schema renaming?") {
+    if !getUserConfirmation("\nProceed with AI-powered schema renaming?", autoYes) {
         io:println("⚠ Skipping schema renaming. Generic schema names will be preserved.");
     } else {
         io:println("Processing schema renaming with AI...");
         int|spec_sanitizor:LLMServiceError schemaRenameResult = spec_sanitizor:renameInlineResponseSchemasBatchWithRetry(
                 alignedSpec,
-                batchSize = 8 // Process 8 schemas per batch
+                8, // batchSize
+                quietMode // quietMode
         );
         if schemaRenameResult is spec_sanitizor:LLMServiceError {
-            log:printError("Failed to rename InlineResponse schemas (batch)", 'error = schemaRenameResult);
+            if !quietMode {
+                log:printError("Failed to rename InlineResponse schemas (batch)", 'error = schemaRenameResult);
+            }
             io:println("Schema renaming failed:");
             io:println(schemaRenameResult.message());
 
-            if !getUserConfirmation("Continue despite schema renaming failure?") {
+            if !getUserConfirmation("Continue despite schema renaming failure?", autoYes) {
                 return error("Schema renaming failed: " + schemaRenameResult.message());
             }
         } else {
-            log:printInfo("Batch schema renaming completed", schemasRenamed = schemaRenameResult);
+            if !quietMode {
+                log:printInfo("Batch schema renaming completed", schemasRenamed = schemaRenameResult);
+            }
             io:println(string `✓ Renamed ${schemaRenameResult} InlineResponse schemas to meaningful names`);
 
             if schemaRenameResult > 0 {
-                if getUserConfirmation("Review the renamed schemas in the spec file?") {
+                if getUserConfirmation("Review the renamed schemas in the spec file?", autoYes) {
                     io:println(string `You can check the updated schema names in: ${alignedSpec}`);
-                    io:println("Press Enter to continue...");
-                    _ = io:readln();
+                    if !autoYes {
+                        io:println("Press Enter to continue...");
+                        _ = io:readln();
+                    }
                 }
             }
         }
@@ -129,31 +177,38 @@ public function main(string... args) returns error? {
     io:println("This step will add meaningful descriptions to fields that are missing documentation.");
     io:println("The AI will analyze field names, types, and context to generate appropriate descriptions.");
 
-    if !getUserConfirmation("Proceed with AI-powered documentation enhancement?") {
+    if !getUserConfirmation("Proceed with AI-powered documentation enhancement?", autoYes) {
         io:println("⚠ Skipping documentation enhancement. Missing descriptions will remain.");
     } else {
         io:println("Processing documentation enhancement with AI...");
         int|spec_sanitizor:LLMServiceError descriptionsResult = spec_sanitizor:addMissingDescriptionsBatchWithRetry(
                 alignedSpec,
-                batchSize = 15 // Process 15 items per batch
+                20, // batchSize
+                quietMode // quietMode
         );
         if descriptionsResult is spec_sanitizor:LLMServiceError {
-            log:printError("Failed to add missing descriptions (batch)", 'error = descriptionsResult);
+            if !quietMode {
+                log:printError("Failed to add missing descriptions (batch)", 'error = descriptionsResult);
+            }
             io:println("Documentation enhancement failed:");
             io:println(descriptionsResult.message());
 
-            if !getUserConfirmation("Continue despite documentation enhancement failure?") {
+            if !getUserConfirmation("Continue despite documentation enhancement failure?", autoYes) {
                 return error("Documentation fix failed: " + descriptionsResult.message());
             }
         } else {
-            log:printInfo("Batch documentation fix completed", descriptionsAdded = descriptionsResult);
+            if !quietMode {
+                log:printInfo("Batch documentation fix completed", descriptionsAdded = descriptionsResult);
+            }
             io:println(string `✓ Added ${descriptionsResult} missing field descriptions`);
 
             if descriptionsResult > 0 {
-                if getUserConfirmation("Review the enhanced documentation in the spec file?") {
+                if getUserConfirmation("Review the enhanced documentation in the spec file?", autoYes) {
                     io:println(string `You can check the updated descriptions in: ${alignedSpec}`);
-                    io:println("Press Enter to continue...");
-                    _ = io:readln();
+                    if !autoYes {
+                        io:println("Press Enter to continue...");
+                        _ = io:readln();
+                    }
                 }
             }
         }
@@ -164,7 +219,7 @@ public function main(string... args) returns error? {
     string clientOutputPath = outputDir + "/ballerina";
     io:println(string `Generating Ballerina client code to: ${clientOutputPath}`);
 
-    if !getUserConfirmation("Proceed with Ballerina client generation?") {
+    if !getUserConfirmation("Proceed with Ballerina client generation?", autoYes) {
         io:println("⚠ Skipping client generation.");
         io:println("✓ OpenAPI sanitization completed successfully (without client generation)");
         return;
@@ -172,23 +227,34 @@ public function main(string... args) returns error? {
 
     command_executor:CommandResult generateResult = command_executor:executeBalClientGenerate(alignedSpec, clientOutputPath);
     if !command_executor:isCommandSuccessfull(generateResult) {
-        log:printError("Client generation failed", result = generateResult);
+        if !quietMode {
+            log:printError("Client generation failed", result = generateResult);
+        }
         io:println("Client generation failed:");
         io:println(generateResult.stderr);
 
-        if !getUserConfirmation("Continue to error fixing despite client generation failure?") {
+        if !getUserConfirmation("Continue to error fixing despite client generation failure?", autoYes) {
             return error("Client generation failed: " + generateResult.stderr);
         }
     } else {
-        log:printInfo("Ballerina client generated successfully", outputPath = clientOutputPath);
+        if !quietMode {
+            log:printInfo("Ballerina client generated successfully", outputPath = clientOutputPath);
+        }
         io:println("✓ Ballerina client generated successfully");
-        showOperationSummary("Client Generation", generateResult);
+        if !quietMode {
+            showOperationSummary("Client Generation", generateResult);
+        }
     }
 
 }
 
 // Helper function to get user confirmation
-function getUserConfirmation(string message) returns boolean {
+function getUserConfirmation(string message, boolean autoYes = false) returns boolean {
+    if autoYes {
+        io:println(string `${message} (y/n): y [auto-confirmed]`);
+        return true;
+    }
+
     io:print(string `${message} (y/n): `);
     string|io:Error userInput = io:readln();
     if userInput is io:Error {
@@ -196,7 +262,7 @@ function getUserConfirmation(string message) returns boolean {
         return false;
     }
     string trimmedInput = userInput.trim().toLowerAscii();
-    return trimmedInput == "y" || trimmedInput == "yes";
+    return trimmedInput == "y" || trimmedInput == "Y" || trimmedInput == "yes";
 }
 
 // Helper function to show operation summary
@@ -216,12 +282,16 @@ function showOperationSummary(string operationName, command_executor:CommandResu
 }
 
 function printUsage() {
-    io:println("Usage: bal run -- <input-openapi-spec> <output-directory>");
+    io:println("Usage: bal run -- <input-openapi-spec> <output-directory> [yes] [quiet]");
     io:println("  <input-openapi-spec>: Path to the OpenAPI specification file");
     io:println("  <output-directory>: Directory where processed files will be stored");
+    io:println("  yes: Automatically answer 'yes' to all prompts (for CI/CD)");
+    io:println("  quiet: Reduce logging output (minimal logs for CI/CD)");
     io:println("");
     io:println("Example:");
     io:println("  bal run -- /path/to/openapi.yaml ./output");
+    io:println("  bal run -- /path/to/openapi.yaml ./output yes");
+    io:println("  bal run -- /path/to/openapi.yaml ./output yes quiet");
     io:println("");
     io:println("Environment Variables:");
     io:println("  ANTHROPIC_API_KEY: Required for LLM-based fixes");
@@ -231,4 +301,6 @@ function printUsage() {
     io:println("  • Review AI-generated changes before applying");
     io:println("  • Continue/skip options for failed operations");
     io:println("  • Progress feedback and operation summaries");
+    io:println("  • Use 'yes' argument to skip all prompts for automated execution");
+    io:println("  • Use 'quiet' argument to reduce logging output for CI/CD");
 }

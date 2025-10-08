@@ -5,15 +5,12 @@ import ballerina/constraint;
 import ballerina/data.jsondata;
 import ballerina/http;
 
-# Request body for copying workspace content to specified destination
 public type WorkspaceIdCopyBody ContainerDestinationForCopy;
 
-# Event triggered when row-level, grid-level, or workspace comment is added
 public type DiscussionCreate record {
     *Event;
     # The action applied to the specified object
     "CREATE" action?;
-    # Additional details including user email and location identifiers
     DiscussionCreate_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "DISCUSSION" objectType?;
@@ -46,9 +43,6 @@ public type ReactivateUserHeaders record {
     @http:Header {name: "smartsheet-integration-source"}
     string smartsheetIntegrationSource?;
 };
-
-# Response schema for retrieving a single row from a Smartsheet
-public type GetRowResponse GetRowObject;
 
 # Represents the Headers record for the operation: rows-sort
 public type RowsSortHeaders record {
@@ -149,7 +143,6 @@ public type DeleteAlternateEmailHeaders record {
 @deprecated
 public type ReadOnlyFullShowToolbar boolean;
 
-# Additional details for group ownership transfer including old and new owners
 public type UserTransferOwnedGroups_additionalDetails record {
     # Email address of the user responsible for the event.
     string emailAddress;
@@ -161,13 +154,6 @@ public type UserTransferOwnedGroups_additionalDetails record {
     int newOwnerUserId?;
 };
 
-# Paginated response containing webhook configuration list
-public type WebhookListResponse record {
-    *PaginationMetadata;
-    *WebhookListData;
-};
-
-# Additional details for workspace rename including old and new names
 public type WorkspaceRename_additionalDetails record {
     # Email address of the user responsible for the event.
     string emailAddress;
@@ -177,17 +163,7 @@ public type WorkspaceRename_additionalDetails record {
     string oldName?;
 };
 
-# Response containing detailed information about a specific column
-public type ColumnDetailsResponse GetColumn;
-
-# Additional details about the sheet restore event including user email
-public type SheetRestore_additionalDetails record {
-    # Email address of the user responsible for the event.
-    string emailAddress;
-};
-
-# Request body containing single favorite or collection of favorites
-public type FavoritesBody Favorite|FavoriteCollection;
+public type FavoritesBody Favorite|FavoritesOneOf2;
 
 # Represents the Queries record for the operation: attachments-listOnSheet
 public type AttachmentsListOnSheetQueries record {
@@ -199,14 +175,6 @@ public type AttachmentsListOnSheetQueries record {
     decimal page = 1;
 };
 
-# Response containing a list of summary fields with pagination metadata
-public type SummaryFieldListResponse record {
-    *IndexResult;
-    # List of Summary Fields
-    SummaryField[] data?;
-};
-
-# Individual search result with object details and context information
 public type SearchResultItem record {
     # Search result parent object name
     string parentObjectName?;
@@ -222,13 +190,6 @@ public type SearchResultItem record {
     string[] contextData?;
     # Search result object type (attachment, dashboard, discussion, folder, report, row, sheet, summaryField, template, or workspace)
     string objectType?;
-};
-
-# Response containing webhook configuration details
-public type WebhookResponse record {
-    *Result;
-    # The webhook object
-    Webhook result?;
 };
 
 # Describes the dashboard's publish settings
@@ -312,7 +273,6 @@ public type AutomationruleUpdateHeaders record {
     string contentType = "application/json";
 };
 
-# Request parameters for filtering Smartsheet events
 public type FilteredEventsRequest record {
     # The target managed plan for which to list events. Authorized if the caller is a licensed user on either the target managed plan or the main plan in EPM hierarchy
     decimal managedPlanId?;
@@ -379,33 +339,10 @@ public type AttachmentsListOnSheetHeaders record {
     string smartsheetIntegrationSource?;
 };
 
-# Response returned when adding new columns to a sheet
-public type ColumnsAddResponse record {
-    *GenericResult;
-    # Array of successfully added columns
-    AddColumns[] result?;
-};
-
-# Response containing detailed group information including members
-public type GroupDetailsResponse record {
-    *Group;
-    # List of Group Members
-    GroupMember[] members?;
-};
-
-# Response containing a list of automation rules
-public type AutomationRuleListResponse record {
-    *IndexResult;
-    # list of Automation Rules
-    AutomationRule[] data?;
-};
-
-# Event triggered when a folder is deleted
 public type FolderDelete record {
     *Event;
     # The action applied to the specified object
     "DELETE" action?;
-    # Additional details about the folder deletion event
     FolderDelete_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "FOLDER" objectType?;
@@ -521,75 +458,49 @@ public type ProofsCreateHeaders record {
     string contentType = "application/json";
 };
 
-# Request body for home folder operations
 public type HomeFoldersBody Folder;
 
-# Event triggered when admin performs bulk user updates
 public type AccountBulkUpdate record {
     *Event;
     # The action applied to the specified object
     "BULK_UPDATE" action?;
-    # Additional details including email of admin who performed bulk update
-    AccountBulkUpdate_additionalDetails additionalDetails?;
+    FolderDelete_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "ACCOUNT" objectType?;
 };
 
-# Event triggered when a report is permanently deleted from trash
 public type ReportPurge record {
     *Event;
     # The action applied to the specified object
     "PURGE" action?;
-    # Additional details including email of user who purged the report
-    ReportPurge_additionalDetails additionalDetails?;
+    FolderDelete_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "REPORT" objectType?;
 };
 
-# Additional details about workspace share removal including user and workspace IDs
-public type SheetRemoveWorkspaceShare_additionalDetails record {
-    # Email address of the user responsible for the event.
-    string emailAddress;
-    # Id of the group that was removed from the workspace. (Specific to remove share from group actions)
-    @constraint:Int {minValue: 0}
-    int groupId?;
-    # Id of the user that was removed from the workspace. (Specific to remove share from user actions)
-    @constraint:Int {minValue: 0}
-    int userId?;
-    # Id of the workspace the group or user was removed from.
-    @constraint:Int {minValue: 0}
-    int workspaceId?;
-};
-
-# Event triggered when user is removed from group sharing a sheet
 public type SheetRemoveShareMember record {
     *Event;
     # The action applied to the specified object
     "REMOVE_SHARE_MEMBER" action?;
-    # Details including user, group, and workspace IDs for share removal
     SheetRemoveShareMember_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "SHEET" objectType?;
 };
 
-# Event triggered when a group name is updated
+public type ReportsreportIdsharesOneOf2 Share[];
+
 public type GroupRename record {
     *Event;
     # The action applied to the specified object
     "RENAME" action?;
-    # Details including old name, new name, and user email for rename
     GroupRename_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "GROUP" objectType?;
 };
 
-# Represents a child resource item in paginated list responses
 public type PaginatedChildrenListItem record {
-    # Read-only timestamp supporting both DateTime and Long formats
     Timestamp2 createdAt;
-    # User's permission level for the resource
     AccessLevel accessLevel;
-    # Read-only timestamp supporting both DateTime and Long formats
     Timestamp2 modifiedAt;
     # Resource name
     string name;
@@ -601,20 +512,11 @@ public type PaginatedChildrenListItem record {
     "sheet"|"report"|"sight" resourceType;
 };
 
-# Response containing a single row object with metadata
-public type RowResponse record {
-    *Result;
-    # Row object containing cells, metadata, and formatting information
-    Row result?;
-};
-
-# Event triggered when an existing sheet is updated
 public type SheetUpdate record {
     *Event;
     # The action applied to the specified object
     "UPDATE" action?;
-    # Additional details about the sheet update event
-    SheetUpdate_additionalDetails additionalDetails?;
+    FolderDelete_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "SHEET" objectType?;
 };
@@ -622,13 +524,11 @@ public type SheetUpdate record {
 # When applicable for PICKLIST column type. Array of the options available for the field
 public type PropertiesOptions string[];
 
-# Event triggered when a dashboard is saved as a new copy
 public type DashboardSaveAsNew record {
     *Event;
     # The action applied to the specified object
     "SAVE_AS_NEW" action?;
-    # Additional details about the dashboard save as new event
-    DashboardSaveAsNew_additionalDetails additionalDetails?;
+    FolderDelete_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "DASHBOARD" objectType?;
 };
@@ -683,7 +583,6 @@ public type SheetPublish record {
     "ALL"|"ORG"|"SHARED" readWriteAccessibleBy?;
 };
 
-# Additional details for workspace member sharing event
 public type WorkspaceAddShareMember_additionalDetails record {
     # Email address of the user responsible for the event.
     string emailAddress;
@@ -697,6 +596,15 @@ public type WorkspaceAddShareMember_additionalDetails record {
     # Id of the user that was added to the group.
     @constraint:Int {minValue: 0}
     int userId?;
+};
+
+public type InlineResponse20092_data record {
+    # The folder's name.
+    string name?;
+    # The folder's unique identifier.
+    decimal id?;
+    # URL to the folder in Smartsheet.
+    string permalink?;
 };
 
 # Represents the Queries record for the operation: proofs-listAttachments
@@ -715,24 +623,15 @@ public type FolderSimpleResponse record {
     string name?;
 };
 
-# Additional details about the folder deletion event
 public type FolderDelete_additionalDetails record {
     # Email address of the user responsible for the event.
     string emailAddress;
 };
 
-# Additional details for group sheet access report download event
-public type GroupDownloadSheetAccessReport_additionalDetails record {
-    # Email address of the user responsible for the event.
-    string emailAddress;
-};
-
-# Event triggered when a sheet form is deleted
 public type FormDelete record {
     *Event;
     # The action applied to the specified object
     "DELETE" action?;
-    # Additional details about the form delete event
     FormDelete_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "FORM" objectType?;
@@ -761,15 +660,7 @@ public type UserUpdate record {
     boolean licensedSheetCreator = false;
 };
 
-# Request body for creating sheets from scratch or template
 public type SheetsBody SheetToCreate|SheetToCreateFromTemplate;
-
-# Response containing updated summary field objects
-public type SummaryFieldUpdateResponse record {
-    *Result;
-    # Array of updated summary field objects
-    SummaryField[] result?;
-};
 
 # Represents the Headers record for the operation: is-favorite
 public type IsFavoriteHeaders record {
@@ -810,7 +701,6 @@ public type AddImageToCellQueries record {
     boolean overrideValidation = false;
 };
 
-# Email configuration including recipients, subject, and message content
 public type Email record {
     # Array of recipients
     Recipient[] sendTo?;
@@ -822,35 +712,18 @@ public type Email record {
     string message?;
 };
 
-# Response for proof request creation with operation result and proof data
-public type ProofRequestCreateResponse record {
-    *GenericResult;
-    # Proof request object with ID, status, sender info, and timestamps
-    ProofRequest result?;
-};
-
-# Additional details for user invitation including email address and user types
-public type UserSendInvite_additionalDetails record {
-    # Email address of the user responsible for the event.
-    string emailAddress;
-    # Comma-delimited list of user types, e.g. `SYSTEM_ADMIN`, `LICENSED_USER`, `GROUP_ADMIN`, `RESOURCE_VIEWER`, `JIRA_ADMIN`, `JIRA_USER`, `SALESFORCE_ADMIN`, `SALESFORCE_USER`. 
-    # 
-    # The full list of available user types can be seen <a href="https://help.smartsheet.com/learning-track/shared-users/user-types-and-permissions" target="_blank" rel="noopener noreferrer">here</a>. Please notice that user types Unlicensed User and Free Collaborator are not applicable for this event.
-    string userTypes?;
-};
-
 # Represents the project settings dependencies for a specific sheet. Project settings may be updated on sheets that the user has editor access
 public type ProjectSettings record {
     # Non-working days for a project sheet
     string[] nonWorkingDays?;
-    # Array of working days for project scheduling
     ("MONDAY"|"TUESDAY"|"WEDNESDAY"|"THURSDAY"|"FRIDAY"|"SATURDAY"|"SUNDAY")[] workingDays?;
     # Length of a workday for a project sheet
     @constraint:Number {minValue: 1, maxValue: 24}
     decimal lengthOfDay?;
 };
 
-# Additional details for token revocation including user email and token info
+public type WorkspacesworkspaceIdsharesOneOf2 Share[];
+
 public type AccesstokenRevoke_additionalDetails record {
     # Email address of the user responsible for the event.
     string emailAddress;
@@ -871,8 +744,7 @@ public type UpdaterequestsListQueries record {
     decimal page = 1;
 };
 
-# Request body for sharing operations - single share or collection
-public type SheetIdSharesBody Share|ShareCollection;
+public type SheetIdSharesBody Share|SheetssheetIdsharesOneOf2;
 
 # Represents the Queries record for the operation: get-sight
 public type GetSightQueries record {
@@ -888,7 +760,6 @@ public type GetSightQueries record {
     boolean numericDates = false;
 };
 
-# Additional details for discussion comment send event including recipients
 public type DiscussionSendcomment_additionalDetails record {
     # Email address of the user responsible for the event.
     string emailAddress;
@@ -912,9 +783,6 @@ public type DiscussionSendcomment_additionalDetails record {
     @constraint:Int {minValue: 0}
     int workspaceId?;
 };
-
-# Response containing detailed comment information
-public type CommentDetailsResponse Comment;
 
 # Indicates whether summary field values are restricted to the type
 public type Validation boolean;
@@ -950,7 +818,6 @@ public type GetSheetHeaders record {
     string accept?;
 };
 
-# Additional details for update request creation including email and request info
 public type UpdateRequestCreate_additionalDetails record {
     # Email address of the user responsible for the event.
     string emailAddress;
@@ -966,11 +833,7 @@ public type UpdateRequestCreate_additionalDetails record {
     boolean includeDiscussions?;
 };
 
-# Enumeration of available access permission levels
 public type AccessLevel "ADMIN"|"COMMENTER"|"EDITOR"|"EDITOR_SHARE"|"OWNER"|"VIEWER";
-
-# Response returned when a comment is successfully deleted
-public type CommentDeleteResponse GenericResult;
 
 # Represents the Headers record for the operation: get-sight-publish-status
 public type GetSightPublishStatusHeaders record {
@@ -1038,14 +901,6 @@ public type CommentsCreateHeaders record {
     string contentType = "application/json";
 };
 
-# Response for sheet publish operation with result and publish details
-public type SheetPublishResponse record {
-    *GenericResult;
-    # Describes the sheet's publish settings
-    SheetPublish result?;
-};
-
-# Details about workspace share removal including user/group IDs
 public type ReportRemoveWorkspaceShare_additionalDetails record {
     # Email address of the user responsible for the event.
     string emailAddress;
@@ -1080,12 +935,10 @@ public type GetWorkspaceChildrenQueries record {
     string lastKey?;
 };
 
-# Event schema for access token revocation with user and token details
 public type AccesstokenRevoke record {
     *Event;
     # The action applied to the specified object
     "REVOKE" action?;
-    # Additional details for token revocation including user email and token info
     AccesstokenRevoke_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "ACCESS_TOKEN" objectType?;
@@ -1215,18 +1068,15 @@ public type AttachmentsVersionsDeleteHeaders record {
     string smartsheetIntegrationSource?;
 };
 
-# Event triggered when workspace recurring backup options are updated
 public type WorkspaceUpdateRecurringBackup record {
     *Event;
     # The action applied to the specified object
     "UPDATE_RECURRING_BACKUP" action?;
-    # Additional details for workspace backup update including user and options
     WorkspaceUpdateRecurringBackup_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "WORKSPACE" objectType?;
 };
 
-# Union type for writable timestamps supporting DateTime or Number formats
 public type TimestampWriteable TimestampDateTime|TimestampNumber;
 
 # Object that describes how the the System Column type of "AUTO_NUMBER" is auto-generated
@@ -1281,14 +1131,6 @@ public type CopyWorkspaceHeaders record {
     # Required for POST and PUT requests. Defines the structure for the request body
     @http:Header {name: "Content-Type"}
     string contentType = "application/json";
-};
-
-# Container holding last key for pagination or continuation
-public type LastKeyContainer record {
-    # A token that is used to retrieve the next page of results when passed as the
-    # `lastKey` query parameter. This value will be absent when there are no 
-    # further pages
-    LastKey lastKey?;
 };
 
 # OAuth2 Refresh Token Grant Configs
@@ -1347,24 +1189,17 @@ public type GetSheetQueries record {
 
 # All objects a user has access to, including dashboards, folders, reports, sheets, and templates
 public type Home record {
-    # Array of report objects accessible from the user's home
     Report[] reports?;
-    # Array of sheet objects accessible from the user's home
     Sheet[] sheets?;
-    # Array of folder objects accessible from the user's home
     Folder[] folders?;
-    # Array of dashboard objects accessible from the user's home
     Sight[] sights?;
-    # Array of template objects accessible from the user's home
     Template[] templates?;
 };
 
-# Report object extending sheet with scope, source sheets, and summary type
 public type Report Sheet;
 
 # Sheet imported from CSV / XLSX file
 public type SheetImported record {
-    # Enumeration of available access permission levels
     AccessLevel accessLevel?;
     # Sheet name
     Name name?;
@@ -1402,14 +1237,6 @@ public type TokensGetOrRefreshQueries record {
     string redirectUrl?;
 };
 
-# Response containing a list of attachments with pagination metadata
-public type AttachmentListResponse record {
-    *IndexResult;
-    # list of attachments
-    Attachment[] data?;
-};
-
-# Automation rule object with triggers, actions, and management properties
 public type AutomationRule record {
     # A timestamp of when the rule was originally added
     Timestamp createdAt?;
@@ -1450,40 +1277,33 @@ public type AutomationRule record {
     boolean enabled?;
 };
 
-# Event triggered when a sheet is sent as email attachment to recipients
 public type SheetSendAsAttachment record {
     *Event;
     # The action applied to the specified object
     "SEND_AS_ATTACHMENT" action?;
-    # Additional details including sender email, recipients, and format type
     SheetSendAsAttachment_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "SHEET" objectType?;
 };
 
-# Object for adding a new member to a group by email address
 public type GroupMemberAdd record {
     # Group member's email address
     string email?;
 };
 
-# Event triggered when a new sheet is created or inserted
 public type SheetCreate record {
     *Event;
     # The action applied to the specified object
     "CREATE" action?;
-    # Additional details including creator email, sheet name, and source info
     SheetCreate_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "SHEET" objectType?;
 };
 
-# Event triggered when user/group is removed from workspace sharing
 public type ReportRemoveWorkspaceShare record {
     *Event;
     # The action applied to the specified object
     "REMOVE_WORKSPACE_SHARE" action?;
-    # Details about workspace share removal including user/group IDs
     ReportRemoveWorkspaceShare_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "REPORT" objectType?;
@@ -1501,7 +1321,6 @@ public type GetCurrentUserQueries record {
     "groups" include?;
 };
 
-# Rename details including user email and old/new report names
 public type ReportRename_additionalDetails record {
     # Email address of the user responsible for the event.
     string emailAddress;
@@ -1555,9 +1374,7 @@ public type ListSightsQueries record {
     decimal page = 1;
 };
 
-# Request to update sharing permissions with new access level
 public type UpdateShareRequest record {
-    # Enumeration of available access permission levels
     AccessLevel accessLevel;
 };
 
@@ -1592,13 +1409,11 @@ public type CopyRowsHeaders record {
     string contentType = "application/json";
 };
 
-# Event triggered when admin downloads sheet access report for a group
 public type GroupDownloadSheetAccessReport record {
     *Event;
     # The action applied to the specified object
     "DOWNLOAD_SHEET_ACCESS_REPORT" action?;
-    # Additional details for group sheet access report download event
-    GroupDownloadSheetAccessReport_additionalDetails additionalDetails?;
+    FolderDelete_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "GROUP" objectType?;
 };
@@ -1645,30 +1460,13 @@ public type AddGroupMembersHeaders record {
     string smartsheetIntegrationSource?;
 };
 
-# Response returned after updating a sheet
-public type SheetUpdateResponse record {
-    *GenericResult;
-    # Complete sheet object with columns, rows, and metadata
-    Sheet result?;
-};
-
-# Response for promoting alternate email to primary status
-public type AlternateEmailPromoteResponse record {
-    *GenericResult;
-    # list of alternate email results
-    AlternateEmail[] data?;
-};
-
-# 64-bit integer timestamp representation
 public type TimestampLong int;
 
-# Event triggered when admin downloads sheet access report for a user
 public type UserDownloadSheetAccessReport record {
     *Event;
     # The action applied to the specified object
     "DOWNLOAD_SHEET_ACCESS_REPORT" action?;
-    # Additional details for user sheet access report download event
-    UserDownloadSheetAccessReport_additionalDetails additionalDetails?;
+    FolderDelete_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "USER" objectType?;
 };
@@ -1721,54 +1519,8 @@ public type ListSheetsHeaders record {
     string smartsheetIntegrationSource?;
 };
 
-# Metadata for paginated API responses
-public type PaginationMetadata record {
-    # The current page in the full result set that the data array represents.
-    # NOTE when a page number greater than totalPages is requested, the last
-    # page is instead returned
-    decimal pageNumber?;
-    # **DEPRECATED - As early as the sunset date specified in this [Changelog entry](/api/smartsheet/changelog#2025-08-04), this response property value will be `-1`.** See the [Changelog entry](/api/smartsheet/changelog#2025-08-04) for migration instructions and details.
-    # 
-    # The total number of pages in the full result set
-    # 
-    # # Deprecated
-    @deprecated
-    decimal totalPages?;
-    # The number of items in a page. Omitted if there is no limit to page size (and hence, all results are included). Unless otherwise specified, this defaults to 100 for most endpoints
-    decimal? pageSize?;
-    # **DEPRECATED - As early as the sunset date specified in this [Changelog entry](/api/smartsheet/changelog#2025-08-04), this response property value will be `-1`.** See the [Changelog entry](/api/smartsheet/changelog#2025-08-04) for migration instructions and details.
-    # 
-    # The total number of items in the full result set
-    # 
-    # # Deprecated
-    @deprecated
-    decimal totalCount?;
-};
-
-# Response for proof creation with version info and created proof object
-public type ProofCreateResponse record {
-    *GenericResult;
-    # Object containing zero or more media items, including images, videos, and documents, for review, editing, or approval
-    Proof result?;
-};
-
 # If **true**, a rich version of the sheet is published with the ability to download row attachments and discussions
 public type ReadOnlyFullEnabled boolean;
-
-# Additional details for discussion update including user, sheet, and workspace IDs
-public type DiscussionUpdate_additionalDetails record {
-    # Email address of the user responsible for the event.
-    string emailAddress;
-    # Id of the sheet row containing the discussion. (this property is included only if the discussion is on a sheet row)
-    @constraint:Int {minValue: 0}
-    int sheetRowId?;
-    # Id of the sheet the discussion is on. (This property is included only if the `workspaceId` property below isn't included)
-    @constraint:Int {minValue: 0}
-    int sheetId?;
-    # Id of the workspace the discussion is directly on. (This property is included only if the `sheetId` property above isn't included)
-    @constraint:Int {minValue: 0}
-    int workspaceId?;
-};
 
 # Represents the Queries record for the operation: list-sheets
 public type ListSheetsQueries record {
@@ -1788,12 +1540,6 @@ public type ListSheetsQueries record {
     boolean includeAll = false;
     # Which page to return. Defaults to 1 if not specified. If you specify a value greater than the total number of pages, the last page of results is returned
     decimal page = 1;
-};
-
-# Additional details about the sheet deletion event
-public type SheetDelete_additionalDetails record {
-    # Email address of the user responsible for the event.
-    string emailAddress;
 };
 
 # Indicates which view the user has set for a read-write, default view of the published sheet. Must be one of the listed enum values
@@ -1845,24 +1591,20 @@ public type FolderNameOnly record {
 # Sheet Id
 public type Id decimal;
 
-# Event triggered when a dashboard is renamed via UI or API
 public type DashboardRename record {
     *Event;
     # The action applied to the specified object
     "RENAME" action?;
-    # Additional details for dashboard rename including user email and old/new names
     DashboardRename_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "DASHBOARD" objectType?;
 };
 
-# Event triggered when a user requests a backup for a folder
 public type FolderRequestBackup record {
     *Event;
     # The action applied to the specified object
     "REQUEST_BACKUP" action?;
-    # Additional details for folder backup request including email and settings
-    FolderRequestBackup_additionalDetails additionalDetails?;
+    WorkspaceUpdateRecurringBackup_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "FOLDER" objectType?;
 };
@@ -1919,33 +1661,26 @@ public type SentupdaterequestsListQueries record {
     decimal page = 1;
 };
 
-# Event triggered when admin downloads sheet access report for organization
 public type AccountDownloadSheetAccessReport record {
     *Event;
     # The action applied to the specified object
     "DOWNLOAD_SHEET_ACCESS_REPORT" action?;
-    # Additional details for sheet access report download including user email
-    AccountDownloadSheetAccessReport_additionalDetails additionalDetails?;
+    FolderDelete_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "ACCOUNT" objectType?;
 };
 
-# Event triggered when a sheet form is activated
 public type FormActivate record {
     *Event;
     # The action applied to the specified object
     "ACTIVATE" action?;
-    # Additional details for form activation including user email and sheet ID
-    FormActivate_additionalDetails additionalDetails?;
+    FormDelete_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "FORM" objectType?;
 };
 
-# Dashboard listing with basic metadata including name, ID, and timestamps
 public type DashboardListing record {
-    # Read-only timestamp that can be either DateTime or Number format
     Timestamp createdAt?;
-    # Read-only timestamp that can be either DateTime or Number format
     Timestamp modifiedAt?;
     # Asset name
     string name?;
@@ -1970,10 +1705,6 @@ public type CopyRowsQueries record {
 # If **true**, a webcal is available for the calendar in the sheet
 public type IcalEnabled boolean;
 
-# Standard response object for generic API operations
-public type GenericOperationResponse GenericResult;
-
-# Read-only timestamp supporting both DateTime and Long formats
 public type Timestamp2 TimestampDateTime|TimestampLong;
 
 # Represents the Headers record for the operation: tokens-getOrRefresh
@@ -2004,13 +1735,11 @@ public type TokensGetOrRefreshHeaders record {
     "application/x-www-form-urlencoded" contentType?;
 };
 
-# Event triggered when a workspace is deleted
 public type WorkspaceDelete record {
     *Event;
     # The action applied to the specified object
     "DELETE" action?;
-    # Additional details including email address of user who deleted workspace
-    WorkspaceDelete_additionalDetails additionalDetails?;
+    FolderDelete_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "WORKSPACE" objectType?;
 };
@@ -2018,31 +1747,12 @@ public type WorkspaceDelete record {
 # Display width of the column in pixels
 public type Width decimal;
 
-# Transfer details including old/new owner IDs and access levels
-public type SheetTransferOwnership_additionalDetails record {
-    # New access level of the new owner: `"OWNER"`.
-    "OWNER" newAccessLevel = "OWNER";
-    # Email address of the user responsible for the event.
-    string emailAddress;
-    # Id of the new owner.
-    @constraint:Int {minValue: 0}
-    int newUserId?;
-    # Id of the former owner.
-    @constraint:Int {minValue: 0}
-    int oldUserId?;
-    # New access level of the former owner: `"ADMIN"`.
-    "ADMIN" oldAccessLevel = "ADMIN";
-};
-
-# Object representing a row with cells, timestamps, and hierarchy information
 public type UpdateRowsObject record {
-    # Read-only timestamp that can be either DateTime or Number format
     Timestamp createdAt?;
     # Indicates whether the row is expanded or collapsed
     boolean expanded?;
     # Cells objects
     CellObjectForRows[] cells?;
-    # Read-only timestamp that can be either DateTime or Number format
     Timestamp modifiedAt?;
     # Row Id
     decimal id?;
@@ -2057,18 +1767,20 @@ public type UpdateRowsObject record {
     decimal parentId?;
 };
 
-# Container for webhook shared secret value
 public type SharedSecret record {
     # Value for the shared secret
     string sharedSecret?;
 };
 
-# Event triggered when dashboard ownership is transferred to another user
+public type InlineResponse20085InlineResponse20085AllOf12 record {
+    # list of Webhooks
+    Webhook[] data?;
+};
+
 public type DashboardTransferOwnership record {
     *Event;
     # The action applied to the specified object
     "TRANSFER_OWNERSHIP" action?;
-    # Transfer details including old/new owner IDs and access levels
     DashboardTransferOwnership_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "DASHBOARD" objectType?;
@@ -2086,18 +1798,15 @@ public type ColumnsListOnSheetQueries record {
     decimal page = 1;
 };
 
-# Event triggered when a user is removed from workspace sharing
 public type WorkspaceRemoveShareMember record {
     *Event;
     # The action applied to the specified object
     "REMOVE_SHARE_MEMBER" action?;
-    # Additional details including email address of removed share member
-    WorkspaceRemoveShareMember_additionalDetails additionalDetails?;
+    FolderDelete_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "WORKSPACE" objectType?;
 };
 
-# Request body for sheet row operations, accepts Row or custom row object
 public type SheetIdRowsBody1 Row|SheetssheetIdrowsOneOf21;
 
 # Represents the Headers record for the operation: proofs-createProofRequests
@@ -2131,14 +1840,6 @@ public type ProofsCreateProofRequestsHeaders record {
     string contentType = "application/json";
 };
 
-# Response containing a paginated list of cell history records
-public type CellHistoryListResponse record {
-    *IndexResult;
-    # List of cell history objects
-    CellHistory[] data?;
-};
-
-# Object for updating sheet properties including name and settings
 public type UpdateSheet record {
     # Represents individual user settings for a specific sheet. User settings may be updated even on sheets where the current user only has read access (for example, viewer permissions or a read-only sheet)
     SheetUserSettings userSettings?;
@@ -2148,18 +1849,11 @@ public type UpdateSheet record {
     ProjectSettings projectSettings?;
 };
 
-# Represents an action taken on a proof request with status and user info
 public type ProofRequestAction record {
     # Proof request action status
     "APPROVED"|"PENDING"|"REJECTED" actionStatus?;
     # `User` object containing `name` and `email` of the user performing the action
     MiniUser user?;
-};
-
-# Additional details including the email address of the deleting user
-public type ReportDelete_additionalDetails record {
-    # Email address of the user responsible for the event.
-    string emailAddress;
 };
 
 # Represents the Headers record for the operation: proofs-deleteProofRequests
@@ -2190,31 +1884,11 @@ public type ProofsDeleteProofRequestsHeaders record {
     string smartsheetIntegrationSource?;
 };
 
-# Response containing the newly created comment object
-public type CommentCreateResponse record {
-    *GenericResult;
-    # Comment object with text, timestamps, creator info, and attachments
-    Comment result?;
-};
-
 # Represents the Headers record for the operation: get-workspace-children
 public type GetWorkspaceChildrenHeaders record {
     # API Access Token used to authenticate requests to Smartsheet APIs
     @http:Header {name: "Authorization"}
     string authorization?;
-};
-
-# Response object for row addition operations
-public type RowAddResponse record {
-    *GenericResult;
-    # Array of AddRowsObject containing details of successfully added rows
-    AddRowsObject[] result?;
-};
-
-# Event details containing email address of user who loaded sheet
-public type SheetLoad_additionalDetails record {
-    # Email address of the user responsible for the event.
-    string emailAddress;
 };
 
 # Represents the Queries record for the operation: get-folder
@@ -2228,13 +1902,11 @@ public type GetFolderQueries record {
     "source"|"distributionLink"|"ownerInfo"|"sheetVersion" include?;
 };
 
-# Event triggered when sheet is viewed in UI or loaded via API
 public type SheetLoad record {
     *Event;
     # The action applied to the specified object
     "LOAD" action?;
-    # Event details containing email address of user who loaded sheet
-    SheetLoad_additionalDetails additionalDetails?;
+    FolderDelete_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "SHEET" objectType?;
 };
@@ -2270,56 +1942,40 @@ public type SetReportPublishHeaders record {
     string contentType = "application/json";
 };
 
-# Event triggered when group or user added to workspace with dashboards
 public type DashboardAddWorkspaceShare record {
     *Event;
     # The action applied to the specified object
     "ADD_WORKSPACE_SHARE" action?;
-    # Details about user/group, access level, and workspace for dashboard share
     DashboardAddWorkspaceShare_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "DASHBOARD" objectType?;
 };
 
-# Response returned when updating a comment on a sheet
-public type CommentUpdateResponse record {
-    *GenericResult;
-    # Comment object with text, timestamps, creator info, and attachments
-    Comment result?;
-};
-
-# Event triggered when admin sends password reset email to user
 public type UserSendPasswordReset record {
     *Event;
     # The action applied to the specified object
     "SEND_PASSWORD_RESET" action?;
-    # Additional details for password reset event including user email address
-    UserSendPasswordReset_additionalDetails additionalDetails?;
+    FolderDelete_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "USER" objectType?;
 };
 
-# Event triggered when a user or group is removed from sheet sharing list
 public type SheetRemoveShare record {
     *Event;
     # The action applied to the specified object
     "REMOVE_SHARE" action?;
-    # Details for share removal including user email, group ID, and user ID
     SheetRemoveShare_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "SHEET" objectType?;
 };
 
-# Email configuration for sending sheets with format and formatting options
 public type SheetEmail Email;
 
-# Event triggered when sheet ownership is transferred between users
 public type SheetTransferOwnership record {
     *Event;
     # The action applied to the specified object
     "TRANSFER_OWNERSHIP" action?;
-    # Transfer details including old/new owner IDs and access levels
-    SheetTransferOwnership_additionalDetails additionalDetails?;
+    ReportTransferOwnership_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "SHEET" objectType?;
 };
@@ -2393,24 +2049,15 @@ public type DiscussionListAttachmentsHeaders record {
     string smartsheetIntegrationSource?;
 };
 
-# Additional details for download user list event including admin email
-public type AccountDownloadUserList_additionalDetails record {
-    # Email address of the user responsible for the event.
-    string emailAddress;
-};
-
-# Event triggered when a report is viewed in UI or loaded via API
 public type ReportLoad record {
     *Event;
     # The action applied to the specified object
     "LOAD" action?;
-    # Additional details for report load event including user email
-    ReportLoad_additionalDetails additionalDetails?;
+    FolderDelete_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "REPORT" objectType?;
 };
 
-# Mapping between source and destination row IDs
 public type RowMapping record {
     # Row Id in the source sheet
     decimal 'from?;
@@ -2418,7 +2065,6 @@ public type RowMapping record {
     decimal to?;
 };
 
-# Cross-sheet reference with range definition and status
 public type CrossSheetReference record {
     # Defines beginning edge of range when specifying one or more rows. To specify an entire row, omit the startColumnId and endColumnId parameters
     decimal startRowId?;
@@ -2445,7 +2091,6 @@ public type CrossSheetReference record {
     "BLOCKED"|"BROKEN"|"CIRCULAR"|"DISABLED"|"INVALID/UNKNOWN"|"NOT-SHARED"|"OK" status?;
 };
 
-# Row object containing cells, metadata, and formatting information
 public type Row record {
     # Describes this row's conditional format. Only returned if the include query string parameter contains format and this row has a conditional format applied
     string conditionalFormat?;
@@ -2453,11 +2098,9 @@ public type Row record {
     Attachment[] attachments?;
     # URL that represents a direct link to the row in Smartsheet. Only returned if the include query string parameter contains rowPermalink
     string permaLink?;
-    # Enumeration of available access permission levels
     AccessLevel accessLevel?;
     # Columns of row. Only returned if the include query string parameter contains columns
     Column[] columns?;
-    # Read-only timestamp that can be either DateTime or Number format
     Timestamp modifiedAt?;
     # Discussions on the row. Only returned if the include query string parameter contains discussions
     Discussion[] discussions?;
@@ -2465,7 +2108,6 @@ public type Row record {
     string format?;
     # Sheet version number that is incremented every time a sheet is modified
     decimal version?;
-    # Read-only timestamp that can be either DateTime or Number format
     Timestamp createdAt?;
     # Indicates whether the row is expanded or collapsed
     boolean expanded?;
@@ -2496,7 +2138,6 @@ public type Row record {
     decimal siblingId?;
 };
 
-# Report publishing settings and access configuration
 public type ReportPublish record {
     # URL for 'Read-Only Full' view of the published report.
     # 
@@ -2579,18 +2220,15 @@ public type ShareWorkspaceGetHeaders record {
     string smartsheetIntegrationSource?;
 };
 
-# Event schema triggered when a user creates a sheet update request
 public type UpdateRequestCreate record {
     *Event;
     # The action applied to the specified object
     "CREATE" action?;
-    # Additional details for update request creation including email and request info
     UpdateRequestCreate_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "UPDATE_REQUEST" objectType?;
 };
 
-# Additional details for workspace share addition event
 public type SheetAddWorkspaceShare_additionalDetails record {
     # Email address of the user responsible for the event.
     string emailAddress;
@@ -2668,14 +2306,6 @@ public type UpdaterequestsListHeaders record {
 # The format descriptor. Only returned if the include query string parameter contains format and this column has a non-default format applied to it
 public type Format string;
 
-# Response object returned after updating a workspace
-public type WorkspaceUpdateResponse record {
-    *Result;
-    # Can contain dashboards, folders, reports, sheets, and templates
-    Workspace result?;
-};
-
-# ISO 8601 date-time string format for timestamps
 public type TimestampDateTime string;
 
 # Represents the Headers record for the operation: columns-listOnSheet
@@ -2706,7 +2336,6 @@ public type ColumnsListOnSheetHeaders record {
     string smartsheetIntegrationSource?;
 };
 
-# Result object for row copy/move operations with destination and mappings
 public type CopyOrMoveRowResult record {
     # The Id of the destination sheet
     decimal destinationSheetId?;
@@ -2753,35 +2382,20 @@ public type AddImageToCellHeaders record {
     string contentType = "application/json";
 };
 
-# Event schema triggered when a user account is updated
 public type UserUpdateUser record {
     *Event;
     # The action applied to the specified object
     "UPDATE_USER" action?;
-    # Additional details for user updates including responsible user's email
-    UserUpdateUser_additionalDetails additionalDetails?;
+    FolderDelete_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "USER" objectType?;
 };
 
-# Request object for creating a new discussion with a comment
+public type SheetssheetIdsharesOneOf2 Share[];
+
 public type DiscussionCreationRequest record {
     # Comment
     CommentRequest comment?;
-};
-
-# Response containing list of columns from a sheet
-public type ColumnListResponse record {
-    *IndexResult;
-    # Array of column objects retrieved from the sheet
-    GetColumn[] data?;
-};
-
-# Paginated response containing a list of proofs
-public type ProofListResponse record {
-    *IndexResult;
-    # list of all proofs
-    Proof[] data?;
 };
 
 # Represents the Headers record for the operation: discussion-delete
@@ -2812,17 +2426,13 @@ public type DiscussionDeleteHeaders record {
     string smartsheetIntegrationSource?;
 };
 
-# Sheet summary field with type, value, formatting, and metadata properties
 public type SummaryField record {
-    # Represents a hyperlink to sheets, reports, dashboards, or external URLs
     Hyperlink hyperlink?;
-    # Image metadata including dimensions, ID, and alt text
     Image image?;
     # When applicable for PICKLIST column type
     string symbol?;
     # Array of ContactOption objects to specify a pre-defined list of values for the column. Column type must be CONTACT_LIST
     ContactOption[] contactOptions?;
-    # Read-only timestamp that can be either DateTime or Number format
     Timestamp modifiedAt?;
     # The format descriptor. Only returned if the include query string parameter contains format and this column has a non-default format applied to it
     string format?;
@@ -2832,11 +2442,9 @@ public type SummaryField record {
     ObjectValue objectValue?;
     # Arbitrary name, must be unique within summary
     string title?;
-    # Data type of the summary field (text, date, contact, etc.)
     "ABSTRACT_DATETIME"|"CHECKBOX"|"CONTACT_LIST"|"DATE"|"DATETIME"|"DURATION"|"MULTI_CONTACT_LIST"|"MULTI_PICKLIST"|"PICKLIST"|"PREDECESSOR"|"TEXT_NUMBER" 'type?;
     # Visual representation of cell contents, as presented to the user in the UI
     string displayValue?;
-    # Read-only timestamp that can be either DateTime or Number format
     Timestamp createdAt?;
     # User object containing name and email of the creator of this summary field
     MiniUser createdBy?;
@@ -2856,37 +2464,24 @@ public type SummaryField record {
     boolean validation?;
 };
 
-# Directive for copying or moving rows between sheets
 public type CopyOrMoveRowDirective record {
     # The Ids of the rows to move or copy from the source sheet
     decimal[] rowIds?;
-    # Destination sheet ID for row copy or move operations
     CopyOrMoveRowDestination to?;
 };
 
-# Additional details for workspace delete recurring backup events
-public type WorkspaceDeleteRecurringBackup_additionalDetails record {
-    # Email address of the user responsible for the event.
-    string emailAddress;
-};
-
-# Complete sheet object with columns, rows, and metadata
 public type Sheet record {
     # Indicates whether multi-select is enabled
     boolean isMultiPicklistEnabled?;
-    # Workspace summary with ID, name, access level, and permalink
     WorkspaceListing workspace?;
     # Array of Attachment objects.
     # Only returned if the [include](/api/smartsheet/openapi/sheets/getsheet) query string parameter contains **attachments**
     Attachment[] attachments?;
-    # Array of Column objects in the sheet
     Column[] columns?;
-    # Read-only timestamp that can be either DateTime or Number format
     Timestamp modifiedAt?;
     # Array of Discussion objects
     # Only returned if the [include](/api/smartsheet/openapi/sheets/getsheet) query string parameter contains **discussions**
     Discussion[] discussions?;
-    # Source object containing ID and type of originating resource
     Source 'source?;
     # Describes the current user's editing permissions for a specific sheet
     SheetUserPermissions userPermissions?;
@@ -2900,7 +2495,6 @@ public type Sheet record {
     boolean hasSummaryFields?;
     # Indicates whether "Gantt View" is enabled
     boolean ganttEnabled?;
-    # Read-only timestamp that can be either DateTime or Number format
     Timestamp createdAt?;
     # Resource Management type. Indicates the type of RM that is enabled
     "NONE"|"LEGACY_RESOURCE_MANAGEMENT"|"RESOURCE_MANAGEMENT_BY_SMARTSHEET" resourceManagementType?;
@@ -2912,11 +2506,9 @@ public type Sheet record {
     string owner?;
     # Represents the entire summary, or a list of defined fields and values, for a specific sheet
     SheetSummary summary?;
-    # Enumeration of available access permission levels
     AccessLevel accessLevel?;
     # Returned only if the sheet belongs to an expired trial (value = **true**)
     boolean readOnly?;
-    # Array of Row objects in the sheet
     Row[] rows?;
     # The Id of the template from which to create the sheet. This attribute can be specified in a request, but is never present in a response
     decimal fromId?;
@@ -2945,9 +2537,6 @@ public type Sheet record {
     # Represents the project settings dependencies for a specific sheet. Project settings may be updated on sheets that the user has editor access
     ProjectSettings projectSettings?;
 };
-
-# Array collection of Share objects
-public type ShareCollection Share[];
 
 # Represents the Headers record for the operation: update-group
 public type UpdateGroupHeaders record {
@@ -3027,7 +2616,6 @@ public type ListSightSharesQueries record {
     decimal page = 1;
 };
 
-# Basic grid asset listing with ID, name, and permalink
 public type GridListing record {
     # Asset name
     string name?;
@@ -3076,13 +2664,6 @@ public type SetSightPublishStatusHeaders record {
     string contentType = "application/json";
 };
 
-# Response for dashboard operations containing operation result
-public type SightOperationResponse record {
-    *ItemResult;
-    # Dashboard result with access level and permalink information
-    SightResult result?;
-};
-
 # Represents the Queries record for the operation: list-report-shares
 public type ListReportSharesQueries record {
     # When applicable for the specific object this parameter defines the scope of the share. Possible values are ITEM or WORKSPACE. ITEM is an item-level share (that is, the specific object to which the share applies is shared with the user or group). WORKSPACE is a workspace-level share (that is, the workspace that contains the object to which the share applies is shared with the user or group)
@@ -3093,13 +2674,6 @@ public type ListReportSharesQueries record {
     boolean includeAll = false;
     # Which page to return. Defaults to 1 if not specified. If you specify a value greater than the total number of pages, the last page of results is returned
     decimal page = 1;
-};
-
-# Response containing paginated list of alternate email addresses
-public type AlternateEmailListResponse record {
-    *IndexResult;
-    # list of attachments
-    AlternateEmail[] data?;
 };
 
 # Represents the Headers record for the operation: create-workspace
@@ -3153,7 +2727,6 @@ public type ListAssetSharesQueries record {
     "sheet"|"report"|"sight"|"workspace"|"collection"|"file" assetType;
 };
 
-# Currency information with ISO code and symbol
 public type Currency record {
     # The currency symbol
     string symbol?;
@@ -3161,28 +2734,17 @@ public type Currency record {
     string code?;
 };
 
-# Response for group member operations with single or multiple members
-public type GroupMemberResponse record {
-    *GenericResult;
-    # Single group member or array of group members from operation
-    GroupMember|GroupMember[] result?;
-};
-
-# Array of Row objects for sheet operations
 public type SheetssheetIdrowsOneOf21 Row[];
 
-# Event triggered when a user or group is removed from workspace sharing
 public type SheetRemoveWorkspaceShare record {
     *Event;
     # The action applied to the specified object
     "REMOVE_WORKSPACE_SHARE" action?;
-    # Additional details about workspace share removal including user and workspace IDs
-    SheetRemoveWorkspaceShare_additionalDetails additionalDetails?;
+    ReportRemoveWorkspaceShare_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "SHEET" objectType?;
 };
 
-# Additional details including sender email, recipients, and format type
 public type SheetSendAsAttachment_additionalDetails record {
     # Email address of the user responsible for the event.
     string emailAddress;
@@ -3195,25 +2757,15 @@ public type SheetSendAsAttachment_additionalDetails record {
     string recipientEmail?;
 };
 
-# Event triggered when a folder is saved as a new copy
 public type FolderSaveAsNew record {
     *Event;
     # The action applied to the specified object
     "SAVE_AS_NEW" action?;
-    # Additional details for folder save as new event
-    FolderSaveAsNew_additionalDetails additionalDetails?;
+    FolderDelete_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "FOLDER" objectType?;
 };
 
-# Response containing updated user profile properties
-public type UserUpdateResponse record {
-    *GenericResult;
-    # Updated User Properties
-    UserProfileImageResponse[] data?;
-};
-
-# Additional details including user email and export format type
 public type FolderExport_additionalDetails record {
     # Email address of the user responsible for the event.
     string emailAddress;
@@ -3225,14 +2777,7 @@ public type FolderExport_additionalDetails record {
 public type AbstractDatetimeObjectValue record {
     # Datetime, in the **date-time** format defined by <a href="https://tools.ietf.org/html/rfc3339#section-5.6" target="_blank" rel="noopener noreferrer">RFC 3339, section 5.6</a>
     string value?;
-    # Object type identifier for abstract datetime values
     "ABSTRACT_DATETIME" objectType?;
-};
-
-# Additional details for user accept invite event including user email
-public type UserAcceptInvite_additionalDetails record {
-    # Email address of the user responsible for the event.
-    string emailAddress;
 };
 
 # Represents the Headers record for the operation: attachments-versionList
@@ -3263,27 +2808,18 @@ public type AttachmentsVersionListHeaders record {
     string smartsheetIntegrationSource?;
 };
 
-# Request body for updating workspace properties
 public type WorkspacesworkspaceIdBody record {
     # Workspace name
     string name?;
 };
 
-# Event schema triggered when an access token creation is authorized by a user
 public type AccesstokenAuthorize record {
     *Event;
     # The action applied to the specified object
     "AUTHORIZE" action?;
-    # Additional details for access token authorization including user email and token info
     AccesstokenAuthorize_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "ACCESS_TOKEN" objectType?;
-};
-
-# Additional details for user remove shares event including user email
-public type UserRemoveShares_additionalDetails record {
-    # Email address of the user responsible for the event.
-    string emailAddress;
 };
 
 # Represents the Queries record for the operation: attachments-versionList
@@ -3296,30 +2832,15 @@ public type AttachmentsVersionListQueries record {
     decimal page = 1;
 };
 
-# Additional context about the user group removal event
-public type UserRemoveFromGroups_additionalDetails record {
-    # Email address of the user responsible for the event.
-    string emailAddress;
-};
-
-# Event schema triggered when an admin sends/resends an invitation link to a user
 public type UserSendInvite record {
     *Event;
     # The action applied to the specified object
     "SEND_INVITE" action?;
-    # Additional details for user invitation including email address and user types
-    UserSendInvite_additionalDetails additionalDetails?;
+    UserAddToAccount_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "USER" objectType?;
 };
 
-# Additional details for group deletion including responsible user's email
-public type GroupDelete_additionalDetails record {
-    # Email address of the user responsible for the event.
-    string emailAddress;
-};
-
-# Details about the user or group removed from workspace sharing
 public type WorkspaceRemoveShare_additionalDetails record {
     # Email address of the user responsible for the event.
     string emailAddress;
@@ -3359,13 +2880,10 @@ public type DeleteRowsHeaders record {
     string smartsheetIntegrationSource?;
 };
 
-# Schema representing a Smartsheet group with owner, name, and member details
 public type Group record {
     # Group owner’s email address
     string owner?;
-    # Read-only timestamp that can be either DateTime or Number format
     Timestamp createdAt?;
-    # Read-only timestamp that can be either DateTime or Number format
     Timestamp modifiedAt?;
     # Group name
     string name?;
@@ -3377,18 +2895,15 @@ public type Group record {
     decimal ownerId?;
 };
 
-# Event schema triggered when a group or user is added to sheet sharing list
 public type SheetAddShare record {
     *Event;
     # The action applied to the specified object
     "ADD_SHARE" action?;
-    # Additional details for sheet sharing including access level and user/group IDs
     SheetAddShare_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "SHEET" objectType?;
 };
 
-# Details about ownership transfer including old and new owner information
 public type ReportTransferOwnership_additionalDetails record {
     # New access level of the new owner: `"OWNER"`.
     "OWNER" newAccessLevel = "OWNER";
@@ -3418,22 +2933,13 @@ public type DeleteSummaryFieldsQueries record {
     string ids;
 };
 
-# Response containing a single update request object
-public type UpdateRequestResponse record {
-    *Result;
-    # Update request with scheduling, recipients, and tracking information
-    UpdateRequest result?;
-};
-
 # Object representing a date
 public type DateObjectValue record {
     # Date in the **full-date** format defined by [(https://tools.ietf.org/html/rfc3339#section-5.6" target="_blank" rel="noopener noreferrer">RFC 3339, section 5.6]</a>
     string value?;
-    # Object type identifier for date values, always 'DATE'
     "DATE" objectType?;
 };
 
-# Read-only timestamp that can be either DateTime or Number format
 public type Timestamp TimestampDateTime|TimestampNumber;
 
 # Represents the Headers record for the operation: attachments-attachToComment
@@ -3467,31 +2973,13 @@ public type AttachmentsAttachToCommentHeaders record {
     string contentType = "application/json";
 };
 
-public type WorkspaceFoldersResponse_data record {
-    # The folder's name.
-    string name?;
-    # The folder's unique identifier.
-    decimal id?;
-    # URL to the folder in Smartsheet.
-    string permalink?;
-};
-
-# Event triggered when a user is added to a dashboard's sharing list
 public type DashboardAddShareMember record {
     *Event;
     # The action applied to the specified object
     "ADD_SHARE_MEMBER" action?;
-    # Details about dashboard sharing including user/group ID and access level
     DashboardAddShareMember_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "DASHBOARD" objectType?;
-};
-
-# Response object for sharing operations
-public type ShareOperationResponse record {
-    *Result;
-    # Share object or array of share objects from operation
-    Share|Share[] result?;
 };
 
 # Represents the Headers record for the operation: list-sight-shares
@@ -3522,12 +3010,10 @@ public type ListSightSharesHeaders record {
     string smartsheetIntegrationSource?;
 };
 
-# Event triggered when a user exports or prints a sheet
 public type SheetExport record {
     *Event;
     # The action applied to the specified object
     "EXPORT" action?;
-    # Export details including user email and format type (excel, pdf, etc.)
     SheetExport_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "SHEET" objectType?;
@@ -3569,18 +3055,15 @@ public type UpdateSheetShareHeaders record {
     string smartsheetIntegrationSource?;
 };
 
-# Event triggered when a user declines an organization invitation
 public type UserDeclineInvite record {
     *Event;
     # The action applied to the specified object
     "DECLINE_INVITE" action?;
-    # Details about invitation decline including user email and reason
     UserDeclineInvite_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "USER" objectType?;
 };
 
-# Additional details for workspace sharing action including user info and access level
 public type WorkspaceAddShare_additionalDetails record {
     # Email address of the user responsible for the event.
     string emailAddress;
@@ -3596,21 +3079,17 @@ public type WorkspaceAddShare_additionalDetails record {
     int userId?;
 };
 
-# Request body for folder operations containing folder object
 public type FolderIdFoldersBody Folder;
 
-# Event triggered when a sheet is restored from deleted items bin
 public type SheetRestore record {
     *Event;
     # The action applied to the specified object
     "RESTORE" action?;
-    # Additional details about the sheet restore event including user email
-    SheetRestore_additionalDetails additionalDetails?;
+    FolderDelete_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "SHEET" objectType?;
 };
 
-# Configuration for sending emails with multiple rows included
 public type MultiRowEmail RowEmail;
 
 # Array of ContactOption objects to specify a pre-defined list of values for the column. Column type must be CONTACT_LIST
@@ -3647,7 +3126,6 @@ public type CreateSheetInWorkspaceHeaders record {
     string contentType = "application/json";
 };
 
-# Additional details including user email and location identifiers
 public type DiscussionCreate_additionalDetails record {
     # Email address of the user responsible for the event.
     string emailAddress;
@@ -3689,15 +3167,12 @@ public type Webhook record {
     *UpdateWebhookRequest;
     # API client name corresponding to third-party app that created the webhook. Read-only. Only present if webhook was created by third-party app
     string apiClientName?;
-    # Timestamp when the webhook was created
     Timestamp createdAt?;
     # Details about the reason the webhook was disabled. Read-only. Only present when enabled=false
     string disabledDetails?;
-    # Webhook callback statistics including retry counts and timestamps
     Webhook_stats stats?;
     # Id of the object that is subscribed to. Specified when a webhook is created and cannot be changed
     int scopeObjectId?;
-    # Timestamp when the webhook was last modified
     Timestamp modifiedAt?;
     # Scope of the subscription. Currently, the only supported value is sheet. Specified when a webhook is created and cannot be changed
     "sheet" scope?;
@@ -3715,9 +3190,7 @@ public type Webhook record {
     "DISABLED_ADMINISTRATIVE"|"DISABLED_APP_REVOKED"|"DISABLED_BY_OWNER"|"DISABLED_CALLBACK_FAILED"|"DISABLED_SCOPE_INACCESSIBLE"|"DISABLED_VERIFICATION_FAILED"|"ENABLED"|"NEW_NOT_VERIFIED" status?;
 };
 
-# Request body for updating share access level
 public type SharesshareIdBody record {
-    # Enumeration of available access permission levels
     AccessLevel accessLevel?;
 };
 
@@ -3727,7 +3200,6 @@ public type ShareWorkspaceGetQueries record {
     decimal accessApiLevel = 0;
 };
 
-# Additional details including user email and source sheet ID for cell links
 public type SheetCreateCellLink_additionalDetails record {
     # Email address of the user responsible for the event.
     string emailAddress;
@@ -3736,7 +3208,6 @@ public type SheetCreateCellLink_additionalDetails record {
     int cellLinkSourceSheetId?;
 };
 
-# Request body for moving a folder to a new destination
 public type FolderIdMoveBody ContainerDestinationForMove;
 
 # Represents the Headers record for the operation: share-sheet-get
@@ -3773,24 +3244,20 @@ public type UpdateSightQueries record {
     boolean numericDates = false;
 };
 
-# Event triggered when a workspace recurring backup schedule is deleted
 public type WorkspaceDeleteRecurringBackup record {
     *Event;
     # The action applied to the specified object
     "DELETE_RECURRING_BACKUP" action?;
-    # Additional details for workspace delete recurring backup events
-    WorkspaceDeleteRecurringBackup_additionalDetails additionalDetails?;
+    FolderDelete_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "WORKSPACE" objectType?;
 };
 
-# Event schema triggered when a dashboard is deleted
 public type DashboardDelete record {
     *Event;
     # The action applied to the specified object
     "DELETE" action?;
-    # Additional details for dashboard delete events
-    DashboardDelete_additionalDetails additionalDetails?;
+    FolderDelete_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "DASHBOARD" objectType?;
 };
@@ -3813,13 +3280,6 @@ public type CopyFolderQueries record {
     "cellLinks"|"reports"|"sheetHyperlinks"|"sights" skipRemap?;
     # When specified with a value of **sheetHyperlinks**, excludes this category from the response
     "sheetHyperlinks" exclude?;
-};
-
-# Sheet import operation response with results
-public type SheetImportResponse record {
-    *GenericResult;
-    # Sheet imported from CSV / XLSX file
-    SheetImported result?;
 };
 
 # Represents the Headers record for the operation: attachments-versionUpload
@@ -3889,7 +3349,6 @@ public type ImportSheetIntoWorkspaceHeaders record {
     "text/csv"|"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" contentType;
 };
 
-# Details including user, group, and workspace IDs for share removal
 public type SheetRemoveShareMember_additionalDetails record {
     # Email address of the user responsible for the event.
     string emailAddress;
@@ -3906,9 +3365,7 @@ public type SheetRemoveShareMember_additionalDetails record {
 
 # Sheet created from scratch using the specified columns
 public type SheetCreated record {
-    # Enumeration of available access permission levels
     AccessLevel accessLevel?;
-    # Array of column objects
     Columns columns?;
     # Sheet name
     Name name?;
@@ -3918,7 +3375,6 @@ public type SheetCreated record {
     Permalink permalink?;
 };
 
-# Additional details for folder rename including old and new names
 public type FolderRename_additionalDetails record {
     # Email address of the user responsible for the event.
     string emailAddress;
@@ -3928,7 +3384,6 @@ public type FolderRename_additionalDetails record {
     string oldName?;
 };
 
-# Update request with scheduling, recipients, and tracking information
 public type UpdateRequest record {
     *MultiRowEmail;
     # The date and time for when this request was originally created. Read-only
@@ -3943,17 +3398,7 @@ public type UpdateRequest record {
     MiniUser sentBy?;
 };
 
-# Array collection of Row objects
-public type RowCollection Row[];
-
-# Result object for bulk operations with failure tracking
 public type ItemResult GenericResult;
-
-# Result object containing array of share responses
-public type ShareResponseResult record {
-    # Array of share response objects
-    ShareResponse[] result?;
-};
 
 # Represents the Headers record for the operation: getWebhook
 public type GetWebhookHeaders record {
@@ -4011,7 +3456,6 @@ public type ListSheetSharesHeaders record {
     string smartsheetIntegrationSource?;
 };
 
-# Details about user/group, access level, and workspace for dashboard share
 public type DashboardAddWorkspaceShare_additionalDetails record {
     # Email address of the user responsible for the event.
     string emailAddress;
@@ -4030,7 +3474,6 @@ public type DashboardAddWorkspaceShare_additionalDetails record {
     int workspaceId?;
 };
 
-# Details about user addition including email and user types
 public type UserAddToAccount_additionalDetails record {
     # Email address of the user responsible for the event.
     string emailAddress;
@@ -4038,17 +3481,6 @@ public type UserAddToAccount_additionalDetails record {
     # 
     # The full list of available user types can be seen <a href="https://help.smartsheet.com/learning-track/shared-users/user-types-and-permissions" target="_blank" rel="noopener noreferrer">here</a>. Please notice that user types Unlicensed User and Free Collaborator are not applicable for this event.
     string userTypes?;
-};
-
-# Response schema for workspace listing operations with data and pagination
-public type WorkspaceListResponse record {
-    *IndexResultWorkspaces;
-    # Array of workspace listing objects returned in the response
-    WorkspaceListing[] data?;
-    # A token that is used to retrieve the next page of results when passed as the
-    # `lastKey` query parameter. This value will be absent when there are no 
-    # further pages
-    LastKey lastKey?;
 };
 
 # Represents the Queries record for the operation: getReport
@@ -4075,20 +3507,11 @@ public type GetReportQueries record {
     decimal page = 1;
 };
 
-# Response containing a paginated list of sent update requests
-public type SentUpdateRequestListResponse record {
-    *IndexResult;
-    # list of Sent Update Requests
-    SentUpdateRequest[] data?;
-};
-
-# Event triggered when a workspace is copied using Save As New option
 public type WorkspaceSaveAsNew record {
     *Event;
     # The action applied to the specified object
     "SAVE_AS_NEW" action?;
-    # Additional details for workspace save as new event including user email
-    WorkspaceSaveAsNew_additionalDetails additionalDetails?;
+    FolderDelete_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "WORKSPACE" objectType?;
 };
@@ -4124,18 +3547,15 @@ public type UpdateSightHeaders record {
     string contentType = "application/json";
 };
 
-# Event triggered when replies are added to or deleted from comments
 public type DiscussionUpdate record {
     *Event;
     # The action applied to the specified object
     "UPDATE" action?;
-    # Additional details for discussion update including user, sheet, and workspace IDs
-    DiscussionUpdate_additionalDetails additionalDetails?;
+    DiscussionCreate_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "DISCUSSION" objectType?;
 };
 
-# Destination container specification for move operations with type and ID
 public type ContainerDestinationForMove record {
     # Type of destination container.
     # 
@@ -4145,12 +3565,10 @@ public type ContainerDestinationForMove record {
     decimal destinationId;
 };
 
-# Event triggered when a sheet is moved between workspaces or folders
 public type SheetMove record {
     *Event;
     # The action applied to the specified object
     "MOVE" action?;
-    # Additional details for sheet move including container IDs and folder info
     SheetMove_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "SHEET" objectType?;
@@ -4226,13 +3644,6 @@ public type SentupdaterequestGetHeaders record {
     string smartsheetIntegrationSource?;
 };
 
-# Response containing the newly created summary field objects
-public type SummaryFieldCreateResponse record {
-    *Result;
-    # Array of created summary field objects
-    SummaryField[] result?;
-};
-
 # Represents the Queries record for the operation: share-sheet
 public type ShareSheetQueries record {
     # Allows COMMENTER access for inputs and return values. For backwards-compatibility, VIEWER is the default. For example, to see whether a user has COMMENTER access for a sheet, use accessApiLevel=1
@@ -4241,35 +3652,19 @@ public type ShareSheetQueries record {
     boolean sendEmail = false;
 };
 
-# Maps image URLs with expiration times for cell images
 public type ImageUrlMap record {
     # Milliseconds before the URLs within imageUrls expire
     decimal urlExpiresInMillis?;
-    # Array of image URLs with their associated metadata
     ImageUrl[] imageUrls?;
 };
 
-# Event triggered when a group is deleted from the organization
 public type GroupDelete record {
     *Event;
     # The action applied to the specified object
     "DELETE" action?;
-    # Additional details for group deletion including responsible user's email
-    GroupDelete_additionalDetails additionalDetails?;
+    FolderDelete_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "GROUP" objectType?;
-};
-
-# Transfer details including email and old/new owner user IDs
-public type GroupTransferOwnership_additionalDetails record {
-    # Email address of the user responsible for the event.
-    string emailAddress;
-    # Id of the former group owner.
-    @constraint:Int {minValue: 0}
-    int oldOwnerUserId?;
-    # Id of the new group owner.
-    @constraint:Int {minValue: 0}
-    int newOwnerUserId?;
 };
 
 # Represents the Queries record for the operation: update-sheet-share
@@ -4278,11 +3673,9 @@ public type UpdateSheetShareQueries record {
     decimal accessApiLevel = 0;
 };
 
-# Defines column properties including type, format, validation, and display options
 public type ColumnObjectAttributes record {
     # When applicable for **CHECKBOX** or **PICKLIST** column types. See [Symbol Columns](/api/smartsheet/openapi/columns)
     string symbol?;
-    # Contact information with name and email address
     ContactOption contactOptions?;
     # Indicates whether the column is hidden
     boolean hidden?;
@@ -4294,7 +3687,6 @@ public type ColumnObjectAttributes record {
     string description?;
     # Column title
     string title?;
-    # Column data type (text, date, checkbox, picklist, etc.)
     "ABSTRACT_DATETIME"|"CHECKBOX"|"CONTACT_LIST"|"DATE"|"DATETIME"|"DURATION"|"MULTI_CONTACT_LIST"|"MULTI_PICKLIST"|"PICKLIST"|"PREDECESSOR"|"TEXT_NUMBER" 'type?;
     # Read only. The level of the column type. Each element in the array is set to one of the following values:
     #  * **0**: TEXT_NUMBER, CONTACT_LIST, or PICKLIST
@@ -4305,7 +3697,6 @@ public type ColumnObjectAttributes record {
     decimal version?;
     # Object that describes how the the System Column type of "AUTO_NUMBER" is auto-generated
     AutoNumberFormat autoNumberFormat?;
-    # Available options for picklist or dropdown columns
     string[] options?;
     # Display width of the column in pixels
     decimal width?;
@@ -4321,7 +3712,6 @@ public type ColumnObjectAttributes record {
     boolean validation?;
 };
 
-# Additional details about the dashboard publish event
 public type DashboardAddPublish_additionalDetails record {
     # Email address of the user responsible for the event.
     string emailAddress;
@@ -4333,13 +3723,11 @@ public type DashboardAddPublish_additionalDetails record {
     "FULL" publishFormat?;
 };
 
-# Event triggered when a sheet is saved as a template
 public type SheetSaveAsTemplate record {
     *Event;
     # The action applied to the specified object
     "SAVE_AS_TEMPLATE" action?;
-    # Additional details for save as template action including user email
-    SheetSaveAsTemplate_additionalDetails additionalDetails?;
+    FolderDelete_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "SHEET" objectType?;
 };
@@ -4375,7 +3763,6 @@ public type MoveSightHeaders record {
     string contentType = "application/json";
 };
 
-# Request body for proof operations with download permissions and email details
 public type ProofRequestBody Email;
 
 # Represents the Headers record for the operation: get-crosssheet-reference
@@ -4406,11 +3793,7 @@ public type GetCrosssheetReferenceHeaders record {
     string smartsheetIntegrationSource?;
 };
 
-# Configuration for emailing sheet rows
 public type RowEmail Email;
-
-# Array of alternate email addresses to add
-public type AlternateEmailList AddAlternateEmail[];
 
 # Represents the Queries record for the operation: delete-report-share
 public type DeleteReportShareQueries record {
@@ -4418,7 +3801,6 @@ public type DeleteReportShareQueries record {
     decimal accessApiLevel = 0;
 };
 
-# Additional details for group member addition event
 public type GroupAddMember_additionalDetails record {
     # Email address of the user responsible for the event.
     string emailAddress;
@@ -4429,7 +3811,6 @@ public type GroupAddMember_additionalDetails record {
 
 # Sheet created from template
 public type SheetCreatedFromTemplate record {
-    # Enumeration of available access permission levels
     AccessLevel accessLevel?;
     # Sheet name
     Name name?;
@@ -4448,7 +3829,6 @@ public type GetFolderMetadataQueries record {
     boolean numericDates = false;
 };
 
-# Request to update webhook configuration
 public type UpdateWebhookRequest record {
     *CreateWebhookRequest;
     # Indicates whether the webhook is on (true) or off (false)
@@ -4475,18 +3855,15 @@ public type CopyWorkspaceQueries record {
     "cellLinks"|"reports"|"sheetHyperlinks"|"sights" skipRemap?;
 };
 
-# Event triggered when an attachment is updated or modified
 public type AttachmentUpdate record {
     *Event;
     # The action applied to the specified object
     "UPDATE" action?;
-    # Additional context about the attachment update event
     AttachmentUpdate_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "ATTACHMENT" objectType?;
 };
 
-# Additional details for form creation including email, form name, and sheet ID
 public type FormCreate_additionalDetails record {
     # Email address of the user responsible for the event.
     string emailAddress;
@@ -4497,29 +3874,19 @@ public type FormCreate_additionalDetails record {
     int sheetId?;
 };
 
-# Event triggered when an access token is refreshed
 public type AccesstokenRefresh record {
     *Event;
     # The action applied to the specified object
     "REFRESH" action?;
-    # Additional details about the token refresh event
     AccesstokenRefresh_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "ACCESS_TOKEN" objectType?;
 };
 
-# Additional details for sheet access report download including user email
-public type AccountDownloadSheetAccessReport_additionalDetails record {
-    # Email address of the user responsible for the event.
-    string emailAddress;
-};
-
-# Event triggered when a dashboard is published or republished
 public type DashboardAddPublish record {
     *Event;
     # The action applied to the specified object
     "ADD_PUBLISH" action?;
-    # Additional details about the dashboard publish event
     DashboardAddPublish_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "DASHBOARD" objectType?;
@@ -4620,8 +3987,7 @@ public type ColumnDeleteHeaders record {
     string smartsheetIntegrationSource?;
 };
 
-# Request body for sharing reports with users or groups
-public type ReportIdSharesBody Share|ReportShareList;
+public type ReportIdSharesBody Share|ReportsreportIdsharesOneOf2;
 
 # Represents the Headers record for the operation: proofs-delete
 public type ProofsDeleteHeaders record {
@@ -4651,7 +4017,6 @@ public type ProofsDeleteHeaders record {
     string smartsheetIntegrationSource?;
 };
 
-# Additional details about the user/group removed from report sharing
 public type ReportRemoveShare_additionalDetails record {
     # Email address of the user responsible for the event.
     string emailAddress;
@@ -4663,22 +4028,13 @@ public type ReportRemoveShare_additionalDetails record {
     int userId?;
 };
 
-# Event triggered when a sheet is deleted from Smartsheet
 public type SheetDelete record {
     *Event;
     # The action applied to the specified object
     "DELETE" action?;
-    # Additional details about the sheet deletion event
-    SheetDelete_additionalDetails additionalDetails?;
+    FolderDelete_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "SHEET" objectType?;
-};
-
-# Response containing a list of proof discussions with pagination metadata
-public type ProofDiscussionsResponse record {
-    *IndexResult;
-    # list of proof discussions
-    Discussion[] data?;
 };
 
 # Represents the Headers record for the operation: delete-report-share
@@ -4737,10 +4093,6 @@ public type AutomationrulesListHeaders record {
     string smartsheetIntegrationSource?;
 };
 
-# Array of share objects for resource permissions
-public type ShareArray Share[];
-
-# Server configuration details including formats and supported locales
 public type ServerInfo record {
     # Contains all of the lookup tables that the format descriptor indexes refer to. Here the examples show the formatting options, the default value is used to denote each option. NOTE -- Indexes and their values are guaranteed never to change or be removed for a given major API version.  However, new values could potentially be added to the ends of lookup tables. Because of this possibility, your code should handle the case where a cell might contain a format index value greater than the size of a lookup table your app has loaded. Your application should check for that case and reload the format tables if necessary
     FormatTables formats?;
@@ -4748,11 +4100,9 @@ public type ServerInfo record {
     string[] supportedLocales?;
 };
 
-# Details about invitation decline including user email and reason
 public type UserDeclineInvite_additionalDetails record {
     # Email address of the user responsible for the event.
     string emailAddress;
-    # Reason code for why the user declined the organization invitation
     "ACCEPT_FAILED_REMOVED_FROM_ORG"|"ACCEPT_FAILED_IN_OTHER_ORG"|"ACCEPT_FAILED_IS_PAID_USER"|"ACCEPT_FAILED_NEEDS_LICENSE"|"ACCEPT_FAILED_INSUFFICIENT_LICENSES"|"ACCEPT_FAILED_NOT_ELIGIBLE_FOR_TRIAL"|"ACCEPT_FAILED"|"ACCEPT_FAILED_NEEDS_GROUP_ADMIN_ROLE"|"ACCEPT_FAILED_UAP_VIOLATION"|"DECLINE_SUCCESS" declineReason?;
 };
 
@@ -4784,29 +4134,9 @@ public type AddUserHeaders record {
     string smartsheetIntegrationSource?;
 };
 
-# Additional details for form activation including user email and sheet ID
-public type FormActivate_additionalDetails record {
-    # Email address of the user responsible for the event.
-    string emailAddress;
-    # Id of the form's sheet.
-    @constraint:Int {minValue: 0}
-    int sheetId?;
-};
-
-# Response containing a list of share permissions
-public type ShareListResponse record {
-    *SuccessResult;
-    # Array of share permission objects
-    ShareResponse[] result?;
-};
-
-# Summary field object with image attachment capabilities
 public type SummaryFieldAddImage record {
-    # Image metadata including dimensions, ID, and alt text
     Image image?;
-    # Read-only timestamp that can be either DateTime or Number format
     Timestamp createdAt?;
-    # Read-only timestamp that can be either DateTime or Number format
     Timestamp modifiedAt?;
     # Field index or position. This number is zero-based
     decimal index?;
@@ -4820,7 +4150,6 @@ public type SummaryFieldAddImage record {
     decimal id?;
     # Arbitrary name, must be unique within summary
     string title?;
-    # Data type of the summary field (datetime, checkbox, contact, etc.)
     "ABSTRACT_DATETIME"|"CHECKBOX"|"CONTACT_LIST"|"DATE"|"DATETIME"|"DURATION"|"MULTI_CONTACT_LIST"|"MULTI_PICKLIST"|"PICKLIST"|"PREDECESSOR"|"TEXT_NUMBER" 'type?;
     # Indicates whether the field is locked
     boolean locked?;
@@ -4856,11 +4185,8 @@ public type GetSightHeaders record {
     string smartsheetIntegrationSource?;
 };
 
-# Folder item in paginated list with basic metadata
 public type PaginatedFolderListItem record {
-    # Read-only timestamp supporting both DateTime and Long formats
     Timestamp2 createdAt;
-    # Read-only timestamp supporting both DateTime and Long formats
     Timestamp2 modifiedAt;
     # Resource name
     string name;
@@ -4872,13 +4198,6 @@ public type PaginatedFolderListItem record {
     "folder" resourceType;
 };
 
-# Additional details for folder save as new event
-public type FolderSaveAsNew_additionalDetails record {
-    # Email address of the user responsible for the event.
-    string emailAddress;
-};
-
-# Additional details about the sheet row send event
 public type SheetSendRow_additionalDetails record {
     # Email address of the user responsible for the event.
     string emailAddress;
@@ -4895,20 +4214,6 @@ public type SheetSendRow_additionalDetails record {
     # Indicates whether the row(s) were sent with their respective discussion comments.
     boolean includeDiscussions?;
 };
-
-# Response containing event stream data with access status information
-public type EventStreamListResponse record {
-    *StreamResult;
-    # List of sheet Ids specified in the request that the user does not have access to
-    string[] unavailableSheetIds?;
-    # List of Events
-    Event[] data?;
-    # List of workspace Ids specified in the request that the user does not have access to
-    string[] unavailableWorkspaceIds?;
-};
-
-# Response object containing detailed discussion information
-public type DiscussionDetailsResponse Discussion;
 
 # See [Column Types](/api/smartsheet/openapi/columns)
 public type Type "ABSTRACT_DATETIME"|"CHECKBOX"|"CONTACT_LIST"|"DATE"|"DATETIME"|"DURATION"|"MULTI_CONTACT_LIST"|"MULTI_PICKLIST"|"PICKLIST"|"PREDECESSOR"|"TEXT_NUMBER";
@@ -4937,20 +4242,11 @@ public type ListWebhooksQueries record {
     decimal page = 1;
 };
 
-# Generic response wrapper containing a folder result
-public type GenericFolderResponse record {
-    *GenericResult;
-    # Folder object returned in the generic response
-    Folder result?;
-};
-
 # **DEPRECATED - As early as the sunset date specified in this [Changelog entry](/api/smartsheet/changelog#2025-08-04), this endpoint will be discontinued.** Please refer to the [changelog entry](/api/smartsheet/changelog#2025-08-04) for more details.
 # 
 # Share object used for various sharing relation operations
 public type Share record {
-    # Enumeration of available access permission levels
     AccessLevel accessLevel?;
-    # Read-only timestamp that can be either DateTime or Number format
     Timestamp modifiedAt?;
     # The subject of the email that is optionally sent to notify the recipient. You can specify this attribute
     # in a request, but it is never present in a response
@@ -4964,7 +4260,6 @@ public type Share record {
     string message?;
     # User Id if the share is a user share, else null
     decimal userId?;
-    # Read-only timestamp that can be either DateTime or Number format
     Timestamp createdAt?;
     # Indicates whether to send a copy of the email to the sharer of the sheet. You can specify this attribute
     # in a request, but it is never present in a response
@@ -4985,22 +4280,13 @@ public type Share record {
     string email?;
 };
 
-# Event triggered when discussion comment is sent via email to recipients
 public type DiscussionSendcomment record {
     *Event;
     # The action applied to the specified object
     "SEND_COMMENT" action?;
-    # Additional details for discussion comment send event including recipients
     DiscussionSendcomment_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "DISCUSSION" objectType?;
-};
-
-# Response containing a single favorite item or array of favorite items
-public type FavoriteItemResponse record {
-    *GenericResult;
-    # Single favorite item or array of favorite items returned in response
-    Favorite|Favorite[] result?;
 };
 
 # Represents the Queries record for the operation: add-user
@@ -5023,14 +4309,9 @@ public type AutomationrulesListQueries record {
 public type MultiContactObjectValue record {
     # List of Contacts
     ContactObjectValue[] value?;
-    # Object type identifier for multi-contact values
     "MULTI_CONTACT" objectType?;
 };
 
-# Response containing image URL mappings
-public type ImageUrlListResponse ImageUrlMap;
-
-# Standard API response with result code and status message
 public type GenericResult record {
     # * '0' Success
     # * '3' Partial Success of Bulk Operation
@@ -5045,18 +4326,15 @@ public type Formula string;
 # The base object for values found in the **Cell.objectValue** attribute. Its **objectType** attribute indicates the type of the object. This object itself is not used directly
 public type ObjectValue AbstractDatetimeObjectValue|CheckboxObjectValue|ContactObjectValue|DateObjectValue|DatetimeObjectValue|DurationObjectValue|MultiContactObjectValue|MultiPicklistObjectValue|PredecessorList;
 
-# Event triggered when an attachment is deleted from a sheet or workspace
 public type AttachmentDelete record {
     *Event;
     # The action applied to the specified object
     "DELETE" action?;
-    # Additional details for attachment deletion including user and location info
-    AttachmentDelete_additionalDetails additionalDetails?;
+    AttachmentUpdate_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "ATTACHMENT" objectType?;
 };
 
-# Additional details for folder creation event including user email and source
 public type FolderCreate_additionalDetails record {
     # Email address of the user responsible for the event.
     string emailAddress;
@@ -5065,13 +4343,6 @@ public type FolderCreate_additionalDetails record {
     int sourceFolderId?;
     # Name of the destination folder for the move event. (Specific to actions where the folder was moved to a different folder).
     string folderName?;
-};
-
-# Response containing a stream of Smartsheet events
-public type EventStreamResponse record {
-    *StreamResult;
-    # List of Events
-    (AccesstokenAuthorize|AccesstokenRefresh|AccesstokenRevoke|AccountBulkUpdate|AccountDownloadLoginHistory|AccountDownloadPublishedItemsReport|AccountDownloadSheetAccessReport|AccountDownloadUserList|AccountImportUsers|AccountListSheets|AccountRename|AccountUpdateMainContact|AttachmentCreate|AttachmentDelete|AttachmentLoad|AttachmentSend|AttachmentUpdate|DashboardAddPublish|DashboardAddShare|DashboardAddShareMember|DashboardAddWorkspaceShare|DashboardCreate|DashboardDelete|DashboardLoad|DashboardMove|DashboardPurge|DashboardRemovePublish|DashboardRemoveShare|DashboardRemoveShareMember|DashboardRemoveWorkspaceShare|DashboardRename|DashboardRestore|DashboardSaveAsNew|DashboardTransferOwnership|DashboardUpdate|DiscussionCreate|DiscussionDelete|DiscussionSend|DiscussionSendcomment|DiscussionUpdate|FolderCreate|FolderDelete|FolderExport|FolderRename|FolderRequestBackup|FolderSaveAsNew|FormActivate|FormCreate|FormDeactivate|FormDelete|FormUpdate|GroupAddMember|GroupCreate1|GroupDelete|GroupDownloadSheetAccessReport|GroupRemoveMember|GroupRename|GroupTransferOwnership|GroupUpdate1|ReportAddShare|ReportAddShareMember|ReportAddWorkspaceShare|ReportCreate|ReportDelete|ReportExport|ReportLoad|ReportMove|ReportPurge|ReportRemoveShare|ReportRemoveShareMember|ReportRemoveWorkspaceShare|ReportRename|ReportRestore|ReportSaveAsNew|ReportSendAsAttachment|ReportTransferOwnership|ReportUpdate|SheetAddShare|SheetAddShareMember|SheetAddWorkspaceShare|SheetCopyRow|SheetCreate|SheetCreateCellLink|SheetDelete|SheetExport|SheetLoad|SheetMove|SheetMoveRow|SheetPurge|SheetRemoveShare|SheetRemoveShareMember|SheetRemoveWorkspaceShare|SheetRename|SheetRequestBackup|SheetRestore|SheetSaveAsNew|SheetSaveAsTemplate|SheetSendAsAttachment|SheetSendRow|SheetTransferOwnership|SheetUpdate|UpdateRequestCreate|UserAcceptInvite|UserAddToAccount|UserDeclineInvite|UserDownloadSheetAccessReport|UserRemoveFromAccount|UserRemoveFromGroups|UserRemoveShares|UserSendInvite|UserSendPasswordReset|UserTransferOwnedGroups|UserTransferOwnedItems|UserUpdateUser|WorkspaceAddShare|WorkspaceAddShareMember|WorkspaceCreate|WorkspaceCreateRecurringBackup|WorkspaceDelete|WorkspaceDeleteRecurringBackup|WorkspaceExport|WorkspaceRemoveShare|WorkspaceRemoveShareMember|WorkspaceRename|WorkspaceRequestBackup|WorkspaceSaveAsNew|WorkspaceTransferOwnership|WorkspaceUpdateRecurringBackup)[] data?;
 };
 
 # See [System Columns](/api/smartsheet/openapi/columns)
@@ -5133,10 +4404,8 @@ public type SentupdaterequestDeleteHeaders record {
     string smartsheetIntegrationSource?;
 };
 
-# Historical record of cell changes with modification timestamp and user
 public type CellHistory Cell;
 
-# Additional context about the attachment load event
 public type AttachmentLoad_additionalDetails record {
     # Email address of the user responsible for the event.
     string emailAddress;
@@ -5189,12 +4458,6 @@ public type ResetSharedSecretHeaders record {
 # Only returned in the response if **readWriteEnabled = true**
 public type ReadWriteAccessibleBy "ALL"|"ORG"|"SHARED";
 
-# Additional details for dashboard restore including user email
-public type DashboardRestore_additionalDetails record {
-    # Email address of the user responsible for the event.
-    string emailAddress;
-};
-
 # A token that is used to retrieve the next page of results when passed as the
 # `lastKey` query parameter. This value will be absent when there are no 
 # further pages
@@ -5245,45 +4508,26 @@ public type AttachmentsAttachToSheetHeaders record {
     string contentType = "application/json";
 };
 
-# Additional details containing the email of the user who updated the report
-public type ReportUpdate_additionalDetails record {
-    # Email address of the user responsible for the event.
-    string emailAddress;
-};
-
-# Event triggered when user or group is removed from dashboard sharing
 public type DashboardRemoveShare record {
     *Event;
     # The action applied to the specified object
     "REMOVE_SHARE" action?;
-    # Additional details for share removal including user or group ID
     DashboardRemoveShare_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "DASHBOARD" objectType?;
 };
 
-# Response object returned after creating a workspace folder
-public type WorkspaceFolderCreateResponse record {
-    *GenericResult;
-    # Can contain dashboards, folders, reports, sheets, or templates
-    FolderSimpleResponse result?;
-};
-
-# Event triggered when a cell link to another sheet is created
 public type SheetCreateCellLink record {
     *Event;
     # The action applied to the specified object
     "CREATE_CELL_LINK" action?;
-    # Additional details including user email and source sheet ID for cell links
     SheetCreateCellLink_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "SHEET" objectType?;
 };
 
-# Numeric timestamp value representation
 public type TimestampNumber decimal;
 
-# Additional details for attachment creation including user email and location
 public type AttachmentCreate_additionalDetails record {
     # Email address of the user responsible for the event.
     string emailAddress;
@@ -5297,19 +4541,11 @@ public type AttachmentCreate_additionalDetails record {
     int workspaceId?;
 };
 
-# Additional details for login history download event
-public type AccountDownloadLoginHistory_additionalDetails record {
-    # Email address of the user responsible for the event.
-    string emailAddress;
-};
-
-# Event triggered when a user or group is removed from workspace sharing
 public type DashboardRemoveWorkspaceShare record {
     *Event;
     # The action applied to the specified object
     "REMOVE_WORKSPACE_SHARE" action?;
-    # Additional details including user email and workspace/group/user IDs
-    DashboardRemoveWorkspaceShare_additionalDetails additionalDetails?;
+    ReportRemoveWorkspaceShare_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "DASHBOARD" objectType?;
 };
@@ -5328,13 +4564,6 @@ public type ListAssetSharesHeaders record {
     string authorization?;
 };
 
-# Additional details for published items report download event
-public type AccountDownloadPublishedItemsReport_additionalDetails record {
-    # Email address of the user responsible for the event.
-    string emailAddress;
-};
-
-# Proof request object with ID, status, sender info, and timestamps
 public type ProofRequest ProofRequestBody;
 
 # Represents the Headers record for the operation: proofs-listDiscussions
@@ -5365,17 +4594,6 @@ public type ProofsListDiscussionsHeaders record {
     string smartsheetIntegrationSource?;
 };
 
-# Response containing detailed proof information
-public type ProofDetailsResponse Proof;
-
-# Response object for sheet move operations
-public type SheetMoveResponse record {
-    *Result;
-    # Sheet object containing basic properties like ID, name, and access level
-    ComponentsSchemasSheet result?;
-};
-
-# Additional details for group member removal event including user info
 public type GroupRemoveMember_additionalDetails record {
     # Email address of the user responsible for the event.
     string emailAddress;
@@ -5384,7 +4602,6 @@ public type GroupRemoveMember_additionalDetails record {
     int memberUserId?;
 };
 
-# Column definition object used when creating a new sheet
 public type ColumnToCreateASheet record {
     # When applicable for **CHECKBOX** or **PICKLIST** column types. See [Symbol Columns](/api/smartsheet/openapi/columns)
     Symbol symbol?;
@@ -5406,7 +4623,6 @@ public type ColumnToCreateASheet record {
     Primary primary?;
 };
 
-# Array of GroupMemberAdd objects for adding multiple group members
 public type GroupMembersAddArray GroupMemberAdd[];
 
 # Represents the Headers record for the operation: proofs-listAttachments
@@ -5468,7 +4684,6 @@ public type MoveRowsHeaders record {
     string contentType = "application/json";
 };
 
-# Move event details including user, workspace, and folder information
 public type DashboardMove_additionalDetails record {
     # Email address of the user responsible for the event.
     string emailAddress;
@@ -5513,13 +4728,6 @@ public type DeleteSightHeaders record {
     string smartsheetIntegrationSource?;
 };
 
-# Response object for report publishing operations
-public type ReportPublishResponse record {
-    *ItemResult;
-    # Report publishing settings and access configuration
-    ReportPublish result?;
-};
-
 # Represents the Queries record for the operation: create-sheet-in-workspace
 public type CreateSheetInWorkspaceQueries record {
     # Allows COMMENTER access for inputs and return values. For backwards-compatibility, VIEWER is the default. For example, to see whether a user has COMMENTER access for a sheet, use accessApiLevel=1
@@ -5529,14 +4737,6 @@ public type CreateSheetInWorkspaceQueries record {
     "attachments"|"cellLinks"|"data"|"discussions"|"filters"|"forms"|"ruleRecipients"|"rules" include?;
 };
 
-# Response returned after creating an attachment
-public type AttachmentCreateResponse record {
-    *GenericResult;
-    # Attachment Object
-    Attachment result?;
-};
-
-# Additional details for workspace backup update including user and options
 public type WorkspaceUpdateRecurringBackup_additionalDetails record {
     # Email address of the user responsible for the event.
     string emailAddress;
@@ -5546,18 +4746,15 @@ public type WorkspaceUpdateRecurringBackup_additionalDetails record {
     boolean sendCompletionEmail?;
 };
 
-# Event triggered when a user or group is removed from report sharing
 public type ReportRemoveShare record {
     *Event;
     # The action applied to the specified object
     "REMOVE_SHARE" action?;
-    # Additional details about the user/group removed from report sharing
     ReportRemoveShare_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "REPORT" objectType?;
 };
 
-# Additional details for account rename including old and new names
 public type AccountRename_additionalDetails record {
     # Email address of the user responsible for the event.
     string emailAddress;
@@ -5595,15 +4792,7 @@ public type ListWebhooksHeaders record {
     string smartsheetIntegrationSource?;
 };
 
-# Additional details about the sheet update event
-public type SheetUpdate_additionalDetails record {
-    # Email address of the user responsible for the event.
-    string emailAddress;
-};
-
-# Request to share resource with user or group at specified access level
 public type CreateShareRequest record {
-    # Enumeration of available access permission levels
     AccessLevel accessLevel;
     # The subject of the email that is optionally sent to notify the recipient.
     # 
@@ -5700,13 +4889,6 @@ public type DeleteGroupHeaders record {
     string smartsheetIntegrationSource?;
 };
 
-# Response object for row deletion operations
-public type RowDeleteResponse record {
-    *GenericResult;
-    # Array of numeric IDs representing successfully deleted rows
-    decimal[] result?;
-};
-
 # Represents the Queries record for the operation: proofs-getAllProofs
 public type ProofsGetAllProofsQueries record {
     # The maximum number of items to return per page. Unless otherwise stated for a specific endpoint, defaults to 100. If only page is specified, defaults to a page size of 100. For reports, the default is 100 rows. If you need larger sets of data from your report, returns a maximum of 10,000 rows per request
@@ -5745,17 +4927,15 @@ public type ProofsGetAllProofsHeaders record {
     string smartsheetIntegrationSource?;
 };
 
-# Paginated response containing child items or folder items
-public type PaginatedChildrenResponseData PaginatedChildrenListItem|PaginatedFolderListItem;
-
-# Response containing a paginated list of favorite items
-public type FavoriteListResponse record {
-    *IndexResult;
-    # Array of favorite items returned in the response
-    Favorite[] data?;
+public type InlineResponse20022AllOf1 record {
+    # A token that is used to retrieve the next page of results when passed as the
+    # `lastKey` query parameter. This value will be absent when there are no 
+    # further pages
+    LastKey lastKey?;
 };
 
-# Export-specific details including user and format type
+public type PaginatedChildrenResponseData PaginatedChildrenListItem|PaginatedFolderListItem;
+
 public type ReportExport_additionalDetails record {
     # Email address of the user responsible for the event.
     string emailAddress;
@@ -5798,19 +4978,15 @@ public type RowsAddToSheetHeaders record {
 public type DurationObjectValue record {
     # Number of days
     float days?;
-    # Object type identifier for duration values
     "DURATION" objectType?;
 };
 
-# Workspace sharing request body (single or multiple shares)
-public type WorkspaceIdSharesBody Share|ShareArray;
+public type WorkspaceIdSharesBody Share|WorkspacesworkspaceIdsharesOneOf2;
 
-# Report export event details and metadata
 public type ReportExport record {
     *Event;
     # The action applied to the specified object
     "EXPORT" action?;
-    # Export-specific details including user and format type
     ReportExport_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "REPORT" objectType?;
@@ -5826,7 +5002,17 @@ public type RowsAddToSheetQueries record {
     boolean overrideValidation = false;
 };
 
-# Group member information including name and contact details
+public type InlineResponse2009 record {
+    *GenericResult;
+    # Sheet imported from CSV / XLSX file
+    SheetImported result?;
+};
+
+public type InlineResponse2008 record {
+    *GenericResult;
+    SheetCreated|SheetCreatedFromTemplate result?;
+};
+
 public type GroupMember record {
     # Group member's first name
     string firstName?;
@@ -5874,74 +5060,41 @@ public type FormatTables record {
     string[] verticalAlign?;
     # The default setting is "none". Typically this is black text and a white background
     string[] color?;
-    # Available date format options
     string[] dateFormat?;
-    # Available underline format options
     string[] underline?;
-    # Available bold format options
     string[] bold?;
-    # Available italic format options
     string[] italic?;
-    # Available font family options with traits
     FontFamily[] fontFamily?;
     # A format descriptor where each element describes the formats the Smartsheet Web app displays for format values that have not been set. Each value refers to an index of the following options
     string defaults?;
-    # Available number format options
     string[] numberFormat?;
     # The default setting is "default" which is equivalent to "left"
     string[] horizontalAlign?;
-    # Available text wrapping options
     string[] textWrap?;
-    # Available currency options with codes and symbols
     Currency[] currency?;
-    # Available font size options
     string[] fontSize?;
-    # Available strikethrough format options
     string[] strikethrough?;
-    # Available decimal place count options
     string[] decimalCount?;
-    # Available thousands separator options
     string[] thousandsSeparator?;
 };
 
-# Additional details for dashboard update event
-public type DashboardUpdate_additionalDetails record {
-    # Email address of the user responsible for the event.
-    string emailAddress;
-};
-
-# Alternative response format for listing shares
-public type ShareListResponseAlt record {
-    *IndexResult;
-    # Array of share objects
-    Share[] result?;
-};
-
-# Event triggered when sheet rows are sent via email
 public type SheetSendRow record {
     *Event;
     # The action applied to the specified object
     "SEND_ROW" action?;
-    # Additional details about the sheet row send event
     SheetSendRow_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "SHEET" objectType?;
 };
 
-# Additional details including email of admin who performed bulk update
-public type AccountBulkUpdate_additionalDetails record {
-    # Email address of the user responsible for the event.
-    string emailAddress;
-};
+public type UsersuserIdalternateemailsOneOf2 AddAlternateEmail[];
 
-# Sight list item with creation and modification timestamps
 public type SightListItem SightResult;
 
 # Object containing a list of references to rows on which the current row depends
 public type PredecessorList record {
     # List of references to rows on which the current row depends
     Predecessor[] predecessors?;
-    # Object type identifier, always 'PREDECESSOR_LIST'
     "PREDECESSOR_LIST" objectType?;
 };
 
@@ -5992,7 +5145,6 @@ public type ListEventsQueries record {
     string since?;
 };
 
-# Details about dashboard sharing including user/group ID and access level
 public type DashboardAddShareMember_additionalDetails record {
     # Email address of the user responsible for the event.
     string emailAddress;
@@ -6015,17 +5167,8 @@ public type DeleteAssetShareHeaders record {
     string authorization?;
 };
 
-public type ReportListResponse_data record {
-    # Enumeration of available access permission levels
-    AccessLevel accessLevel?;
-    # The report's name.
-    string name?;
-    # It is `true` if the report is a sheet summary; otherwise it is a row report.
-    boolean isSummaryReport?;
-    # The report's unique identifier.
-    decimal id?;
-    # URL to the report in Smartsheet.
-    string permalink?;
+public type InlineResponse20022InlineResponse20022AllOf12 record {
+    ShareResponse[] result?;
 };
 
 # Represents the Headers record for the operation: columns-addToSheet
@@ -6059,7 +5202,6 @@ public type ColumnsAddToSheetHeaders record {
     string contentType = "application/json";
 };
 
-# Array of column objects
 public type Columns Column[];
 
 # Represents the Queries record for the operation: get-workspace-metadata
@@ -6073,7 +5215,6 @@ public type GetWorkspaceMetadataQueries record {
     boolean numericDates = false;
 };
 
-# Additional details for workspace backup scheduling event
 public type WorkspaceCreateRecurringBackup_additionalDetails record {
     # Email address of the user responsible for the event.
     string emailAddress;
@@ -6083,7 +5224,6 @@ public type WorkspaceCreateRecurringBackup_additionalDetails record {
     boolean sendCompletionEmail?;
 };
 
-# Additional details for main contact update including user IDs and email
 public type AccountUpdateMainContact_additionalDetails record {
     # Email address of the user responsible for the event.
     string emailAddress;
@@ -6095,18 +5235,15 @@ public type AccountUpdateMainContact_additionalDetails record {
     int newContactUserId?;
 };
 
-# Event triggered when a discussion comment with no replies is deleted
 public type DiscussionDelete record {
     *Event;
     # The action applied to the specified object
     "DELETE" action?;
-    # Additional details about the discussion delete event
-    DiscussionDelete_additionalDetails additionalDetails?;
+    DiscussionCreate_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "DISCUSSION" objectType?;
 };
 
-# Pagination result with unknown total page count
 public type IndexResultUnknownPages record {
     # The current page in the full result set that the data array represents. NOTE when a page number greater than totalPages is requested, the last page is instead returned
     decimal pageNumber?;
@@ -6118,11 +5255,15 @@ public type IndexResultUnknownPages record {
     decimal totalCount?;
 };
 
-# Response schema for workspace creation operations
-public type WorkspaceCreateResponse record {
+public type InlineResponse2001 record {
+    *StreamResult;
+    # List of Events
+    (AccesstokenAuthorize|AccesstokenRefresh|AccesstokenRevoke|AccountBulkUpdate|AccountDownloadLoginHistory|AccountDownloadPublishedItemsReport|AccountDownloadSheetAccessReport|AccountDownloadUserList|AccountImportUsers|AccountListSheets|AccountRename|AccountUpdateMainContact|AttachmentCreate|AttachmentDelete|AttachmentLoad|AttachmentSend|AttachmentUpdate|DashboardAddPublish|DashboardAddShare|DashboardAddShareMember|DashboardAddWorkspaceShare|DashboardCreate|DashboardDelete|DashboardLoad|DashboardMove|DashboardPurge|DashboardRemovePublish|DashboardRemoveShare|DashboardRemoveShareMember|DashboardRemoveWorkspaceShare|DashboardRename|DashboardRestore|DashboardSaveAsNew|DashboardTransferOwnership|DashboardUpdate|DiscussionCreate|DiscussionDelete|DiscussionSend|DiscussionSendcomment|DiscussionUpdate|FolderCreate|FolderDelete|FolderExport|FolderRename|FolderRequestBackup|FolderSaveAsNew|FormActivate|FormCreate|FormDeactivate|FormDelete|FormUpdate|GroupAddMember|GroupCreate1|GroupDelete|GroupDownloadSheetAccessReport|GroupRemoveMember|GroupRename|GroupTransferOwnership|GroupUpdate1|ReportAddShare|ReportAddShareMember|ReportAddWorkspaceShare|ReportCreate|ReportDelete|ReportExport|ReportLoad|ReportMove|ReportPurge|ReportRemoveShare|ReportRemoveShareMember|ReportRemoveWorkspaceShare|ReportRename|ReportRestore|ReportSaveAsNew|ReportSendAsAttachment|ReportTransferOwnership|ReportUpdate|SheetAddShare|SheetAddShareMember|SheetAddWorkspaceShare|SheetCopyRow|SheetCreate|SheetCreateCellLink|SheetDelete|SheetExport|SheetLoad|SheetMove|SheetMoveRow|SheetPurge|SheetRemoveShare|SheetRemoveShareMember|SheetRemoveWorkspaceShare|SheetRename|SheetRequestBackup|SheetRestore|SheetSaveAsNew|SheetSaveAsTemplate|SheetSendAsAttachment|SheetSendRow|SheetTransferOwnership|SheetUpdate|UpdateRequestCreate|UserAcceptInvite|UserAddToAccount|UserDeclineInvite|UserDownloadSheetAccessReport|UserRemoveFromAccount|UserRemoveFromGroups|UserRemoveShares|UserSendInvite|UserSendPasswordReset|UserTransferOwnedGroups|UserTransferOwnedItems|UserUpdateUser|WorkspaceAddShare|WorkspaceAddShareMember|WorkspaceCreate|WorkspaceCreateRecurringBackup|WorkspaceDelete|WorkspaceDeleteRecurringBackup|WorkspaceExport|WorkspaceRemoveShare|WorkspaceRemoveShareMember|WorkspaceRename|WorkspaceRequestBackup|WorkspaceSaveAsNew|WorkspaceTransferOwnership|WorkspaceUpdateRecurringBackup)[] data?;
+};
+
+public type InlineResponse2003 record {
     *GenericResult;
-    # The created workspace listing object returned in the response
-    WorkspaceListing result?;
+    Favorite|Favorite[] result?;
 };
 
 # Represents the Headers record for the operation: list-crosssheet-references
@@ -6153,13 +5294,37 @@ public type ListCrosssheetReferencesHeaders record {
     string smartsheetIntegrationSource?;
 };
 
-# Additional details including email address of removed share member
-public type WorkspaceRemoveShareMember_additionalDetails record {
-    # Email address of the user responsible for the event.
-    string emailAddress;
+public type InlineResponse2002 record {
+    *IndexResult;
+    Favorite[] data?;
 };
 
-# Represents a hyperlink to sheets, reports, dashboards, or external URLs
+public type InlineResponse2005 record {
+    *Result;
+    # Can contain dashboards, folders, reports, sheets, or templates
+    Folder result?;
+};
+
+public type InlineResponse2004 record {
+    *StreamResult;
+    # List of sheet Ids specified in the request that the user does not have access to
+    string[] unavailableSheetIds?;
+    # List of Events
+    Event[] data?;
+    # List of workspace Ids specified in the request that the user does not have access to
+    string[] unavailableWorkspaceIds?;
+};
+
+public type InlineResponse2007 record {
+    *GenericResult;
+    Folder result?;
+};
+
+public type InlineResponse2006 record {
+    *IndexResult;
+    Folder[] result?;
+};
+
 public type Hyperlink record {
     # If non-null, this hyperlink is a link to the report with this Id
     decimal reportId?;
@@ -6171,7 +5336,6 @@ public type Hyperlink record {
     string url?;
 };
 
-# Additional details for discussion send including recipients and attachments
 public type DiscussionSend_additionalDetails record {
     # Email address of the user responsible for the event.
     string emailAddress;
@@ -6193,7 +5357,6 @@ public type DiscussionSend_additionalDetails record {
     int workspaceId?;
 };
 
-# Additional details about the form delete event
 public type FormDelete_additionalDetails record {
     # Email address of the user responsible for the event.
     string emailAddress;
@@ -6204,7 +5367,6 @@ public type FormDelete_additionalDetails record {
 
 # Attachment Object
 public type Attachment record {
-    # Read-only timestamp that can be either DateTime or Number format
     Timestamp createdAt?;
     # Attachment sub type. Note--Folder type is for EGNYTE values and the rest are GOOGLE_DRIVE values
     "DOCUMENT"|"DRAWING"|"FOLDER"|"PDF"|"PRESENTATION"|"SPREADSHEET" attachmentSubType?;
@@ -6233,18 +5395,15 @@ public type Attachment record {
 # Field index or position. This number is zero-based
 public type Index decimal;
 
-# Event triggered when dashboard publish option is disabled
 public type DashboardRemovePublish record {
     *Event;
     # The action applied to the specified object
     "REMOVE_PUBLISH" action?;
-    # Additional event details including user email address
-    DashboardRemovePublish_additionalDetails additionalDetails?;
+    FolderDelete_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "DASHBOARD" objectType?;
 };
 
-# Additional details for row move including source, destination, and options
 public type SheetMoveRow_additionalDetails record {
     # Email address of the user responsible for the event.
     string emailAddress;
@@ -6263,7 +5422,6 @@ public type SheetMoveRow_additionalDetails record {
     boolean includeDiscussions?;
 };
 
-# Request body for creating sheets in a folder
 public type FolderIdSheetsBody SheetToCreate|SheetToCreateFromTemplate;
 
 # Represents the Queries record for the operation: list-summary-fields
@@ -6279,13 +5437,18 @@ public type ListSummaryFieldsQueries record {
     "displayValue"|"image"|"imageAltText" exclude?;
 };
 
-# Event triggered when a dashboard is viewed in UI or loaded via API
+public type InlineResponse20061 record {
+    *Result;
+    Row result?;
+};
+
+public type InlineResponse20060 GetRowObject;
+
 public type DashboardLoad record {
     *Event;
     # The action applied to the specified object
     "LOAD" action?;
-    # Additional event details including user email address
-    DashboardRemovePublish_additionalDetails additionalDetails?;
+    FolderDelete_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "DASHBOARD" objectType?;
 };
@@ -6324,12 +5487,16 @@ public type SheetPublishRequest record {
     ReadWriteShowToolbar readWriteShowToolbar?;
 };
 
-# Event triggered when an attachment is sent directly via email
+public type InlineResponse20063 record {
+    *IndexResult;
+    # list of Sent Update Requests
+    SentUpdateRequest[] data?;
+};
+
 public type AttachmentSend record {
     *Event;
     # The action applied to the specified object
     "SEND" action?;
-    # Event details including sender, recipients, and container information
     AttachmentSend_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "ATTACHMENT" objectType?;
@@ -6338,16 +5505,39 @@ public type AttachmentSend record {
 # A number that is incremented every time a sheet is modified
 public type Version decimal;
 
+public type InlineResponse20062 record {
+    *IndexResult;
+    # List of cell history objects
+    CellHistory[] data?;
+};
+
+public type InlineResponse20065 record {
+    *Result;
+    SummaryField[] result?;
+};
+
 # Represents the Queries record for the operation: share-report
 public type ShareReportQueries record {
     # Either true or false to indicate whether to notify the user by email. Default is false. If true, limit is 1000 emails
     boolean sendEmail = false;
 };
 
-# Array collection of favorite items
-public type FavoriteCollection Favorite[];
+public type InlineResponse20064 record {
+    *IndexResult;
+    # List of Summary Fields
+    SummaryField[] data?;
+};
 
-# Details about user, access level, group, and workspace for share event
+public type InlineResponse20067 record {
+    *Result;
+    decimal[] result?;
+};
+
+public type InlineResponse20066 record {
+    *Result;
+    SummaryField[] result?;
+};
+
 public type ReportAddShareMember_additionalDetails record {
     # Email address of the user responsible for the event.
     string emailAddress;
@@ -6366,19 +5556,17 @@ public type ReportAddShareMember_additionalDetails record {
     int workspaceId?;
 };
 
-# Additional details for workspace ownership transfer event
-public type WorkspaceTransferOwnership_additionalDetails record {
-    # Email address of the user responsible for the event.
-    string emailAddress;
+public type InlineResponse20069 record {
+    *IndexResult;
+    # list of UpdateRequest objects
+    UpdateRequest[] data?;
 };
 
-# Additional event details including user email address
-public type DashboardRemovePublish_additionalDetails record {
-    # Email address of the user responsible for the event.
-    string emailAddress;
+public type InlineResponse20068 record {
+    *GenericResult;
+    SummaryFieldAddImage result?;
 };
 
-# Additional details for sheet rename including user email and name changes
 public type SheetRename_additionalDetails record {
     # Email address of the user responsible for the event.
     string emailAddress;
@@ -6430,7 +5618,6 @@ public type DeleteSightShareHeaders record {
     string smartsheetIntegrationSource?;
 };
 
-# Request payload for creating a new webhook subscription
 public type CreateWebhookRequest record {
     # ID of the object to subscribed to. Specified when a webhook is created and cannot be changed
     @constraint:Int {minValue: 0}
@@ -6469,7 +5656,6 @@ public type Duration record {
     decimal minutes?;
     # The number of days for this duration
     decimal days?;
-    # Object type identifier, always 'DURATION'
     "DURATION" objectType?;
 };
 
@@ -6571,6 +5757,17 @@ public type ShareWorkspaceQueries record {
     boolean sendEmail = false;
 };
 
+public type InlineResponse20070 record {
+    *Result;
+    UpdateRequest result?;
+};
+
+public type InlineResponse20072 record {
+    *IndexResult;
+    # List of Dashboards
+    SightListItem[] data?;
+};
+
 # Represents the Headers record for the operation: deactivate-user
 public type DeactivateUserHeaders record {
     # API Access Token used to authenticate requests to Smartsheet APIs
@@ -6599,6 +5796,18 @@ public type DeactivateUserHeaders record {
     string smartsheetIntegrationSource?;
 };
 
+public type InlineResponse20071 Sheet;
+
+public type InlineResponse20074 record {
+    *ItemResult;
+    SightResult result?;
+};
+
+public type InlineResponse20073 record {
+    *ItemResult;
+    Sight result?;
+};
+
 # Represents the Queries record for the operation: list-folders
 public type ListFoldersQueries record {
     # The maximum number of items to return per page. Unless otherwise stated for a specific endpoint, defaults to 100. If only page is specified, defaults to a page size of 100. For reports, the default is 100 rows. If you need larger sets of data from your report, returns a maximum of 10,000 rows per request
@@ -6607,6 +5816,30 @@ public type ListFoldersQueries record {
     boolean includeAll = false;
     # Which page to return. Defaults to 1 if not specified. If you specify a value greater than the total number of pages, the last page of results is returned
     decimal page = 1;
+};
+
+public type InlineResponse20076 record {
+    *IndexResult;
+    # list of Templates
+    Template[] data?;
+};
+
+public type InlineResponse20075 record {
+    *ItemResult;
+    # Describes the dashboard's publish settings
+    SightPublish result?;
+};
+
+public type InlineResponse20078 record {
+    *GenericResult;
+    # User Object
+    User result?;
+};
+
+public type InlineResponse20077 record {
+    *IndexResult;
+    # List of User Objects
+    User[] data?;
 };
 
 # Represents the Headers record for the operation: list-folders
@@ -6637,6 +5870,12 @@ public type ListFoldersHeaders record {
     string smartsheetIntegrationSource?;
 };
 
+public type InlineResponse20079 record {
+    *UserProfile;
+    # List of Groups
+    Group[] data?;
+};
+
 # Represents the Headers record for the operation: discussion-get
 public type DiscussionGetHeaders record {
     # API Access Token used to authenticate requests to Smartsheet APIs
@@ -6665,13 +5904,11 @@ public type DiscussionGetHeaders record {
     string smartsheetIntegrationSource?;
 };
 
-# Discussion object with comments, attachments, and metadata for sheets/rows
 public type Discussion record {
     # Array of attachments on discussion comments. Only returned if the include query string parameter contains attachments
     Attachment[] commentAttachments?;
     # Array of comments in discussion. Only returned if the include query string parameter contains comments
     Comment[] comments?;
-    # Enumeration of available access permission levels
     AccessLevel accessLevel?;
     # `User` object containing `name` and `email` of the user who created the discussion
     MiniUser createdBy?;
@@ -6679,7 +5916,6 @@ public type Discussion record {
     boolean readOnly?;
     # Discussion Id
     decimal id?;
-    # Read-only timestamp that can be either DateTime or Number format
     Timestamp lastCommentedAt?;
     # Title automatically created by duplicating the first 100 characters of top-level comment
     string title?;
@@ -6702,36 +5938,57 @@ public type Subscope record {
     decimal[] columnIds?;
 };
 
-# Event schema for bulk user import operations via CSV file
 public type AccountImportUsers record {
     *Event;
     # The action applied to the specified object
     "IMPORT_USERS" action?;
-    # Additional details for user import including responsible user's email
-    AccountImportUsers_additionalDetails additionalDetails?;
+    FolderDelete_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "ACCOUNT" objectType?;
 };
 
-# Response confirming webhook deletion operation
-public type WebhookDeleteResponse Result;
-
-# Event triggered when rows are moved between sheets
 public type SheetMoveRow record {
     *Event;
     # The action applied to the specified object
     "MOVE_ROW" action?;
-    # Additional details for row move including source, destination, and options
     SheetMoveRow_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "SHEET" objectType?;
 };
 
-# Response containing the updated automation rule
-public type AutomationRuleUpdateResponse record {
-    *Result;
-    # Automation rule object with triggers, actions, and management properties
-    AutomationRule result?;
+public type InlineResponse20081 record {
+    *GenericResult;
+    # Updated User Properties
+    UserProfileImageResponse[] data?;
+};
+
+public type InlineResponse20080 record {
+    *IndexResultUnknownPages;
+    # List of Sheets
+    SheetList[] data?;
+};
+
+public type InlineResponse20083 record {
+    *GenericResult;
+    # Updated User Properties
+    AlternateEmail[] data?;
+};
+
+public type InlineResponse20082 record {
+    *IndexResult;
+    # list of attachments
+    AlternateEmail[] data?;
+};
+
+public type InlineResponse20085 record {
+    *InlineResponse20085AllOf1;
+    *InlineResponse20085InlineResponse20085AllOf12;
+};
+
+public type InlineResponse20084 record {
+    *GenericResult;
+    # list of alternate email results
+    AlternateEmail[] data?;
 };
 
 # Represents the Headers record for the operation: update-report-share
@@ -6762,18 +6019,7 @@ public type UpdateReportShareHeaders record {
     string smartsheetIntegrationSource?;
 };
 
-# Response containing a list of proof versions with pagination metadata
-public type ProofVersionListResponse record {
-    *IndexResult;
-    # list of proof versions
-    Proof[] data?;
-};
-
-# Response object containing an array of webhook definitions
-public type WebhookListData record {
-    # list of Webhooks
-    Webhook[] data?;
-};
+public type InlineResponse20087 Result;
 
 # Represents the Headers record for the operation: column-get
 public type ColumnGetHeaders record {
@@ -6803,7 +6049,6 @@ public type ColumnGetHeaders record {
     string smartsheetIntegrationSource?;
 };
 
-# User profile image metadata including ID and dimensions
 public type ProfileImage record {
     # Unique image Id
     string imageId?;
@@ -6811,6 +6056,26 @@ public type ProfileImage record {
     string width?;
     # Image height
     string height?;
+};
+
+public type InlineResponse20086 record {
+    *Result;
+    # The webhook object
+    Webhook result?;
+};
+
+public type InlineResponse20089 record {
+    *IndexResultWorkspaces;
+    WorkspaceListing[] data?;
+    # A token that is used to retrieve the next page of results when passed as the
+    # `lastKey` query parameter. This value will be absent when there are no 
+    # further pages
+    LastKey lastKey?;
+};
+
+public type InlineResponse20088 record {
+    *Result;
+    SharedSecret result?;
 };
 
 # Represents the Headers record for the operation: automationrule-delete
@@ -6841,7 +6106,6 @@ public type AutomationruleDeleteHeaders record {
     string smartsheetIntegrationSource?;
 };
 
-# Event details including sender, recipients, and container information
 public type AttachmentSend_additionalDetails record {
     # Email address of the user responsible for the event.
     string emailAddress;
@@ -6860,7 +6124,6 @@ public type AttachmentSend_additionalDetails record {
 
 # Sheet to create from scratch using the specified columns
 public type SheetToCreate record {
-    # Array of column definitions to create with the new sheet
     ColumnToCreateASheet[] columns?;
     # Sheet name
     Name name?;
@@ -6894,6 +6157,23 @@ public type ShareReportHeaders record {
     string smartsheetIntegrationSource?;
 };
 
+public type InlineResponse20090 record {
+    *GenericResult;
+    WorkspaceListing result?;
+};
+
+public type InlineResponse20092 record {
+    *IndexResult;
+    # Array of all the workspace folders, referenced by their ID, name, and URL
+    InlineResponse20092_data[] data?;
+};
+
+public type InlineResponse20091 record {
+    *Result;
+    # Can contain dashboards, folders, reports, sheets, and templates
+    Workspace result?;
+};
+
 # Represents the Headers record for the operation: delete-folder
 public type DeleteFolderHeaders record {
     # API Access Token used to authenticate requests to Smartsheet APIs
@@ -6922,13 +6202,16 @@ public type DeleteFolderHeaders record {
     string smartsheetIntegrationSource?;
 };
 
-# Request object for updating proof completion status
 public type UpdateProofStatusRequest record {
-    # Boolean flag indicating whether the proof is completed
     boolean isCompleted?;
 };
 
-# Schedule configuration for recurring delivery or automation tasks
+public type InlineResponse20093 record {
+    *GenericResult;
+    # Can contain dashboards, folders, reports, sheets, or templates
+    FolderSimpleResponse result?;
+};
+
 public type Schedule record {
     # The day within the month.
     # 
@@ -6970,7 +6253,6 @@ public type Schedule record {
     # 
     #   For more details, refer to the Table of Schedule Object’s Attributes below
     "FIRST"|"LAST"|"SECOND"|"THIRD"|"FOURTH" dayOrdinal?;
-    # Timestamp when the last scheduled delivery was sent
     Timestamp lastSentAt?;
     # Frequency on which the request is delivered. The unit is a function of the **type** attribute. For example,
     # for **MONTHLY** schedule, **repeatEvery=1** means every month.
@@ -6983,11 +6265,8 @@ public type Schedule record {
     decimal repeatEvery?;
     # Type of schedule
     "ONCE"|"DAILY"|"WEEKLY"|"MONTHLY"|"YEARLY" 'type?;
-    # End date/time for delivery schedule with timezone (ISO-8601 or numeric)
     TimestampWriteable endAt?;
-    # Timestamp when the next scheduled delivery will be sent
     Timestamp nextSendAt?;
-    # Start date/time for first delivery with timezone (ISO-8601 or numeric)
     TimestampWriteable startAt?;
 };
 
@@ -6998,7 +6277,6 @@ public type GetWorkspaceMetadataHeaders record {
     string authorization?;
 };
 
-# Additional details for report sharing including access level and user/group IDs
 public type ReportAddShare_additionalDetails record {
     # Email address of the user responsible for the event.
     string emailAddress;
@@ -7014,26 +6292,11 @@ public type ReportAddShare_additionalDetails record {
     int userId?;
 };
 
-# Response containing a list of cross-sheet references
-public type CrossSheetReferenceListResponse record {
-    *IndexResult;
-    # Array of cross-sheet reference objects
-    CrossSheetReference[] data?;
-};
-
-# Additional details for workspace export event
 public type WorkspaceExport_additionalDetails record {
     # Email address of the user responsible for the event.
     string emailAddress;
     # The format that the workspace was exported ("excel" or "pdf"). Notice that the same value "excel" is displayed either when exporting to Microsoft Excel or when exporting to Google Sheets.
     "excel"|"pdf" formatType?;
-};
-
-# Response containing a list of groups with pagination metadata
-public type GroupListResponse record {
-    *IndexResult;
-    # List of Groups
-    Group[] data?;
 };
 
 # Represents the Queries record for the operation: list-crosssheet-references
@@ -7064,12 +6327,10 @@ public type ListUsersQueries record {
     string email?;
 };
 
-# Event triggered when user is added to auto-provisioned organization account
 public type UserAddToAccount record {
     *Event;
     # The action applied to the specified object
     "ADD_TO_ACCOUNT" action?;
-    # Details about user addition including email and user types
     UserAddToAccount_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "USER" objectType?;
@@ -7103,15 +6364,7 @@ public type ListUsersHeaders record {
     string smartsheetIntegrationSource?;
 };
 
-# Additional details for user sheet access report download event
-public type UserDownloadSheetAccessReport_additionalDetails record {
-    # Email address of the user responsible for the event.
-    string emailAddress;
-};
-
-# Workspace summary with ID, name, access level, and permalink
 public type WorkspaceListing record {
-    # Enumeration of available access permission levels
     AccessLevel accessLevel?;
     # Workspace name
     string name?;
@@ -7121,20 +6374,11 @@ public type WorkspaceListing record {
     string permalink?;
 };
 
-# Response object for row update operations
-public type RowUpdateResponse record {
-    *GenericResult;
-    # Array of UpdateRowsObject containing details of successfully updated rows
-    UpdateRowsObject[] result?;
-};
-
-# Destination sheet ID for row copy or move operations
 public type CopyOrMoveRowDestination record {
     # The Id of the destination sheet
     decimal sheetId?;
 };
 
-# User's alternate email address with ID and confirmation status
 public type AlternateEmail record {
     # AlternateEmail Id
     decimal id?;
@@ -7144,7 +6388,6 @@ public type AlternateEmail record {
     string email?;
 };
 
-# OAuth access token with refresh token and expiration details
 public type Token record {
     # A credential that can be used by a client to access the Smartsheet API
     @jsondata:Name {value: "access_token"}
@@ -7160,24 +6403,15 @@ public type Token record {
     decimal expiresIn = 604799;
 };
 
-# Additional details about the dashboard save as new event
-public type DashboardSaveAsNew_additionalDetails record {
-    # Email address of the user responsible for the event.
-    string emailAddress;
-};
-
-# Event triggered when user requests workspace backup
 public type WorkspaceRequestBackup record {
     *Event;
     # The action applied to the specified object
     "REQUEST_BACKUP" action?;
-    # Additional details for workspace backup including email and preferences
-    WorkspaceRequestBackup_additionalDetails additionalDetails?;
+    WorkspaceUpdateRecurringBackup_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "WORKSPACE" objectType?;
 };
 
-# Image metadata including dimensions, ID, and alt text
 public type Image record {
     # Alternate text for the image
     string altText?;
@@ -7189,7 +6423,6 @@ public type Image record {
     decimal height?;
 };
 
-# Details about row copy operation including counts and sheet IDs
 public type SheetCopyRow_additionalDetails record {
     # Email address of the user responsible for the event.
     string emailAddress;
@@ -7253,7 +6486,6 @@ public type CreateSheetInFolderHeaders record {
 
 # Create group request
 public type GroupCreate1 record {
-    # Array of GroupMemberAdd objects for adding multiple group members
     GroupMembersAddArray members?;
     # **name** (required)
     # 
@@ -7263,13 +6495,11 @@ public type GroupCreate1 record {
     string description?;
 };
 
-# Event triggered when a dashboard is modified and saved
 public type DashboardUpdate record {
     *Event;
     # The action applied to the specified object
     "UPDATE" action?;
-    # Additional details for dashboard update event
-    DashboardUpdate_additionalDetails additionalDetails?;
+    FolderDelete_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "DASHBOARD" objectType?;
 };
@@ -7322,32 +6552,26 @@ public type ListSheetSharesQueries record {
     decimal page = 1;
 };
 
-# Request body for creating sheets in workspace - new or from template
 public type WorkspaceIdSheetsBody SheetToCreate|SheetToCreateFromTemplate;
 
-# Event schema triggered when a report is created in Smartsheet
 public type ReportCreate record {
     *Event;
     # The action applied to the specified object
     "CREATE" action?;
-    # Additional details about the report creation event including user and source
     ReportCreate_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "REPORT" objectType?;
 };
 
-# Event triggered when admin transfers user's group ownership to another user
 public type UserTransferOwnedGroups record {
     *Event;
     # The action applied to the specified object
     "TRANSFER_OWNED_GROUPS" action?;
-    # Additional details for group ownership transfer including old and new owners
     UserTransferOwnedGroups_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "USER" objectType?;
 };
 
-# Sheet listing information with name, ID, and owner details
 public type SheetList record {
     # Empty string
     string owner?;
@@ -7418,33 +6642,25 @@ public type SheetSendHeaders record {
     string contentType = "application/json";
 };
 
-# Event schema triggered when report ownership is transferred
 public type ReportTransferOwnership record {
     *Event;
     # The action applied to the specified object
     "TRANSFER_OWNERSHIP" action?;
-    # Details about ownership transfer including old and new owner information
     ReportTransferOwnership_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "REPORT" objectType?;
 };
 
-# Additional details about the sheet purge event including user email
-public type SheetPurge_additionalDetails record {
-    # Email address of the user responsible for the event.
-    string emailAddress;
-};
-
-# Event schema triggered when user's owned items are transferred to another user
 public type UserTransferOwnedItems record {
     *Event;
     # The action applied to the specified object
     "TRANSFER_OWNED_ITEMS" action?;
-    # Details about the ownership transfer including old and new owner user IDs
-    UserTransferOwnedItems_additionalDetails additionalDetails?;
+    UserTransferOwnedGroups_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "USER" objectType?;
 };
+
+public type SheetssheetIdrowsOneOf2 Row[];
 
 # Represents the Headers record for the operation: update-workspace
 public type UpdateWorkspaceHeaders record {
@@ -7474,7 +6690,6 @@ public type UpdateWorkspaceHeaders record {
     string smartsheetIntegrationSource?;
 };
 
-# Request body schema for copying folders with destination information
 public type FolderIdCopyBody ContainerDestinationForCopy;
 
 # Represents the Headers record for the operation: remove-user
@@ -7503,38 +6718,6 @@ public type RemoveUserHeaders record {
     # `APPLICATION,SampleOrg3,SheetUpdater`
     @http:Header {name: "smartsheet-integration-source"}
     string smartsheetIntegrationSource?;
-};
-
-# Additional details for attachment deletion including user and location info
-public type AttachmentDelete_additionalDetails record {
-    # Email address of the user responsible for the event.
-    string emailAddress;
-    # Id of the sheet that contains the attachment. (This property is included only if the `workspaceId` property below isn't included)
-    @constraint:Int {minValue: 0}
-    int sheetId?;
-    # Id of the workspace that directly contains the attachment. (This property is included only if the `sheetId` property above isn't included)
-    @constraint:Int {minValue: 0}
-    int workspaceId?;
-};
-
-# Additional details for folder backup request including email and settings
-public type FolderRequestBackup_additionalDetails record {
-    # Email address of the user responsible for the event.
-    string emailAddress;
-    # Indicates whether attachments should be included in the recurring backup.
-    boolean includeAttachments?;
-    # Indicates whether an email should be sent to the workspace's owner every time a recurring backup completes.
-    boolean sendCompletionEmail?;
-};
-
-# Additional backup details including attachment and email preferences
-public type SheetRequestBackup_additionalDetails record {
-    # Email address of the user responsible for the event.
-    string emailAddress;
-    # Indicates whether attachments should be included in the recurring backup.
-    boolean includeAttachments?;
-    # Indicates whether an email should be sent to the workspace's owner every time a recurring backup completes.
-    boolean sendCompletionEmail?;
 };
 
 # Represents the Queries record for the operation: copy-sheet
@@ -7632,7 +6815,6 @@ public type CopySheetHeaders record {
     string contentType = "application/json";
 };
 
-# Schema for adding new columns with properties like type, title, and validation
 public type AddColumns record {
     # Array of the options available for the column
     string[] options?;
@@ -7670,7 +6852,6 @@ public type GetFolderChildrenQueries record {
     string lastKey?;
 };
 
-# Additional details for report move events including destination info
 public type ReportMove_additionalDetails record {
     # Email address of the user responsible for the event.
     string emailAddress;
@@ -7715,9 +6896,6 @@ public type AddSummaryFieldsHeaders record {
     string smartsheetIntegrationSource?;
 };
 
-# Response containing a sorted sheet object
-public type SortedSheetResponse Sheet;
-
 # Represents the Queries record for the operation: list-search-sheet
 public type ListSearchSheetQueries record {
     # Text with which to perform the search. Enclose in double-quotes for an exact search
@@ -7730,7 +6908,6 @@ public type UpdateSheetQueries record {
     decimal accessApiLevel = 0;
 };
 
-# Details including old name, new name, and user email for rename
 public type GroupRename_additionalDetails record {
     # Email address of the user responsible for the event.
     string emailAddress;
@@ -7900,7 +7077,6 @@ public type ProofsListRequestActionsQueries record {
     decimal page = 1;
 };
 
-# Font family definition with name and platform-independent traits
 public type FontFamily record {
     # Platform-independent traits of the font family. Contains one of the listed enum values
     ("sans-serif"|"serif")[] traits?;
@@ -7939,7 +7115,6 @@ public type RowsSendHeaders record {
     string contentType = "application/json";
 };
 
-# Transfer details including old/new owner IDs and access levels
 public type DashboardTransferOwnership_additionalDetails record {
     # New access level of the new owner: `"OWNER"`.
     "OWNER" newAccessLevel = "OWNER";
@@ -8051,29 +7226,21 @@ public type RowGetQueries record {
     "filteredOutRows"|"linkInFromCellDetails"|"linksOutToCellsDetails"|"nonexistentCells" exclude?;
 };
 
-# Response containing detailed automation rule information
-public type AutomationRuleDetailsResponse AutomationRule;
-
-# Event triggered when group ownership is transferred to another user
 public type GroupTransferOwnership record {
     *Event;
     # The action applied to the specified object
     "TRANSFER_OWNERSHIP" action?;
-    # Transfer details including email and old/new owner user IDs
-    GroupTransferOwnership_additionalDetails additionalDetails?;
+    UserTransferOwnedGroups_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "GROUP" objectType?;
 };
 
-# Object representing a row to be added to a sheet with cells and metadata
 public type AddRowsObject record {
-    # Read-only timestamp that can be either DateTime or Number format
     Timestamp createdAt?;
     # Indicates whether the row is expanded or collapsed
     boolean expanded?;
     # Cells objects
     CellObjectForRows[] cells?;
-    # Read-only timestamp that can be either DateTime or Number format
     Timestamp modifiedAt?;
     # Parent sheet Id
     decimal sheetId?;
@@ -8086,25 +7253,10 @@ public type AddRowsObject record {
     decimal version?;
 };
 
-# Defines sorting criteria for a column with direction specification
 public type SortCriterion record {
-    # Unique identifier of the column to sort by
     decimal columnId?;
     # Direction of the sort
     "ASCENDING"|"DESCENDING" direction = "ASCENDING";
-};
-
-# Additional details for user import including responsible user's email
-public type AccountImportUsers_additionalDetails record {
-    # Email address of the user responsible for the event.
-    string emailAddress;
-};
-
-# Response schema for user listing operations with pagination and data array
-public type UserListResponse record {
-    *IndexResult;
-    # List of User Objects
-    User[] data?;
 };
 
 # Represents the Headers record for the operation: attachments-listOnRow
@@ -8169,12 +7321,10 @@ public type GetReportHeaders record {
     string accept?;
 };
 
-# Event triggered when a sheet is renamed with old and new name details
 public type SheetRename record {
     *Event;
     # The action applied to the specified object
     "RENAME" action?;
-    # Additional details for sheet rename including user email and name changes
     SheetRename_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "SHEET" objectType?;
@@ -8208,25 +7358,15 @@ public type ListSearchSheetHeaders record {
     string smartsheetIntegrationSource?;
 };
 
-# Response containing updated share configurations
-public type ShareUpdateResponse record {
-    *Result;
-    # Array of updated share objects
-    Share[] result?;
-};
-
-# Event triggered when dashboard is moved between workspaces or folders
 public type DashboardMove record {
     *Event;
     # The action applied to the specified object
     "MOVE" action?;
-    # Move event details including user, workspace, and folder information
     DashboardMove_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "DASHBOARD" objectType?;
 };
 
-# Operation result with sheet version information extending ItemResult
 public type Result ItemResult;
 
 # A template can be used to create a sheet
@@ -8239,7 +7379,6 @@ public type Template record {
     string largeImage?;
     # Indicates whether the template is blank. Only applicable to public templates
     boolean blank?;
-    # Enumeration of available access permission levels
     AccessLevel accessLevel?;
     # Type of global template
     string name?;
@@ -8256,9 +7395,6 @@ public type Template record {
     # List of search tags for this template. Only applicable to non-blank public templates
     string[] tags?;
 };
-
-# Response containing either sheet data or sheet version information
-public type SheetDetailsResponse Sheet|SheetVersion;
 
 # Represents the Queries record for the operation: create-folder-folder
 public type CreateFolderFolderQueries record {
@@ -8280,12 +7416,10 @@ public type CreateFolderFolderQueries record {
     "sheetHyperlinks" exclude?;
 };
 
-# Event triggered when user added to group with report sharing access
 public type ReportAddShareMember record {
     *Event;
     # The action applied to the specified object
     "ADD_SHARE_MEMBER" action?;
-    # Details about user, access level, group, and workspace for share event
     ReportAddShareMember_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "REPORT" objectType?;
@@ -8294,29 +7428,24 @@ public type ReportAddShareMember record {
 # Returned only if the column is the Primary Column (value = **true**)
 public type Primary boolean;
 
-# Event triggered when group or user added to workspace sharing list
 public type ReportAddWorkspaceShare record {
     *Event;
     # The action applied to the specified object
     "ADD_WORKSPACE_SHARE" action?;
-    # Details about user/group, access level, and workspace for share event
     ReportAddWorkspaceShare_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "REPORT" objectType?;
 };
 
-# Event triggered when user saves copy of report using Save As New
 public type ReportSaveAsNew record {
     *Event;
     # The action applied to the specified object
     "SAVE_AS_NEW" action?;
-    # Event details containing email address of user who saved report copy
-    ReportSaveAsNew_additionalDetails additionalDetails?;
+    FolderDelete_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "REPORT" objectType?;
 };
 
-# Request body schema for creating or updating workspace with name
 public type WorkspacesBody record {
     # Workspace name
     string name?;
@@ -8350,13 +7479,10 @@ public type ProofsListRequestActionsHeaders record {
     string smartsheetIntegrationSource?;
 };
 
-# Cell object containing value, format, formula, and linking information
 public type Cell record {
     # The format descriptor describing this cell's conditional format. Only returned if the include query string parameter contains **format** and this cell has a conditional format applied
     string conditionalFormat?;
-    # Represents a hyperlink to sheets, reports, dashboards, or external URLs
     Hyperlink hyperlink?;
-    # Image metadata including dimensions, ID, and alt text
     Image image?;
     # The Id of the column that the cell is located in
     decimal columnId?;
@@ -8374,22 +7500,12 @@ public type Cell record {
     string formula?;
     # Set to **false** to enable lenient parsing. Defaults to **true**. You can specify this attribute in a request, but it is never present in a response
     boolean strict?;
-    # Cell link information including sheet, row, column IDs and status
     CellLink linkInFromCell?;
     # A string, number, or a Boolean value -- depending on the cell type and the data in the cell. Cell values larger than 4000 characters are silently truncated. An empty cell returns no value
     string|decimal|boolean value?;
-    # Array of cell links pointing from this cell to other cells
     CellLink[] linksOutToCells?;
 };
 
-# Sheet creation operation response with result details
-public type SheetCreationResponse record {
-    *GenericResult;
-    # Result object containing details of the created sheet
-    SheetCreated|SheetCreatedFromTemplate result?;
-};
-
-# Additional details about the token refresh event
 public type AccesstokenRefresh_additionalDetails record {
     # Date and time when this access token expires.
     string tokenExpirationTimestamp?;
@@ -8409,7 +7525,6 @@ public type UserProfileImageResponse record {
     string firstName?;
     # User's last name.
     string lastName?;
-    # User profile image metadata including ID and dimensions
     ProfileImage profileImage?;
     # User Id.
     decimal id?;
@@ -8419,13 +7534,6 @@ public type UserProfileImageResponse record {
 public type GetReportsQueries record {
     # When specified with a date and time value, response only includes the objects that are modified on or after the date and time specified. If you need to keep track of frequent changes, it may be more useful to use Get Sheet Version
     Timestamp modifiedSince?;
-};
-
-# Response containing an array of workspace folders with metadata
-public type WorkspaceFoldersResponse record {
-    *IndexResult;
-    # Array of all the workspace folders, referenced by their ID, name, and URL
-    WorkspaceFoldersResponse_data[] data?;
 };
 
 # Represents the Queries record for the operation: remove-user
@@ -8452,12 +7560,10 @@ public type RemoveUserQueries record {
     int transferTo?;
 };
 
-# Event when user is removed from group that report is shared with
 public type ReportRemoveShareMember record {
     *Event;
     # The action applied to the specified object
     "REMOVE_SHARE_MEMBER" action?;
-    # Removal details including user, group, and workspace identifiers
     ReportRemoveShareMember_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "REPORT" objectType?;
@@ -8519,12 +7625,10 @@ public type DeleteWorkspaceShareHeaders record {
     string smartsheetIntegrationSource?;
 };
 
-# Event triggered when a folder is created, copied, or saved as new
 public type FolderCreate record {
     *Event;
     # The action applied to the specified object
     "CREATE" action?;
-    # Additional details for folder creation event including user email and source
     FolderCreate_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "FOLDER" objectType?;
@@ -8536,7 +7640,6 @@ public type AddSummaryFieldsQueries record {
     boolean renameIfConflict = false;
 };
 
-# Defines sort criteria and order for data sorting operations
 public type SortSpecifier record {
     # Specifies sort order. Array is in priority order
     SortCriterion[] sortCriteria?;
@@ -8578,26 +7681,17 @@ public type EventAdditionalDetails record {
     string emailAddress;
 };
 
-# Response containing paginated list of asset share permissions
-public type AssetSharesListResponse record {
-    *LastKeyContainer;
-    *ShareResponseResult;
-    ShareResponse[] result;
-};
-
 # Represents the Queries record for the operation: tokens-delete
 public type TokensDeleteQueries record {
     # The client Id and user Id is fetched based on the token that is used to make this API call. A value of true deletes all tokens associated to the given client Id and user Id
     boolean deleteAllForApiClient = false;
 };
 
-# Event triggered when admin removes user from all groups and sharing
 public type UserRemoveShares record {
     *Event;
     # The action applied to the specified object
     "REMOVE_SHARES" action?;
-    # Additional details for user remove shares event including user email
-    UserRemoveShares_additionalDetails additionalDetails?;
+    FolderDelete_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "USER" objectType?;
 };
@@ -8610,7 +7704,6 @@ public type ContactObjectValue record {
     string name?;
     # Email address of the Contact
     string email?;
-    # Object type identifier for contact values
     "CONTACT" objectType?;
 };
 
@@ -8620,7 +7713,6 @@ public type Proof record {
     MiniUser lastUpdatedBy?;
     # Array of Attachment objects. Only returned if the include query string parameter contains attachments
     Attachment[] attachments?;
-    # Read-only timestamp that can be either DateTime or Number format
     Timestamp lastUpdatedAt?;
     # File type for the proof version
     "DOCUMENT"|"IMAGE"|"MIXED"|"NONE"|"VIDEO" proofType?;
@@ -8648,7 +7740,6 @@ public type Proof record {
 # Only returned in the response if **readOnlyFullEnabled = true**
 public type ReadOnlyFullAccessibleBy "ALL"|"ORG"|"SHARED";
 
-# Cell link information including sheet, row, column IDs and status
 public type CellLink record {
     # Sheet name of the linked cell
     string sheetName?;
@@ -8700,28 +7791,8 @@ public type ProofsCreateVersionHeaders record {
     string contentType = "application/json";
 };
 
-# Additional details including email address of user who deleted workspace
-public type WorkspaceDelete_additionalDetails record {
-    # Email address of the user responsible for the event.
-    string emailAddress;
-};
-
-# Details about the ownership transfer including old and new owner user IDs
-public type UserTransferOwnedItems_additionalDetails record {
-    # Email address of the user responsible for the event.
-    string emailAddress;
-    # Id of the former group owner.
-    @constraint:Int {minValue: 0}
-    int oldOwnerUserId?;
-    # Id of the new group owner.
-    @constraint:Int {minValue: 0}
-    int newOwnerUserId?;
-};
-
-# Dashboard object with widgets, styling, and workspace information
 public type Sight SightListItem;
 
-# Complete user profile with permissions, contact info, and account details
 public type UserProfile record {
     # Indicates whether the user is a JIRA admin
     boolean jiraAdmin?;
@@ -8733,7 +7804,6 @@ public type UserProfile record {
     string role?;
     # Indicates whether the user is a system admin (can manage user accounts and organization account)
     boolean admin?;
-    # User profile image metadata including ID and dimensions
     ProfileImage profileImage?;
     # Current user's locale (see [ServerInfo](/api/smartsheet/openapi/serverinfo/serverinfo))
     string locale?;
@@ -8761,7 +7831,6 @@ public type UserProfile record {
     string firstName?;
     # User's mobile phone number
     string mobilePhone?;
-    # User's alternate email address with ID and confirmation status
     AlternateEmail alternateEmails?;
     # User's work phone number
     string workPhone?;
@@ -8771,7 +7840,6 @@ public type UserProfile record {
     @constraint:Number {minValue: -1, maxValue: -1}
     @deprecated
     decimal sheetCount = -1;
-    # Smartsheet account information with ID and name
     Account account?;
     # Indicates whether the user is a licensed user (can create and own sheets)
     boolean licensedSheetCreator?;
@@ -8781,6 +7849,12 @@ public type UserProfile record {
 
 # When applicable for **CHECKBOX** or **PICKLIST** column types. See [Symbol Columns](/api/smartsheet/openapi/columns)
 public type Symbol string;
+
+public type InlineResponse200 record {
+    *IndexResult;
+    # List of Contacts
+    Contact[] data?;
+};
 
 # Represents the Headers record for the operation: get-sheetVersion
 public type GetSheetVersionHeaders record {
@@ -8869,31 +7943,25 @@ public type CreateFolderFolderHeaders record {
     string contentType = "application/json";
 };
 
-# Event schema triggered when a sheet form is created
 public type FormCreate record {
     *Event;
     # The action applied to the specified object
     "CREATE" action?;
-    # Additional details for form creation including email, form name, and sheet ID
     FormCreate_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "FORM" objectType?;
 };
 
-# Event schema triggered when a user is removed from organization account
 public type UserRemoveFromAccount record {
     *Event;
     # The action applied to the specified object
     "REMOVE_FROM_ACCOUNT" action?;
-    # Additional details for user removal including responsible user's email
-    UserRemoveFromAccount_additionalDetails additionalDetails?;
+    FolderDelete_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "USER" objectType?;
 };
 
-# Comment object with text, timestamps, creator info, and attachments
 public type Comment record {
-    # Read-only timestamp that can be either DateTime or Number format
     Timestamp createdAt?;
     # Array of attachments on comments
     Attachment[] attachments?;
@@ -8901,7 +7969,6 @@ public type Comment record {
     MiniUser createdBy?;
     # Discussion Id of discussion that contains comment
     decimal discussionId?;
-    # Read-only timestamp that can be either DateTime or Number format
     Timestamp modifiedAt?;
     # Comment Id
     decimal id?;
@@ -8909,7 +7976,6 @@ public type Comment record {
     string text?;
 };
 
-# Additional details about the removed share member and associated IDs
 public type DashboardRemoveShareMember_additionalDetails record {
     # Email address of the user responsible for the event.
     string emailAddress;
@@ -8924,7 +7990,6 @@ public type DashboardRemoveShareMember_additionalDetails record {
     int workspaceId?;
 };
 
-# Column object with ID, title, type, index, and validation properties
 public type GetColumn record {
     # When applicable for **CHECKBOX** or **PICKLIST** column types. See [Symbol Columns](/api/smartsheet/openapi/columns)
     string symbol?;
@@ -8940,12 +8005,10 @@ public type GetColumn record {
     boolean validation?;
 };
 
-# Event schema triggered when sharing permissions are added to a report
 public type ReportAddShare record {
     *Event;
     # The action applied to the specified object
     "ADD_SHARE" action?;
-    # Additional details for report sharing including access level and user/group IDs
     ReportAddShare_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "REPORT" objectType?;
@@ -8982,18 +8045,15 @@ public type ProofsCreateDiscussionHeaders record {
     string contentType = "application/json";
 };
 
-# Event triggered when a user is removed from a dashboard share group
 public type DashboardRemoveShareMember record {
     *Event;
     # The action applied to the specified object
     "REMOVE_SHARE_MEMBER" action?;
-    # Additional details about the removed share member and associated IDs
     DashboardRemoveShareMember_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "DASHBOARD" objectType?;
 };
 
-# Share details including user email, access level, and group information
 public type DashboardAddShare_additionalDetails record {
     # Email address of the user responsible for the event.
     string emailAddress;
@@ -9012,7 +8072,6 @@ public type DashboardAddShare_additionalDetails record {
     int workspaceId?;
 };
 
-# Details about user/group, access level, and workspace for share event
 public type ReportAddWorkspaceShare_additionalDetails record {
     # Email address of the user responsible for the event.
     string emailAddress;
@@ -9031,7 +8090,6 @@ public type ReportAddWorkspaceShare_additionalDetails record {
     int workspaceId?;
 };
 
-# Details for share removal including user email, group ID, and user ID
 public type SheetRemoveShare_additionalDetails record {
     # Email address of the user responsible for the event.
     string emailAddress;
@@ -9053,14 +8111,6 @@ public type Error record {
     string message?;
 };
 
-# Response containing a list of proof attachments with pagination metadata
-public type ProofAttachmentsResponse record {
-    *IndexResult;
-    # list of proof attachments
-    Attachment[] data?;
-};
-
-# Details including sender email, recipient info, and attachment format
 public type ReportSendAsAttachment_additionalDetails record {
     # Email address of the user responsible for the event.
     string emailAddress;
@@ -9101,7 +8151,6 @@ public type ListWorkspaceSharesHeaders record {
     string smartsheetIntegrationSource?;
 };
 
-# Additional details for dashboard creation including source and dashboard name
 public type DashboardCreate_additionalDetails record {
     # Email address of the user responsible for the event.
     string emailAddress;
@@ -9148,13 +8197,11 @@ public type CopySightHeaders record {
     string contentType = "application/json";
 };
 
-# Event schema for workspace ownership transfer operations
 public type WorkspaceTransferOwnership record {
     *Event;
     # The action applied to the specified object
     "TRANSFER_OWNERSHIP" action?;
-    # Additional details for workspace ownership transfer event
-    WorkspaceTransferOwnership_additionalDetails additionalDetails?;
+    FolderDelete_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "WORKSPACE" objectType?;
 };
@@ -9169,7 +8216,6 @@ public type AttachmentsListOnRowQueries record {
     decimal page = 1;
 };
 
-# Contact information with name and email address
 public type ContactOption record {
     # Can be a user's name, display name, or free text
     string name?;
@@ -9177,13 +8223,11 @@ public type ContactOption record {
     string email?;
 };
 
-# Event schema for account login history download operations
 public type AccountDownloadLoginHistory record {
     *Event;
     # The action applied to the specified object
     "DOWNLOAD_LOGIN_HISTORY" action?;
-    # Additional details for login history download event
-    AccountDownloadLoginHistory_additionalDetails additionalDetails?;
+    FolderDelete_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "ACCOUNT" objectType?;
 };
@@ -9198,7 +8242,6 @@ public type Workspace record {
     Folder[] folders?;
     # Dashboards contained in the workspace
     DashboardListing[] sights?;
-    # Enumeration of available access permission levels
     AccessLevel accessLevel?;
     # Workspace name
     string name?;
@@ -9214,18 +8257,15 @@ public type UpdateWorkspaceShareQueries record {
     decimal accessApiLevel = 0;
 };
 
-# Event schema for adding workspace shares to sheets
 public type SheetAddWorkspaceShare record {
     *Event;
     # The action applied to the specified object
     "ADD_WORKSPACE_SHARE" action?;
-    # Additional details for workspace share addition event
     SheetAddWorkspaceShare_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "SHEET" objectType?;
 };
 
-# Destination container specification for copy operations
 public type ContainerDestinationForCopy record {
     # Name of the newly created object (when copying a dashboard, folder, sheet, or workspace)
     string newName?;
@@ -9251,12 +8291,10 @@ public type DiscussionsListQueries record {
     decimal page = 1;
 };
 
-# Event schema for workspace export operations
 public type WorkspaceExport record {
     *Event;
     # The action applied to the specified object
     "EXPORT" action?;
-    # Additional details for workspace export event
     WorkspaceExport_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "WORKSPACE" objectType?;
@@ -9290,26 +8328,16 @@ public type UpdateFolderHeaders record {
     string smartsheetIntegrationSource?;
 };
 
-# Schema for adding an alternate email address to a user account
 public type AddAlternateEmail record {
     # User's alternate email address
     string email?;
 };
 
-# Response for summary field image operations
-public type SummaryFieldImageResponse record {
-    *GenericResult;
-    # Summary field object with image attachment capabilities
-    SummaryFieldAddImage result?;
-};
-
-# Event triggered when admin downloads published items report
 public type AccountDownloadPublishedItemsReport record {
     *Event;
     # The action applied to the specified object
     "DOWNLOAD_PUBLISHED_ITEMS_REPORT" action?;
-    # Additional details for published items report download event
-    AccountDownloadPublishedItemsReport_additionalDetails additionalDetails?;
+    FolderDelete_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "ACCOUNT" objectType?;
 };
@@ -9373,9 +8401,6 @@ public type GetWorkspaceQueries record {
     boolean loadAll = false;
 };
 
-# Response containing detailed attachment information
-public type AttachmentDetailsResponse Attachment;
-
 # Stream result properties
 public type StreamResult record {
     # True if more results are available. This is typically due to event counts
@@ -9414,7 +8439,6 @@ public type GetWorkspaceHeaders record {
     string smartsheetIntegrationSource?;
 };
 
-# Standard success response with result code and message
 public type SuccessResult record {
     # * '0' Success
     0 resultCode?;
@@ -9428,62 +8452,36 @@ public type ProofsGetQueries record {
     "attachments"|"discussions" include?;
 };
 
-# Response containing sheet search results
-public type SheetSearchResponse record {
-    *SearchResult;
-    # Array of search result items found within the sheet
-    SearchResultItem[] result?;
-};
-
-# Event triggered when a user requests a sheet backup
 public type SheetRequestBackup record {
     *Event;
     # The action applied to the specified object
     "REQUEST_BACKUP" action?;
-    # Additional backup details including attachment and email preferences
-    SheetRequestBackup_additionalDetails additionalDetails?;
+    WorkspaceUpdateRecurringBackup_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "SHEET" objectType?;
 };
 
-# Response containing a single folder object
-public type FolderResponse record {
-    *Result;
-    # Can contain dashboards, folders, reports, sheets, or templates
-    Folder result?;
-};
-
 # MiniUser Object
 public type MiniUser record {
-    # User's display name (read-only)
     string name?;
-    # User's email address
     string email?;
 };
-
-# Array of group member objects
-public type GroupMemberArray GroupMember[];
 
 # Object representing a checkbox
 public type CheckboxObjectValue record {
     # true if checked; false otherwise
     boolean value?;
-    # Object type identifier for checkbox values
     "CHECKBOX" objectType?;
 };
 
-# Event schema triggered when a dashboard is created via UI or API
 public type DashboardCreate record {
     *Event;
-    # The CREATE action applied to the dashboard object
     "CREATE" action?;
-    # Additional details for dashboard creation including source and dashboard name
     DashboardCreate_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "DASHBOARD" objectType?;
 };
 
-# Removal details including user, group, and workspace identifiers
 public type ReportRemoveShareMember_additionalDetails record {
     # Email address of the user responsible for the event.
     string emailAddress;
@@ -9496,12 +8494,6 @@ public type ReportRemoveShareMember_additionalDetails record {
     # Id of the workspace that the group is shared to. (Specific to cases where the report is shared to the group via a workspace's sharing list)
     @constraint:Int {minValue: 0}
     int workspaceId?;
-};
-
-# Additional details for workspace save as new event including user email
-public type WorkspaceSaveAsNew_additionalDetails record {
-    # Email address of the user responsible for the event.
-    string emailAddress;
 };
 
 # Represents the Headers record for the operation: add-crosssheet-reference
@@ -9535,15 +8527,7 @@ public type AddCrosssheetReferenceHeaders record {
     string contentType = "application/json";
 };
 
-# Request body schema accepting either a single Row or RowCollection
-public type SheetIdRowsBody Row|RowCollection;
-
-# Response containing a paginated list of sheets
-public type SheetListResponse record {
-    *IndexResult;
-    # Array of sheet objects returned in the response
-    SchemasSheet[] data?;
-};
+public type SheetIdRowsBody Row|SheetssheetIdrowsOneOf2;
 
 # Represents the Headers record for the operation: update-sight-share
 public type UpdateSightShareHeaders record {
@@ -9573,7 +8557,6 @@ public type UpdateSightShareHeaders record {
     string smartsheetIntegrationSource?;
 };
 
-# Schema representing a task predecessor with dependency type and timing details
 public type Predecessor record {
     # In a project sheet, represents a value in a duration cell, or a lag value of a predecessor
     Duration lag?;
@@ -9621,12 +8604,10 @@ public type GetGroupHeaders record {
     string smartsheetIntegrationSource?;
 };
 
-# Event schema triggered when an attachment is uploaded to a sheet or workspace
 public type AttachmentCreate record {
     *Event;
     # The action applied to the specified object
     "CREATE" action?;
-    # Additional details for attachment creation including user email and location
     AttachmentCreate_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "ATTACHMENT" objectType?;
@@ -9663,9 +8644,6 @@ public type CreateWebhookHeaders record {
     string contentType = "application/json";
 };
 
-# Array of share objects for a report
-public type ReportShareList Share[];
-
 # Represents the Headers record for the operation: delete-workspace
 public type DeleteWorkspaceHeaders record {
     # API Access Token used to authenticate requests to Smartsheet APIs
@@ -9694,11 +8672,16 @@ public type DeleteWorkspaceHeaders record {
     string smartsheetIntegrationSource?;
 };
 
-# Response for group create, update, or delete operations
-public type GroupOperationResponse record {
-    *GenericResult;
-    # Schema representing a Smartsheet group with owner, name, and member details
-    Group result?;
+public type InlineResponse20015_data record {
+    AccessLevel accessLevel?;
+    # The report's name.
+    string name?;
+    # It is `true` if the report is a sheet summary; otherwise it is a row report.
+    boolean isSummaryReport?;
+    # The report's unique identifier.
+    decimal id?;
+    # URL to the report in Smartsheet.
+    string permalink?;
 };
 
 # Represents the Headers record for the operation: list-report-shares
@@ -9729,19 +8712,11 @@ public type ListReportSharesHeaders record {
     string smartsheetIntegrationSource?;
 };
 
-# Additional details for dashboard delete events
-public type DashboardDelete_additionalDetails record {
-    # Email address of the user responsible for the event.
-    string emailAddress;
-};
-
-# Event triggered when listing all sheets owned by organization members
 public type AccountListSheets record {
     *Event;
     # The action applied to the specified object
     "LIST_SHEETS" action?;
-    # Additional details for sheet listing event including user email
-    AccountListSheets_additionalDetails additionalDetails?;
+    FolderDelete_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "ACCOUNT" objectType?;
 };
@@ -9819,7 +8794,6 @@ public type ImportSheetIntoFolderQueries record {
     decimal primaryColumnIndex = 0;
 };
 
-# Additional details for sheet move including container IDs and folder info
 public type SheetMove_additionalDetails record {
     # Email address of the user responsible for the event.
     string emailAddress;
@@ -9846,7 +8820,6 @@ public type UpdateRowsQueries record {
     boolean overrideValidation = false;
 };
 
-# Container for search results with items array and total count
 public type SearchResult record {
     # Array of SearchResultItem objects.
     SearchResultItem[] results?;
@@ -9882,7 +8855,6 @@ public type ListSearchHeaders record {
     string smartsheetIntegrationSource?;
 };
 
-# Image URL reference for inline body content
 public type InlineBodyItemsApplicationjsonimageurls ImageUrl;
 
 # Represents the Queries record for the operation: delete-favorites-by-type
@@ -9891,30 +8863,25 @@ public type DeleteFavoritesByTypeQueries record {
     string objectIds;
 };
 
-# Event triggered when a sheet is permanently deleted from trash
 public type SheetPurge record {
     *Event;
     # The action applied to the specified object
     "PURGE" action?;
-    # Additional details about the sheet purge event including user email
-    SheetPurge_additionalDetails additionalDetails?;
+    FolderDelete_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "SHEET" objectType?;
 };
 
-# Event triggered when rows are copied between sheets
 public type SheetCopyRow record {
     *Event;
     # The action applied to the specified object
     "COPY_ROW" action?;
-    # Details about row copy operation including counts and sheet IDs
     SheetCopyRow_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "SHEET" objectType?;
 };
 
-# Request body for adding group members (single or multiple)
-public type GroupIdMembersBody GroupMember|GroupMemberArray;
+public type GroupIdMembersBody GroupMember|GroupsgroupIdmembersOneOf2;
 
 # The base object for Event Reporting events. 
 # 
@@ -9974,7 +8941,6 @@ public type Event record {
 public type MultiPicklistObjectValue record {
     # List of strings to choose from
     string[] values?;
-    # Object type identifier, always 'MULTI_PICKLIST'
     "MULTI_PICKLIST" objectType?;
 };
 
@@ -10007,13 +8973,11 @@ public type GetContactQueries record {
     "profileImage" include?;
 };
 
-# Event triggered when a deleted report is restored from trash
 public type ReportRestore record {
     *Event;
     # The action applied to the specified object
     "RESTORE" action?;
-    # Additional details including email of user who restored the report
-    ReportRestore_additionalDetails additionalDetails?;
+    FolderDelete_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "REPORT" objectType?;
 };
@@ -10046,7 +9010,6 @@ public type UpdateSheetHeaders record {
     string smartsheetIntegrationSource?;
 };
 
-# Details of an update request sent to recipients
 public type SentUpdateRequest record {
     # Recipient object
     Recipient sentTo?;
@@ -10080,18 +9043,15 @@ public type UpdateSightShareQueries record {
     decimal accessApiLevel = 0;
 };
 
-# Event triggered when a user or group is added to dashboard sharing
 public type DashboardAddShare record {
     *Event;
     # The action applied to the specified object
     "ADD_SHARE" action?;
-    # Share details including user email, access level, and group information
     DashboardAddShare_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "DASHBOARD" objectType?;
 };
 
-# Webhook callback statistics including retry counts and timestamps
 public type Webhook_stats record {
     # The number of retries the webhook had performed as of the last callback attempt.
     decimal lastCallbackAttemptRetryCount?;
@@ -10101,12 +9061,10 @@ public type Webhook_stats record {
     string lastCallbackAttempt?;
 };
 
-# Event triggered when a report is renamed
 public type ReportRename record {
     *Event;
     # The action applied to the specified object
     "RENAME" action?;
-    # Rename details including user email and old/new report names
     ReportRename_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "REPORT" objectType?;
@@ -10182,15 +9140,12 @@ public type ShareSightQueries record {
     boolean sendEmail = false;
 };
 
-# Row object with cells, timestamps, and sheet metadata
 public type GetRowObject record {
-    # Read-only timestamp that can be either DateTime or Number format
     Timestamp createdAt?;
     # Indicates whether the row is expanded or collapsed
     boolean expanded?;
     # Cells objects
     CellObjectForRows[] cells?;
-    # Read-only timestamp that can be either DateTime or Number format
     Timestamp modifiedAt?;
     # Parent sheet Id
     decimal sheetId?;
@@ -10271,25 +9226,15 @@ public type ImportSheetIntoFolderHeaders record {
     "text/csv"|"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" contentType;
 };
 
-# Event schema triggered when a report is moved between locations
 public type ReportMove record {
     *Event;
     # The action applied to the specified object
     "MOVE" action?;
-    # Additional details for report move events including destination info
     ReportMove_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "REPORT" objectType?;
 };
 
-# Response containing IDs of successfully deleted summary fields
-public type SummaryFieldDeleteResponse record {
-    *Result;
-    # Array of field IDs that were successfully deleted
-    decimal[] result?;
-};
-
-# Image metadata with URL, dimensions, and error information
 public type ImageUrl record {
     # Image Id
     string imageId?;
@@ -10334,13 +9279,6 @@ public type MoveSheetHeaders record {
     string contentType = "application/json";
 };
 
-# Response containing a list of dashboards with pagination metadata
-public type DashboardListResponse record {
-    *IndexResult;
-    # List of Dashboards
-    SightListItem[] data?;
-};
-
 # Represents the Headers record for the operation: get-workspace-folders
 public type GetWorkspaceFoldersHeaders record {
     # API Access Token used to authenticate requests to Smartsheet APIs
@@ -10369,11 +9307,7 @@ public type GetWorkspaceFoldersHeaders record {
     string smartsheetIntegrationSource?;
 };
 
-# Additional details about the sheet save operation, including user email
-public type SheetSaveAsNew_additionalDetails record {
-    # Email address of the user responsible for the event.
-    string emailAddress;
-};
+public type FavoritesOneOf2 Favorite[];
 
 # Represents the Headers record for the operation: proofs-get
 public type ProofsGetHeaders record {
@@ -10403,7 +9337,6 @@ public type ProofsGetHeaders record {
     string smartsheetIntegrationSource?;
 };
 
-# Paginated result metadata for workspace listings (deprecated properties)
 public type IndexResultWorkspaces record {
     # **DEPRECATED - As early as the sunset date specified in this 
     # [Changelog entry](/api/smartsheet/changelog#2025-08-04), this response property will not be part 
@@ -10449,7 +9382,6 @@ public type IndexResultWorkspaces record {
     decimal totalCount?;
 };
 
-# Additional details for share member addition including access level and IDs
 public type SheetAddShareMember_additionalDetails record {
     # Email address of the user responsible for the event.
     string emailAddress;
@@ -10503,7 +9435,6 @@ public type GetFolderChildrenHeaders record {
     string authorization?;
 };
 
-# Dashboard result with access level and permalink information
 public type SightResult SightName;
 
 # Represents the Headers record for the operation: discussions-create
@@ -10537,13 +9468,11 @@ public type DiscussionsCreateHeaders record {
     string contentType = "application/json";
 };
 
-# Event schema triggered when a dashboard is permanently deleted
 public type DashboardPurge record {
     *Event;
     # The action applied to the specified object
     "PURGE" action?;
-    # Additional details for dashboard purge event including user email address
-    DashboardPurge_additionalDetails additionalDetails?;
+    FolderDelete_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "DASHBOARD" objectType?;
 };
@@ -10579,13 +9508,11 @@ public type ListGroupsHeaders record {
     string smartsheetIntegrationSource?;
 };
 
-# Event triggered when a user accepts an organization invitation via email
 public type UserAcceptInvite record {
     *Event;
     # The action applied to the specified object
     "ACCEPT_INVITE" action?;
-    # Additional details for user accept invite event including user email
-    UserAcceptInvite_additionalDetails additionalDetails?;
+    FolderDelete_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "USER" objectType?;
 };
@@ -10623,15 +9550,7 @@ public type ListFilteredEventsHeaders record {
     "deflate"|"gzip" acceptEncoding?;
 };
 
-# Additional details for user updates including responsible user's email
-public type UserUpdateUser_additionalDetails record {
-    # Email address of the user responsible for the event.
-    string emailAddress;
-};
-
-# Sheet object containing basic properties like ID, name, and access level
 public type ComponentsSchemasSheet record {
-    # Enumeration of available access permission levels
     AccessLevel accessLevel?;
     # Sheet name
     Name name?;
@@ -10660,13 +9579,11 @@ public type ListSummaryFieldsPaginatedQueries record {
     decimal page = 1;
 };
 
-# Event triggered when admin downloads user list report from User Management
 public type AccountDownloadUserList record {
     *Event;
     # The action applied to the specified object
     "DOWNLOAD_USER_LIST" action?;
-    # Additional details for download user list event including admin email
-    AccountDownloadUserList_additionalDetails additionalDetails?;
+    FolderDelete_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "ACCOUNT" objectType?;
 };
@@ -10699,12 +9616,10 @@ public type CommentGetHeaders record {
     string smartsheetIntegrationSource?;
 };
 
-# Event triggered when users or groups are added to workspace sharing list
 public type WorkspaceAddShare record {
     *Event;
     # The action applied to the specified object
     "ADD_SHARE" action?;
-    # Additional details for workspace sharing action including user info and access level
     WorkspaceAddShare_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "WORKSPACE" objectType?;
@@ -10769,12 +9684,10 @@ public type UpdateWebhookHeaders record {
     string contentType = "application/json";
 };
 
-# Event triggered when organization account name is changed
 public type AccountRename record {
     *Event;
     # The action applied to the specified object
     "RENAME" action?;
-    # Additional details for account rename including old and new names
     AccountRename_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "ACCOUNT" objectType?;
@@ -10799,21 +9712,8 @@ public type UpdateAssetShareHeaders record {
     string authorization?;
 };
 
-# Response containing a list of update request objects with pagination
-public type UpdateRequestListResponse record {
-    *IndexResult;
-    # list of UpdateRequest objects
-    UpdateRequest[] data?;
-};
-
 # Column title
 public type Title string;
-
-# Event details containing email address of user who saved report copy
-public type ReportSaveAsNew_additionalDetails record {
-    # Email address of the user responsible for the event.
-    string emailAddress;
-};
 
 # Represents the Headers record for the operation: proofs-update
 public type ProofsUpdateHeaders record {
@@ -10843,18 +9743,15 @@ public type ProofsUpdateHeaders record {
     string smartsheetIntegrationSource?;
 };
 
-# Event triggered when a folder is renamed via UI or API
 public type FolderRename record {
     *Event;
     # The action applied to the specified object
     "RENAME" action?;
-    # Additional details for folder rename including old and new names
     FolderRename_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "FOLDER" objectType?;
 };
 
-# Additional details for access token authorization including user email and token info
 public type AccesstokenAuthorize_additionalDetails record {
     # Date and time when this access token expires.
     string tokenExpirationTimestamp?;
@@ -10889,26 +9786,6 @@ public type ListSearchQueries record {
     ("attachments"|"cellData"|"comments"|"folderNames"|"reportNames"|"sheetNames"|"sightNames"|"summaryFields"|"templateNames"|"workspaceNames")[] scopes?;
 };
 
-# Response object for discussion creation operations with version info
-public type DiscussionCreateResponse record {
-    *GenericResult;
-    # Discussion object with comments, attachments, and metadata for sheets/rows
-    Discussion result?;
-};
-
-# Response schema for current user's group memberships with profile data
-public type CurrentUserGroupsResponse record {
-    *UserProfile;
-    # List of Groups
-    Group[] data?;
-};
-
-# Additional details for sheet listing event including user email
-public type AccountListSheets_additionalDetails record {
-    # Email address of the user responsible for the event.
-    string emailAddress;
-};
-
 # Represents the Headers record for the operation: row-get
 public type RowGetHeaders record {
     # API Access Token used to authenticate requests to Smartsheet APIs
@@ -10937,7 +9814,11 @@ public type RowGetHeaders record {
     string smartsheetIntegrationSource?;
 };
 
-# Smartsheet account information with ID and name
+public type InlineResponse20019 record {
+    *Result;
+    Share[] result?;
+};
+
 public type Account record {
     # Account name
     string name?;
@@ -10956,25 +9837,15 @@ public type ImportSheetIntoSheetsFolderQueries record {
     decimal primaryColumnIndex = 0;
 };
 
-# Response containing a list of templates with pagination metadata
-public type TemplateListResponse record {
-    *IndexResult;
-    # list of Templates
-    Template[] data?;
-};
-
-# Event triggered when a workspace is created
 public type WorkspaceCreate record {
     *Event;
     # The action applied to the specified object
     "CREATE" action?;
-    # Additional details for workspace creation event
     WorkspaceCreate_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "WORKSPACE" objectType?;
 };
 
-# Additional details for share removal including user or group ID
 public type DashboardRemoveShare_additionalDetails record {
     # Email address of the user responsible for the event.
     string emailAddress;
@@ -11045,12 +9916,10 @@ public type CreateHomeFolderHeaders record {
     string contentType = "application/json";
 };
 
-# Event triggered when a member is added to a group
 public type GroupAddMember record {
     *Event;
     # The action applied to the specified object
     "ADD_MEMBER" action?;
-    # Additional details for group member addition event
     GroupAddMember_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "GROUP" objectType?;
@@ -11098,13 +9967,6 @@ public type ListImageUrlsHeaders record {
     # Required for POST and PUT requests. Defines the structure for the request body
     @http:Header {name: "Content-Type"}
     string contentType = "application/json";
-};
-
-# Response containing an array of folders with pagination metadata
-public type FolderListResponse record {
-    *IndexResult;
-    # Array of folder objects returned in the response
-    Folder[] result?;
 };
 
 # Represents the Queries record for the operation: update-report-share
@@ -11172,6 +10034,20 @@ public type RowAttachmentsAttachFileHeaders record {
     string contentType = "application/json";
 };
 
+public type InlineResponse20021 record {
+    *SearchResult;
+    SearchResultItem[] result?;
+};
+
+public type InlineResponse20020 record {
+    *SearchResult;
+};
+
+public type InlineResponse20023 record {
+    *SuccessResult;
+    ShareResponse[] result?;
+};
+
 # Represents the Headers record for the operation: list-contacts
 public type ListContactsHeaders record {
     # API Access Token used to authenticate requests to Smartsheet APIs
@@ -11200,26 +10076,35 @@ public type ListContactsHeaders record {
     string smartsheetIntegrationSource?;
 };
 
-# Additional details about the discussion delete event
-public type DiscussionDelete_additionalDetails record {
-    # Email address of the user responsible for the event.
-    string emailAddress;
-    # Id of the sheet row containing the discussion. (this property is included only if the discussion is on a sheet row)
-    @constraint:Int {minValue: 0}
-    int sheetRowId?;
-    # Id of the sheet the discussion is on. (This property is included only if the `workspaceId` property below isn't included)
-    @constraint:Int {minValue: 0}
-    int sheetId?;
-    # Id of the workspace the discussion is directly on. (This property is included only if the `sheetId` property above isn't included)
-    @constraint:Int {minValue: 0}
-    int workspaceId?;
+public type InlineResponse20022 record {
+    *InlineResponse20022AllOf1;
+    *InlineResponse20022InlineResponse20022AllOf12;
+    ShareResponse[] result;
 };
+
+public type InlineResponse20025 Sheet|SheetVersion;
+
+public type InlineResponse20024 record {
+    *IndexResult;
+    SchemasSheet[] data?;
+};
+
+public type InlineResponse20027 record {
+    *IndexResult;
+    # list of attachments
+    Attachment[] data?;
+};
+
+public type InlineResponse20026 record {
+    *GenericResult;
+    Sheet result?;
+};
+
+public type InlineResponse20029 Attachment;
 
 # SummaryField object to create
 public type SummaryFieldCreateRequest record {
-    # Represents a hyperlink to sheets, reports, dashboards, or external URLs
     Hyperlink hyperlink?;
-    # Image metadata including dimensions, ID, and alt text
     Image image?;
     # When applicable for PICKLIST column type
     PropertiesSymbol symbol?;
@@ -11233,7 +10118,6 @@ public type SummaryFieldCreateRequest record {
     ObjectValue objectValue?;
     # Arbitrary name, must be unique within summary
     PropertiesTitle title?;
-    # Enumeration of available column property data types
     PropertiesType 'type?;
     # When applicable for PICKLIST column type. Array of the options available for the field
     PropertiesOptions options?;
@@ -11245,10 +10129,38 @@ public type SummaryFieldCreateRequest record {
     Validation validation?;
 };
 
-# Request payload for creating a new comment
+public type InlineResponse20028 record {
+    *GenericResult;
+    # Attachment Object
+    Attachment result?;
+};
+
 public type CommentCreationRequest record {
     # Comment body
     string text?;
+};
+
+public type InlineResponse20085AllOf1 record {
+    # The current page in the full result set that the data array represents.
+    # NOTE when a page number greater than totalPages is requested, the last
+    # page is instead returned
+    decimal pageNumber?;
+    # **DEPRECATED - As early as the sunset date specified in this [Changelog entry](/api/smartsheet/changelog#2025-08-04), this response property value will be `-1`.** See the [Changelog entry](/api/smartsheet/changelog#2025-08-04) for migration instructions and details.
+    # 
+    # The total number of pages in the full result set
+    # 
+    # # Deprecated
+    @deprecated
+    decimal totalPages?;
+    # The number of items in a page. Omitted if there is no limit to page size (and hence, all results are included). Unless otherwise specified, this defaults to 100 for most endpoints
+    decimal? pageSize?;
+    # **DEPRECATED - As early as the sunset date specified in this [Changelog entry](/api/smartsheet/changelog#2025-08-04), this response property value will be `-1`.** See the [Changelog entry](/api/smartsheet/changelog#2025-08-04) for migration instructions and details.
+    # 
+    # The total number of items in the full result set
+    # 
+    # # Deprecated
+    @deprecated
+    decimal totalCount?;
 };
 
 # Represents the Queries record for the operation: cellHistory-get
@@ -11265,7 +10177,6 @@ public type CellHistoryGetQueries record {
     decimal page = 1;
 };
 
-# Represents the current version number of a sheet
 public type SheetVersion record {
     # A number that represents the current sheet version
     decimal version?;
@@ -11280,7 +10191,6 @@ public type CreateSheetInSheetsFolderQueries record {
     "attachments"|"cellLinks"|"data"|"discussions"|"filters"|"forms"|"ruleRecipients"|"rules" include?;
 };
 
-# Cell data object containing value, display format, and column information
 public type CellObjectForRows record {
     # Visual representation of cell contents, as presented to the user in the UI
     string displayValue?;
@@ -11354,12 +10264,6 @@ public type CreateSheetInSheetsFolderHeaders record {
     string contentType = "application/json";
 };
 
-# Additional details including email of user who restored the report
-public type ReportRestore_additionalDetails record {
-    # Email address of the user responsible for the event.
-    string emailAddress;
-};
-
 # Represents the Headers record for the operation: list-workspaces
 public type ListWorkspacesHeaders record {
     # API Access Token used to authenticate requests to Smartsheet APIs
@@ -11412,33 +10316,28 @@ public type TemplatesListPublicQueries record {
     decimal page = 1;
 };
 
-# Event triggered when an attachment is viewed or downloaded
 public type AttachmentLoad record {
     *Event;
     # The action applied to the specified object
     "LOAD" action?;
-    # Additional context about the attachment load event
     AttachmentLoad_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "ATTACHMENT" objectType?;
 };
 
-# Event triggered when a user is removed from all organization groups
 public type UserRemoveFromGroups record {
     *Event;
     # The action applied to the specified object
     "REMOVE_FROM_GROUPS" action?;
-    # Additional context about the user group removal event
-    UserRemoveFromGroups_additionalDetails additionalDetails?;
+    FolderDelete_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "USER" objectType?;
 };
 
-# Response object for cross-sheet reference creation operations
-public type CrossSheetReferenceCreateResponse record {
-    *Result;
-    # Cross-sheet reference with range definition and status
-    CrossSheetReference result?;
+public type InlineResponse20030 record {
+    *IndexResult;
+    # list of Automation Rules
+    AutomationRule[] data?;
 };
 
 # Represents the Headers record for the operation: templates-listPublic
@@ -11469,7 +10368,23 @@ public type TemplatesListPublicHeaders record {
     string smartsheetIntegrationSource?;
 };
 
-# Additional details for workspace creation event
+public type InlineResponse20032 record {
+    *Result;
+    AutomationRule result?;
+};
+
+public type InlineResponse20031 AutomationRule;
+
+public type InlineResponse20034 record {
+    *GenericResult;
+    AddColumns[] result?;
+};
+
+public type InlineResponse20033 record {
+    *IndexResult;
+    GetColumn[] data?;
+};
+
 public type WorkspaceCreate_additionalDetails record {
     # Email address of the user responsible for the event.
     string emailAddress;
@@ -11480,26 +10395,21 @@ public type WorkspaceCreate_additionalDetails record {
     string workspaceName?;
 };
 
-# Response schema for user creation operations with result and status info
-public type UserAddResponse record {
+public type InlineResponse20036 record {
     *GenericResult;
-    # User Object
-    User result?;
+    UpdateColumn result?;
 };
 
-# Response for adding alternate email addresses to user account
-public type AlternateEmailAddResponse record {
+public type InlineResponse20035 GetColumn;
+
+public type InlineResponse20038 record {
     *GenericResult;
-    # Updated User Properties
-    AlternateEmail[] data?;
+    Comment result?;
 };
 
-# Response containing organization's sheet list with pagination
-public type OrgSheetsListResponse record {
-    *IndexResultUnknownPages;
-    # List of Sheets
-    SheetList[] data?;
-};
+public type InlineResponse20037 Comment;
+
+public type InlineResponse20039 GenericResult;
 
 # Specifies the recipient of an [Email]($ref: 'Email.yaml#/components/schemas/Email'). The recipient may be either an individual or a group. To specify an individual, set the **email** attribute; to specify a group, set the **groupId** attribute. Either **email** and **groupId** may be set, but not both
 public type RecipientGroup record {
@@ -11563,13 +10473,11 @@ public type ListOrgSheetsHeaders record {
     string smartsheetIntegrationSource?;
 };
 
-# Event triggered when a report is deleted from Smartsheet
 public type ReportDelete record {
     *Event;
     # The action applied to the specified object
     "DELETE" action?;
-    # Additional details including the email address of the deleting user
-    ReportDelete_additionalDetails additionalDetails?;
+    FolderDelete_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "REPORT" objectType?;
 };
@@ -11610,25 +10518,28 @@ public type ImportSheetIntoSheetsFolderHeaders record {
     "text/csv"|"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" contentType;
 };
 
-# Request body for managing user alternate email addresses
-public type UserIdAlternateemailsBody AddAlternateEmail|AlternateEmailList;
+public type UserIdAlternateemailsBody AddAlternateEmail|UsersuserIdalternateemailsOneOf2;
 
-# Enumeration of available column property data types
 public type PropertiesType "ABSTRACT_DATETIME"|"CHECKBOX"|"CONTACT_LIST"|"DATE"|"DATETIME"|"DURATION"|"MULTI_CONTACT_LIST"|"MULTI_PICKLIST"|"PICKLIST"|"PREDECESSOR"|"TEXT_NUMBER";
 
-# Core sheet object with metadata and access information
+public type InlineResponse20041 record {
+    *IndexResult;
+    CrossSheetReference[] data?;
+};
+
+public type InlineResponse20040 record {
+    *Result;
+    ComponentsSchemasSheet result?;
+};
+
 public type SchemasSheet record {
-    # Read-only timestamp that can be either DateTime or Number format
     Timestamp createdAt?;
-    # Enumeration of available access permission levels
     AccessLevel accessLevel?;
-    # Read-only timestamp that can be either DateTime or Number format
     Timestamp modifiedAt?;
     # Sheet name
     Name name?;
     # Sheet Id
     Id id?;
-    # Source object containing ID and type of originating resource
     Source 'source?;
     # URL that represents a direct link to the sheet in Smartsheet
     Permalink permalink?;
@@ -11636,10 +10547,37 @@ public type SchemasSheet record {
     Version version?;
 };
 
-# Additional details for report load event including user email
-public type ReportLoad_additionalDetails record {
-    # Email address of the user responsible for the event.
-    string emailAddress;
+public type InlineResponse20043 record {
+    *IndexResult;
+    # list of discussions
+    Discussion[] data?;
+};
+
+public type InlineResponse20042 record {
+    *Result;
+    CrossSheetReference result?;
+};
+
+public type InlineResponse20045 Discussion;
+
+public type InlineResponse20044 record {
+    *GenericResult;
+    Discussion result?;
+};
+
+public type InlineResponse20047 GenericResult;
+
+public type InlineResponse20046 record {
+    *GenericResult;
+    Comment result?;
+};
+
+public type InlineResponse20049 Proof;
+
+public type InlineResponse20048 record {
+    *IndexResult;
+    # list of all proofs
+    Proof[] data?;
 };
 
 # Represents the Headers record for the operation: list-sights
@@ -11649,12 +10587,10 @@ public type ListSightsHeaders record {
     string authorization?;
 };
 
-# Event triggered when sharing permissions are removed from workspace
 public type WorkspaceRemoveShare record {
     *Event;
     # The action applied to the specified object
     "REMOVE_SHARE" action?;
-    # Details about the user or group removed from workspace sharing
     WorkspaceRemoveShare_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "WORKSPACE" objectType?;
@@ -11725,22 +10661,25 @@ public type HomeListFoldersHeaders record {
     string smartsheetIntegrationSource?;
 };
 
-# Response for dashboard publish operations
-public type SightPublishResponse record {
-    *ItemResult;
-    # Describes the dashboard's publish settings
-    SightPublish result?;
-};
-
-# Event triggered when a sheet is copied using Save As New
 public type SheetSaveAsNew record {
     *Event;
     # The action applied to the specified object
     "SAVE_AS_NEW" action?;
-    # Additional details about the sheet save operation, including user email
-    SheetSaveAsNew_additionalDetails additionalDetails?;
+    FolderDelete_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "SHEET" objectType?;
+};
+
+public type InlineResponse20050 record {
+    *IndexResult;
+    # list of proof attachments
+    Attachment[] data?;
+};
+
+public type InlineResponse20052 record {
+    *IndexResult;
+    # list of proof request actions
+    ProofRequestAction[] data?;
 };
 
 # Represents the Queries record for the operation: templates-list
@@ -11755,7 +10694,18 @@ public type TemplatesListQueries record {
     decimal page = 1;
 };
 
-# Additional details for dashboard rename including user email and old/new names
+public type InlineResponse20051 record {
+    *IndexResult;
+    # list of proof discussions
+    Discussion[] data?;
+};
+
+public type InlineResponse20054 record {
+    *IndexResult;
+    # list of proof versions
+    Proof[] data?;
+};
+
 public type DashboardRename_additionalDetails record {
     # Email address of the user responsible for the event.
     string emailAddress;
@@ -11765,11 +10715,36 @@ public type DashboardRename_additionalDetails record {
     string oldName?;
 };
 
-# Response schema containing shared secret information
-public type SharedSecretResponse record {
-    *Result;
-    # Container for webhook shared secret value
-    SharedSecret result?;
+public type InlineResponse20053 record {
+    *GenericResult;
+    ProofRequest result?;
+};
+
+public type InlineResponse20056 record {
+    *GenericResult;
+    # Describes the sheet's publish settings
+    SheetPublish result?;
+};
+
+public type InlineResponse20055 record {
+    *GenericResult;
+    # Object containing zero or more media items, including images, videos, and documents, for review, editing, or approval
+    Proof result?;
+};
+
+public type InlineResponse20058 record {
+    *GenericResult;
+    AddRowsObject[] result?;
+};
+
+public type InlineResponse20057 record {
+    *GenericResult;
+    UpdateRowsObject[] result?;
+};
+
+public type InlineResponse20059 record {
+    *GenericResult;
+    decimal[] result?;
 };
 
 # Represents the Queries record for the operation: update-asset-share
@@ -11796,25 +10771,15 @@ public type AddImageSummaryFieldQueries record {
     boolean overrideValidation = false;
 };
 
-# Response containing a list of accessible reports
-public type ReportListResponse record {
-    *IndexResult;
-    # List of all accessible reports, referenced by their ID, name, access level, and summary report flag values
-    ReportListResponse_data[] data?;
-};
-
-# Event triggered when a member is removed from a group
 public type GroupRemoveMember record {
     *Event;
     # The action applied to the specified object
     "REMOVE_MEMBER" action?;
-    # Additional details for group member removal event including user info
     GroupRemoveMember_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "GROUP" objectType?;
 };
 
-# Schema for dashboard name configuration
 public type SightName record {
     # Dashboard name
     string name?;
@@ -11851,13 +10816,6 @@ public type UpdateUserProfileImageHeaders record {
     string contentType = "application/json";
 };
 
-# Response object containing list of discussions
-public type DiscussionListResponse record {
-    *IndexResult;
-    # list of discussions
-    Discussion[] data?;
-};
-
 # Represents the Headers record for the operation: comment-delete
 public type CommentDeleteHeaders record {
     # API Access Token used to authenticate requests to Smartsheet APIs
@@ -11886,55 +10844,33 @@ public type CommentDeleteHeaders record {
     string smartsheetIntegrationSource?;
 };
 
-# Event triggered when user is added to workspace sharing group
 public type WorkspaceAddShareMember record {
     *Event;
     # The action applied to the specified object
     "ADD_SHARE_MEMBER" action?;
-    # Additional details for workspace member sharing event
     WorkspaceAddShareMember_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "WORKSPACE" objectType?;
 };
 
-# Event triggered when recurring backup is scheduled for workspace
 public type WorkspaceCreateRecurringBackup record {
     *Event;
     # The action applied to the specified object
     "CREATE_RECURRING_BACKUP" action?;
-    # Additional details for workspace backup scheduling event
     WorkspaceCreateRecurringBackup_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "WORKSPACE" objectType?;
 };
 
-# Additional details including user email and workspace/group/user IDs
-public type DashboardRemoveWorkspaceShare_additionalDetails record {
-    # Email address of the user responsible for the event.
-    string emailAddress;
-    # Id of the group that was removed from the workspace. (Specific to remove share from group actions)
-    @constraint:Int {minValue: 0}
-    int groupId?;
-    # Id of the user that was removed from the workspace. (Specific to remove share from user actions)
-    @constraint:Int {minValue: 0}
-    int userId?;
-    # Id of the workspace the group or user was removed from.
-    @constraint:Int {minValue: 0}
-    int workspaceId?;
-};
-
-# Event triggered when a discussion thread is sent via email to recipients
 public type DiscussionSend record {
     *Event;
     # The action applied to the specified object
     "SEND" action?;
-    # Additional details for discussion send including recipients and attachments
     DiscussionSend_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "DISCUSSION" objectType?;
 };
 
-# Pagination metadata for paginated API responses
 public type IndexResult record {
     # The current page in the full result set that the data array represents. NOTE when a page number greater than totalPages is requested, the last page is instead returned
     decimal pageNumber?;
@@ -11946,39 +10882,19 @@ public type IndexResult record {
     decimal totalCount?;
 };
 
-# Event triggered when a user is added to a group that has sheet access
 public type SheetAddShareMember record {
     *Event;
     # The action applied to the specified object
     "ADD_SHARE_MEMBER" action?;
-    # Additional details for share member addition including access level and IDs
     SheetAddShareMember_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "SHEET" objectType?;
 };
 
-# Generic list response containing contacts data with pagination
-public type GenericListResponse record {
-    *IndexResult;
-    # List of Contacts
-    Contact[] data?;
-};
-
-# Additional details including user email and associated sheet ID
-public type FormUpdate_additionalDetails record {
-    # Email address of the user responsible for the event.
-    string emailAddress;
-    # Id of the form's sheet.
-    @constraint:Int {minValue: 0}
-    int sheetId?;
-};
-
-# Event triggered when organization account main contact is updated
 public type AccountUpdateMainContact record {
     *Event;
     # The action applied to the specified object
     "UPDATE_MAIN_CONTACT" action?;
-    # Additional details for main contact update including user IDs and email
     AccountUpdateMainContact_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "ACCOUNT" objectType?;
@@ -12012,7 +10928,6 @@ public type DeleteSheetHeaders record {
     string smartsheetIntegrationSource?;
 };
 
-# Request body for creating cross-sheet references with various ID types
 public type SheetIdCrosssheetreferencesBody CrossSheetReferenceRequestWithColumnIds|CrossSheetReferenceRequestWithRowIds|CrossSheetReferenceRequestWithColumnAndRowIds;
 
 # Represents the Headers record for the operation: get-user
@@ -12043,32 +10958,16 @@ public type GetUserHeaders record {
     string smartsheetIntegrationSource?;
 };
 
-# Additional details for user removal including responsible user's email
-public type UserRemoveFromAccount_additionalDetails record {
-    # Email address of the user responsible for the event.
-    string emailAddress;
-};
-
-# Event triggered when a workspace is renamed via UI or API
 public type WorkspaceRename record {
     *Event;
     # The action applied to the specified object
     "RENAME" action?;
-    # Additional details for workspace rename including old and new names
     WorkspaceRename_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "WORKSPACE" objectType?;
 };
 
-# Additional details for dashboard purge event including user email address
-public type DashboardPurge_additionalDetails record {
-    # Email address of the user responsible for the event.
-    string emailAddress;
-};
-
-# Response object containing share information with access level and scope
 public type ShareResponse record {
-    # Enumeration of available access permission levels
     AccessLevel accessLevel;
     # Group Id if the share is a group share
     decimal groupId?;
@@ -12090,18 +10989,15 @@ public type ShareResponse record {
     string email?;
 };
 
-# Event triggered when dashboard is restored from deleted items
 public type DashboardRestore record {
     *Event;
     # The action applied to the specified object
     "RESTORE" action?;
-    # Additional details for dashboard restore including user email
-    DashboardRestore_additionalDetails additionalDetails?;
+    FolderDelete_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "DASHBOARD" objectType?;
 };
 
-# Schema for updating column properties including title, type, and validation
 public type UpdateColumn record {
     # Array of the options available for the column
     string[] options?;
@@ -12117,19 +11013,12 @@ public type UpdateColumn record {
     boolean validation?;
 };
 
-# Additional details including email of user who purged the report
-public type ReportPurge_additionalDetails record {
-    # Email address of the user responsible for the event.
-    string emailAddress;
-};
-
 # Represents the Queries record for the operation: update-summary-fields
 public type UpdateSummaryFieldsQueries record {
     # Set to true if you want to override the requirement for unique summary field names. Repeated names will be adjusted by appending "(1)" or similar after the field name
     boolean renameIfConflict = false;
 };
 
-# Additional details for sheet sharing including access level and user/group IDs
 public type SheetAddShare_additionalDetails record {
     # Email address of the user responsible for the event.
     string emailAddress;
@@ -12157,13 +11046,11 @@ public type ShareAssetQueries record {
     "sheet"|"report"|"sight"|"workspace"|"collection"|"file" assetType;
 };
 
-# Additional details including creator email, sheet name, and source info
 public type SheetCreate_additionalDetails record {
     # Email address of the user responsible for the event.
     string emailAddress;
     # Name of the newly created Sheets.
     string sheetName?;
-    # Type of source used to create the sheet (sheet, template, import)
     "sheet"|"template"|"globale_template"|"import" sourceType?;
     # Id of the template used to create the sheet. (Only included if the sheet was created using a template, that is not a global template)
     @constraint:Int {minValue: 0}
@@ -12176,36 +11063,24 @@ public type SheetCreate_additionalDetails record {
     int sourceGlobalTemplateId?;
 };
 
-# Request body schema for creating webhooks with required fields
 public type WebhooksBody record {
     *CreateWebhookRequest;
 };
 
-# Event triggered when a folder is exported to Excel or PDF format
 public type FolderExport record {
     *Event;
     # The action applied to the specified object
     "EXPORT" action?;
-    # Additional details including user email and export format type
     FolderExport_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "FOLDER" objectType?;
 };
 
-# Response containing a list of proof request actions with pagination metadata
-public type ProofRequestActionsResponse record {
-    *IndexResult;
-    # list of proof request actions
-    ProofRequestAction[] data?;
-};
-
-# Event triggered when an existing sheet form is updated
 public type FormUpdate record {
     *Event;
     # The action applied to the specified object
     "UPDATE" action?;
-    # Additional details including user email and associated sheet ID
-    FormUpdate_additionalDetails additionalDetails?;
+    FormDelete_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "FORM" objectType?;
 };
@@ -12217,9 +11092,7 @@ public type ShareAssetHeaders record {
     string authorization?;
 };
 
-# Schema for favorited Smartsheet objects with type and ID
 public type Favorite record {
-    # Type of favorited object (folder, report, sheet, sight, template, workspace)
     "folder"|"report"|"sheet"|"sight"|"template"|"workspace" 'type?;
     # The Id of the favorited item. If type is template, only private sheet-type template Id is allowed
     decimal objectId?;
@@ -12227,9 +11100,7 @@ public type Favorite record {
 
 # SummaryField object to update
 public type SummaryFieldUpdateRequest record {
-    # Represents a hyperlink to sheets, reports, dashboards, or external URLs
     Hyperlink hyperlink?;
-    # Image metadata including dimensions, ID, and alt text
     Image image?;
     # When applicable for PICKLIST column type
     PropertiesSymbol symbol?;
@@ -12243,7 +11114,6 @@ public type SummaryFieldUpdateRequest record {
     ObjectValue objectValue?;
     # Arbitrary name, must be unique within summary
     PropertiesTitle title?;
-    # Enumeration of available column property data types
     PropertiesType 'type?;
     # When applicable for PICKLIST column type. Array of the options available for the field
     PropertiesOptions options?;
@@ -12295,7 +11165,6 @@ public type User record {
     string customWelcomeScreenViewed?;
     # Indicates whether the user is a system admin (can manage user accounts and organization account)
     boolean admin = false;
-    # User profile image metadata including ID and dimensions
     ProfileImage profileImage?;
     # User's first name
     string firstName?;
@@ -12325,13 +11194,7 @@ public type User record {
 public type DatetimeObjectValue record {
     # Datetime, in the **date-time** format defined by <a href="https://tools.ietf.org/html/rfc3339#section-5.6" target="_blank" rel="noopener noreferrer">RFC 3339, section 5.6</a>
     string value?;
-    # Object type identifier for datetime values
     "DATETIME" objectType?;
-};
-
-# Response containing global search results across Smartsheet resources
-public type GlobalSearchResponse record {
-    *SearchResult;
 };
 
 # Represents the Queries record for the operation: rows-sort
@@ -12341,13 +11204,11 @@ public type RowsSortQueries record {
     string includeExclude?;
 };
 
-# Event triggered when a sheet form is deactivated
 public type FormDeactivate record {
     *Event;
     # The action applied to the specified object
     "DEACTIVATE" action?;
-    # Additional details including user email and associated sheet ID
-    FormUpdate_additionalDetails additionalDetails?;
+    FormDelete_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "FORM" objectType?;
 };
@@ -12357,9 +11218,7 @@ public type PropertiesTitle string;
 
 # The metadata of a Workspace
 public type WorkspaceMetadata record {
-    # Read-only timestamp supporting both DateTime and Long formats
     Timestamp2 createdAt;
-    # Read-only timestamp supporting both DateTime and Long formats
     Timestamp2 modifiedAt;
     # Workspace name
     string name;
@@ -12408,7 +11267,6 @@ public type AddImageSummaryFieldHeaders record {
     string contentType = "application/json";
 };
 
-# Source object containing ID and type of originating resource
 public type Source record {
     # The Id of the dashboard, report, sheet, or template from which the enclosing dashboard, report, sheet, or template was created
     decimal id?;
@@ -12444,29 +11302,24 @@ public type ProofsGetVersionsHeaders record {
     string smartsheetIntegrationSource?;
 };
 
-# Event triggered when an existing report is updated
 public type ReportUpdate record {
     *Event;
     # The action applied to the specified object
     "UPDATE" action?;
-    # Additional details containing the email of the user who updated the report
-    ReportUpdate_additionalDetails additionalDetails?;
+    FolderDelete_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "REPORT" objectType?;
 };
 
-# Event triggered when a report is sent as email attachment
 public type ReportSendAsAttachment record {
     *Event;
     # The action applied to the specified object
     "SEND_AS_ATTACHMENT" action?;
-    # Details including sender email, recipient info, and attachment format
     ReportSendAsAttachment_additionalDetails additionalDetails?;
     # The Smartsheet resource impacted by the event
     "REPORT" objectType?;
 };
 
-# Column object with properties like title, type, format, and validation
 public type Column record {
     # When applicable for **CHECKBOX** or **PICKLIST** column types. See [Symbol Columns](/api/smartsheet/openapi/columns)
     string symbol?;
@@ -12554,12 +11407,6 @@ public type GroupUpdate1 record {
     decimal ownerId?;
 };
 
-# Additional details for password reset event including user email address
-public type UserSendPasswordReset_additionalDetails record {
-    # Email address of the user responsible for the event.
-    string emailAddress;
-};
-
 # Describes the current user's editing permissions for a specific sheet
 public type SheetUserPermissions record {
     # One of:
@@ -12629,7 +11476,6 @@ public type UpdateRowsHeaders record {
     string contentType = "application/json";
 };
 
-# Export details including user email and format type (excel, pdf, etc.)
 public type SheetExport_additionalDetails record {
     # Email address of the user responsible for the event.
     string emailAddress;
@@ -12675,7 +11521,6 @@ public type UpdaterequestsGetHeaders record {
     string smartsheetIntegrationSource?;
 };
 
-# Additional context about the attachment update event
 public type AttachmentUpdate_additionalDetails record {
     # Email address of the user responsible for the event.
     string emailAddress;
@@ -12687,28 +11532,9 @@ public type AttachmentUpdate_additionalDetails record {
     int workspaceId?;
 };
 
-# Additional details for workspace backup including email and preferences
-public type WorkspaceRequestBackup_additionalDetails record {
-    # Email address of the user responsible for the event.
-    string emailAddress;
-    # Indicates whether attachments should be included in the recurring backup.
-    boolean includeAttachments?;
-    # Indicates whether an email should be sent to the workspace's owner every time a recurring backup completes.
-    boolean sendCompletionEmail?;
-};
-
-# Response returned when updating a column
-public type ColumnUpdateResponse record {
-    *GenericResult;
-    # Schema for updating column properties including title, type, and validation
-    UpdateColumn result?;
-};
-
 # The metadata of a Folder
 public type FolderMetadata record {
-    # Read-only timestamp supporting both DateTime and Long formats
     Timestamp2 createdAt;
-    # Read-only timestamp supporting both DateTime and Long formats
     Timestamp2 modifiedAt;
     # Folder name
     string name;
@@ -12749,7 +11575,6 @@ public type CommentEditHeaders record {
     string contentType = "application/json";
 };
 
-# Represents a contact with name, ID, and email address
 public type Contact record {
     # Contact's full name
     string name?;
@@ -12790,11 +11615,18 @@ public type DeleteFavoritesByTypeHeaders record {
     string xSmarScActorId?;
 };
 
-# Response for dashboard update operations
-public type SightUpdateResponse record {
-    *ItemResult;
-    # Dashboard object with widgets, styling, and workspace information
-    Sight result?;
+public type GroupsgroupIdmembersOneOf2 GroupMember[];
+
+public type InlineResponse20010 record {
+    *IndexResult;
+    # List of Groups
+    Group[] data?;
+};
+
+public type InlineResponse20012 record {
+    *Group;
+    # List of Group Members
+    GroupMember[] members?;
 };
 
 # Represents the Headers record for the operation: templates-list
@@ -12825,7 +11657,6 @@ public type TemplatesListHeaders record {
     string smartsheetIntegrationSource?;
 };
 
-# Additional details about the report creation event including user and source
 public type ReportCreate_additionalDetails record {
     # Email address of the user responsible for the event.
     string emailAddress;
@@ -12839,6 +11670,18 @@ public type ReportCreate_additionalDetails record {
     # Id of the global template that was used to create the new report (Only included if the report was created using a global template. "New Blank Report" is a global template)
     @constraint:Int {minValue: 0}
     int sourceGlobalTemplateId?;
+};
+
+public type InlineResponse20011 record {
+    *GenericResult;
+    Group result?;
+};
+
+public type InlineResponse20014 ImageUrlMap;
+
+public type InlineResponse20013 record {
+    *GenericResult;
+    GroupMember|GroupMember[] result?;
 };
 
 # Represents the Headers record for the operation: automationrule-get
@@ -12869,8 +11712,23 @@ public type AutomationruleGetHeaders record {
     string smartsheetIntegrationSource?;
 };
 
-# Additional details for save as template action including user email
-public type SheetSaveAsTemplate_additionalDetails record {
-    # Email address of the user responsible for the event.
-    string emailAddress;
+public type InlineResponse20016 record {
+    *ItemResult;
+    ReportPublish result?;
+};
+
+public type InlineResponse20015 record {
+    *IndexResult;
+    # List of all accessible reports, referenced by their ID, name, access level, and summary report flag values
+    InlineResponse20015_data[] data?;
+};
+
+public type InlineResponse20018 record {
+    *Result;
+    Share|Share[] result?;
+};
+
+public type InlineResponse20017 record {
+    *IndexResult;
+    Share[] result?;
 };
