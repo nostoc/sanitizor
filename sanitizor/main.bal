@@ -6,7 +6,7 @@ import ballerina/log;
 import ballerina/regex;
 
 public function main(string... args) returns error? {
-    log:printInfo("Starting OpenAPI Sanitizor...");
+    io:println("Starting OpenAPI Sanitizor...");
     // Check command line arguments
     if args.length() < 2 {
         printUsage();
@@ -29,14 +29,13 @@ public function main(string... args) returns error? {
 
     if autoYes {
         if !quietMode {
-            log:printInfo("Running in automated mode - all prompts will be auto-confirmed");
+            io:println("Running in automated mode - all prompts will be auto-confirmed");
         }
-        io:println("Automated mode enabled - all prompts will be automatically confirmed");
     }
     
     if quietMode {
         if !autoYes {
-            log:printInfo("Running in quiet mode - reduced logging output");
+            io:println("Running in quiet mode - reduced logging output");
         }
         io:println("Quiet mode enabled - minimal logging output");
     }
@@ -136,7 +135,7 @@ public function main(string... args) returns error? {
     io:println("This step will rename generic 'InlineResponse' schemas to meaningful names using AI.");
     io:println("The AI will analyze the schema structure and usage context to suggest better names.");
 
-    if !getUserConfirmation("Proceed with AI-powered schema renaming?", autoYes) {
+    if !getUserConfirmation("\nProceed with AI-powered schema renaming?", autoYes) {
         io:println("⚠ Skipping schema renaming. Generic schema names will be preserved.");
     } else {
         io:println("Processing schema renaming with AI...");
@@ -184,7 +183,7 @@ public function main(string... args) returns error? {
         io:println("Processing documentation enhancement with AI...");
         int|spec_sanitizor:LLMServiceError descriptionsResult = spec_sanitizor:addMissingDescriptionsBatchWithRetry(
                 alignedSpec,
-                15, // batchSize
+                20, // batchSize
                 quietMode // quietMode
         );
         if descriptionsResult is spec_sanitizor:LLMServiceError {

@@ -664,7 +664,7 @@ ${requestsSection}
 
 REQUIREMENTS:
 - Use PascalCase (e.g., UserProfile, AttachmentResponse)
-- Be descriptive but concise (2-4 words max)
+- Be descriptive but concise (2-3 words max)
 - Ensure names are unique and don't conflict with existing names
 - Consider schema role (Request, Response, List, Details, etc.)
 - Do not include fenced code blocks in the response. 
