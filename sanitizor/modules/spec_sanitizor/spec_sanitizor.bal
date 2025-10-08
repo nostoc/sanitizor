@@ -47,8 +47,9 @@ ai:ModelProvider? anthropicModel = ();
 
 # Initialize the LLM service
 #
+# + quietMode - Whether to suppress verbose logging
 # + return - return value description
-public function initLLMService() returns LLMServiceError? {
+public function initLLMService(boolean quietMode = false) returns LLMServiceError? {
 
     ai:ModelProvider|error modelProvider = new anthropic:ModelProvider(
         apiKey,
@@ -62,7 +63,9 @@ public function initLLMService() returns LLMServiceError? {
     }
 
     anthropicModel = modelProvider;
-    log:printInfo("LLM service initialized successfully");
+    if !quietMode {
+        log:printInfo("LLM service initialized successfully");
+    }
 }
 
 // Helper function to calculate exponential backoff delay
@@ -130,9 +133,10 @@ function isRetryableError(error err) returns boolean {
 #
 # + requests - Array of description requests to process
 # + apiContext - API context for better descriptions
+# + quietMode - Whether to suppress verbose logging
 # + config - Retry configuration (optional, uses default if not provided)
 # + return - Array of generated descriptions or error
-public function generateDescriptionsBatchWithRetry(DescriptionRequest[] requests, string apiContext, RetryConfig? config = ()) returns BatchDescriptionResponse[]|LLMServiceError {
+public function generateDescriptionsBatchWithRetry(DescriptionRequest[] requests, string apiContext, boolean quietMode = false, RetryConfig? config = ()) returns BatchDescriptionResponse[]|LLMServiceError {
     RetryConfig retryConf = config ?: retryConfig;
 
     int attempt = 0;
@@ -140,29 +144,35 @@ public function generateDescriptionsBatchWithRetry(DescriptionRequest[] requests
         BatchDescriptionResponse[]|LLMServiceError result = generateDescriptionsBatch(requests, apiContext);
 
         if result is BatchDescriptionResponse[] {
-            if attempt > 0 {
+            if !quietMode && attempt > 0 {
                 log:printInfo("Batch description generation succeeded after retry", attempt = attempt);
             }
             return result;
         } else {
             // Check if this is the last attempt
             if attempt == retryConf.maxRetries {
-                log:printError("Batch description generation failed after all retries",
-                        finalAttempt = attempt, maxRetries = retryConf.maxRetries, 'error = result);
+                if !quietMode {
+                    log:printError("Batch description generation failed after all retries",
+                            finalAttempt = attempt, maxRetries = retryConf.maxRetries, 'error = result);
+                }
                 return result;
             }
 
             // Check if error is retryable
             if !isRetryableError(result) {
-                log:printError("Non-retryable error in batch description generation", 'error = result);
+                if !quietMode {
+                    log:printError("Non-retryable error in batch description generation", 'error = result);
+                }
                 return result;
             }
 
             // Calculate backoff delay and wait
             decimal delay = calculateBackoffDelay(attempt, retryConf);
-            log:printWarn("Batch description generation failed, retrying",
-                    attempt = attempt + 1, maxRetries = retryConf.maxRetries,
-                    delaySeconds = delay, 'error = result);
+            if !quietMode {
+                log:printWarn("Batch description generation failed, retrying",
+                        attempt = attempt + 1, maxRetries = retryConf.maxRetries,
+                        delaySeconds = delay, 'error = result);
+            }
 
             runtime:sleep(delay);
             attempt += 1;
@@ -178,9 +188,10 @@ public function generateDescriptionsBatchWithRetry(DescriptionRequest[] requests
 # + requests - Array of schema rename requests
 # + apiContext - API context for better naming
 # + existingNames - Existing schema names to avoid conflicts
+# + quietMode - Whether to suppress verbose logging
 # + config - Retry configuration (optional, uses default if not provided)
 # + return - Array of new schema names or error
-public function generateSchemaNamesBatchWithRetry(SchemaRenameRequest[] requests, string apiContext, string[] existingNames, RetryConfig? config = ()) returns BatchRenameResponse[]|LLMServiceError {
+public function generateSchemaNamesBatchWithRetry(SchemaRenameRequest[] requests, string apiContext, string[] existingNames, boolean quietMode = false, RetryConfig? config = ()) returns BatchRenameResponse[]|LLMServiceError {
     RetryConfig retryConf = config ?: retryConfig;
 
     int attempt = 0;
@@ -225,11 +236,14 @@ public function generateSchemaNamesBatchWithRetry(SchemaRenameRequest[] requests
 #
 # + specFilePath - Path to the OpenAPI specification file
 # + batchSize - Number of items to process per batch (default: 20)
+# + quietMode - Whether to suppress verbose logging
 # + config - Retry configuration (optional, uses default if not provided)
 # + return - Number of descriptions added or error
-public function addMissingDescriptionsBatchWithRetry(string specFilePath, int batchSize = 20, RetryConfig? config = ()) returns int|LLMServiceError {
-    log:printInfo("Processing OpenAPI spec for missing descriptions (batch mode with retry)",
-            specPath = specFilePath, batchSize = batchSize);
+public function addMissingDescriptionsBatchWithRetry(string specFilePath, int batchSize = 20, boolean quietMode = false, RetryConfig? config = ()) returns int|LLMServiceError {
+    if !quietMode {
+        log:printInfo("Processing OpenAPI spec for missing descriptions (batch mode with retry)",
+                specPath = specFilePath, batchSize = batchSize);
+    }
 
     // Read the OpenAPI spec file
     json|error specResult = io:fileReadJson(specFilePath);
@@ -264,7 +278,9 @@ public function addMissingDescriptionsBatchWithRetry(string specFilePath, int ba
 
                 // Process requests in batches with retry
                 int totalRequests = allRequests.length();
-                log:printInfo("Collected description requests", totalRequests = totalRequests);
+                if !quietMode {
+                    log:printInfo("Collected description requests", totalRequests = totalRequests);
+                }
 
                 int startIdx = 0;
                 while startIdx < totalRequests {
@@ -274,10 +290,12 @@ public function addMissingDescriptionsBatchWithRetry(string specFilePath, int ba
                     }
 
                     DescriptionRequest[] batch = allRequests.slice(startIdx, endIdx);
-                    log:printInfo("Processing batch with retry", batchNumber = (startIdx / batchSize) + 1,
-                            batchSize = batch.length());
+                    if !quietMode {
+                        log:printInfo("Processing batch with retry", batchNumber = (startIdx / batchSize) + 1,
+                                batchSize = batch.length());
+                    }
 
-                    BatchDescriptionResponse[]|LLMServiceError batchResult = generateDescriptionsBatchWithRetry(batch, apiContext, config);
+                    BatchDescriptionResponse[]|LLMServiceError batchResult = generateDescriptionsBatchWithRetry(batch, apiContext, quietMode, config);
                     if batchResult is BatchDescriptionResponse[] {
                         // Apply the generated descriptions
                         foreach BatchDescriptionResponse response in batchResult {
@@ -286,17 +304,20 @@ public function addMissingDescriptionsBatchWithRetry(string specFilePath, int ba
                                 error? updateResult = updateDescriptionInSpec(schemas, location, response.description);
                                 if updateResult is () {
                                     descriptionsAdded += 1;
-                                    log:printInfo("Applied batch description", id = response.id, location = location);
+                                    if !quietMode {
+                                        log:printInfo("Applied batch description", id = response.id, location = location);
+                                    }
                                 } else {
                                     log:printError("Failed to apply description", id = response.id, 'error = updateResult);
                                 }
                             }
                         }
                     } else {
-                        log:printError("Batch processing failed after all retries", batchNumber = (startIdx / batchSize) + 1, 'error = batchResult);
+                        if !quietMode {
+                            log:printError("Batch processing failed after all retries", batchNumber = (startIdx / batchSize) + 1, 'error = batchResult);
+                        }
                         // Continue with next batch instead of failing completely
                     }
-
                     startIdx += batchSize;
                 }
 
@@ -320,11 +341,14 @@ public function addMissingDescriptionsBatchWithRetry(string specFilePath, int ba
 #
 # + specFilePath - Path to the OpenAPI specification file
 # + batchSize - Number of schemas to process per batch (default: 10)
+# + quietMode - Whether to suppress verbose logging
 # + config - Retry configuration (optional, uses default if not provided)
 # + return - Number of schemas renamed or error
-public function renameInlineResponseSchemasBatchWithRetry(string specFilePath, int batchSize = 10, RetryConfig? config = ()) returns int|LLMServiceError {
-    log:printInfo("Processing OpenAPI spec to rename InlineResponse schemas (batch mode with retry)",
-            specPath = specFilePath, batchSize = batchSize);
+public function renameInlineResponseSchemasBatchWithRetry(string specFilePath, int batchSize = 10, boolean quietMode = false, RetryConfig? config = ()) returns int|LLMServiceError {
+    if !quietMode {
+        log:printInfo("Processing OpenAPI spec to rename InlineResponse schemas (batch mode with retry)",
+                specPath = specFilePath, batchSize = batchSize);
+    }
 
     // Read the OpenAPI spec file
     json|error specResult = io:fileReadJson(specFilePath);
@@ -383,7 +407,9 @@ public function renameInlineResponseSchemasBatchWithRetry(string specFilePath, i
     }
 
     if renameRequests.length() == 0 {
-        log:printInfo("No InlineResponse schemas found to rename");
+        if !quietMode {
+            log:printInfo("No InlineResponse schemas found to rename");
+        }
         return 0;
     }
 
@@ -391,7 +417,9 @@ public function renameInlineResponseSchemasBatchWithRetry(string specFilePath, i
     int renamedCount = 0;
     int totalRequests = renameRequests.length();
 
-    log:printInfo("Collected schema rename requests", totalRequests = totalRequests);
+    if !quietMode {
+        log:printInfo("Collected schema rename requests", totalRequests = totalRequests);
+    }
 
     // Process requests in batches with retry
     int startIdx = 0;
@@ -402,10 +430,12 @@ public function renameInlineResponseSchemasBatchWithRetry(string specFilePath, i
         }
 
         SchemaRenameRequest[] batch = renameRequests.slice(startIdx, endIdx);
-        log:printInfo("Processing schema rename batch with retry", batchNumber = (startIdx / batchSize) + 1,
-                batchSize = batch.length());
+        if !quietMode {
+            log:printInfo("Processing schema rename batch with retry", batchNumber = (startIdx / batchSize) + 1,
+                    batchSize = batch.length());
+        }
 
-        BatchRenameResponse[]|LLMServiceError batchResult = generateSchemaNamesBatchWithRetry(batch, apiContext, allExistingNames, config);
+        BatchRenameResponse[]|LLMServiceError batchResult = generateSchemaNamesBatchWithRetry(batch, apiContext, allExistingNames, quietMode, config);
         if batchResult is BatchRenameResponse[] {
             // Process the generated names
             foreach BatchRenameResponse response in batchResult {
@@ -418,7 +448,9 @@ public function renameInlineResponseSchemasBatchWithRetry(string specFilePath, i
                         // Add the name to our tracking list to prevent future conflicts
                         allExistingNames.push(newName);
                         nameMapping[response.originalName] = newName;
-                        log:printInfo("Generated new name for schema", oldName = response.originalName, newName = newName);
+                        if !quietMode {
+                            log:printInfo("Generated new name for schema", oldName = response.originalName, newName = newName);
+                        }
                         renamedCount += 1;
                     } else {
                         // Fallback if LLM somehow generated a duplicate
@@ -450,8 +482,10 @@ public function renameInlineResponseSchemasBatchWithRetry(string specFilePath, i
                 }
             }
         } else {
-            log:printError("Schema rename batch processing failed after all retries",
-                    batchNumber = (startIdx / batchSize) + 1, 'error = batchResult);
+            if !quietMode {
+                log:printError("Schema rename batch processing failed after all retries",
+                        batchNumber = (startIdx / batchSize) + 1, 'error = batchResult);
+            }
             // Continue with next batch instead of failing completely
         }
 
@@ -481,7 +515,7 @@ public function renameInlineResponseSchemasBatchWithRetry(string specFilePath, i
         specMap["components"] = components;
 
         // Update all $ref references throughout the spec
-        json updatedSpecResult = updateSchemaReferences(specMap, nameMapping);
+        json updatedSpecResult = updateSchemaReferences(specMap, nameMapping, quietMode);
 
         // Write the updated spec back to file
         error? writeResult = io:fileWriteJson(specFilePath, updatedSpecResult);
@@ -906,7 +940,7 @@ function isNameTaken(string name, string[] existingNames, map<string> nameMappin
 }
 
 // Helper function to update schema references throughout the JSON structure
-function updateSchemaReferences(json jsonData, map<string> nameMapping) returns json {
+function updateSchemaReferences(json jsonData, map<string> nameMapping, boolean quietMode = false) returns json {
     if (jsonData is map<json>) {
         map<json> resultMap = {};
 
@@ -922,7 +956,9 @@ function updateSchemaReferences(json jsonData, map<string> nameMapping) returns 
                         if (newName is string) {
                             string newRef = "#/components/schemas/" + newName;
                             resultMap[key] = newRef;
-                            log:printInfo("Updated schema reference", oldRef = refValue, newRef = newRef);
+                            if !quietMode {
+                                log:printInfo("Updated schema reference", oldRef = refValue, newRef = newRef);
+                            }
                         } else {
                             resultMap[key] = value;
                         }
@@ -931,7 +967,7 @@ function updateSchemaReferences(json jsonData, map<string> nameMapping) returns 
                     }
                 } else {
                     // Recursively process nested structures
-                    resultMap[key] = updateSchemaReferences(value, nameMapping);
+                    resultMap[key] = updateSchemaReferences(value, nameMapping, quietMode);
                 }
             }
         }
@@ -940,7 +976,7 @@ function updateSchemaReferences(json jsonData, map<string> nameMapping) returns 
     } else if (jsonData is json[]) {
         json[] resultArray = [];
         foreach json item in jsonData {
-            resultArray.push(updateSchemaReferences(item, nameMapping));
+            resultArray.push(updateSchemaReferences(item, nameMapping, quietMode));
         }
         return resultArray;
     } else {
@@ -955,7 +991,7 @@ function extractApiContext(json spec) returns string {
         json|error infoResult = spec.get("info");
         if (infoResult is map<json>) {
             map<json> infoMap = <map<json>>infoResult;
-            
+
             string title = "Unknown API";
             if (infoMap.hasKey("title") && infoMap.get("title") is string) {
                 title = <string>infoMap.get("title");
