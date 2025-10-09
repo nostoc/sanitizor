@@ -51,9 +51,10 @@ public function main(string... args) returns error? {
     io:println("\nOperations to be performed:");
     io:println("1. Flatten OpenAPI specification");
     io:println("2. Align OpenAPI specification with Ballerina conventions");
-    io:println("3. Rename inline response schemas using AI");
-    io:println("4. Add missing field descriptions using AI");
-    io:println("5. Generate Ballerina client code");
+    io:println("3. Add missing operationIds using AI");
+    io:println("4. Rename inline response schemas using AI");
+    io:println("5. Add missing field descriptions using AI");
+    io:println("6. Generate Ballerina client code");
 
     if !getUserConfirmation("\nProceed with sanitization?", autoYes) {
         io:println("Operation cancelled by user.");
@@ -128,10 +129,52 @@ public function main(string... args) returns error? {
         }
     }
 
-    // Step 3: Apply schema renaming fix on aligned spec (BATCH VERSION)
+    // Step 3: Apply operationId fix on aligned spec (BATCH VERSION)
     string alignedSpec = alignedSpecPath + "/aligned_ballerina_openapi.json";
 
-    io:println("\n=== Step 3: AI-Powered Schema Renaming ===");
+    io:println("\n=== Step 3: AI-Powered OperationId Generation ===");
+    io:println("This step will add meaningful operationIds to operations that are missing them.");
+    io:println("The AI will analyze the HTTP method, path, and operation context to suggest appropriate names.");
+
+    if !getUserConfirmation("\nProceed with AI-powered operationId generation?", autoYes) {
+        io:println("⚠ Skipping operationId generation. Missing operationIds will remain.");
+    } else {
+        io:println("Processing operationId generation with AI...");
+        int|spec_sanitizor:LLMServiceError operationIdResult = spec_sanitizor:addMissingOperationIdsBatchWithRetry(
+                alignedSpec,
+                15, // batchSize
+                quietMode // quietMode
+        );
+        if operationIdResult is spec_sanitizor:LLMServiceError {
+            if !quietMode {
+                log:printError("Failed to add missing operationIds (batch)", 'error = operationIdResult);
+            }
+            io:println("OperationId generation failed:");
+            io:println(operationIdResult.message());
+
+            if !getUserConfirmation("Continue despite operationId generation failure?", autoYes) {
+                return error("OperationId generation failed: " + operationIdResult.message());
+            }
+        } else {
+            if !quietMode {
+                log:printInfo("Batch operationId generation completed", operationIdsAdded = operationIdResult);
+            }
+            io:println(string `✓ Added ${operationIdResult} missing operationIds`);
+
+            if operationIdResult > 0 {
+                if getUserConfirmation("Review the generated operationIds in the spec file?", autoYes) {
+                    io:println(string `You can check the updated operationIds in: ${alignedSpec}`);
+                    if !autoYes {
+                        io:println("Press Enter to continue...");
+                        _ = io:readln();
+                    }
+                }
+            }
+        }
+    }
+
+    // Step 4: Apply schema renaming fix on aligned spec (BATCH VERSION)
+    io:println("\n=== Step 4: AI-Powered Schema Renaming ===");
     io:println("This step will rename generic 'InlineResponse' schemas to meaningful names using AI.");
     io:println("The AI will analyze the schema structure and usage context to suggest better names.");
 
@@ -172,8 +215,8 @@ public function main(string... args) returns error? {
         }
     }
 
-    // Step 4: Apply documentation fix on the same spec (BATCH VERSION)
-    io:println("\n=== Step 4: AI-Powered Documentation Enhancement ===");
+    // Step 5: Apply documentation fix on the same spec (BATCH VERSION)
+    io:println("\n=== Step 5: AI-Powered Documentation Enhancement ===");
     io:println("This step will add meaningful descriptions to fields that are missing documentation.");
     io:println("The AI will analyze field names, types, and context to generate appropriate descriptions.");
 
@@ -214,8 +257,8 @@ public function main(string... args) returns error? {
         }
     }
 
-    // Step 5: Generate Ballerina client from the final sanitized spec
-    io:println("\n=== Step 5: Generating Ballerina Client ===");
+    // Step 6: Generate Ballerina client from the final sanitized spec
+    io:println("\n=== Step 6: Generating Ballerina Client ===");
     string clientOutputPath = outputDir + "/ballerina";
     io:println(string `Generating Ballerina client code to: ${clientOutputPath}`);
 
