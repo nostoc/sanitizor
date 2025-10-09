@@ -3,6 +3,7 @@ import ballerina/log;
 import ballerina/regex;
 import ballerinax/ai.anthropic;
 import doc_generator.doc_analyzer;
+import doc_generator.ai_generator.specialized_prompts;
 
 // AI service configuration
 configurable string apiKey = ?;
@@ -76,6 +77,46 @@ public function generateAIEnhancedContent(doc_analyzer:ConnectorAnalysis analysi
     
     log:printInfo("✅ AI-enhanced content generated successfully");
     return content;
+}
+
+// Generate specific document content using specialized prompts
+public function generateSpecificDocument(doc_analyzer:ConnectorAnalysis analysis, doc_analyzer:DocumentationType docType) returns string|error {
+    if anthropicModel is () {
+        return error("AI service not initialized. Call initAIService() first.");
+    }
+    
+    log:printInfo(string `🤖 Generating AI content for document type: ${docType}`);
+    
+    // Select specialized prompt based on document type
+    string prompt = "";
+    match docType {
+        doc_analyzer:MAIN_README => {
+            prompt = specialized_prompts:createMainReadmePrompt(analysis);
+        }
+        doc_analyzer:BALLERINA_README => {
+            prompt = specialized_prompts:createBallerinaModulePrompt(analysis);
+        }
+        doc_analyzer:EXAMPLES_README => {
+            prompt = specialized_prompts:createExamplesReadmePrompt(analysis);
+        }
+        doc_analyzer:TESTS_README => {
+            prompt = specialized_prompts:createTestsReadmePrompt(analysis);
+        }
+        _ => {
+            prompt = specialized_prompts:createMainReadmePrompt(analysis);
+        }
+    }
+    
+    // Generate content using AI
+    ai:GenerateResponse|error response = anthropicModel.generate(prompt);
+    
+    if response is error {
+        log:printError("AI generation failed for specific document", response);
+        return response;
+    }
+    
+    log:printInfo(string `✅ AI content generated successfully for: ${docType}`);
+    return response.output.trim();
 }
 
 // Create comprehensive prompt for documentation generation

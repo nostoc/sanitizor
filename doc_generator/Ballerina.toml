@@ -7,3 +7,7 @@ distribution = "2201.13.0-20250927-204700-7b3ef131"
 [build-options]
 observabilityIncluded = true
 
+[[dependency]]
+org = "ballerina"
+name = "mcp"
+version = "1.0.0"
