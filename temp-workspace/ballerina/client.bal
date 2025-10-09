@@ -4,57 +4,182 @@
 import ballerina/data.jsondata;
 import ballerina/http;
 
-# This is a generated connector from [Spotify API v1](https://developer.spotify.com/documentation/web-api/) OpenAPI Specification. 
-# Through the Spotify Web API, external applications retrieve Spotify content such as album data and playlists.
-@display {label: "Spotify", iconPath: "icon.png"}
+# Welcome to the OpenAPI reference documentation for the Smartsheet API!
+# 
+# > **IMPORTANT:**
+# > * The Smartsheet API is restricted to users on Business and Enterprise plans
+# > * The <a href="https://www.smartsheet.com/legal/developer-program-agreement" target="_blank" rel="noopener noreferrer">Developer Agreement</a> governs the use of the Smartsheet API and Smartsheet software development kits (SDKs)
+# 
+# **QUICKLINKS**
+# 
+# - **Base URL:**
+# 
+#     ```
+#     https://api.smartsheet.com/2.0/
+#     ```
+# 
+# - **Getting started:** <a href="https://help.smartsheet.com/articles/2482389-generate-API-key" target="_blank" rel="noopener noreferrer">Generate an API access token</a> and [make a request](/api/smartsheet/guides/getting-started).
+# 
+# - **Changelog:** See the latest [API updates](/api/smartsheet/changelog).
+# 
+# - **Schemas:** View the [object schemas](/api/smartsheet/openapi/schemas) not explicitly listed in the resource sections.
+# 
+# - **Error codes:** Look up common API [error codes](/api/smartsheet/error-codes).
+# 
+# - **Guides:** Learn various ways of using the API with the help of our [Guides](/api/smartsheet/introduction).
+# 
+# Browse the Smartsheet API operations by resource on the left and start building with the Smartsheet API!
 public isolated client class Client {
     final http:Client clientEp;
     # Gets invoked to initialize the `connector`.
-    # The connector initialization requires setting the API credentials. 
-    # Please create a [Spotify account](www.spotify.com) and obtain tokens following [this guide](https://developer.spotify.com/documentation/general/guides/authorization-guide/). Configure required scopes when obtaining the tokens. 
     #
     # + config - The configurations to be used when initializing the `connector` 
     # + serviceUrl - URL of the target service 
     # + return - An error if connector initialization failed 
-    public isolated function init(ConnectionConfig config, string serviceUrl = "https://api.spotify.com/v1") returns error? {
+    public isolated function init(ConnectionConfig config, string serviceUrl = "https://api.smartsheet.com/2.0") returns error? {
         http:ClientConfiguration httpClientConfig = {auth: config.auth, httpVersion: config.httpVersion, http1Settings: config.http1Settings, http2Settings: config.http2Settings, timeout: config.timeout, forwarded: config.forwarded, followRedirects: config.followRedirects, poolConfig: config.poolConfig, cache: config.cache, compression: config.compression, circuitBreaker: config.circuitBreaker, retryConfig: config.retryConfig, cookieConfig: config.cookieConfig, responseLimits: config.responseLimits, secureSocket: config.secureSocket, proxy: config.proxy, socketConfig: config.socketConfig, validation: config.validation, laxDataBinding: config.laxDataBinding};
         self.clientEp = check new (serviceUrl, httpClientConfig);
     }
 
-    # Get a List of Current User's Playlists
+    # List Contacts
     #
     # + headers - Headers to be sent with the request 
     # + queries - Queries to be sent with the request 
-    # + return - On success, the HTTP status code in the response header is `200` OK and the response body contains an array of simplified [playlist objects](https://developer.spotify.com/documentation/web-api/reference/#object-simplifiedplaylistobject) (wrapped in a [paging object](https://developer.spotify.com/documentation/web-api/reference/#object-pagingobject)) in JSON format. On error, the header status code is an [error code](https://developer.spotify.com/documentation/web-api/#response-status-codes) and the response body contains an [error object](https://developer.spotify.com/documentation/web-api/#response-schema). Please note that the access token has to be tied to a user 
-    @display {label: "My Playlists"}
-    resource isolated function get me/playlists(map<string|string[]> headers = {}, *GetMyPlaylistsQueries queries) returns CurrentPlaylistDetails|error {
-        string resourcePath = string `/me/playlists`;
-        resourcePath = resourcePath + check getPathForQueryParam(queries);
-        return self.clientEp->get(resourcePath, headers);
+    # + return - IndexResult object containing an array of Contact objects 
+    remote isolated function listContacts(ListContactsHeaders headers = {}, *ListContactsQueries queries) returns InlineResponse200|error {
+        string resourcePath = string `/contacts`;
+        map<Encoding> queryParamEncoding = {"modifiedSince": {style: FORM, explode: true}};
+        resourcePath = resourcePath + check getPathForQueryParam(queries, queryParamEncoding);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
     }
 
-    # Get a Playlist
+    # Get Contact
     #
-    # + playlistId - The [Spotify ID](https://developer.spotify.com/documentation/web-api/#spotify-uris-and-ids) for the playlist
+    # + contactId - contactId of the contact being accessed
     # + headers - Headers to be sent with the request 
     # + queries - Queries to be sent with the request 
-    # + return - On success, the response body contains a [playlist object](https://developer.spotify.com/documentation/web-api/reference/#object-playlistobject) in JSON format and the HTTP status code in the response header is `200` OK. If an episode is unavailable in the given `market`, its information will not be included in the response. On error, the header status code is an [error code](https://developer.spotify.com/documentation/web-api/#response-status-codes) and the response body contains an [error object](https://developer.spotify.com/documentation/web-api/#response-schema). Requesting playlists that you do not have the user's authorization to access returns error `403` Forbidden 
-    @display {label: "Playlist By Id"}
-    resource isolated function get playlists/[string playlistId](map<string|string[]> headers = {}, *GetPlaylistByIdQueries queries) returns PlaylistObject|error {
-        string resourcePath = string `/playlists/${getEncodedUri(playlistId)}`;
+    # + return - Returns Contact object 
+    remote isolated function getContact(decimal contactId, GetContactHeaders headers = {}, *GetContactQueries queries) returns Contact|error {
+        string resourcePath = string `/contacts/${getEncodedUri(contactId)}`;
         resourcePath = resourcePath + check getPathForQueryParam(queries);
-        return self.clientEp->get(resourcePath, headers);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
     }
 
-    # Change a Playlist's Details
+    # List events
     #
-    # + playlistId - The [Spotify ID](https://developer.spotify.com/documentation/web-api/#spotify-uris-and-ids) for the playlist
     # + headers - Headers to be sent with the request 
-    # + payload - Content to update the playlist 
-    # + return - On success the HTTP status code in the response header is `200` OK. On error, the header status code is an [error code](https://developer.spotify.com/documentation/web-api/#response-status-codes) and the response body contains an [error object](https://developer.spotify.com/documentation/web-api/#response-schema). Trying to change a playlist when you do not have the user's authorization returns error `403` Forbidden 
-    @display {label: "Update Playlist"}
-    resource isolated function put playlists/[string playlistId](UpdatePlaylistHeaders headers, ChangePlayListDetails payload) returns error? {
-        string resourcePath = string `/playlists/${getEncodedUri(playlistId)}`;
+    # + queries - Queries to be sent with the request 
+    # + return - OK 
+    remote isolated function listEvents(ListEventsHeaders headers = {}, *ListEventsQueries queries) returns InlineResponse2001|error {
+        string resourcePath = string `/events`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
+    }
+
+    # Get Favorites
+    #
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - IndexResult object containing an array of Favorite objects 
+    remote isolated function getFavorites(GetFavoritesHeaders headers = {}, *GetFavoritesQueries queries) returns InlineResponse2002|error {
+        string resourcePath = string `/favorites`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
+    }
+
+    # Add Favorites
+    #
+    # + headers - Headers to be sent with the request 
+    # + payload - A list of favorites to be added 
+    # + return - Result object containing either a single Favorite object or an array of Favorite objects 
+    remote isolated function addFavorite(FavoritesBody payload, AddFavoriteHeaders headers = {}) returns InlineResponse2003|error {
+        string resourcePath = string `/favorites`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        json jsonBody = jsondata:toJson(payload);
+        request.setPayload(jsonBody, "application/json");
+        return self.clientEp->post(resourcePath, request, httpHeaders);
+    }
+
+    # Delete Multiple Favorites
+    #
+    # + favoriteType - The favorite type
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - Returns Result object 
+    remote isolated function deleteFavoritesByType("folder"|"report"|"sheet"|"sight"|"template"|"workspace" favoriteType, DeleteFavoritesByTypeHeaders headers = {}, *DeleteFavoritesByTypeQueries queries) returns GenericResult|error {
+        string resourcePath = string `/favorites/${getEncodedUri(favoriteType)}`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->delete(resourcePath, headers = httpHeaders);
+    }
+
+    # Is Favorite
+    #
+    # + favoriteType - The favorite type
+    # + favoriteId - Favorite Id, e.g., sheet Id, report Id
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - Returns Result object 
+    remote isolated function isFavorite("folder"|"report"|"sheet"|"sight"|"template"|"workspace" favoriteType, decimal favoriteId, IsFavoriteHeaders headers = {}, *IsFavoriteQueries queries) returns Favorite|error {
+        string resourcePath = string `/favorites/${getEncodedUri(favoriteType)}/${getEncodedUri(favoriteId)}`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
+    }
+
+    # Delete Favorite
+    #
+    # + favoriteType - The favorite type
+    # + favoriteId - Favorite Id, e.g., sheet Id, report Id
+    # + headers - Headers to be sent with the request 
+    # + return - Returns Result object 
+    remote isolated function deleteFavoritesByTypeAndId("folder"|"report"|"sheet"|"sight"|"template"|"workspace" favoriteType, decimal favoriteId, DeleteFavoritesByTypeAndIdHeaders headers = {}) returns GenericResult|error {
+        string resourcePath = string `/favorites/${getEncodedUri(favoriteType)}/${getEncodedUri(favoriteId)}`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->delete(resourcePath, headers = httpHeaders);
+    }
+
+    # List filtered events
+    #
+    # + headers - Headers to be sent with the request 
+    # + return - OK 
+    remote isolated function listFilteredEvents(FilteredEventsRequest payload, ListFilteredEventsHeaders headers = {}) returns InlineResponse2004|error {
+        string resourcePath = string `/filteredEvents`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        json jsonBody = jsondata:toJson(payload);
+        request.setPayload(jsonBody, "application/json");
+        return self.clientEp->post(resourcePath, request, httpHeaders);
+    }
+
+    # Get folder
+    #
+    # + folderId - Folder Id where you can create sheets, sights, reports, templates, and other folders
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - A single Folder object 
+    # 
+    # # Deprecated
+    @deprecated
+    remote isolated function getFolder(decimal folderId, GetFolderHeaders headers = {}, *GetFolderQueries queries) returns Folder|error {
+        string resourcePath = string `/folders/${getEncodedUri(folderId)}`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
+    }
+
+    # Update folder
+    #
+    # + folderId - Folder Id where you can create sheets, sights, reports, templates, and other folders
+    # + headers - Headers to be sent with the request 
+    # + return - Result object containing the modified Folder object 
+    remote isolated function updateFolder(decimal folderId, Folder payload, UpdateFolderHeaders headers = {}) returns InlineResponse2005|error {
+        string resourcePath = string `/folders/${getEncodedUri(folderId)}`;
         map<string|string[]> httpHeaders = http:getHeaderMap(headers);
         http:Request request = new;
         json jsonBody = jsondata:toJson(payload);
@@ -62,85 +187,2583 @@ public isolated client class Client {
         return self.clientEp->put(resourcePath, request, httpHeaders);
     }
 
-    # Get a Playlist's Items
+    # Delete folder
     #
-    # + playlistId - The [Spotify ID](https://developer.spotify.com/documentation/web-api/#spotify-uris-and-ids) for the playlist
+    # + folderId - Folder Id where you can create sheets, sights, reports, templates, and other folders
     # + headers - Headers to be sent with the request 
-    # + queries - Queries to be sent with the request 
-    # + return - On success, the response body contains an array of [track objects](https://developer.spotify.com/documentation/web-api/reference/#object-simplifiedtrackobject) and [episode objects](https://developer.spotify.com/documentation/web-api/reference/#object-simplifiedepisodeobject) (depends on the `additional_types` parameter), wrapped in a [paging object](https://developer.spotify.com/documentation/web-api/reference/#object-pagingobject) in JSON format and the HTTP status code in the response header is `200` OK. If an episode is unavailable in the given `market`, its information will not be included in the response. On error, the header status code is an [error code](https://developer.spotify.com/documentation/web-api/#response-status-codes) and the response body contains an [error object](https://developer.spotify.com/documentation/web-api/#response-schema). Requesting playlists that you do not have the user's authorization to access returns error `403` Forbidden 
-    @display {label: "Playlist Tracks"}
-    resource isolated function get playlists/[string playlistId]/tracks(map<string|string[]> headers = {}, *GetPlaylistTracksQueries queries) returns PlaylistTrackDetails|error {
-        string resourcePath = string `/playlists/${getEncodedUri(playlistId)}/tracks`;
-        resourcePath = resourcePath + check getPathForQueryParam(queries);
-        return self.clientEp->get(resourcePath, headers);
+    # + return - Returns Result object 
+    remote isolated function deleteFolder(decimal folderId, DeleteFolderHeaders headers = {}) returns GenericResult|error {
+        string resourcePath = string `/folders/${getEncodedUri(folderId)}`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->delete(resourcePath, headers = httpHeaders);
     }
 
-    # Reorder or Replace a Playlist's Items
+    # Get folder metadata
     #
-    # + playlistId - The [Spotify ID](https://developer.spotify.com/documentation/web-api/#spotify-uris-and-ids) for the playlist
+    # + folderId - The ID of the folder
     # + headers - Headers to be sent with the request 
     # + queries - Queries to be sent with the request 
-    # + payload - Information needed to reorder the playlist 
-    # + return - On a successful **reorder** operation, the response body contains a `snapshot_id` in JSON format and the HTTP status code in the response header is `200` OK. The `snapshot_id` can be used to identify your playlist version in future requests. On a successful **replace** operation, the HTTP status code in the response header is `201` Created. On error, the header status code is an [error code](https://developer.spotify.com/documentation/web-api/#response-status-codes), the response body contains an [error object](https://developer.spotify.com/documentation/web-api/#response-schema), and the existing playlist is unmodified. Trying to set an item when you do not have the user's authorization returns error `403` Forbidden 
-    @display {label: "Reorder or Replace Tracks"}
-    resource isolated function put playlists/[string playlistId]/tracks(PlayListReorderDetails payload, map<string|string[]> headers = {}, *ReorderOrReplacePlaylistTracksQueries queries) returns SnapshotIdObject|error? {
-        string resourcePath = string `/playlists/${getEncodedUri(playlistId)}/tracks`;
+    # + return - The metadata of a folder 
+    remote isolated function getFolderMetadata(int folderId, GetFolderMetadataHeaders headers = {}, *GetFolderMetadataQueries queries) returns FolderMetadata|error {
+        string resourcePath = string `/folders/${getEncodedUri(folderId)}/metadata`;
         resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
+    }
+
+    # Get folder children
+    #
+    # + folderId - The ID of the folder
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - An array of asset references with a pagination token if there are more results 
+    remote isolated function getFolderChildren(int folderId, GetFolderChildrenHeaders headers = {}, *GetFolderChildrenQueries queries) returns PaginatedChildrenResponse|error {
+        string resourcePath = string `/folders/${getEncodedUri(folderId)}/children`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
+    }
+
+    # Copy folder
+    #
+    # + folderId - Folder Id where you can create sheets, sights, reports, templates, and other folders
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + payload - New folder name 
+    # + return - Result object containing a Folder object for the new folder destination 
+    remote isolated function copyFolder(decimal folderId, FolderIdCopyBody payload, CopyFolderHeaders headers = {}, *CopyFolderQueries queries) returns ContainerDestinationForCopy|error {
+        string resourcePath = string `/folders/${getEncodedUri(folderId)}/copy`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
         http:Request request = new;
         json jsonBody = jsondata:toJson(payload);
         request.setPayload(jsonBody, "application/json");
-        return self.clientEp->put(resourcePath, request, headers);
+        return self.clientEp->post(resourcePath, request, httpHeaders);
     }
 
-    # Get a List of a User's Playlists
+    # List folders
     #
-    # + userId - The user's [Spotify user ID](https://developer.spotify.com/documentation/web-api/#spotify-uris-and-ids)
+    # + folderId - Folder Id where you can create sheets, sights, reports, templates, and other folders
     # + headers - Headers to be sent with the request 
     # + queries - Queries to be sent with the request 
-    # + return - On success, the HTTP status code in the response header is `200` OK and the response body contains an array of simplified [playlist objects](https://developer.spotify.com/documentation/web-api/reference/#object-simplifiedplaylistobject) (wrapped in a [paging object](https://developer.spotify.com/documentation/web-api/reference/#object-pagingobject)) in JSON format. On error, the header status code is an [error code](https://developer.spotify.com/documentation/web-api/#response-status-codes) and the response body contains an [error object](https://developer.spotify.com/documentation/web-api/#response-schema) 
-    @display {label: "Playlist By User Id"}
-    resource isolated function get users/[string userId]/playlists(map<string|string[]> headers = {}, *GetPlayslistsByUserIDQueries queries) returns UserPlayListDetails|error {
-        string resourcePath = string `/users/${getEncodedUri(userId)}/playlists`;
+    # + return - IndexResult object containing an array of Folder objects 
+    # 
+    # # Deprecated
+    @deprecated
+    remote isolated function listFolders(decimal folderId, ListFoldersHeaders headers = {}, *ListFoldersQueries queries) returns InlineResponse2006|error {
+        string resourcePath = string `/folders/${getEncodedUri(folderId)}/folders`;
         resourcePath = resourcePath + check getPathForQueryParam(queries);
-        return self.clientEp->get(resourcePath, headers);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
     }
 
-    # Create a Playlist
+    # Create folder
     #
-    # + userId - The user's [Spotify user ID](https://developer.spotify.com/documentation/web-api/#spotify-uris-and-ids)
+    # + folderId - Folder Id where you can create sheets, sights, reports, templates, and other folders
     # + headers - Headers to be sent with the request 
-    # + payload - Content to create playlist 
-    # + return - On success, the response body contains the created [playlist object](https://developer.spotify.com/documentation/web-api/reference/#object-playlistobject) in JSON format and the HTTP status code in the response header is `200` OK or `201` Created. There is also a `Location` response header giving the Web API endpoint for the new playlist. On error, the header status code is an [error code](https://developer.spotify.com/documentation/web-api/#response-status-codes) and the response body contains an [error object](https://developer.spotify.com/documentation/web-api/#response-schema). Trying to create a playlist when you do not have the user's authorization returns error `403` Forbidden 
-    @display {label: "Create Playlist"}
-    resource isolated function post users/[string userId]/playlists(PlayListDetails payload, map<string|string[]> headers = {}) returns PlaylistObject|error {
-        string resourcePath = string `/users/${getEncodedUri(userId)}/playlists`;
+    # + queries - Queries to be sent with the request 
+    # + payload - Folder to create 
+    # + return - Result object containing a Folder object for newly created folder 
+    remote isolated function createFolderFolder(decimal folderId, FolderIdFoldersBody payload, CreateFolderFolderHeaders headers = {}, *CreateFolderFolderQueries queries) returns InlineResponse2007|error {
+        string resourcePath = string `/folders/${getEncodedUri(folderId)}/folders`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
         http:Request request = new;
         json jsonBody = jsondata:toJson(payload);
         request.setPayload(jsonBody, "application/json");
-        return self.clientEp->post(resourcePath, request, headers);
+        return self.clientEp->post(resourcePath, request, httpHeaders);
     }
 
-    # Get All New Releases
+    # Move folder
+    #
+    # + folderId - Folder Id where you can create sheets, sights, reports, templates, and other folders
+    # + headers - Headers to be sent with the request 
+    # + payload - New folder destination 
+    # + return - Result object containing a Folder object for the new folder destination 
+    remote isolated function moveFolder(decimal folderId, FolderIdMoveBody payload, MoveFolderHeaders headers = {}) returns ContainerDestinationForMove|error {
+        string resourcePath = string `/folders/${getEncodedUri(folderId)}/move`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        json jsonBody = jsondata:toJson(payload);
+        request.setPayload(jsonBody, "application/json");
+        return self.clientEp->post(resourcePath, request, httpHeaders);
+    }
+
+    # Create Sheet in Folder
+    #
+    # + folderId - Folder Id where you can create sheets, sights, reports, templates, and other folders
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + payload - Sheet to create 
+    # + return - Result object containing a Sheet object for newly created sheet, corresponding to what was specified in the request 
+    remote isolated function createSheetInFolder(decimal folderId, FolderIdSheetsBody payload, CreateSheetInFolderHeaders headers = {}, *CreateSheetInFolderQueries queries) returns InlineResponse2008|error {
+        string resourcePath = string `/folders/${getEncodedUri(folderId)}/sheets`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        json jsonBody = jsondata:toJson(payload);
+        request.setPayload(jsonBody, "application/json");
+        return self.clientEp->post(resourcePath, request, httpHeaders);
+    }
+
+    # Import Sheet into Folder
+    #
+    # + folderId - Folder Id where you can create sheets, sights, reports, templates, and other folders
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + payload - Binary content for the CSV / XLSX file 
+    # + return - Result object containing a Sheet object for imported sheet 
+    remote isolated function importSheetIntoFolder(decimal folderId, ImportSheetIntoFolderHeaders headers, byte[] payload, *ImportSheetIntoFolderQueries queries) returns InlineResponse2009|error {
+        string resourcePath = string `/folders/${getEncodedUri(folderId)}/sheets/import`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        request.setPayload(payload, "application/octet-stream");
+        return self.clientEp->post(resourcePath, request, httpHeaders);
+    }
+
+    # List Contents
     #
     # + headers - Headers to be sent with the request 
     # + queries - Queries to be sent with the request 
-    # + return - On success, the HTTP status code in the response header is `200` OK and the response body contains a `message` and an`albums` object. The `albums` object contains an array of simplified [album objects](https://developer.spotify.com/documentation/web-api/reference/#object-simplifiedalbumobject) (wrapped in a [paging object](https://developer.spotify.com/documentation/web-api/reference/#object-pagingobject)) in JSON format. On error, the header status code is an [error code](https://developer.spotify.com/documentation/web-api/#response-status-codes) and the response body contains an [error object](https://developer.spotify.com/documentation/web-api/#response-schema). Once you have retrieved the list, you can use [Get an Album's Tracks](https://developer.spotify.com/documentation/web-api/reference/#endpoint-get-an-albums-tracks) to drill down further. The results are returned in an order reflected within the Spotify clients, and therefore may not be ordered by date 
-    @display {label: "Get New Releases"}
-    resource isolated function get browse/new\-releases(map<string|string[]> headers = {}, *GetNewRelesesQueries queries) returns NewReleasesObject|error {
-        string resourcePath = string `/browse/new-releases`;
+    # + return - A single Home object 
+    # 
+    # # Deprecated
+    @deprecated
+    remote isolated function listHomeContents(ListHomeContentsHeaders headers = {}, *ListHomeContentsQueries queries) returns Home|error {
+        string resourcePath = string `/folders/personal`;
         resourcePath = resourcePath + check getPathForQueryParam(queries);
-        return self.clientEp->get(resourcePath, headers);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
     }
 
-    # Get All Featured Playlists
+    # List Org Groups
     #
     # + headers - Headers to be sent with the request 
     # + queries - Queries to be sent with the request 
-    # + return - On success, the HTTP status code in the response header is `200` OK and the response body contains a `message` and a `playlists` object. The `playlists` object contains an array of simplified [playlist objects](https://developer.spotify.com/documentation/web-api/reference/#object-simplifiedplaylistobject) (wrapped in a [paging object](https://developer.spotify.com/documentation/web-api/reference/#object-pagingobject)) in JSON format. On error, the header status code is an [error code](https://developer.spotify.com/documentation/web-api/#response-status-codes) and the response body contains an [error object](https://developer.spotify.com/documentation/web-api/#response-schema). Once you have retrieved the list of playlist objects, you can use [Get a Playlist](https://developer.spotify.com/web-api/get-playlist/) and [Get a Playlist's Tracks](https://developer.spotify.com/web-api/get-playlists-tracks/) to drill down further 
-    @display {label: "Get Featured Playlists"}
-    resource isolated function get browse/featured\-playlists(map<string|string[]> headers = {}, *GetFeaturedPlaylistsQueries queries) returns FeaturedPlaylistObject|error {
-        string resourcePath = string `/browse/featured-playlists`;
+    # + return - IndexResult object containing an array of [Group objects](/api/smartsheet/openapi/groups/group) 
+    remote isolated function listGroups(ListGroupsHeaders headers = {}, *ListGroupsQueries queries) returns InlineResponse20010|error {
+        string resourcePath = string `/groups`;
+        map<Encoding> queryParamEncoding = {"modifiedSince": {style: FORM, explode: true}};
+        resourcePath = resourcePath + check getPathForQueryParam(queries, queryParamEncoding);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
+    }
+
+    # Add Group
+    #
+    # + headers - Headers to be sent with the request 
+    # + payload - [Group object](/api/smartsheet/openapi/groups/group), limited to the following attributes: 
+    # + return - Result object, containing a [Group object](/api/smartsheet/openapi/groups/group) for the newly created group 
+    remote isolated function addGroup(GroupCreate1 payload, AddGroupHeaders headers = {}) returns InlineResponse20011|error {
+        string resourcePath = string `/groups`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        json jsonBody = jsondata:toJson(payload);
+        request.setPayload(jsonBody, "application/json");
+        return self.clientEp->post(resourcePath, request, httpHeaders);
+    }
+
+    # Get Group
+    #
+    # + groupId - Group Id
+    # + headers - Headers to be sent with the request 
+    # + return - [Group](/api/smartsheet/openapi/groups/group) object that includes the list of [GroupMember](/api/smartsheet/openapi/groupmembers/groupmember) objects 
+    remote isolated function getGroup(decimal groupId, GetGroupHeaders headers = {}) returns InlineResponse20012|error {
+        string resourcePath = string `/groups/${getEncodedUri(groupId)}`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
+    }
+
+    # Update Group
+    #
+    # + groupId - Group Id
+    # + headers - Headers to be sent with the request 
+    # + payload - Group object, limited to the following attributes: 
+    # + return - Result object containing the [Group object](/api/smartsheet/openapi/groups/group) for the updated group 
+    remote isolated function updateGroup(decimal groupId, GroupUpdate1 payload, UpdateGroupHeaders headers = {}) returns InlineResponse20011|error {
+        string resourcePath = string `/groups/${getEncodedUri(groupId)}`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        json jsonBody = jsondata:toJson(payload);
+        request.setPayload(jsonBody, "application/json");
+        return self.clientEp->put(resourcePath, request, httpHeaders);
+    }
+
+    # Delete Group
+    #
+    # + groupId - Group Id
+    # + headers - Headers to be sent with the request 
+    # + return - **_This operation is asynchronous,_** _meaning group members may retain their sharing access for a brief period of time after the call returns. For small groups with limited sharing, the operation should complete quickly (within a few seconds). For large groups with many shares, this operation could possibly take more than a minute to complete._ 
+    remote isolated function deleteGroup(decimal groupId, DeleteGroupHeaders headers = {}) returns GenericResult|error {
+        string resourcePath = string `/groups/${getEncodedUri(groupId)}`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->delete(resourcePath, headers = httpHeaders);
+    }
+
+    # Add Group Members
+    #
+    # + groupId - Group Id
+    # + headers - Headers to be sent with the request 
+    # + return - Returns a Result object containing the members added to the group -- either a single [GroupMember](/api/smartsheet/openapi/groupmembers/groupmember) or array of [GroupMember](/api/smartsheet/openapi/groupmembers/groupmember) objects, corresponding to what was specified in the request. **_This operation is asynchronous,_** _meaning the users may not yet have sharing access to sheets for a period of time after this operation returns. For small groups with limited sharing, the operation should complete quickly (within a few seconds). For large groups with many shares, this operation could possibly take more than a minute to complete._ 
+    remote isolated function addGroupMembers(decimal groupId, GroupIdMembersBody payload, AddGroupMembersHeaders headers = {}) returns InlineResponse20013|error {
+        string resourcePath = string `/groups/${getEncodedUri(groupId)}/members`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        json jsonBody = jsondata:toJson(payload);
+        request.setPayload(jsonBody, "application/json");
+        return self.clientEp->post(resourcePath, request, httpHeaders);
+    }
+
+    # Delete Group Members
+    #
+    # + groupId - Group Id
+    # + userId - User Id
+    # + headers - Headers to be sent with the request 
+    # + return - **_This operation is asynchronous,_** _meaning the users may not yet have sharing access to sheets for a period of time after this operation returns. For small groups with limited sharing, the operation should complete quickly (within a few seconds). For large groups with many shares, this operation could possibly take more than a minute to complete._ 
+    remote isolated function deleteGroupMembers(decimal groupId, decimal userId, DeleteGroupMembersHeaders headers = {}) returns GenericResult|error {
+        string resourcePath = string `/groups/${getEncodedUri(groupId)}/members/${getEncodedUri(userId)}`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->delete(resourcePath, headers = httpHeaders);
+    }
+
+    # List Folders in Home
+    #
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - IndexResult object containing an array of Folder objects 
+    # 
+    # # Deprecated
+    @deprecated
+    remote isolated function homeListFolders(HomeListFoldersHeaders headers = {}, *HomeListFoldersQueries queries) returns InlineResponse2006|error {
+        string resourcePath = string `/home/folders`;
         resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
+    }
+
+    # Create Folder
+    #
+    # + headers - Headers to be sent with the request 
+    # + payload - Folder to create 
+    # + return - Result object containing a Folder object for newly created folder 
+    # 
+    # # Deprecated
+    @deprecated
+    remote isolated function createHomeFolder(HomeFoldersBody payload, CreateHomeFolderHeaders headers = {}) returns InlineResponse2007|error {
+        string resourcePath = string `/home/folders`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        json jsonBody = jsondata:toJson(payload);
+        request.setPayload(jsonBody, "application/json");
+        return self.clientEp->post(resourcePath, request, httpHeaders);
+    }
+
+    # List Image URLs
+    #
+    # + headers - Headers to be sent with the request 
+    # + return - OK 
+    remote isolated function listImageUrls(InlineBodyItemsApplicationjsonimageurls[] payload, ListImageUrlsHeaders headers = {}) returns InlineResponse20014|error {
+        string resourcePath = string `/imageurls`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        json jsonBody = jsondata:toJson(payload);
+        request.setPayload(jsonBody, "application/json");
+        return self.clientEp->post(resourcePath, request, httpHeaders);
+    }
+
+    # List Reports
+    #
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - Object containing an array of all accessible reports, referenced by their ID, name, access level, and summary report flag values 
+    remote isolated function getReports(GetReportsHeaders headers = {}, *GetReportsQueries queries) returns InlineResponse20015|error {
+        string resourcePath = string `/reports`;
+        map<Encoding> queryParamEncoding = {"modifiedSince": {style: FORM, explode: true}};
+        resourcePath = resourcePath + check getPathForQueryParam(queries, queryParamEncoding);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
+    }
+
+    # Get Report
+    #
+    # + reportId - reportID of the report being accessed
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - The Report that was loaded 
+    remote isolated function getReport(decimal reportId, GetReportHeaders headers = {}, *GetReportQueries queries) returns Report|error {
+        string resourcePath = string `/reports/${getEncodedUri(reportId)}`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
+    }
+
+    # Send report via email
+    #
+    # + reportId - reportID of the report being accessed
+    # + headers - Headers to be sent with the request 
+    # + return - Result Object 
+    remote isolated function sendReportViaEmail(decimal reportId, SheetEmail payload, SendReportViaEmailHeaders headers = {}) returns Result|error {
+        string resourcePath = string `/reports/${getEncodedUri(reportId)}/emails`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        json jsonBody = jsondata:toJson(payload);
+        request.setPayload(jsonBody, "application/json");
+        return self.clientEp->post(resourcePath, request, httpHeaders);
+    }
+
+    # Gets a Report's publish settings
+    #
+    # + reportId - reportID of the report being accessed
+    # + headers - Headers to be sent with the request 
+    # + return - The Report's publish settings 
+    remote isolated function getReportPublish(decimal reportId, GetReportPublishHeaders headers = {}) returns ReportPublish|error {
+        string resourcePath = string `/reports/${getEncodedUri(reportId)}/publish`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
+    }
+
+    # Set a Report's publish status
+    #
+    # + reportId - reportID of the report being accessed
+    # + headers - Headers to be sent with the request 
+    # + return - ReportPublish object 
+    remote isolated function setReportPublish(decimal reportId, ReportPublish payload, SetReportPublishHeaders headers = {}) returns InlineResponse20016|error {
+        string resourcePath = string `/reports/${getEncodedUri(reportId)}/publish`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        json jsonBody = jsondata:toJson(payload);
+        request.setPayload(jsonBody, "application/json");
+        return self.clientEp->put(resourcePath, request, httpHeaders);
+    }
+
+    # List report shares
+    #
+    # + reportId - reportID of the report being accessed
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - IndexResult object containing an array of Share objects. By default, this operation returns only item-level shares (scope=ITEM). Use the sharingInclude parameter to request that workspace-level shares (include=workspaceShares) also be returned 
+    # 
+    # # Deprecated
+    @deprecated
+    remote isolated function listReportShares(decimal reportId, ListReportSharesHeaders headers = {}, *ListReportSharesQueries queries) returns InlineResponse20017|error {
+        string resourcePath = string `/reports/${getEncodedUri(reportId)}/shares`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
+    }
+
+    # Share report
+    #
+    # + reportId - reportID of the report being accessed
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - Result object containing either a single Share object or an array of Share objects, corresponding to what was specified in the request. All shares have scope=ITEM 
+    # 
+    # # Deprecated
+    @deprecated
+    remote isolated function shareReport(decimal reportId, ReportIdSharesBody payload, ShareReportHeaders headers = {}, *ShareReportQueries queries) returns InlineResponse20018|error {
+        string resourcePath = string `/reports/${getEncodedUri(reportId)}/shares`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        json jsonBody = jsondata:toJson(payload);
+        request.setPayload(jsonBody, "application/json");
+        return self.clientEp->post(resourcePath, request, httpHeaders);
+    }
+
+    # Get report share
+    #
+    # + reportId - reportID of the report being accessed
+    # + shareId - The unique identifier for the share
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - Returns Share object 
+    # 
+    # # Deprecated
+    @deprecated
+    remote isolated function shareReportGet(decimal reportId, string shareId, ShareReportGetHeaders headers = {}, *ShareReportGetQueries queries) returns Share|error {
+        string resourcePath = string `/reports/${getEncodedUri(reportId)}/shares/${getEncodedUri(shareId)}`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
+    }
+
+    # Update report share
+    #
+    # + reportId - reportID of the report being accessed
+    # + shareId - The unique identifier for the share
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - Result object containing the modified Share object 
+    # 
+    # # Deprecated
+    @deprecated
+    remote isolated function updateReportShare(decimal reportId, string shareId, SharesshareIdBody payload, UpdateReportShareHeaders headers = {}, *UpdateReportShareQueries queries) returns InlineResponse20019|error {
+        string resourcePath = string `/reports/${getEncodedUri(reportId)}/shares/${getEncodedUri(shareId)}`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        json jsonBody = jsondata:toJson(payload);
+        request.setPayload(jsonBody, "application/json");
+        return self.clientEp->put(resourcePath, request, httpHeaders);
+    }
+
+    # Delete report share
+    #
+    # + reportId - reportID of the report being accessed
+    # + shareId - The unique identifier for the share
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - Returns Result object 
+    # 
+    # # Deprecated
+    @deprecated
+    remote isolated function deleteReportShare(decimal reportId, string shareId, DeleteReportShareHeaders headers = {}, *DeleteReportShareQueries queries) returns Result|error {
+        string resourcePath = string `/reports/${getEncodedUri(reportId)}/shares/${getEncodedUri(shareId)}`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->delete(resourcePath, headers = httpHeaders);
+    }
+
+    # Search Everything
+    #
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - SearchResult object that contains an array of Search objects (maximum 100) 
+    remote isolated function listSearch(ListSearchHeaders headers = {}, *ListSearchQueries queries) returns InlineResponse20020|error {
+        string resourcePath = string `/search`;
+        map<Encoding> queryParamEncoding = {"modifiedSince": {style: FORM, explode: true}, "scopes": {style: FORM, explode: true}};
+        resourcePath = resourcePath + check getPathForQueryParam(queries, queryParamEncoding);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
+    }
+
+    # Search Sheet
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - SearchResult object containing an array of SearchResultItem objects in a sheet (maximum 100) 
+    remote isolated function listSearchSheet(decimal sheetId, ListSearchSheetHeaders headers = {}, *ListSearchSheetQueries queries) returns InlineResponse20021|error {
+        string resourcePath = string `/search/sheets/${getEncodedUri(sheetId)}`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
+    }
+
+    # Gets application constants.
+    #
+    # + headers - Headers to be sent with the request 
+    # + return - OK 
+    remote isolated function serverinfoGet(map<string|string[]> headers = {}) returns ServerInfo|error {
+        string resourcePath = string `/serverinfo`;
         return self.clientEp->get(resourcePath, headers);
+    }
+
+    # List asset shares
+    #
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - Object containing an array of [Share response](/api/smartsheet/openapi/sharing/shareresponse) objects. By default, this operation returns only item-level shares  (scope=ITEM). Use the sharingInclude parameter to request that workspace level shares also be returned. The response result will always exist, but the list may be empty if there are no shares for the specified asset 
+    remote isolated function listAssetShares(ListAssetSharesHeaders headers = {}, *ListAssetSharesQueries queries) returns InlineResponse20022|error {
+        string resourcePath = string `/shares`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
+    }
+
+    # Share asset
+    #
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - Result object containing an array of [Share response](/api/smartsheet/openapi/sharing/shareresponse) objects, corresponding to what was specified in the request. If the users and/or groups are already shared to the specified asset, they will be omitted from the response.  An empty response indicates that all the users and/or groups in the request are already shared to the asset 
+    remote isolated function shareAsset(CreateShareRequest[] payload, ShareAssetHeaders headers = {}, *ShareAssetQueries queries) returns InlineResponse20023|error {
+        string resourcePath = string `/shares`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        json jsonBody = jsondata:toJson(payload);
+        request.setPayload(jsonBody, "application/json");
+        return self.clientEp->post(resourcePath, request, httpHeaders);
+    }
+
+    # Get asset share
+    #
+    # + shareId - The unique identifier for the share
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - The share specified by the shareId 
+    remote isolated function getAssetShare(string shareId, GetAssetShareHeaders headers = {}, *GetAssetShareQueries queries) returns ShareResponse|error {
+        string resourcePath = string `/shares/${getEncodedUri(shareId)}`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
+    }
+
+    # Delete asset share
+    #
+    # + shareId - The unique identifier for the share
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - Result object indicating a successful deletion of the share for the specified asset 
+    remote isolated function deleteAssetShare(string shareId, DeleteAssetShareHeaders headers = {}, *DeleteAssetShareQueries queries) returns SuccessResult|error {
+        string resourcePath = string `/shares/${getEncodedUri(shareId)}`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->delete(resourcePath, headers = httpHeaders);
+    }
+
+    # Update asset share
+    #
+    # + shareId - The unique identifier for the share
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - Result object containing a [Share response](/api/smartsheet/openapi/sharing/shareresponse) object, corresponding to what was specified in the request 
+    remote isolated function updateAssetShare(string shareId, UpdateShareRequest payload, UpdateAssetShareHeaders headers = {}, *UpdateAssetShareQueries queries) returns ShareResponse|error {
+        string resourcePath = string `/shares/${getEncodedUri(shareId)}`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        json jsonBody = jsondata:toJson(payload);
+        request.setPayload(jsonBody, "application/json");
+        return self.clientEp->patch(resourcePath, request, httpHeaders);
+    }
+
+    # List Sheets
+    #
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - SUCCESS 
+    remote isolated function listSheets(ListSheetsHeaders headers = {}, *ListSheetsQueries queries) returns InlineResponse20024|error {
+        string resourcePath = string `/sheets`;
+        map<Encoding> queryParamEncoding = {"modifiedSince": {style: FORM, explode: true}};
+        resourcePath = resourcePath + check getPathForQueryParam(queries, queryParamEncoding);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
+    }
+
+    # Create Sheet in "Sheets" Folder
+    #
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + payload - Sheet to create 
+    # + return - Result object containing a Sheet object for newly created sheet, corresponding to what was specified in the request 
+    # 
+    # # Deprecated
+    @deprecated
+    remote isolated function createSheetInSheetsFolder(SheetsBody payload, CreateSheetInSheetsFolderHeaders headers = {}, *CreateSheetInSheetsFolderQueries queries) returns InlineResponse2008|error {
+        string resourcePath = string `/sheets`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        json jsonBody = jsondata:toJson(payload);
+        request.setPayload(jsonBody, "application/json");
+        return self.clientEp->post(resourcePath, request, httpHeaders);
+    }
+
+    # Import Sheet from CSV / XLSX
+    #
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + payload - Binary content for the CSV / XLSX file 
+    # + return - Result object containing a Sheet object for imported sheet 
+    # 
+    # # Deprecated
+    @deprecated
+    remote isolated function importSheetIntoSheetsFolder(ImportSheetIntoSheetsFolderHeaders headers, byte[] payload, *ImportSheetIntoSheetsFolderQueries queries) returns InlineResponse2009|error {
+        string resourcePath = string `/sheets/import`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        request.setPayload(payload, "application/octet-stream");
+        return self.clientEp->post(resourcePath, request, httpHeaders);
+    }
+
+    # Get Sheet
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - The Sheet that was loaded 
+    remote isolated function getSheet(decimal sheetId, GetSheetHeaders headers = {}, *GetSheetQueries queries) returns InlineResponse20025|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}`;
+        map<Encoding> queryParamEncoding = {"rowsModifiedSince": {style: FORM, explode: true}};
+        resourcePath = resourcePath + check getPathForQueryParam(queries, queryParamEncoding);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
+    }
+
+    # Update Sheet
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + payload - [Sheet object](/api/smartsheet/openapi/sheets/sheet) limited to the following attributes: 
+    # + return - Returns [Result object](/api/smartsheet/openapi/schemas/result) containing a [Sheet object](/api/smartsheet/openapi/sheets/sheet) for the updated sheet 
+    remote isolated function updateSheet(decimal sheetId, UpdateSheet payload, UpdateSheetHeaders headers = {}, *UpdateSheetQueries queries) returns InlineResponse20026|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        json jsonBody = jsondata:toJson(payload);
+        request.setPayload(jsonBody, "application/json");
+        return self.clientEp->put(resourcePath, request, httpHeaders);
+    }
+
+    # Delete Sheet
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + headers - Headers to be sent with the request 
+    # + return - SUCCESS 
+    remote isolated function deleteSheet(decimal sheetId, DeleteSheetHeaders headers = {}) returns SuccessResult|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->delete(resourcePath, headers = httpHeaders);
+    }
+
+    # List Attachments
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - OK 
+    remote isolated function attachmentsListOnSheet(decimal sheetId, AttachmentsListOnSheetHeaders headers = {}, *AttachmentsListOnSheetQueries queries) returns InlineResponse20027|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/attachments`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
+    }
+
+    # Attach File or URL to Sheet
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + headers - Headers to be sent with the request 
+    # + return - SUCCESS 
+    remote isolated function attachmentsAttachToSheet(decimal sheetId, byte[] payload, AttachmentsAttachToSheetHeaders headers = {}) returns InlineResponse20028|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/attachments`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        request.setPayload(payload, "application/octet-stream");
+        return self.clientEp->post(resourcePath, request, httpHeaders);
+    }
+
+    # Get Attachment
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + attachmentId - ID of the attachment
+    # + headers - Headers to be sent with the request 
+    # + return - SUCCESS 
+    remote isolated function attachmentsGet(decimal sheetId, string attachmentId, AttachmentsGetHeaders headers = {}) returns InlineResponse20029|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/attachments/${getEncodedUri(attachmentId)}`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
+    }
+
+    # Delete Attachment
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + attachmentId - ID of the attachment
+    # + headers - Headers to be sent with the request 
+    # + return - SUCCESS 
+    remote isolated function attachmentsDelete(decimal sheetId, string attachmentId, AttachmentsDeleteHeaders headers = {}) returns GenericResult|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/attachments/${getEncodedUri(attachmentId)}`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->delete(resourcePath, headers = httpHeaders);
+    }
+
+    # List Versions
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + attachmentId - ID of the attachment
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - OK 
+    remote isolated function attachmentsVersionList(decimal sheetId, string attachmentId, AttachmentsVersionListHeaders headers = {}, *AttachmentsVersionListQueries queries) returns InlineResponse20027|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/attachments/${getEncodedUri(attachmentId)}/versions`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
+    }
+
+    # Attach New version
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + attachmentId - ID of the attachment
+    # + headers - Headers to be sent with the request 
+    # + return - SUCCESS 
+    remote isolated function attachmentsVersionUpload(decimal sheetId, string attachmentId, byte[] payload, AttachmentsVersionUploadHeaders headers = {}) returns InlineResponse20028|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/attachments/${getEncodedUri(attachmentId)}/versions`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        request.setPayload(payload, "application/octet-stream");
+        return self.clientEp->post(resourcePath, request, httpHeaders);
+    }
+
+    # Delete All Versions
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + attachmentId - ID of the attachment
+    # + headers - Headers to be sent with the request 
+    # + return - SUCCESS 
+    remote isolated function attachmentsVersionsDelete(decimal sheetId, string attachmentId, AttachmentsVersionsDeleteHeaders headers = {}) returns GenericResult|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/attachments/${getEncodedUri(attachmentId)}/versions`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->delete(resourcePath, headers = httpHeaders);
+    }
+
+    # List All Automation Rules
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - The list of AutomationRule objects 
+    remote isolated function automationrulesList(decimal sheetId, AutomationrulesListHeaders headers = {}, *AutomationrulesListQueries queries) returns InlineResponse20030|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/automationrules`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
+    }
+
+    # Get an Automation Rule
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + automationRuleId - The Id of an Automation Rule
+    # + headers - Headers to be sent with the request 
+    # + return - AutomationRule object 
+    remote isolated function automationruleGet(decimal sheetId, string automationRuleId, AutomationruleGetHeaders headers = {}) returns InlineResponse20031|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/automationrules/${getEncodedUri(automationRuleId)}`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
+    }
+
+    # Update an Automation Rule
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + automationRuleId - The Id of an Automation Rule
+    # + headers - Headers to be sent with the request 
+    # + return - Result object containing the updated AutomationRule object 
+    remote isolated function automationruleUpdate(decimal sheetId, string automationRuleId, AutomationRule payload, AutomationruleUpdateHeaders headers = {}) returns InlineResponse20032|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/automationrules/${getEncodedUri(automationRuleId)}`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        json jsonBody = jsondata:toJson(payload);
+        request.setPayload(jsonBody, "application/json");
+        return self.clientEp->put(resourcePath, request, httpHeaders);
+    }
+
+    # Delete an Automation Rule
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + automationRuleId - The Id of an Automation Rule
+    # + headers - Headers to be sent with the request 
+    # + return - Result object 
+    remote isolated function automationruleDelete(decimal sheetId, string automationRuleId, AutomationruleDeleteHeaders headers = {}) returns Result|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/automationrules/${getEncodedUri(automationRuleId)}`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->delete(resourcePath, headers = httpHeaders);
+    }
+
+    # List Columns
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - Returns [IndexResult object]() containing an array of [Column objects]() 
+    remote isolated function columnsListOnSheet(decimal sheetId, ColumnsListOnSheetHeaders headers = {}, *ColumnsListOnSheetQueries queries) returns InlineResponse20033|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/columns`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
+    }
+
+    # Add Columns
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + headers - Headers to be sent with the request 
+    # + payload - A [Column object]() that contains the following attributes 
+    # + return - Returns [Result object](/api/smartsheet/openapi/schemas/result) containing the newly created columns -- either a single [Column object](/api/smartsheet/openapi/columns/column) or an array of Column objects, corresponding to what was specified in the request 
+    remote isolated function columnsAddToSheet(decimal sheetId, ColumnObjectAttributes payload, ColumnsAddToSheetHeaders headers = {}) returns InlineResponse20034|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/columns`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        json jsonBody = jsondata:toJson(payload);
+        request.setPayload(jsonBody, "application/json");
+        return self.clientEp->post(resourcePath, request, httpHeaders);
+    }
+
+    # Get Column
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + columnId - Column Id in the sheet being accessed
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - SUCCESS 
+    remote isolated function columnGet(decimal sheetId, decimal columnId, ColumnGetHeaders headers = {}, *ColumnGetQueries queries) returns InlineResponse20035|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/columns/${getEncodedUri(columnId)}`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
+    }
+
+    # Update Column
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + columnId - Column Id in the sheet being accessed
+    # + headers - Headers to be sent with the request 
+    # + payload - A [Column object]() that contains the following attributes: 
+    # + return - Returns [Result object](/api/smartsheet/openapi/schemas/result) containing the [Column object](/api/smartsheet/openapi/columns/column) that was modified 
+    remote isolated function columnUpdateColumn(decimal sheetId, decimal columnId, ColumnObjectAttributes payload, ColumnUpdateColumnHeaders headers = {}) returns InlineResponse20036|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/columns/${getEncodedUri(columnId)}`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        json jsonBody = jsondata:toJson(payload);
+        request.setPayload(jsonBody, "application/json");
+        return self.clientEp->put(resourcePath, request, httpHeaders);
+    }
+
+    # Delete Column
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + columnId - Column Id in the sheet being accessed
+    # + headers - Headers to be sent with the request 
+    # + return - SUCCESS 
+    remote isolated function columnDelete(decimal sheetId, decimal columnId, ColumnDeleteHeaders headers = {}) returns GenericResult|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/columns/${getEncodedUri(columnId)}`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->delete(resourcePath, headers = httpHeaders);
+    }
+
+    # Get a comment
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + commentId - ID of the comment
+    # + headers - Headers to be sent with the request 
+    # + return - SUCCESS 
+    remote isolated function commentGet(decimal sheetId, string commentId, CommentGetHeaders headers = {}) returns InlineResponse20037|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/comments/${getEncodedUri(commentId)}`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
+    }
+
+    # Edit a comment
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + commentId - ID of the comment
+    # + headers - Headers to be sent with the request 
+    # + return - SUCCESS 
+    remote isolated function commentEdit(decimal sheetId, string commentId, CommentCreationRequest payload, CommentEditHeaders headers = {}) returns InlineResponse20038|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/comments/${getEncodedUri(commentId)}`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        json jsonBody = jsondata:toJson(payload);
+        request.setPayload(jsonBody, "application/json");
+        return self.clientEp->put(resourcePath, request, httpHeaders);
+    }
+
+    # Delete a comment
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + commentId - ID of the comment
+    # + headers - Headers to be sent with the request 
+    # + return - SUCCESS 
+    remote isolated function commentDelete(decimal sheetId, string commentId, CommentDeleteHeaders headers = {}) returns InlineResponse20039|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/comments/${getEncodedUri(commentId)}`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->delete(resourcePath, headers = httpHeaders);
+    }
+
+    # Attach File or URL to Comment
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + commentId - ID of the comment
+    # + headers - Headers to be sent with the request 
+    # + return - SUCCESS 
+    remote isolated function attachmentsAttachToComment(decimal sheetId, string commentId, byte[] payload, AttachmentsAttachToCommentHeaders headers = {}) returns InlineResponse20028|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/comments/${getEncodedUri(commentId)}/attachments`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        request.setPayload(payload, "application/octet-stream");
+        return self.clientEp->post(resourcePath, request, httpHeaders);
+    }
+
+    # Copy Sheet
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + payload - Destination where to create a copy of the specified sheet 
+    # + return - SUCCESS 
+    remote isolated function copySheet(decimal sheetId, ContainerDestinationForCopy payload, CopySheetHeaders headers = {}, *CopySheetQueries queries) returns InlineResponse20040|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/copy`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        json jsonBody = jsondata:toJson(payload);
+        request.setPayload(jsonBody, "application/json");
+        return self.clientEp->post(resourcePath, request, httpHeaders);
+    }
+
+    # List Cross-sheet References
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - IndexResult object containing an array of CrossSheetReference objects 
+    remote isolated function listCrosssheetReferences(decimal sheetId, ListCrosssheetReferencesHeaders headers = {}, *ListCrosssheetReferencesQueries queries) returns InlineResponse20041|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/crosssheetreferences`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
+    }
+
+    # Create Cross-sheet References
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + headers - Headers to be sent with the request 
+    # + payload - CrossSheetReference object to create 
+    # + return - Result object containing a CrossSheetReference object, corresponding to what was specified in the request 
+    remote isolated function addCrosssheetReference(decimal sheetId, SheetIdCrosssheetreferencesBody payload, AddCrosssheetReferenceHeaders headers = {}) returns InlineResponse20042|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/crosssheetreferences`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        json jsonBody = jsondata:toJson(payload);
+        request.setPayload(jsonBody, "application/json");
+        return self.clientEp->post(resourcePath, request, httpHeaders);
+    }
+
+    # Get Cross-sheet Reference
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + crossSheetReferenceId - Cross-sheet Reference Id
+    # + headers - Headers to be sent with the request 
+    # + return - CrossSheetReference object 
+    remote isolated function getCrosssheetReference(decimal sheetId, decimal crossSheetReferenceId, GetCrosssheetReferenceHeaders headers = {}) returns CrossSheetReference|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/crosssheetreferences/${getEncodedUri(crossSheetReferenceId)}`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
+    }
+
+    # List Discussions
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - OK 
+    remote isolated function discussionsList(decimal sheetId, DiscussionsListHeaders headers = {}, *DiscussionsListQueries queries) returns InlineResponse20043|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/discussions`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
+    }
+
+    # Create a Discussion
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + headers - Headers to be sent with the request 
+    # + return - SUCCESS 
+    remote isolated function discussionsCreate(decimal sheetId, DiscussionCreationRequest payload, DiscussionsCreateHeaders headers = {}) returns InlineResponse20044|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/discussions`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        json jsonBody = jsondata:toJson(payload);
+        request.setPayload(jsonBody, "application/json");
+        return self.clientEp->post(resourcePath, request, httpHeaders);
+    }
+
+    # Get Discussion
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + discussionId - ID of the discussion
+    # + headers - Headers to be sent with the request 
+    # + return - SUCCESS 
+    remote isolated function discussionGet(decimal sheetId, string discussionId, DiscussionGetHeaders headers = {}) returns InlineResponse20045|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/discussions/${getEncodedUri(discussionId)}`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
+    }
+
+    # Delete a Discussion
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + discussionId - ID of the discussion
+    # + headers - Headers to be sent with the request 
+    # + return - SUCCESS 
+    remote isolated function discussionDelete(decimal sheetId, string discussionId, DiscussionDeleteHeaders headers = {}) returns GenericResult|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/discussions/${getEncodedUri(discussionId)}`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->delete(resourcePath, headers = httpHeaders);
+    }
+
+    # List Discussion Attachments
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + discussionId - ID of the discussion
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - OK 
+    remote isolated function discussionListAttachments(decimal sheetId, string discussionId, DiscussionListAttachmentsHeaders headers = {}, *DiscussionListAttachmentsQueries queries) returns InlineResponse20027|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/discussions/${getEncodedUri(discussionId)}/attachments`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
+    }
+
+    # Create a comment
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + discussionId - ID of the discussion
+    # + headers - Headers to be sent with the request 
+    # + return - SUCCESS 
+    remote isolated function commentsCreate(decimal sheetId, string discussionId, CommentCreationRequest payload, CommentsCreateHeaders headers = {}) returns InlineResponse20046|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/discussions/${getEncodedUri(discussionId)}/comments`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        json jsonBody = jsondata:toJson(payload);
+        request.setPayload(jsonBody, "application/json");
+        return self.clientEp->post(resourcePath, request, httpHeaders);
+    }
+
+    # Send Sheet via Email
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + headers - Headers to be sent with the request 
+    # + payload - [SheetEmail object](/api/smartsheet/openapi/sendviaemail/sheetemail) 
+    # + return - SUCCESS 
+    remote isolated function sheetSend(decimal sheetId, SheetEmail payload, SheetSendHeaders headers = {}) returns InlineResponse20047|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/emails`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        json jsonBody = jsondata:toJson(payload);
+        request.setPayload(jsonBody, "application/json");
+        return self.clientEp->post(resourcePath, request, httpHeaders);
+    }
+
+    # Move Sheet
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + headers - Headers to be sent with the request 
+    # + payload - Destination to move the specified sheet 
+    # + return - SUCCESS 
+    remote isolated function moveSheet(decimal sheetId, ContainerDestinationForMove payload, MoveSheetHeaders headers = {}) returns InlineResponse20040|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/move`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        json jsonBody = jsondata:toJson(payload);
+        request.setPayload(jsonBody, "application/json");
+        return self.clientEp->post(resourcePath, request, httpHeaders);
+    }
+
+    # List Proofs
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - OK 
+    remote isolated function proofsGetAllProofs(decimal sheetId, ProofsGetAllProofsHeaders headers = {}, *ProofsGetAllProofsQueries queries) returns InlineResponse20048|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/proofs`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
+    }
+
+    # Get Proof
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + proofId - Proof Id of the original proof
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - SUCCESS 
+    remote isolated function proofsGet(decimal sheetId, string proofId, ProofsGetHeaders headers = {}, *ProofsGetQueries queries) returns InlineResponse20049|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/proofs/${getEncodedUri(proofId)}`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
+    }
+
+    # Update Proof Status
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + proofId - Proof Id of the original proof
+    # + headers - Headers to be sent with the request 
+    # + return - SUCCESS 
+    remote isolated function proofsUpdate(decimal sheetId, string proofId, UpdateProofStatusRequest payload, ProofsUpdateHeaders headers = {}) returns InlineResponse20049|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/proofs/${getEncodedUri(proofId)}`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        json jsonBody = jsondata:toJson(payload);
+        request.setPayload(jsonBody, "application/json");
+        return self.clientEp->put(resourcePath, request, httpHeaders);
+    }
+
+    # Delete Proof
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + proofId - Proof Id of the original proof
+    # + headers - Headers to be sent with the request 
+    # + return - SUCCESS 
+    remote isolated function proofsDelete(decimal sheetId, string proofId, ProofsDeleteHeaders headers = {}) returns GenericResult|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/proofs/${getEncodedUri(proofId)}`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->delete(resourcePath, headers = httpHeaders);
+    }
+
+    # List Proof Attachments
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + proofId - Proof Id of the original proof
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - OK 
+    remote isolated function proofsListAttachments(decimal sheetId, string proofId, ProofsListAttachmentsHeaders headers = {}, *ProofsListAttachmentsQueries queries) returns InlineResponse20050|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/proofs/${getEncodedUri(proofId)}/attachments`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
+    }
+
+    # Attach File to Proof
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + proofId - Proof Id of the original proof
+    # + headers - Headers to be sent with the request 
+    # + return - SUCCESS 
+    remote isolated function proofsAttachToProof(decimal sheetId, string proofId, byte[] payload, ProofsAttachToProofHeaders headers = {}) returns InlineResponse20028|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/proofs/${getEncodedUri(proofId)}/attachments`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        request.setPayload(payload, "application/octet-stream");
+        return self.clientEp->post(resourcePath, request, httpHeaders);
+    }
+
+    # List Proof Discussions
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + proofId - Proof Id of the original proof
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - OK 
+    remote isolated function proofsListDiscussions(decimal sheetId, string proofId, ProofsListDiscussionsHeaders headers = {}, *ProofsListDiscussionsQueries queries) returns InlineResponse20051|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/proofs/${getEncodedUri(proofId)}/discussions`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
+    }
+
+    # Create Proof Discussion
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + proofId - Proof Id of the original proof
+    # + headers - Headers to be sent with the request 
+    # + return - SUCCESS 
+    remote isolated function proofsCreateDiscussion(decimal sheetId, string proofId, DiscussionCreationRequest payload, ProofsCreateDiscussionHeaders headers = {}) returns InlineResponse20044|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/proofs/${getEncodedUri(proofId)}/discussions`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        json jsonBody = jsondata:toJson(payload);
+        request.setPayload(jsonBody, "application/json");
+        return self.clientEp->post(resourcePath, request, httpHeaders);
+    }
+
+    # List Proof Request Actions
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + proofId - Proof Id of the original proof
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - OK 
+    remote isolated function proofsListRequestActions(decimal sheetId, string proofId, ProofsListRequestActionsHeaders headers = {}, *ProofsListRequestActionsQueries queries) returns InlineResponse20052|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/proofs/${getEncodedUri(proofId)}/requestactions`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
+    }
+
+    # Create Proof Request
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + proofId - Proof Id of the original proof
+    # + headers - Headers to be sent with the request 
+    # + return - SUCCESS 
+    remote isolated function proofsCreateProofRequests(decimal sheetId, string proofId, ProofRequestBody payload, ProofsCreateProofRequestsHeaders headers = {}) returns InlineResponse20053|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/proofs/${getEncodedUri(proofId)}/requests`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        json jsonBody = jsondata:toJson(payload);
+        request.setPayload(jsonBody, "application/json");
+        return self.clientEp->post(resourcePath, request, httpHeaders);
+    }
+
+    # Delete Proof Requests
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + proofId - Proof Id of the original proof
+    # + headers - Headers to be sent with the request 
+    # + return - SUCCESS 
+    remote isolated function proofsDeleteProofRequests(decimal sheetId, string proofId, ProofsDeleteProofRequestsHeaders headers = {}) returns GenericResult|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/proofs/${getEncodedUri(proofId)}/requests`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->delete(resourcePath, headers = httpHeaders);
+    }
+
+    # List Proof Versions
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + proofId - Proof Id of the original proof
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - OK 
+    remote isolated function proofsGetVersions(decimal sheetId, string proofId, ProofsGetVersionsHeaders headers = {}, *ProofsGetVersionsQueries queries) returns InlineResponse20054|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/proofs/${getEncodedUri(proofId)}/versions`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
+    }
+
+    # Create Proof Version
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + proofId - Proof Id of the original proof
+    # + headers - Headers to be sent with the request 
+    # + return - SUCCESS 
+    remote isolated function proofsCreateVersion(decimal sheetId, string proofId, byte[] payload, ProofsCreateVersionHeaders headers = {}) returns InlineResponse20055|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/proofs/${getEncodedUri(proofId)}/versions`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        request.setPayload(payload, "application/octet-stream");
+        return self.clientEp->post(resourcePath, request, httpHeaders);
+    }
+
+    # Delete Proof Version
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + proofId - Proof Id of the original proof
+    # + headers - Headers to be sent with the request 
+    # + return - SUCCESS 
+    remote isolated function proofsDeleteVersion(decimal sheetId, string proofId, ProofsDeleteVersionHeaders headers = {}) returns GenericResult|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/proofs/${getEncodedUri(proofId)}/versions`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->delete(resourcePath, headers = httpHeaders);
+    }
+
+    # Get Sheet Publish Status
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + headers - Headers to be sent with the request 
+    # + return - OK 
+    remote isolated function getSheetPublish(decimal sheetId, GetSheetPublishHeaders headers = {}) returns SheetPublish|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/publish`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
+    }
+
+    # Set Sheet Publish Status
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + headers - Headers to be sent with the request 
+    # + payload - SheetPublish object 
+    # + return - OK 
+    remote isolated function setSheetPublish(decimal sheetId, SheetPublishRequest payload, SetSheetPublishHeaders headers = {}) returns InlineResponse20056|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/publish`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        json jsonBody = jsondata:toJson(payload);
+        request.setPayload(jsonBody, "application/json");
+        return self.clientEp->put(resourcePath, request, httpHeaders);
+    }
+
+    # Update Rows
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + payload - [Row object](/api/smartsheet/openapi/rows/row) or an array of Row objects, with the following attributes: 
+    # + return - Returns [Result object](/api/smartsheet/openapi/schemas/result) containing an array of the updated rows 
+    remote isolated function updateRows(decimal sheetId, SheetIdRowsBody payload, UpdateRowsHeaders headers = {}, *UpdateRowsQueries queries) returns InlineResponse20057|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/rows`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        json jsonBody = jsondata:toJson(payload);
+        request.setPayload(jsonBody, "application/json");
+        return self.clientEp->put(resourcePath, request, httpHeaders);
+    }
+
+    # Add Rows
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + payload - [Row object](/api/smartsheet/openapi/rows/row) or an array of Row objects, with the following attributes: 
+    # + return - Returns [Result object](/api/smartsheet/openapi/schemas/result) containing the newly created rows -- either a single [Row object](/api/smartsheet/openapi/rows/row) or array of Row objects, corresponding to what was specified in the request, as well as the new version of the sheet 
+    remote isolated function rowsAddToSheet(decimal sheetId, SheetIdRowsBody1 payload, RowsAddToSheetHeaders headers = {}, *RowsAddToSheetQueries queries) returns InlineResponse20058|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/rows`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        json jsonBody = jsondata:toJson(payload);
+        request.setPayload(jsonBody, "application/json");
+        return self.clientEp->post(resourcePath, request, httpHeaders);
+    }
+
+    # Delete Rows
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - Returns [Result object](/api/smartsheet/openapi/schemas/result) containing row Ids corresponding to all rows that were successfully deleted (including any child rows of rows specified in the URL) 
+    remote isolated function deleteRows(decimal sheetId, DeleteRowsHeaders headers = {}, *DeleteRowsQueries queries) returns InlineResponse20059|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/rows`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->delete(resourcePath, headers = httpHeaders);
+    }
+
+    # Send Rows via Email
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + headers - Headers to be sent with the request 
+    # + payload - The columns included for each row in the email are populated according to the following rules: 
+    # + return - SUCCESS 
+    remote isolated function rowsSend(decimal sheetId, MultiRowEmail payload, RowsSendHeaders headers = {}) returns InlineResponse20047|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/rows/emails`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        json jsonBody = jsondata:toJson(payload);
+        request.setPayload(jsonBody, "application/json");
+        return self.clientEp->post(resourcePath, request, httpHeaders);
+    }
+
+    # Copy Rows to Another Sheet
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - CopyOrMoveRowResult object 
+    remote isolated function copyRows(decimal sheetId, CopyOrMoveRowDirective payload, CopyRowsHeaders headers = {}, *CopyRowsQueries queries) returns CopyOrMoveRowResult|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/rows/copy`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        json jsonBody = jsondata:toJson(payload);
+        request.setPayload(jsonBody, "application/json");
+        return self.clientEp->post(resourcePath, request, httpHeaders);
+    }
+
+    # Move Rows to Another Sheet
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - CopyOrMoveRowResult object 
+    remote isolated function moveRows(decimal sheetId, CopyOrMoveRowDirective payload, MoveRowsHeaders headers = {}, *MoveRowsQueries queries) returns CopyOrMoveRowResult|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/rows/move`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        json jsonBody = jsondata:toJson(payload);
+        request.setPayload(jsonBody, "application/json");
+        return self.clientEp->post(resourcePath, request, httpHeaders);
+    }
+
+    # Get Row
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + rowId - Row Id in the sheet being accessed
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - Returns [Row object]() populated according to the specified parameters 
+    remote isolated function rowGet(decimal sheetId, decimal rowId, RowGetHeaders headers = {}, *RowGetQueries queries) returns InlineResponse20060|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/rows/${getEncodedUri(rowId)}`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
+    }
+
+    # List Row Attachments
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + rowId - Row Id in the sheet being accessed
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - OK 
+    remote isolated function attachmentsListOnRow(decimal sheetId, decimal rowId, AttachmentsListOnRowHeaders headers = {}, *AttachmentsListOnRowQueries queries) returns InlineResponse20027|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/rows/${getEncodedUri(rowId)}/attachments`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
+    }
+
+    # Attach File or URL to Row
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + rowId - Row Id in the sheet being accessed
+    # + headers - Headers to be sent with the request 
+    # + return - SUCCESS 
+    remote isolated function rowAttachmentsAttachFile(decimal sheetId, decimal rowId, byte[] payload, RowAttachmentsAttachFileHeaders headers = {}) returns InlineResponse20028|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/rows/${getEncodedUri(rowId)}/attachments`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        request.setPayload(payload, "application/octet-stream");
+        return self.clientEp->post(resourcePath, request, httpHeaders);
+    }
+
+    # Add Image to Cell
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + rowId - Row Id in the sheet being accessed
+    # + columnId - Column Id in the sheet being accessed
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - SUCCESS 
+    remote isolated function addImageToCell(decimal sheetId, decimal rowId, decimal columnId, byte[] payload, AddImageToCellHeaders headers = {}, *AddImageToCellQueries queries) returns InlineResponse20061|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/rows/${getEncodedUri(rowId)}/columns/${getEncodedUri(columnId)}/cellimages`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        request.setPayload(payload, "application/octet-stream");
+        return self.clientEp->post(resourcePath, request, httpHeaders);
+    }
+
+    # List Cell History
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + rowId - Row Id in the sheet being accessed
+    # + columnId - Column Id in the sheet being accessed
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - OK 
+    remote isolated function cellHistoryGet(decimal sheetId, decimal rowId, decimal columnId, CellHistoryGetHeaders headers = {}, *CellHistoryGetQueries queries) returns InlineResponse20062|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/rows/${getEncodedUri(rowId)}/columns/${getEncodedUri(columnId)}/history`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
+    }
+
+    # List Discussions with a Row
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + rowId - Row Id in the sheet being accessed
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - OK 
+    remote isolated function rowDiscussionsList(decimal sheetId, decimal rowId, RowDiscussionsListHeaders headers = {}, *RowDiscussionsListQueries queries) returns InlineResponse20043|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/rows/${getEncodedUri(rowId)}/discussions`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
+    }
+
+    # Create a Discussion on a Row
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + rowId - Row Id in the sheet being accessed
+    # + headers - Headers to be sent with the request 
+    # + return - SUCCESS 
+    remote isolated function rowDiscussionsCreate(decimal sheetId, decimal rowId, DiscussionCreationRequest payload, RowDiscussionsCreateHeaders headers = {}) returns InlineResponse20044|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/rows/${getEncodedUri(rowId)}/discussions`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        json jsonBody = jsondata:toJson(payload);
+        request.setPayload(jsonBody, "application/json");
+        return self.clientEp->post(resourcePath, request, httpHeaders);
+    }
+
+    # Create Proof
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + rowId - Row Id in the sheet being accessed
+    # + headers - Headers to be sent with the request 
+    # + return - SUCCESS 
+    remote isolated function proofsCreate(decimal sheetId, decimal rowId, byte[] payload, ProofsCreateHeaders headers = {}) returns InlineResponse20055|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/rows/${getEncodedUri(rowId)}/proofs`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        request.setPayload(payload, "application/octet-stream");
+        return self.clientEp->post(resourcePath, request, httpHeaders);
+    }
+
+    # List Sent Update Requests
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - The list of SentUpdateRequest objects 
+    remote isolated function sentupdaterequestsList(decimal sheetId, SentupdaterequestsListHeaders headers = {}, *SentupdaterequestsListQueries queries) returns InlineResponse20063|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/sentupdaterequests`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
+    }
+
+    # Get Sent Update Request
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + sentUpdateRequestId - ID of the sent update request
+    # + headers - Headers to be sent with the request 
+    # + return - SentUpdateRequest object 
+    remote isolated function sentupdaterequestGet(decimal sheetId, string sentUpdateRequestId, SentupdaterequestGetHeaders headers = {}) returns SentUpdateRequest|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/sentupdaterequests/${getEncodedUri(sentUpdateRequestId)}`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
+    }
+
+    # Delete Sent Update Request
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + sentUpdateRequestId - ID of the sent update request
+    # + headers - Headers to be sent with the request 
+    # + return - Result object 
+    remote isolated function sentupdaterequestDelete(decimal sheetId, string sentUpdateRequestId, SentupdaterequestDeleteHeaders headers = {}) returns Result|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/sentupdaterequests/${getEncodedUri(sentUpdateRequestId)}`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->delete(resourcePath, headers = httpHeaders);
+    }
+
+    # Get Sheet Summary
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - OK 
+    remote isolated function listSummaryFields(decimal sheetId, ListSummaryFieldsHeaders headers = {}, *ListSummaryFieldsQueries queries) returns SheetSummary|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/summary`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
+    }
+
+    # Get Summary Fields
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - OK 
+    remote isolated function listSummaryFieldsPaginated(decimal sheetId, ListSummaryFieldsPaginatedHeaders headers = {}, *ListSummaryFieldsPaginatedQueries queries) returns InlineResponse20064|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/summary/fields`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
+    }
+
+    # Update Summary Fields
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + payload - Array of SummaryField objects 
+    # + return - OK 
+    remote isolated function updateSummaryFields(decimal sheetId, SummaryFieldUpdateRequest[] payload, UpdateSummaryFieldsHeaders headers = {}, *UpdateSummaryFieldsQueries queries) returns InlineResponse20065|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/summary/fields`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        json jsonBody = jsondata:toJson(payload);
+        request.setPayload(jsonBody, "application/json");
+        return self.clientEp->put(resourcePath, request, httpHeaders);
+    }
+
+    # Add Summary Fields
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + payload - Array of SummaryField objects 
+    # + return - OK 
+    remote isolated function addSummaryFields(decimal sheetId, SummaryFieldCreateRequest[] payload, AddSummaryFieldsHeaders headers = {}, *AddSummaryFieldsQueries queries) returns InlineResponse20066|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/summary/fields`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        json jsonBody = jsondata:toJson(payload);
+        request.setPayload(jsonBody, "application/json");
+        return self.clientEp->post(resourcePath, request, httpHeaders);
+    }
+
+    # Delete Summary Fields
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - OK 
+    remote isolated function deleteSummaryFields(decimal sheetId, DeleteSummaryFieldsHeaders headers = {}, *DeleteSummaryFieldsQueries queries) returns InlineResponse20067|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/summary/fields`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->delete(resourcePath, headers = httpHeaders);
+    }
+
+    # Add Image to Sheet Summary
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + fieldId - Summary Field Id of the sheet summary field being accessed
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - SUCCESS 
+    remote isolated function addImageSummaryField(decimal sheetId, decimal fieldId, byte[] payload, AddImageSummaryFieldHeaders headers = {}, *AddImageSummaryFieldQueries queries) returns InlineResponse20068|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/summary/fields/${getEncodedUri(fieldId)}/images`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        request.setPayload(payload, "application/octet-stream");
+        return self.clientEp->post(resourcePath, request, httpHeaders);
+    }
+
+    # List Update Requests
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - The list of UpdateRequest objects 
+    remote isolated function updaterequestsList(decimal sheetId, UpdaterequestsListHeaders headers = {}, *UpdaterequestsListQueries queries) returns InlineResponse20069|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/updaterequests`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
+    }
+
+    # Create an Update Request
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + headers - Headers to be sent with the request 
+    # + return - Result object containing the newly created UpdateRequest object 
+    remote isolated function updaterequestsCreate(decimal sheetId, UpdateRequest payload, UpdaterequestsCreateHeaders headers = {}) returns InlineResponse20070|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/updaterequests`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        json jsonBody = jsondata:toJson(payload);
+        request.setPayload(jsonBody, "application/json");
+        return self.clientEp->post(resourcePath, request, httpHeaders);
+    }
+
+    # Get an Update Request
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + updateRequestId - ID of the Update Request
+    # + headers - Headers to be sent with the request 
+    # + return - UpdateRequest object 
+    remote isolated function updaterequestsGet(decimal sheetId, string updateRequestId, UpdaterequestsGetHeaders headers = {}) returns UpdateRequest|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/updaterequests/${getEncodedUri(updateRequestId)}`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
+    }
+
+    # Update an Update Request
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + updateRequestId - ID of the Update Request
+    # + headers - Headers to be sent with the request 
+    # + return - Result object containing the modified UpdateRequest object 
+    remote isolated function updaterequestsUpdate(decimal sheetId, string updateRequestId, UpdaterequestsUpdateHeaders headers = {}) returns InlineResponse20070|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/updaterequests/${getEncodedUri(updateRequestId)}`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        return self.clientEp->put(resourcePath, request, httpHeaders);
+    }
+
+    # Delete an Update Request
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + updateRequestId - ID of the Update Request
+    # + headers - Headers to be sent with the request 
+    # + return - Result object 
+    remote isolated function updaterequestsDelete(decimal sheetId, string updateRequestId, UpdaterequestsDeleteHeaders headers = {}) returns Result|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/updaterequests/${getEncodedUri(updateRequestId)}`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->delete(resourcePath, headers = httpHeaders);
+    }
+
+    # List sheet shares
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - IndexResult object containing an array of Share objects. By default, this operation returns only item-level shares (scope=ITEM). Use the sharingInclude parameter to request that workspace-level shares (include=workspaceShares) also be returned 
+    # 
+    # # Deprecated
+    @deprecated
+    remote isolated function listSheetShares(decimal sheetId, ListSheetSharesHeaders headers = {}, *ListSheetSharesQueries queries) returns InlineResponse20017|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/shares`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
+    }
+
+    # Share sheet
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - Result object containing either a single Share object or an array of Share objects, corresponding to what was specified in the request. All shares have scope=ITEM 
+    # 
+    # # Deprecated
+    @deprecated
+    remote isolated function shareSheet(decimal sheetId, SheetIdSharesBody payload, ShareSheetHeaders headers = {}, *ShareSheetQueries queries) returns InlineResponse20018|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/shares`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        json jsonBody = jsondata:toJson(payload);
+        request.setPayload(jsonBody, "application/json");
+        return self.clientEp->post(resourcePath, request, httpHeaders);
+    }
+
+    # Get sheet share
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + shareId - The unique identifier for the share
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - Returns Share object 
+    # 
+    # # Deprecated
+    @deprecated
+    remote isolated function shareSheetGet(decimal sheetId, string shareId, ShareSheetGetHeaders headers = {}, *ShareSheetGetQueries queries) returns Share|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/shares/${getEncodedUri(shareId)}`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
+    }
+
+    # Update sheet share
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + shareId - The unique identifier for the share
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - Returns Result object containing the modified Share object 
+    # 
+    # # Deprecated
+    @deprecated
+    remote isolated function updateSheetShare(decimal sheetId, string shareId, SharesshareIdBody payload, UpdateSheetShareHeaders headers = {}, *UpdateSheetShareQueries queries) returns InlineResponse20019|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/shares/${getEncodedUri(shareId)}`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        json jsonBody = jsondata:toJson(payload);
+        request.setPayload(jsonBody, "application/json");
+        return self.clientEp->put(resourcePath, request, httpHeaders);
+    }
+
+    # Delete sheet share
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + shareId - The unique identifier for the share
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - Returns Result object 
+    # 
+    # # Deprecated
+    @deprecated
+    remote isolated function deleteSheetShare(decimal sheetId, string shareId, DeleteSheetShareHeaders headers = {}, *DeleteSheetShareQueries queries) returns Result|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/shares/${getEncodedUri(shareId)}`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->delete(resourcePath, headers = httpHeaders);
+    }
+
+    # Sort Rows in Sheet
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + payload - [SortSpecifier](/api/smartsheet/openapi/schemas/sortspecifier) with the following attribute: 
+    # + return - Returns [Sheet object](/api/smartsheet/openapi/sheets/sheet), populated according to the specified parameters 
+    remote isolated function rowsSort(decimal sheetId, SortSpecifier payload, RowsSortHeaders headers = {}, *RowsSortQueries queries) returns InlineResponse20071|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/sort`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        json jsonBody = jsondata:toJson(payload);
+        request.setPayload(jsonBody, "application/json");
+        return self.clientEp->post(resourcePath, request, httpHeaders);
+    }
+
+    # Get Sheet Version
+    #
+    # + sheetId - Sheet Id of the sheet being accessed
+    # + headers - Headers to be sent with the request 
+    # + return - OK 
+    remote isolated function getSheetVersion(decimal sheetId, GetSheetVersionHeaders headers = {}) returns SheetVersion|error {
+        string resourcePath = string `/sheets/${getEncodedUri(sheetId)}/version`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
+    }
+
+    # List Dashboards
+    #
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - IndexResult object containing an array of Dashboard objects with a subset of attributes 
+    remote isolated function listSights(ListSightsHeaders headers = {}, *ListSightsQueries queries) returns InlineResponse20072|error {
+        string resourcePath = string `/sights`;
+        map<Encoding> queryParamEncoding = {"modifiedSince": {style: FORM, explode: true}};
+        resourcePath = resourcePath + check getPathForQueryParam(queries, queryParamEncoding);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
+    }
+
+    # Get Dashboard
+    #
+    # + sightId - SightID of the sight being accessed
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - Dashboard object 
+    remote isolated function getSight(string sightId, GetSightHeaders headers = {}, *GetSightQueries queries) returns Sight|error {
+        string resourcePath = string `/sights/${getEncodedUri(sightId)}`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
+    }
+
+    # Update Dashboard
+    #
+    # + sightId - SightID of the sight being accessed
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - Result object containing the updated Dashboard object 
+    remote isolated function updateSight(string sightId, SightName payload, UpdateSightHeaders headers = {}, *UpdateSightQueries queries) returns InlineResponse20073|error {
+        string resourcePath = string `/sights/${getEncodedUri(sightId)}`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        json jsonBody = jsondata:toJson(payload);
+        request.setPayload(jsonBody, "application/json");
+        return self.clientEp->put(resourcePath, request, httpHeaders);
+    }
+
+    # Delete Dashboard
+    #
+    # + sightId - SightID of the sight being accessed
+    # + headers - Headers to be sent with the request 
+    # + return - Generic response result 
+    remote isolated function deleteSight(string sightId, DeleteSightHeaders headers = {}) returns InlineResponse20047|error {
+        string resourcePath = string `/sights/${getEncodedUri(sightId)}`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->delete(resourcePath, headers = httpHeaders);
+    }
+
+    # Copy Dashboard
+    #
+    # + sightId - SightID of the sight being accessed
+    # + headers - Headers to be sent with the request 
+    # + return - Result object containing a dashboard with a subset of attributes for the newly created dashboard 
+    remote isolated function copySight(string sightId, ContainerDestinationForCopy payload, CopySightHeaders headers = {}) returns InlineResponse20074|error {
+        string resourcePath = string `/sights/${getEncodedUri(sightId)}/copy`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        json jsonBody = jsondata:toJson(payload);
+        request.setPayload(jsonBody, "application/json");
+        return self.clientEp->post(resourcePath, request, httpHeaders);
+    }
+
+    # Move Dashboard
+    #
+    # + sightId - SightID of the sight being accessed
+    # + headers - Headers to be sent with the request 
+    # + return - Result object containing a Dashboard object with a subset of attributes for the moved dashboard 
+    remote isolated function moveSight(string sightId, ContainerDestinationForMove payload, MoveSightHeaders headers = {}) returns InlineResponse20074|error {
+        string resourcePath = string `/sights/${getEncodedUri(sightId)}/move`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        json jsonBody = jsondata:toJson(payload);
+        request.setPayload(jsonBody, "application/json");
+        return self.clientEp->post(resourcePath, request, httpHeaders);
+    }
+
+    # Get Dashboard Publish Status
+    #
+    # + sightId - SightID of the sight being accessed
+    # + headers - Headers to be sent with the request 
+    # + return - SightPublish object 
+    remote isolated function getSightPublishStatus(string sightId, GetSightPublishStatusHeaders headers = {}) returns SightPublish|error {
+        string resourcePath = string `/sights/${getEncodedUri(sightId)}/publish`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
+    }
+
+    # Set Dashboard Publish Status
+    #
+    # + sightId - SightID of the sight being accessed
+    # + headers - Headers to be sent with the request 
+    # + return - SightPublish object 
+    remote isolated function setSightPublishStatus(string sightId, SightPublish payload, SetSightPublishStatusHeaders headers = {}) returns InlineResponse20075|error {
+        string resourcePath = string `/sights/${getEncodedUri(sightId)}/publish`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        json jsonBody = jsondata:toJson(payload);
+        request.setPayload(jsonBody, "application/json");
+        return self.clientEp->put(resourcePath, request, httpHeaders);
+    }
+
+    # List dashboard shares
+    #
+    # + sightId - SightID of the sight being accessed
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - IndexResult object containing an array of Share objects. By default, this operation returns only item-level shares (scope=ITEM). Use the sharingInclude parameter to request that workspace-level shares (scope=WORKSPACE) also be returned 
+    # 
+    # # Deprecated
+    @deprecated
+    remote isolated function listSightShares(string sightId, ListSightSharesHeaders headers = {}, *ListSightSharesQueries queries) returns InlineResponse20017|error {
+        string resourcePath = string `/sights/${getEncodedUri(sightId)}/shares`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
+    }
+
+    # Share dashboard
+    #
+    # + sightId - SightID of the sight being accessed
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - Result object containing either a single Share object or an array of Share objects, corresponding to what was specified in the request. All shares have scope=ITEM 
+    # 
+    # # Deprecated
+    @deprecated
+    remote isolated function shareSight(string sightId, Share payload, ShareSightHeaders headers = {}, *ShareSightQueries queries) returns InlineResponse20018|error {
+        string resourcePath = string `/sights/${getEncodedUri(sightId)}/shares`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        json jsonBody = jsondata:toJson(payload);
+        request.setPayload(jsonBody, "application/json");
+        return self.clientEp->post(resourcePath, request, httpHeaders);
+    }
+
+    # Get dashboard share
+    #
+    # + sightId - SightID of the sight being accessed
+    # + shareId - The unique identifier for the share
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - Returns Share object 
+    # 
+    # # Deprecated
+    @deprecated
+    remote isolated function shareSightGet(string sightId, string shareId, ShareSightGetHeaders headers = {}, *ShareSightGetQueries queries) returns Share|error {
+        string resourcePath = string `/sights/${getEncodedUri(sightId)}/shares/${getEncodedUri(shareId)}`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
+    }
+
+    # Update dashboard share
+    #
+    # + sightId - SightID of the sight being accessed
+    # + shareId - The unique identifier for the share
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - Returns Result object containing the modified Share object 
+    # 
+    # # Deprecated
+    @deprecated
+    remote isolated function updateSightShare(string sightId, string shareId, SharesshareIdBody payload, UpdateSightShareHeaders headers = {}, *UpdateSightShareQueries queries) returns InlineResponse20019|error {
+        string resourcePath = string `/sights/${getEncodedUri(sightId)}/shares/${getEncodedUri(shareId)}`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        json jsonBody = jsondata:toJson(payload);
+        request.setPayload(jsonBody, "application/json");
+        return self.clientEp->put(resourcePath, request, httpHeaders);
+    }
+
+    # Delete dashboard share
+    #
+    # + sightId - SightID of the sight being accessed
+    # + shareId - The unique identifier for the share
+    # + headers - Headers to be sent with the request 
+    # + return - Returns Result object 
+    # 
+    # # Deprecated
+    @deprecated
+    remote isolated function deleteSightShare(string sightId, string shareId, DeleteSightShareHeaders headers = {}) returns Result|error {
+        string resourcePath = string `/sights/${getEncodedUri(sightId)}/shares/${getEncodedUri(shareId)}`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->delete(resourcePath, headers = httpHeaders);
+    }
+
+    # List user-created templates
+    #
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - SUCCESS 
+    # 
+    # # Deprecated
+    @deprecated
+    remote isolated function templatesList(TemplatesListHeaders headers = {}, *TemplatesListQueries queries) returns InlineResponse20076|error {
+        string resourcePath = string `/templates`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
+    }
+
+    # List public templates
+    #
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - SUCCESS 
+    # 
+    # # Deprecated
+    @deprecated
+    remote isolated function templatesListPublic(TemplatesListPublicHeaders headers = {}, *TemplatesListPublicQueries queries) returns InlineResponse20076|error {
+        string resourcePath = string `/templates/public`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
+    }
+
+    # Gets or Refreshes an Access Token
+    #
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - An access token 
+    remote isolated function tokensGetOrRefresh(TokensGetOrRefreshHeaders headers = {}, *TokensGetOrRefreshQueries queries) returns Token|error {
+        string resourcePath = string `/token`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        return self.clientEp->post(resourcePath, request, httpHeaders);
+    }
+
+    # Revoke Access Token
+    #
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - SUCCESS 
+    remote isolated function tokensDelete(TokensDeleteHeaders headers = {}, *TokensDeleteQueries queries) returns Result|error {
+        string resourcePath = string `/token`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->delete(resourcePath, headers = httpHeaders);
+    }
+
+    # List Users
+    #
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - IndexResult object containing an array of [User objects](/api/smartsheet/openapi/users/user) 
+    remote isolated function listUsers(ListUsersHeaders headers = {}, *ListUsersQueries queries) returns InlineResponse20077|error {
+        string resourcePath = string `/users`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
+    }
+
+    # Add User
+    #
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + payload - The User to be created 
+    # + return - Result object containing the newly created [User object](/api/smartsheet/openapi/users/user) 
+    remote isolated function addUser(User payload, AddUserHeaders headers = {}, *AddUserQueries queries) returns InlineResponse20078|error {
+        string resourcePath = string `/users`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        json jsonBody = jsondata:toJson(payload);
+        request.setPayload(jsonBody, "application/json");
+        return self.clientEp->post(resourcePath, request, httpHeaders);
+    }
+
+    # Get Current User
+    #
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - IndexResultUnknownPages object containing a UserProfile object 
+    remote isolated function getCurrentUser(GetCurrentUserHeaders headers = {}, *GetCurrentUserQueries queries) returns InlineResponse20079|error {
+        string resourcePath = string `/users/me`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
+    }
+
+    # List Org Sheets
+    #
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - IndexResultUnknownPages object containing an array of Sheet objects, limited to the following attributes: * id * name * owner: empty string * ownerId: (static "0") 
+    remote isolated function listOrgSheets(ListOrgSheetsHeaders headers = {}, *ListOrgSheetsQueries queries) returns InlineResponse20080|error {
+        string resourcePath = string `/users/sheets`;
+        map<Encoding> queryParamEncoding = {"modifiedSince": {style: FORM, explode: true}};
+        resourcePath = resourcePath + check getPathForQueryParam(queries, queryParamEncoding);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
+    }
+
+    # Get User
+    #
+    # + userId - User Id
+    # + headers - Headers to be sent with the request 
+    # + return - Returns UserProfile object 
+    remote isolated function getUser(decimal userId, GetUserHeaders headers = {}) returns UserProfile|error {
+        string resourcePath = string `/users/${getEncodedUri(userId)}`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
+    }
+
+    # Update User
+    #
+    # + userId - User Id
+    # + headers - Headers to be sent with the request 
+    # + payload - User object containing at least one of the following attributes: 
+    # + return - Result object containing the [User object](/api/smartsheet/openapi/users/user) for the updated user 
+    remote isolated function updateUser(decimal userId, UserUpdate payload, UpdateUserHeaders headers = {}) returns InlineResponse20081|error {
+        string resourcePath = string `/users/${getEncodedUri(userId)}`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        json jsonBody = jsondata:toJson(payload);
+        request.setPayload(jsonBody, "application/json");
+        return self.clientEp->put(resourcePath, request, httpHeaders);
+    }
+
+    # Remove User
+    #
+    # + userId - User Id
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - Returns Result object 
+    remote isolated function removeUser(decimal userId, RemoveUserHeaders headers = {}, *RemoveUserQueries queries) returns GenericResult|error {
+        string resourcePath = string `/users/${getEncodedUri(userId)}`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->delete(resourcePath, headers = httpHeaders);
+    }
+
+    # List Alternate Emails
+    #
+    # + userId - User Id
+    # + headers - Headers to be sent with the request 
+    # + return - IndexResult object containing an array of [AlternateEmail objects](/api/smartsheet/openapi/alternateemailaddress/alternateemail) 
+    remote isolated function listAlternateEmails(decimal userId, ListAlternateEmailsHeaders headers = {}) returns InlineResponse20082|error {
+        string resourcePath = string `/users/${getEncodedUri(userId)}/alternateemails`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
+    }
+
+    # Add Alternate Emails
+    #
+    # + userId - User Id
+    # + headers - Headers to be sent with the request 
+    # + return - Result object containing an array of the newly created [AlternateEmail objects](/api/smartsheet/openapi/alternateemailaddress/alternateemail) 
+    remote isolated function addAlternateEmail(decimal userId, UserIdAlternateemailsBody payload, AddAlternateEmailHeaders headers = {}) returns InlineResponse20083|error {
+        string resourcePath = string `/users/${getEncodedUri(userId)}/alternateemails`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        json jsonBody = jsondata:toJson(payload);
+        request.setPayload(jsonBody, "application/json");
+        return self.clientEp->post(resourcePath, request, httpHeaders);
+    }
+
+    # Get Alternate Email
+    #
+    # + userId - User Id
+    # + alternateEmailId - Alternate Email Id
+    # + headers - Headers to be sent with the request 
+    # + return - Returns [AlternateEmail object](/api/smartsheet/openapi/alternateemailaddress/alternateemail) 
+    remote isolated function getAlternateEmail(decimal userId, decimal alternateEmailId, GetAlternateEmailHeaders headers = {}) returns AlternateEmail|error {
+        string resourcePath = string `/users/${getEncodedUri(userId)}/alternateemails/${getEncodedUri(alternateEmailId)}`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
+    }
+
+    # Delete Alternate Email
+    #
+    # + userId - User Id
+    # + alternateEmailId - Alternate Email Id
+    # + headers - Headers to be sent with the request 
+    # + return - Returns Result object 
+    remote isolated function deleteAlternateEmail(decimal userId, decimal alternateEmailId, DeleteAlternateEmailHeaders headers = {}) returns GenericResult|error {
+        string resourcePath = string `/users/${getEncodedUri(userId)}/alternateemails/${getEncodedUri(alternateEmailId)}`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->delete(resourcePath, headers = httpHeaders);
+    }
+
+    # Make Alternate Email Primary
+    #
+    # + userId - User Id
+    # + alternateEmailId - Alternate Email Id
+    # + headers - Headers to be sent with the request 
+    # + return - OK 
+    remote isolated function promoteAlternateEmail(decimal userId, decimal alternateEmailId, PromoteAlternateEmailHeaders headers = {}) returns InlineResponse20084|error {
+        string resourcePath = string `/users/${getEncodedUri(userId)}/alternateemails/${getEncodedUri(alternateEmailId)}/makeprimary`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        return self.clientEp->post(resourcePath, request, httpHeaders);
+    }
+
+    # Deactivate User
+    #
+    # + userId - User Id
+    # + headers - Headers to be sent with the request 
+    # + return - Returns Result object 
+    remote isolated function deactivateUser(decimal userId, DeactivateUserHeaders headers = {}) returns GenericResult|error {
+        string resourcePath = string `/users/${getEncodedUri(userId)}/deactivate`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        return self.clientEp->post(resourcePath, request, httpHeaders);
+    }
+
+    # Update User Profile Image
+    #
+    # + userId - User Id
+    # + headers - Headers to be sent with the request 
+    # + return - Returns Result object 
+    remote isolated function updateUserProfileImage(decimal userId, byte[] payload, UpdateUserProfileImageHeaders headers = {}) returns InlineResponse20081|error {
+        string resourcePath = string `/users/${getEncodedUri(userId)}/profileimage`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        request.setPayload(payload, "application/octet-stream");
+        return self.clientEp->post(resourcePath, request, httpHeaders);
+    }
+
+    # Reactivate User
+    #
+    # + userId - User Id
+    # + headers - Headers to be sent with the request 
+    # + return - Returns Result object 
+    remote isolated function reactivateUser(decimal userId, ReactivateUserHeaders headers = {}) returns GenericResult|error {
+        string resourcePath = string `/users/${getEncodedUri(userId)}/reactivate`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        return self.clientEp->post(resourcePath, request, httpHeaders);
+    }
+
+    # List webhooks
+    #
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - The List of Webhooks 
+    remote isolated function listWebhooks(ListWebhooksHeaders headers = {}, *ListWebhooksQueries queries) returns InlineResponse20085|error {
+        string resourcePath = string `/webhooks`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
+    }
+
+    # Create webhook
+    #
+    # + headers - Headers to be sent with the request 
+    # + return - Result object, containing a Webhook object for the newly created webhook 
+    remote isolated function createWebhook(WebhooksBody payload, CreateWebhookHeaders headers = {}) returns InlineResponse20086|error {
+        string resourcePath = string `/webhooks`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        json jsonBody = jsondata:toJson(payload);
+        request.setPayload(jsonBody, "application/json");
+        return self.clientEp->post(resourcePath, request, httpHeaders);
+    }
+
+    # Get webhook
+    #
+    # + webhookId - The Id of a Webhook
+    # + headers - Headers to be sent with the request 
+    # + return - Webhook object 
+    remote isolated function getWebhook(string webhookId, GetWebhookHeaders headers = {}) returns Webhook|error {
+        string resourcePath = string `/webhooks/${getEncodedUri(webhookId)}`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
+    }
+
+    # Update webhook
+    #
+    # + webhookId - The Id of a Webhook
+    # + headers - Headers to be sent with the request 
+    # + return - Result object containing the Webhook object for the updated webhook 
+    remote isolated function updateWebhook(string webhookId, UpdateWebhookRequest payload, UpdateWebhookHeaders headers = {}) returns InlineResponse20086|error {
+        string resourcePath = string `/webhooks/${getEncodedUri(webhookId)}`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        json jsonBody = jsondata:toJson(payload);
+        request.setPayload(jsonBody, "application/json");
+        return self.clientEp->put(resourcePath, request, httpHeaders);
+    }
+
+    # Delete webhook
+    #
+    # + webhookId - The Id of a Webhook
+    # + headers - Headers to be sent with the request 
+    # + return - Result object 
+    remote isolated function deleteWebhook(string webhookId, DeleteWebhookHeaders headers = {}) returns InlineResponse20087|error {
+        string resourcePath = string `/webhooks/${getEncodedUri(webhookId)}`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->delete(resourcePath, headers = httpHeaders);
+    }
+
+    # Reset shared secret
+    #
+    # + webhookId - The Id of a Webhook
+    # + headers - Headers to be sent with the request 
+    # + return - OK 
+    remote isolated function resetSharedSecret(string webhookId, ResetSharedSecretHeaders headers = {}) returns InlineResponse20088|error {
+        string resourcePath = string `/webhooks/${getEncodedUri(webhookId)}/resetSharedSecret`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        return self.clientEp->post(resourcePath, request, httpHeaders);
+    }
+
+    # List workspaces
+    #
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - IndexResultWorkspaces object containing an array of Workspace objects. The response structure varies based on the paginationType parameter. When using token-based pagination (default), includes lastKey field. When using legacy page-based pagination, includes pageNumber and totalPages 
+    remote isolated function listWorkspaces(ListWorkspacesHeaders headers = {}, *ListWorkspacesQueries queries) returns InlineResponse20089|error {
+        string resourcePath = string `/workspaces`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
+    }
+
+    # Create workspace
+    #
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + payload - Workspace to create 
+    # + return - Result object containing a Workspace object for newly created workspace 
+    remote isolated function createWorkspace(WorkspacesBody payload, CreateWorkspaceHeaders headers = {}, *CreateWorkspaceQueries queries) returns InlineResponse20090|error {
+        string resourcePath = string `/workspaces`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        json jsonBody = jsondata:toJson(payload);
+        request.setPayload(jsonBody, "application/json");
+        return self.clientEp->post(resourcePath, request, httpHeaders);
+    }
+
+    # Get workspace
+    #
+    # + workspaceId - The ID of the workspace
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - A single Workspace object 
+    # 
+    # # Deprecated
+    @deprecated
+    remote isolated function getWorkspace(string workspaceId, GetWorkspaceHeaders headers = {}, *GetWorkspaceQueries queries) returns Workspace|error {
+        string resourcePath = string `/workspaces/${getEncodedUri(workspaceId)}`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
+    }
+
+    # Update workspace
+    #
+    # + workspaceId - The ID of the workspace
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - Result object containing the modified Workspace object 
+    remote isolated function updateWorkspace(string workspaceId, WorkspacesworkspaceIdBody payload, UpdateWorkspaceHeaders headers = {}, *UpdateWorkspaceQueries queries) returns InlineResponse20091|error {
+        string resourcePath = string `/workspaces/${getEncodedUri(workspaceId)}`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        json jsonBody = jsondata:toJson(payload);
+        request.setPayload(jsonBody, "application/json");
+        return self.clientEp->put(resourcePath, request, httpHeaders);
+    }
+
+    # Delete workspace
+    #
+    # + workspaceId - The ID of the workspace
+    # + headers - Headers to be sent with the request 
+    # + return - Returns Result object 
+    remote isolated function deleteWorkspace(string workspaceId, DeleteWorkspaceHeaders headers = {}) returns GenericResult|error {
+        string resourcePath = string `/workspaces/${getEncodedUri(workspaceId)}`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->delete(resourcePath, headers = httpHeaders);
+    }
+
+    # Get workspace metadata
+    #
+    # + workspaceId - The ID of the workspace
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - The metadata of a workspace 
+    remote isolated function getWorkspaceMetadata(int workspaceId, GetWorkspaceMetadataHeaders headers = {}, *GetWorkspaceMetadataQueries queries) returns WorkspaceMetadata|error {
+        string resourcePath = string `/workspaces/${getEncodedUri(workspaceId)}/metadata`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
+    }
+
+    # Get workspace children
+    #
+    # + workspaceId - The ID of the workspace
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - An array of asset references with a pagination token if there are more results 
+    remote isolated function getWorkspaceChildren(int workspaceId, GetWorkspaceChildrenHeaders headers = {}, *GetWorkspaceChildrenQueries queries) returns PaginatedChildrenResponse|error {
+        string resourcePath = string `/workspaces/${getEncodedUri(workspaceId)}/children`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
+    }
+
+    # Copy workspace
+    #
+    # + workspaceId - The ID of the workspace
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + payload - New workspace name 
+    # + return - Result object containing a Workspace object for the new workspace destination 
+    remote isolated function copyWorkspace(string workspaceId, WorkspaceIdCopyBody payload, CopyWorkspaceHeaders headers = {}, *CopyWorkspaceQueries queries) returns ContainerDestinationForCopy|error {
+        string resourcePath = string `/workspaces/${getEncodedUri(workspaceId)}/copy`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        json jsonBody = jsondata:toJson(payload);
+        request.setPayload(jsonBody, "application/json");
+        return self.clientEp->post(resourcePath, request, httpHeaders);
+    }
+
+    # List workspace folders
+    #
+    # + workspaceId - The ID of the workspace
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - An array of Folder references 
+    # 
+    # # Deprecated
+    @deprecated
+    remote isolated function getWorkspaceFolders(string workspaceId, GetWorkspaceFoldersHeaders headers = {}, *GetWorkspaceFoldersQueries queries) returns InlineResponse20092|error {
+        string resourcePath = string `/workspaces/${getEncodedUri(workspaceId)}/folders`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
+    }
+
+    # Create folder in workspace
+    #
+    # + workspaceId - The ID of the workspace
+    # + headers - Headers to be sent with the request 
+    # + payload - Folder to create 
+    # + return - Result object containing a Folder object for newly created folder 
+    remote isolated function createWorkspaceFolder(string workspaceId, FolderNameOnly payload, CreateWorkspaceFolderHeaders headers = {}) returns InlineResponse20093|error {
+        string resourcePath = string `/workspaces/${getEncodedUri(workspaceId)}/folders`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        json jsonBody = jsondata:toJson(payload);
+        request.setPayload(jsonBody, "application/json");
+        return self.clientEp->post(resourcePath, request, httpHeaders);
+    }
+
+    # List workspace shares
+    #
+    # + workspaceId - The ID of the workspace
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - IndexResult object containing an array of Share objects 
+    # 
+    # # Deprecated
+    @deprecated
+    remote isolated function listWorkspaceShares(string workspaceId, ListWorkspaceSharesHeaders headers = {}, *ListWorkspaceSharesQueries queries) returns InlineResponse20017|error {
+        string resourcePath = string `/workspaces/${getEncodedUri(workspaceId)}/shares`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
+    }
+
+    # Share workspace
+    #
+    # + workspaceId - The ID of the workspace
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - This operation supports both single-object and bulk semantics. For more information, see Optional Bulk Operations 
+    # 
+    # # Deprecated
+    @deprecated
+    remote isolated function shareWorkspace(string workspaceId, WorkspaceIdSharesBody payload, ShareWorkspaceHeaders headers = {}, *ShareWorkspaceQueries queries) returns InlineResponse20018|error {
+        string resourcePath = string `/workspaces/${getEncodedUri(workspaceId)}/shares`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        json jsonBody = jsondata:toJson(payload);
+        request.setPayload(jsonBody, "application/json");
+        return self.clientEp->post(resourcePath, request, httpHeaders);
+    }
+
+    # Get workspace share
+    #
+    # + workspaceId - The ID of the workspace
+    # + shareId - The unique identifier for the share
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - Returns Share object 
+    # 
+    # # Deprecated
+    @deprecated
+    remote isolated function shareWorkspaceGet(string workspaceId, string shareId, ShareWorkspaceGetHeaders headers = {}, *ShareWorkspaceGetQueries queries) returns Share|error {
+        string resourcePath = string `/workspaces/${getEncodedUri(workspaceId)}/shares/${getEncodedUri(shareId)}`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->get(resourcePath, httpHeaders);
+    }
+
+    # Update workspace share
+    #
+    # + workspaceId - The ID of the workspace
+    # + shareId - The unique identifier for the share
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - Result object containing the modified Share object 
+    # 
+    # # Deprecated
+    @deprecated
+    remote isolated function updateWorkspaceShare(string workspaceId, string shareId, SharesshareIdBody payload, UpdateWorkspaceShareHeaders headers = {}, *UpdateWorkspaceShareQueries queries) returns InlineResponse20019|error {
+        string resourcePath = string `/workspaces/${getEncodedUri(workspaceId)}/shares/${getEncodedUri(shareId)}`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        json jsonBody = jsondata:toJson(payload);
+        request.setPayload(jsonBody, "application/json");
+        return self.clientEp->put(resourcePath, request, httpHeaders);
+    }
+
+    # Delete workspace share
+    #
+    # + workspaceId - The ID of the workspace
+    # + shareId - The unique identifier for the share
+    # + headers - Headers to be sent with the request 
+    # + return - Returns Result object 
+    # 
+    # # Deprecated
+    @deprecated
+    remote isolated function deleteWorkspaceShare(string workspaceId, string shareId, DeleteWorkspaceShareHeaders headers = {}) returns Result|error {
+        string resourcePath = string `/workspaces/${getEncodedUri(workspaceId)}/shares/${getEncodedUri(shareId)}`;
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        return self.clientEp->delete(resourcePath, headers = httpHeaders);
+    }
+
+    # Create Sheet in Workspace
+    #
+    # + workspaceId - The ID of the workspace
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + payload - Sheet to create 
+    # + return - Result object containing a Sheet object for newly created sheet, corresponding to what was specified in the request 
+    remote isolated function createSheetInWorkspace(string workspaceId, WorkspaceIdSheetsBody payload, CreateSheetInWorkspaceHeaders headers = {}, *CreateSheetInWorkspaceQueries queries) returns InlineResponse2008|error {
+        string resourcePath = string `/workspaces/${getEncodedUri(workspaceId)}/sheets`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        json jsonBody = jsondata:toJson(payload);
+        request.setPayload(jsonBody, "application/json");
+        return self.clientEp->post(resourcePath, request, httpHeaders);
+    }
+
+    # Import Sheet into Workspace
+    #
+    # + workspaceId - The ID of the workspace
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + payload - Binary content for the CSV / XLSX file 
+    # + return - Result object containing a Sheet object for imported sheet 
+    remote isolated function importSheetIntoWorkspace(string workspaceId, ImportSheetIntoWorkspaceHeaders headers, byte[] payload, *ImportSheetIntoWorkspaceQueries queries) returns InlineResponse2009|error {
+        string resourcePath = string `/workspaces/${getEncodedUri(workspaceId)}/sheets/import`;
+        resourcePath = resourcePath + check getPathForQueryParam(queries);
+        map<string|string[]> httpHeaders = http:getHeaderMap(headers);
+        http:Request request = new;
+        request.setPayload(payload, "application/octet-stream");
+        return self.clientEp->post(resourcePath, request, httpHeaders);
     }
 }
