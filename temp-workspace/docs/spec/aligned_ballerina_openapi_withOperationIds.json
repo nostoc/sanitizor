@@ -1,0 +1,2144 @@
+{
+  "openapi" : "3.0.1",
+  "info" : {
+    "title" : "Spotify Web API",
+    "description" : "This is a generated connector from [Spotify API v1](https://developer.spotify.com/documentation/web-api/) OpenAPI Specification. \nThrough the Spotify Web API, external applications retrieve Spotify content such as album data and playlists.\n",
+    "version" : "0.1.0",
+    "x-ballerina-display" : {
+      "label" : "Spotify",
+      "iconPath" : "icon.png"
+    },
+    "x-ballerina-init-description" : "The connector initialization requires setting the API credentials. \nPlease create a [Spotify account](www.spotify.com) and obtain tokens following [this guide](https://developer.spotify.com/documentation/general/guides/authorization-guide/). Configure required scopes when obtaining the tokens. \n"
+  },
+  "externalDocs" : {
+    "description" : "Find more info on the official Spotify Web API Reference",
+    "url" : "https://developer.spotify.com/documentation/web-api/reference"
+  },
+  "servers" : [ {
+    "url" : "https://api.spotify.com/v1"
+  } ],
+  "tags" : [ {
+    "name" : "category-playlists",
+    "description" : "Playlists API",
+    "externalDocs" : {
+      "description" : "Find more info on the official Spotify Web API Reference",
+      "url" : "https://developer.spotify.com/documentation/web-api/reference/#category-playlists"
+    }
+  } ],
+  "paths" : {
+    "/me/playlists" : {
+      "get" : {
+        "tags" : [ "category-playlists" ],
+        "summary" : "Get a List of Current User's Playlists",
+        "description" : "Get a list of the playlists owned or followed by the current Spotify\nuser.",
+        "externalDocs" : {
+          "description" : "Find more info on the official Spotify Web API Reference",
+          "url" : "https://developer.spotify.com/documentation/web-api/reference/#endpoint-get-a-list-of-current-users-playlists"
+        },
+        "operationId" : "getMyPlaylists",
+        "parameters" : [ {
+          "name" : "limit",
+          "in" : "query",
+          "description" : "'The maximum number of playlists to return. Default: 20. Minimum: 1. Maximum: 50.'",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "x-ballerina-display" : {
+            "label" : "Limit"
+          }
+        }, {
+          "name" : "offset",
+          "in" : "query",
+          "description" : "'The index of the first playlist to return. Default: 0 (the first object). Maximum offset: 100.000. Use with `limit` to get the next set of playlists.'",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "x-ballerina-display" : {
+            "label" : "Offset"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "On success, the HTTP status code in the response header is `200` OK and the response body contains an array of simplified [playlist objects](https://developer.spotify.com/documentation/web-api/reference/#object-simplifiedplaylistobject) (wrapped in a [paging object](https://developer.spotify.com/documentation/web-api/reference/#object-pagingobject)) in JSON format. On error, the header status code is an [error code](https://developer.spotify.com/documentation/web-api/#response-status-codes) and the response body contains an [error object](https://developer.spotify.com/documentation/web-api/#response-schema). Please note that the access token has to be tied to a user",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CurrentPlaylistDetails"
+                }
+              }
+            }
+          },
+          "default" : {
+            "$ref" : "#/components/responses/ErrorResponse"
+          }
+        },
+        "security" : [ {
+          "spotify_auth" : [ "playlist-read-private", "playlist-read-collaborative" ]
+        } ],
+        "x-ballerina-display" : {
+          "label" : "My Playlists"
+        }
+      }
+    },
+    "/playlists/{playlistId}" : {
+      "get" : {
+        "tags" : [ "category-playlists" ],
+        "summary" : "Get a Playlist",
+        "description" : "Get a playlist owned by a Spotify user.",
+        "externalDocs" : {
+          "description" : "Find more info on the official Spotify Web API Reference",
+          "url" : "https://developer.spotify.com/documentation/web-api/reference/#endpoint-get-playlist"
+        },
+        "operationId" : "getPlaylistById",
+        "parameters" : [ {
+          "name" : "playlistId",
+          "in" : "path",
+          "description" : "The [Spotify ID](https://developer.spotify.com/documentation/web-api/#spotify-uris-and-ids) for the playlist",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          },
+          "x-ballerina-display" : {
+            "label" : "Playlist Id"
+          }
+        }, {
+          "name" : "market",
+          "in" : "query",
+          "description" : "An [ISO 3166-1 alpha-2 country code](http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2) or the string `from_token`. Provide this parameter if you want to apply [Track\nRelinking](https://developer.spotify.com/documentation/general/guides/track-relinking-guide/). For episodes, if a valid user access token is specified in the request header, the country associated with the user account will take priority over this parameter.  \n*Note: If neither market or user country are provided, the episode is considered unavailable for the client.*",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "x-ballerina-display" : {
+            "label" : "Market"
+          }
+        }, {
+          "name" : "fields",
+          "in" : "query",
+          "description" : "Filters for the query: a comma-separated list of the fields to return. If omitted, all fields are returned. For example, to get just the playlist''s description and URI: `fields=description,uri`. A dot separator can be used to specify non-reoccurring fields, while parentheses can be used to specify reoccurring fields within objects. For example, to get just the added date and user ID of the adder: `fields=tracks.items(added_at,added_by.id)`. Use multiple parentheses to drill down into nested objects, for example: `fields=tracks.items(track(name,href,album(name,href)))`. Fields can be excluded by prefixing them with an exclamation mark, for example: `fields=tracks.items(track(name,href,album(!name,href)))`",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "x-ballerina-display" : {
+            "label" : "Fields to Return"
+          }
+        }, {
+          "name" : "additional_types",
+          "in" : "query",
+          "description" : "A comma-separated list of item types that your client supports besides the default `track` type. Valid types are: `track` and `episode`. **Note** : This parameter was introduced to allow existing clients to maintain their current behaviour and might be deprecated in the future. In addition to providing this parameter, make sure that your client properly handles cases of new types in the future by checking against the `type` field of each object",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "x-ballerina-display" : {
+            "label" : "Additional Types"
+          },
+          "x-ballerina-name" : "additionalTypes"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "On success, the response body contains a [playlist object](https://developer.spotify.com/documentation/web-api/reference/#object-playlistobject) in JSON format and the HTTP status code in the response header is `200` OK. If an episode is unavailable in the given `market`, its information will not be included in the response. On error, the header status code is an [error code](https://developer.spotify.com/documentation/web-api/#response-status-codes) and the response body contains an [error object](https://developer.spotify.com/documentation/web-api/#response-schema). Requesting playlists that you do not have the user's authorization to access returns error `403` Forbidden",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PlaylistObject"
+                }
+              }
+            }
+          },
+          "default" : {
+            "$ref" : "#/components/responses/ErrorResponse"
+          }
+        },
+        "security" : [ {
+          "spotify_auth" : [ ]
+        } ],
+        "x-ballerina-display" : {
+          "label" : "Playlist By Id"
+        }
+      },
+      "put" : {
+        "tags" : [ "category-playlists" ],
+        "summary" : "Change a Playlist's Details",
+        "description" : "Change a playlist's name and public/private state. (The user must, of\ncourse, own the playlist.)",
+        "externalDocs" : {
+          "description" : "Find more info on the official Spotify Web API Reference",
+          "url" : "https://developer.spotify.com/documentation/web-api/reference/#endpoint-change-playlist-details"
+        },
+        "operationId" : "updatePlaylist",
+        "parameters" : [ {
+          "name" : "Content-Type",
+          "in" : "header",
+          "description" : "The content type of the request body: `application/json`",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          },
+          "x-ballerina-display" : {
+            "label" : "Content Type"
+          },
+          "x-ballerina-name" : "contentType"
+        }, {
+          "name" : "playlistId",
+          "in" : "path",
+          "description" : "The [Spotify ID](https://developer.spotify.com/documentation/web-api/#spotify-uris-and-ids) for the playlist",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          },
+          "x-ballerina-display" : {
+            "label" : "Playlist Id"
+          }
+        } ],
+        "requestBody" : {
+          "description" : "Content to update the playlist",
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ChangePlayListDetails"
+              }
+            }
+          },
+          "required" : false
+        },
+        "responses" : {
+          "200" : {
+            "description" : "On success the HTTP status code in the response header is `200` OK.\n\nOn error, the header status code is an [error code](https://developer.spotify.com/documentation/web-api/#response-status-codes) and the response body contains an [error object](https://developer.spotify.com/documentation/web-api/#response-schema). Trying to change a playlist when you do not have the user's authorization returns error `403` Forbidden"
+          },
+          "default" : {
+            "$ref" : "#/components/responses/ErrorResponse"
+          }
+        },
+        "security" : [ {
+          "spotify_auth" : [ "playlist-modify-public", "playlist-modify-private" ]
+        } ],
+        "x-ballerina-display" : {
+          "label" : "Update Playlist"
+        }
+      }
+    },
+    "/playlists/{playlistId}/tracks" : {
+      "get" : {
+        "tags" : [ "category-playlists" ],
+        "summary" : "Get a Playlist's Items",
+        "description" : "Get full details of the items of a playlist owned by a Spotify user.",
+        "externalDocs" : {
+          "description" : "Find more info on the official Spotify Web API Reference",
+          "url" : "https://developer.spotify.com/documentation/web-api/reference/#endpoint-get-playlists-tracks"
+        },
+        "operationId" : "getPlaylistTracks",
+        "parameters" : [ {
+          "name" : "playlistId",
+          "in" : "path",
+          "description" : "The [Spotify ID](https://developer.spotify.com/documentation/web-api/#spotify-uris-and-ids) for the playlist",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          },
+          "x-ballerina-display" : {
+            "label" : "Playlist Id"
+          }
+        }, {
+          "name" : "market",
+          "in" : "query",
+          "description" : "An [ISO 3166-1 alpha-2 country code](http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2) or the string `from_token`. Provide this parameter if you want to apply [Track\nRelinking](https://developer.spotify.com/documentation/general/guides/track-relinking-guide/). For episodes, if a valid user access token is specified in the request header, the country associated with the user account will take priority over this parameter.  \n*Note: If neither market or user country are provided, the episode is considered unavailable for the client.*",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "x-ballerina-display" : {
+            "label" : "Market"
+          }
+        }, {
+          "name" : "fields",
+          "in" : "query",
+          "description" : "Filters for the query: a comma-separated list of the fields to return. If omitted, all fields are returned. For example, to get just the total number of items and the request limit:  \n`fields=total,limit`  \nA dot separator can be used to specify non-reoccurring fields, while parentheses can be used to specify reoccurring fields within objects. For example, to get just the added date and user ID of the adder:  \n`fields=items(added_at,added_by.id)`  \nUse multiple parentheses to drill down into nested objects, for example:  \n`fields=items(track(name,href,album(name,href)))`  \nFields can be excluded by prefixing them with an exclamation mark, for example:  \n`fields=items.track.album(!external_urls,images)`",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "x-ballerina-display" : {
+            "label" : "Fields to Return"
+          }
+        }, {
+          "name" : "limit",
+          "in" : "query",
+          "description" : "The maximum number of items to return. Default: 100. Minimum: 1. Maximum: 100",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "x-ballerina-display" : {
+            "label" : "Limit"
+          }
+        }, {
+          "name" : "offset",
+          "in" : "query",
+          "description" : "The index of the first item to return. Default: 0 (the first object)",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "x-ballerina-display" : {
+            "label" : "Offset"
+          }
+        }, {
+          "name" : "additional_types",
+          "in" : "query",
+          "description" : "A comma-separated list of item types that your client supports besides the default `track` type. Valid types are: `track` and `episode`. **Note** : This parameter was introduced to allow existing clients to maintain their current behaviour and might be deprecated in the future. In addition to providing this parameter, make sure that your client properly handles cases of new types in the future by checking against the `type` field of each object",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "x-ballerina-name" : "additionalTypes"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "On success, the response body contains an array of [track objects](https://developer.spotify.com/documentation/web-api/reference/#object-simplifiedtrackobject) and [episode objects](https://developer.spotify.com/documentation/web-api/reference/#object-simplifiedepisodeobject) (depends on the `additional_types` parameter), wrapped in a [paging object](https://developer.spotify.com/documentation/web-api/reference/#object-pagingobject) in JSON format and the HTTP status code in the response header is `200` OK. If an episode is unavailable in the given `market`, its information will not be included in the response. On error, the header status code is an [error code](https://developer.spotify.com/documentation/web-api/#response-status-codes) and the response body contains an [error object](https://developer.spotify.com/documentation/web-api/#response-schema). Requesting playlists that you do not have the user's authorization to access returns error `403` Forbidden",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PlaylistTrackDetails"
+                }
+              }
+            }
+          },
+          "default" : {
+            "$ref" : "#/components/responses/ErrorResponse"
+          }
+        },
+        "security" : [ {
+          "spotify_auth" : [ ]
+        } ],
+        "x-ballerina-display" : {
+          "label" : "Playlist Tracks"
+        }
+      },
+      "put" : {
+        "tags" : [ "category-playlists" ],
+        "summary" : "Reorder or Replace a Playlist's Items",
+        "description" : "Either reorder or replace items in a playlist depending on the request's parameters.\nTo reorder items, include `range_start`, `insert_before`, `range_length` and `snapshot_id` in the request's body.\nTo replace items, include `uris` as either a query parameter or in the request's body.\nReplacing items in a playlist will overwrite its existing items. This operation can be used for replacing or clearing items in a playlist.\n\n\n**Note**: Replace and reorder are mutually exclusive operations which share the same endpoint, but have different parameters.\nThese operations can't be applied together in a single request.",
+        "externalDocs" : {
+          "description" : "Find more info on the official Spotify Web API Reference",
+          "url" : "https://developer.spotify.com/documentation/web-api/reference/#endpoint-reorder-or-replace-playlists-tracks"
+        },
+        "operationId" : "reorderOrReplacePlaylistTracks",
+        "parameters" : [ {
+          "name" : "playlistId",
+          "in" : "path",
+          "description" : "The [Spotify ID](https://developer.spotify.com/documentation/web-api/#spotify-uris-and-ids) for the playlist",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          },
+          "x-ballerina-display" : {
+            "label" : "Playlist Id"
+          }
+        }, {
+          "name" : "uris",
+          "in" : "query",
+          "description" : "A comma-separated list of [Spotify URIs](https://developer.spotify.com/documentation/web-api/#spotify-uris-and-ids) to set, can be track or episode URIs. For example: `uris=spotify:track:4iV5W9uYEdYUVa79Axb7Rh,spotify:track:1301WleyT98MSxVHPZCA6M,spotify:episode:512ojhOuo1ktJprKbVcKyQ`  \nA maximum of 100 items can be set in one request",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "x-ballerina-display" : {
+            "label" : "Track URIs"
+          }
+        } ],
+        "requestBody" : {
+          "description" : "Information needed to reorder the playlist",
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/PlayListReorderDetails"
+              }
+            }
+          },
+          "required" : false
+        },
+        "responses" : {
+          "200" : {
+            "description" : "On a successful **reorder** operation, the response body contains a `snapshot_id` in JSON format\nand the HTTP status code in the response header is `200` OK. The `snapshot_id`\ncan be used to identify your playlist version in future requests.\n\nOn a successful **replace** operation, the HTTP status code in the response header is `201`\nCreated.\n\nOn error, the header status code is an [error code](https://developer.spotify.com/documentation/web-api/#response-status-codes),\nthe response body contains an [error object](https://developer.spotify.com/documentation/web-api/#response-schema),\nand the existing playlist is unmodified.\nTrying to set an item when you do not have the user's authorization returns error `403` Forbidden",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/SnapshotIdObject"
+                }
+              }
+            }
+          },
+          "201" : {
+            "description" : "On a successful **reorder** operation, the response body contains a `snapshot_id` in JSON format\nand the HTTP status code in the response header is `200` OK. The `snapshot_id`\ncan be used to identify your playlist version in future requests.\n\nOn a successful **replace** operation, the HTTP status code in the response header is `201`\nCreated.\n\nOn error, the header status code is an [error code](https://developer.spotify.com/documentation/web-api/#response-status-codes),\nthe response body contains an [error object](https://developer.spotify.com/documentation/web-api/#response-schema),\nand the existing playlist is unmodified.\nTrying to set an item when you do not have the user's authorization returns error `403` Forbidden."
+          },
+          "default" : {
+            "$ref" : "#/components/responses/ErrorResponse"
+          }
+        },
+        "security" : [ {
+          "spotify_auth" : [ "playlist-modify-public", "playlist-modify-private" ]
+        } ],
+        "x-ballerina-display" : {
+          "label" : "Reorder or Replace Tracks"
+        }
+      }
+    },
+    "/users/{userId}/playlists" : {
+      "get" : {
+        "tags" : [ "category-playlists" ],
+        "summary" : "Get a List of a User's Playlists",
+        "description" : "Get a list of the playlists owned or followed by a Spotify user.",
+        "externalDocs" : {
+          "description" : "Find more info on the official Spotify Web API Reference",
+          "url" : "https://developer.spotify.com/documentation/web-api/reference/#endpoint-get-list-users-playlists"
+        },
+        "operationId" : "getPlayslistsByUserID",
+        "parameters" : [ {
+          "name" : "userId",
+          "in" : "path",
+          "description" : "The user's [Spotify user ID](https://developer.spotify.com/documentation/web-api/#spotify-uris-and-ids)",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          },
+          "x-ballerina-display" : {
+            "label" : "User Id"
+          }
+        }, {
+          "name" : "limit",
+          "in" : "query",
+          "description" : "The maximum number of playlists to return. Default: 20. Minimum: 1. Maximum: 50",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "x-ballerina-display" : {
+            "label" : "Limit"
+          }
+        }, {
+          "name" : "offset",
+          "in" : "query",
+          "description" : "The index of the first playlist to return. Default: 0 (the first object). Maximum offset: 100.000. Use with `limit` to get the next set of playlists",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "x-ballerina-display" : {
+            "label" : "Offset"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "On success, the HTTP status code in the response header is `200` OK and the response body contains an array of simplified [playlist objects](https://developer.spotify.com/documentation/web-api/reference/#object-simplifiedplaylistobject) (wrapped in a [paging object](https://developer.spotify.com/documentation/web-api/reference/#object-pagingobject)) in JSON format. On error, the header status code is an [error code](https://developer.spotify.com/documentation/web-api/#response-status-codes) and the response body contains an [error object](https://developer.spotify.com/documentation/web-api/#response-schema)",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserPlayListDetails"
+                }
+              }
+            }
+          },
+          "default" : {
+            "$ref" : "#/components/responses/ErrorResponse"
+          }
+        },
+        "security" : [ {
+          "spotify_auth" : [ "playlist-read-private", "playlist-read-collaborative" ]
+        } ],
+        "x-ballerina-display" : {
+          "label" : "Playlist By User Id"
+        }
+      },
+      "post" : {
+        "tags" : [ "category-playlists" ],
+        "summary" : "Create a Playlist",
+        "description" : "Create a playlist for a Spotify user. (The playlist will be empty until\nyou [add tracks](https://developer.spotify.com/documentation/web-api/reference/#endpoint-add-tracks-to-playlist).)",
+        "externalDocs" : {
+          "description" : "Find more info on the official Spotify Web API Reference",
+          "url" : "https://developer.spotify.com/documentation/web-api/reference/#endpoint-create-playlist"
+        },
+        "operationId" : "createPlaylist",
+        "parameters" : [ {
+          "name" : "userId",
+          "in" : "path",
+          "description" : "The user's [Spotify user ID](https://developer.spotify.com/documentation/web-api/#spotify-uris-and-ids)",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          },
+          "x-ballerina-display" : {
+            "label" : "User Id"
+          }
+        } ],
+        "requestBody" : {
+          "description" : "Content to create playlist",
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/PlayListDetails"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "On success, the response body contains the created [playlist object](https://developer.spotify.com/documentation/web-api/reference/#object-playlistobject)\nin JSON format and the HTTP status code in the response header is `200` OK or\n`201` Created. There is also a `Location` response header giving the Web API\nendpoint for the new playlist.\n\nOn error, the header status code is an [error code](https://developer.spotify.com/documentation/web-api/#response-status-codes) and the response body contains an [error object](https://developer.spotify.com/documentation/web-api/#response-schema). Trying to create a playlist when you do not have the user's authorization returns error `403` Forbidden",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PlaylistObject"
+                }
+              }
+            }
+          },
+          "201" : {
+            "description" : "On success, the response body contains the created [playlist object](https://developer.spotify.com/documentation/web-api/reference/#object-playlistobject)\nin JSON format and the HTTP status code in the response header is `200` OK or\n`201` Created. There is also a `Location` response header giving the Web API\nendpoint for the new playlist.\n\nOn error, the header status code is an [error code](https://developer.spotify.com/documentation/web-api/#response-status-codes) and the response body contains an [error object](https://developer.spotify.com/documentation/web-api/#response-schema). Trying to create a playlist when you do not have the user's authorization returns error `403` Forbidden.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PlaylistObject"
+                }
+              }
+            }
+          },
+          "default" : {
+            "$ref" : "#/components/responses/ErrorResponse"
+          }
+        },
+        "security" : [ {
+          "spotify_auth" : [ "playlist-modify-public", "playlist-modify-private" ]
+        } ],
+        "x-ballerina-display" : {
+          "label" : "Create Playlist"
+        }
+      }
+    },
+    "/browse/new-releases" : {
+      "get" : {
+        "tags" : [ "category-browse" ],
+        "summary" : "Get All New Releases",
+        "description" : "Get a list of new album releases featured in Spotify (shown, for example, on a Spotify player's \"Browse\" tab).",
+        "externalDocs" : {
+          "description" : "Find more info on the official Spotify Web API Reference",
+          "url" : "https://developer.spotify.com/documentation/web-api/reference/#endpoint-get-new-releases"
+        },
+        "operationId" : "getNewReleses",
+        "parameters" : [ {
+          "name" : "country",
+          "in" : "query",
+          "description" : "A country: an [ISO 3166-1 alpha-2 country code](http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2). Provide this parameter if you want the list of returned items to be relevant to a particular country. If omitted, the returned items will be relevant to all countries",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "x-ballerina-display" : {
+            "label" : "Country"
+          }
+        }, {
+          "name" : "limit",
+          "in" : "query",
+          "description" : "The maximum number of items to return. Default: 20. Minimum: 1. Maximum: 50",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "x-ballerina-display" : {
+            "label" : "Limit"
+          }
+        }, {
+          "name" : "offset",
+          "in" : "query",
+          "description" : "The index of the first item to return. Default: 0 (the first object). Use with `limit` to get the next set of items",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "x-ballerina-display" : {
+            "label" : "Offset"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "On success, the HTTP status code in the response header is `200` OK and the response body contains a `message` and an`albums` object. The `albums` object contains an array of simplified [album objects](https://developer.spotify.com/documentation/web-api/reference/#object-simplifiedalbumobject) (wrapped in a [paging object](https://developer.spotify.com/documentation/web-api/reference/#object-pagingobject)) in JSON format. On error, the header status code is an [error code](https://developer.spotify.com/documentation/web-api/#response-status-codes) and the response body contains an [error object](https://developer.spotify.com/documentation/web-api/#response-schema).\n\nOnce you have retrieved the list, you can use [Get an Album's Tracks](https://developer.spotify.com/documentation/web-api/reference/#endpoint-get-an-albums-tracks) to drill down further.\n\nThe results are returned in an order reflected within the Spotify clients, and therefore may not be ordered by date",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NewReleasesObject"
+                }
+              }
+            }
+          },
+          "default" : {
+            "$ref" : "#/components/responses/ErrorResponse"
+          }
+        },
+        "security" : [ {
+          "spotify_auth" : [ ]
+        } ],
+        "x-ballerina-display" : {
+          "label" : "Get New Releases"
+        }
+      }
+    },
+    "/browse/featured-playlists" : {
+      "get" : {
+        "tags" : [ "category-browse" ],
+        "summary" : "Get All Featured Playlists",
+        "description" : "Get a list of Spotify featured playlists (shown, for example, on a Spotify player's 'Browse' tab).",
+        "externalDocs" : {
+          "description" : "Find more info on the official Spotify Web API Reference",
+          "url" : "https://developer.spotify.com/documentation/web-api/reference/#endpoint-get-featured-playlists"
+        },
+        "operationId" : "getFeaturedPlaylists",
+        "parameters" : [ {
+          "name" : "country",
+          "in" : "query",
+          "description" : "A country: an [ISO 3166-1 alpha-2 country code](http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2). Provide this parameter if you want the list of returned items to be relevant to a particular country. If omitted, the returned items will be relevant to all countries",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "x-ballerina-display" : {
+            "label" : "Country"
+          }
+        }, {
+          "name" : "locale",
+          "in" : "query",
+          "description" : "The desired language, consisting of a lowercase [ISO 639-1 language code](http://en.wikipedia.org/wiki/ISO_639-1) and an uppercase [ISO 3166-1 alpha-2 country code](http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2), joined by an underscore. For example: `es_MX`, meaning \"Spanish (Mexico)\". Provide this parameter if you want the results returned in a particular language (where available). Note that, if `locale` is not supplied, or if the specified language is not available, all strings will be returned in the Spotify default language (American English). The `locale` parameter, combined with the `country` parameter, may give odd results if not carefully matched. For example `country=SE&locale=de_DE` will return a list of categories relevant to Sweden but as German language strings",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "x-ballerina-display" : {
+            "label" : "Locale"
+          }
+        }, {
+          "name" : "timestamp",
+          "in" : "query",
+          "description" : "A timestamp in [ISO 8601 format](http://en.wikipedia.org/wiki/ISO_8601): `yyyy-MM-ddTHH:mm:ss`. Use this parameter to specify the user's local time to get results tailored for that specific date and time in the day. If not provided, the response defaults to the current UTC time. Example: \"2014-10-23T09:00:00\" for a user whose local time is 9AM. If there were no featured playlists (or there is no data) at the specified time, the response will revert to the current UTC time",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string"
+          },
+          "x-ballerina-display" : {
+            "label" : "Timestamp"
+          }
+        }, {
+          "name" : "limit",
+          "in" : "query",
+          "description" : "The maximum number of items to return. Default: 20. Minimum: 1. Maximum: 50",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "x-ballerina-display" : {
+            "label" : "Limit"
+          }
+        }, {
+          "name" : "offset",
+          "in" : "query",
+          "description" : "The index of the first item to return. Default: 0 (the first object). Use with `limit` to get the next set of items",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "x-ballerina-display" : {
+            "label" : "Offset"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "On success, the HTTP status code in the response header is `200` OK and the response body contains a `message` and a `playlists` object. The `playlists` object contains an array of simplified [playlist objects](https://developer.spotify.com/documentation/web-api/reference/#object-simplifiedplaylistobject) (wrapped in a [paging object](https://developer.spotify.com/documentation/web-api/reference/#object-pagingobject)) in JSON format. On error, the header status code is an [error code](https://developer.spotify.com/documentation/web-api/#response-status-codes) and the response body contains an [error object](https://developer.spotify.com/documentation/web-api/#response-schema).\n\nOnce you have retrieved the list of playlist objects, you can use [Get a Playlist](https://developer.spotify.com/web-api/get-playlist/) and [Get a Playlist's Tracks](https://developer.spotify.com/web-api/get-playlists-tracks/) to drill down further",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/FeaturedPlaylistObject"
+                }
+              }
+            }
+          },
+          "default" : {
+            "$ref" : "#/components/responses/ErrorResponse"
+          }
+        },
+        "security" : [ {
+          "spotify_auth" : [ ]
+        } ],
+        "x-ballerina-display" : {
+          "label" : "Get Featured Playlists"
+        }
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "PlayListReorderDetails" : {
+        "type" : "object",
+        "properties" : {
+          "insert_before" : {
+            "type" : "integer",
+            "description" : "The position where the items should be inserted.  \nTo reorder the items to the end of the playlist, simply set *insert_before* to the position after the last item.  \nExamples:  \nTo reorder the first item to the last position in a playlist with 10 items, set *range_start* to 0, and *insert_before* to 10.  \nTo reorder the last item in a playlist with 10 items to the start of the playlist, set *range_start* to 9, and *insert_before* to 0",
+            "format" : "int32",
+            "x-ballerina-name" : "insertBefore"
+          },
+          "uris" : {
+            "type" : "array",
+            "description" : "A comma-separated list of [Spotify URIs](https://developer.spotify.com/documentation/web-api/#spotify-uris-and-ids) to set, can be track or episode URIs. For example: `uris=spotify:track:4iV5W9uYEdYUVa79Axb7Rh,spotify:track:1301WleyT98MSxVHPZCA6M,spotify:episode:512ojhOuo1ktJprKbVcKyQ`  \nA maximum of 100 items can be set in one request",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "snapshot_id" : {
+            "type" : "string",
+            "description" : "The playlist's snapshot ID against which you want to make the changes",
+            "x-ballerina-name" : "snapshotId"
+          },
+          "range_length" : {
+            "type" : "integer",
+            "description" : "The amount of items to be reordered. Defaults to 1 if not set.  \nThe range of items to be reordered begins from the *range_start* position, and includes the *range_length* subsequent items.  \nExample:  \nTo move the items at index 9-10 to the start of the playlist, *range_start* is set to 9, and *range_length* is set to 2",
+            "format" : "int32",
+            "x-ballerina-name" : "rangeLength"
+          },
+          "range_start" : {
+            "type" : "integer",
+            "description" : "The position of the first item to be reordered",
+            "format" : "int32",
+            "x-ballerina-name" : "rangeStart"
+          }
+        },
+        "description" : "Information needed to reorder the playlist"
+      },
+      "ChangePlayListDetails" : {
+        "type" : "object",
+        "properties" : {
+          "public" : {
+            "type" : "boolean",
+            "description" : "If `true` the playlist will be public, if `false` it will be private",
+            "nullable" : true
+          },
+          "collaborative" : {
+            "type" : "boolean",
+            "description" : "If `true` , the playlist will become collaborative and other users will be able to modify the playlist in their Spotify client. *Note: You can only set `collaborative` to `true` on non-public playlists.*"
+          },
+          "name" : {
+            "type" : "string",
+            "description" : "The new name for the playlist, for example `\"My New Playlist Title\"`"
+          },
+          "description" : {
+            "type" : "string",
+            "description" : "Value for playlist description as displayed in Spotify Clients and in the Web API"
+          }
+        },
+        "description" : "Content to update the playlist"
+      },
+      "LinkedTrackObject" : {
+        "required" : [ "id" ],
+        "type" : "object",
+        "properties" : {
+          "href" : {
+            "type" : "string",
+            "description" : "A link to the Web API endpoint providing full details of the track"
+          },
+          "id" : {
+            "type" : "string",
+            "description" : "The [Spotify ID](https://developer.spotify.com/documentation/web-api/#spotify-uris-and-ids) for the track"
+          },
+          "type" : {
+            "type" : "string",
+            "description" : "The object type: \"track\""
+          },
+          "external_urls" : {
+            "allOf" : [ {
+              "$ref" : "#/components/schemas/ExternalUrlObject"
+            } ],
+            "x-ballerina-name" : "externalUrls"
+          },
+          "uri" : {
+            "type" : "string",
+            "description" : "The [Spotify URI](https://developer.spotify.com/documentation/web-api/#spotify-uris-and-ids) for the track"
+          }
+        },
+        "description" : "Linked track object",
+        "externalDocs" : {
+          "description" : "Find more info on the official Spotify Web API Reference",
+          "url" : "https://developer.spotify.com/documentation/web-api/reference/#object-linkedtrackobject"
+        }
+      },
+      "PlaylistTrackObject" : {
+        "type" : "object",
+        "properties" : {
+          "added_at" : {
+            "type" : "string",
+            "description" : "The date and time the track or episode was added. *Note that some very old playlists may return `null` in this field.*",
+            "format" : "date-time",
+            "x-ballerina-name" : "addedAt"
+          },
+          "added_by" : {
+            "allOf" : [ {
+              "$ref" : "#/components/schemas/PublicUserObject"
+            } ],
+            "x-ballerina-name" : "addedBy"
+          },
+          "is_local" : {
+            "type" : "boolean",
+            "description" : "Whether this track or episode is a [local file](https://developer.spotify.com/web-api/local-files-spotify-playlists/) or not",
+            "x-ballerina-name" : "isLocal"
+          },
+          "track" : {
+            "description" : "Information about the track or episode",
+            "oneOf" : [ {
+              "$ref" : "#/components/schemas/TrackObject"
+            }, {
+              "$ref" : "#/components/schemas/EpisodeObject"
+            } ]
+          }
+        },
+        "description" : "Playlist track object",
+        "externalDocs" : {
+          "description" : "Find more info on the official Spotify Web API Reference",
+          "url" : "https://developer.spotify.com/documentation/web-api/reference/#object-playlisttrackobject"
+        }
+      },
+      "SimplifiedArtistObject" : {
+        "required" : [ "id", "name" ],
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "type" : "string",
+            "description" : "The name of the artist"
+          },
+          "href" : {
+            "type" : "string",
+            "description" : "A link to the Web API endpoint providing full details of the artist",
+            "nullable" : true
+          },
+          "id" : {
+            "type" : "string",
+            "description" : "The [Spotify ID](https://developer.spotify.com/documentation/web-api/#spotify-uris-and-ids) for the artist"
+          },
+          "type" : {
+            "type" : "string",
+            "description" : "The object type: `\"artist\"`"
+          },
+          "external_urls" : {
+            "allOf" : [ {
+              "$ref" : "#/components/schemas/ExternalUrlObject"
+            } ],
+            "x-ballerina-name" : "externalUrls"
+          },
+          "uri" : {
+            "type" : "string",
+            "description" : "The [Spotify URI](https://developer.spotify.com/documentation/web-api/#spotify-uris-and-ids) for the artist"
+          }
+        },
+        "description" : "Simplified artist object",
+        "externalDocs" : {
+          "description" : "Find more info on the official Spotify Web API Reference",
+          "url" : "https://developer.spotify.com/documentation/web-api/reference/#object-simplifiedartistobject"
+        }
+      },
+      "EpisodeObject" : {
+        "required" : [ "id" ],
+        "type" : "object",
+        "properties" : {
+          "images" : {
+            "type" : "array",
+            "description" : "The cover art for the episode in various sizes, widest first",
+            "items" : {
+              "$ref" : "#/components/schemas/ImageObject"
+            }
+          },
+          "languages" : {
+            "type" : "array",
+            "description" : "A list of the languages used in the episode, identified by their [ISO 639](https://en.wikipedia.org/wiki/ISO_639) code",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "show" : {
+            "$ref" : "#/components/schemas/SimplifiedShowObject"
+          },
+          "description" : {
+            "type" : "string",
+            "description" : "A description of the episode. HTML tags are stripped away from this field, use `html_description` field in case HTML tags are needed"
+          },
+          "restrictions" : {
+            "$ref" : "#/components/schemas/EpisodeRestrictionObject"
+          },
+          "language" : {
+            "type" : "string",
+            "description" : "**Note: This field is deprecated and might be removed in the future. Please use the `languages` field instead.** The language used in the episode, identified by a [ISO 639](https://en.wikipedia.org/wiki/ISO_639) code"
+          },
+          "release_date_precision" : {
+            "type" : "string",
+            "description" : "The precision with which `release_date` value is known: `\"year\"`, `\"month\"`, or `\"day\"`",
+            "x-ballerina-name" : "releaseDatePrecision"
+          },
+          "type" : {
+            "type" : "string",
+            "description" : "The object type: \"episode\""
+          },
+          "html_description" : {
+            "type" : "string",
+            "description" : "A description of the episode. This field may contain HTML tags",
+            "x-ballerina-name" : "htmlDescription"
+          },
+          "uri" : {
+            "type" : "string",
+            "description" : "The [Spotify URI](https://developer.spotify.com/documentation/web-api/#spotify-uris-and-ids) for the episode"
+          },
+          "is_externally_hosted" : {
+            "type" : "boolean",
+            "description" : "True if the episode is hosted outside of Spotify's CDN",
+            "x-ballerina-name" : "isExternallyHosted"
+          },
+          "audio_preview_url" : {
+            "type" : "string",
+            "description" : "A URL to a 30 second preview (MP3 format) of the episode. `null` if not available",
+            "x-ballerina-name" : "audioPreviewUrl"
+          },
+          "duration_ms" : {
+            "type" : "integer",
+            "description" : "The episode length in milliseconds",
+            "format" : "int32",
+            "x-ballerina-name" : "durationMs"
+          },
+          "explicit" : {
+            "type" : "boolean",
+            "description" : "Whether or not the episode has explicit content (true = yes it does; false = no it does not OR unknown)"
+          },
+          "is_playable" : {
+            "type" : "boolean",
+            "description" : "True if the episode is playable in the given market. Otherwise false",
+            "x-ballerina-name" : "isPlayable"
+          },
+          "resume_point" : {
+            "allOf" : [ {
+              "$ref" : "#/components/schemas/ResumePointObject"
+            } ],
+            "x-ballerina-name" : "resumePoint"
+          },
+          "release_date" : {
+            "type" : "string",
+            "description" : "The date the episode was first released, for example `\"1981-12-15\"`. Depending on the precision, it might be shown as `\"1981\"` or `\"1981-12\"`",
+            "x-ballerina-name" : "releaseDate"
+          },
+          "name" : {
+            "type" : "string",
+            "description" : "The name of the episode"
+          },
+          "href" : {
+            "type" : "string",
+            "description" : "A link to the Web API endpoint providing full details of the episode",
+            "nullable" : true
+          },
+          "id" : {
+            "type" : "string",
+            "description" : "The [Spotify ID](https://developer.spotify.com/documentation/web-api/#spotify-uris-and-ids) for the episode"
+          },
+          "external_urls" : {
+            "allOf" : [ {
+              "$ref" : "#/components/schemas/ExternalUrlObject"
+            } ],
+            "x-ballerina-name" : "externalUrls"
+          }
+        },
+        "description" : "Episode object",
+        "externalDocs" : {
+          "description" : "Find more info on the official Spotify Web API Reference",
+          "url" : "https://developer.spotify.com/documentation/web-api/reference/#object-episodeobject"
+        }
+      },
+      "PlayListDetails" : {
+        "required" : [ "name" ],
+        "type" : "object",
+        "properties" : {
+          "public" : {
+            "type" : "boolean",
+            "description" : "Defaults to `true` . If `true` the playlist will be public, if `false` it will be private. To be able to create private playlists, the user must have granted the `playlist-modify-private` [scope](https://developer.spotify.com/documentation/general/guides/authorization-guide/#list-of-scopes)",
+            "nullable" : true
+          },
+          "collaborative" : {
+            "type" : "boolean",
+            "description" : "Defaults to `false` . If `true` the playlist will be collaborative. Note that to create a collaborative playlist you must also set `public` to `false` . To create collaborative playlists you must have granted `playlist-modify-private` and `playlist-modify-public` [scopes](https://developer.spotify.com/documentation/general/guides/authorization-guide/#list-of-scopes) "
+          },
+          "name" : {
+            "type" : "string",
+            "description" : "The name for the new playlist, for example `\"Your Coolest Playlist\"` . This name does not need to be unique; a user may have several playlists with the same name"
+          },
+          "description" : {
+            "type" : "string",
+            "description" : "value for playlist description as displayed in Spotify Clients and in the Web API"
+          }
+        },
+        "description" : "Playlist details"
+      },
+      "NewReleasesObjectAlbums" : {
+        "type" : "object",
+        "properties" : {
+          "next" : {
+            "type" : "string",
+            "description" : "URL to the next page of items. ( `null` if none)",
+            "nullable" : true
+          },
+          "total" : {
+            "type" : "integer",
+            "description" : "The total number of items available to return",
+            "format" : "int32"
+          },
+          "offset" : {
+            "type" : "integer",
+            "description" : "The offset of the items returned (as set in the query or by default)",
+            "format" : "int32"
+          },
+          "previous" : {
+            "type" : "string",
+            "description" : "URL to the previous page of items. ( `null` if none)",
+            "nullable" : true
+          },
+          "limit" : {
+            "type" : "integer",
+            "description" : "The maximum number of items in the response (as set in the query or by default)",
+            "format" : "int32"
+          },
+          "href" : {
+            "type" : "string",
+            "description" : "A link to the Web API endpoint returning the full result of the request",
+            "nullable" : true
+          },
+          "items" : {
+            "type" : "array",
+            "description" : "The requested data",
+            "items" : {
+              "$ref" : "#/components/schemas/SimplifiedAlbumObject"
+            }
+          }
+        },
+        "description" : "Album details"
+      },
+      "ExternalUrlObject" : {
+        "type" : "object",
+        "properties" : {
+          "spotify" : {
+            "type" : "string",
+            "description" : "The [Spotify URL](https://developer.spotify.com/documentation/web-api/#spotify-uris-and-ids) for the object"
+          }
+        },
+        "description" : "External URL object",
+        "externalDocs" : {
+          "description" : "Find more info on the official Spotify Web API Reference",
+          "url" : "https://developer.spotify.com/documentation/web-api/reference/#object-externalurlobject"
+        }
+      },
+      "SimplifiedAlbumObject" : {
+        "required" : [ "artists", "id" ],
+        "type" : "object",
+        "properties" : {
+          "images" : {
+            "type" : "array",
+            "description" : "The cover art for the album in various sizes, widest first",
+            "items" : {
+              "$ref" : "#/components/schemas/ImageObject"
+            }
+          },
+          "available_markets" : {
+            "type" : "array",
+            "description" : "The markets in which the album is available: [ISO 3166-1 alpha-2 country codes](http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2). Note that an album is considered available in a market when at least 1 of its tracks is available in that market",
+            "items" : {
+              "type" : "string"
+            },
+            "x-ballerina-name" : "availableMarkets"
+          },
+          "restrictions" : {
+            "$ref" : "#/components/schemas/AlbumRestrictionObject"
+          },
+          "release_date_precision" : {
+            "type" : "string",
+            "description" : "The precision with which `release_date` value is known: `year` , `month` , or `day`",
+            "x-ballerina-name" : "releaseDatePrecision"
+          },
+          "album_group" : {
+            "type" : "string",
+            "description" : "The field is present when getting an artist's albums. Possible values are \"album\", \"single\", \"compilation\", \"appears_on\". Compare to album_type this field represents relationship between the artist and the album",
+            "x-ballerina-name" : "albumGroup"
+          },
+          "type" : {
+            "type" : "string",
+            "description" : "The object type: \"album\""
+          },
+          "uri" : {
+            "type" : "string",
+            "description" : "The [Spotify URI](https://developer.spotify.com/documentation/web-api/#spotify-uris-and-ids) for the album"
+          },
+          "total_tracks" : {
+            "type" : "integer",
+            "description" : "The total number of tracks in the album",
+            "format" : "int32",
+            "x-ballerina-name" : "totalTracks"
+          },
+          "artists" : {
+            "type" : "array",
+            "description" : "The artists of the album. Each artist object includes a link in `href` to more detailed information about the artist",
+            "items" : {
+              "$ref" : "#/components/schemas/SimplifiedArtistObject"
+            }
+          },
+          "release_date" : {
+            "type" : "string",
+            "description" : "The date the album was first released, for example `1981`. Depending on the precision, it might be shown as `1981-12` or `1981-12-15`",
+            "x-ballerina-name" : "releaseDate"
+          },
+          "name" : {
+            "type" : "string",
+            "description" : "The name of the album. In case of an album takedown, the value may be an empty string"
+          },
+          "album_type" : {
+            "type" : "string",
+            "description" : "The type of the album: one of \"album\", \"single\", or \"compilation\"",
+            "x-ballerina-name" : "albumType"
+          },
+          "href" : {
+            "type" : "string",
+            "description" : "A link to the Web API endpoint providing full details of the album",
+            "nullable" : true
+          },
+          "id" : {
+            "type" : "string",
+            "description" : "The [Spotify ID](https://developer.spotify.com/documentation/web-api/#spotify-uris-and-ids) for the album"
+          },
+          "external_urls" : {
+            "allOf" : [ {
+              "$ref" : "#/components/schemas/ExternalUrlObject"
+            } ],
+            "x-ballerina-name" : "externalUrls"
+          }
+        },
+        "description" : "Simplified album object",
+        "externalDocs" : {
+          "description" : "Find more info on the official Spotify Web API Reference",
+          "url" : "https://developer.spotify.com/documentation/web-api/reference/#object-simplifiedalbumobject"
+        }
+      },
+      "FollowersObject" : {
+        "properties" : {
+          "href" : {
+            "type" : "string",
+            "description" : "A link to the Web API endpoint providing full details of the followers; `null` if not available. Please note that this will always be set to null, as the Web API does not support it at the moment.",
+            "nullable" : true
+          },
+          "total" : {
+            "type" : "integer",
+            "description" : "The total number of followers.",
+            "format" : "int32"
+          }
+        },
+        "description" : "Followers object",
+        "externalDocs" : {
+          "description" : "Find more info on the official Spotify Web API Reference",
+          "url" : "https://developer.spotify.com/documentation/web-api/reference/#object-followersobject"
+        }
+      },
+      "CopyrightObject" : {
+        "type" : "object",
+        "properties" : {
+          "text" : {
+            "type" : "string",
+            "description" : "The copyright text for this content"
+          },
+          "type" : {
+            "type" : "string",
+            "description" : "The type of copyright: `C` = the copyright, `P` = the sound recording (performance) copyright"
+          }
+        },
+        "description" : "Copyright object",
+        "externalDocs" : {
+          "description" : "Find more info on the official Spotify Web API Reference",
+          "url" : "https://developer.spotify.com/documentation/web-api/reference/#object-copyrightobject"
+        }
+      },
+      "CurrentPlaylistDetails" : {
+        "properties" : {
+          "href" : {
+            "type" : "string",
+            "description" : "A link to the Web API endpoint returning the full result of the request"
+          },
+          "items" : {
+            "type" : "array",
+            "description" : "The requested data.",
+            "items" : {
+              "$ref" : "#/components/schemas/SimplifiedPlaylistObject"
+            }
+          },
+          "limit" : {
+            "type" : "integer",
+            "description" : "The maximum number of items in the response (as set in the query or by default).",
+            "format" : "int32"
+          },
+          "next" : {
+            "type" : "string",
+            "description" : "URL to the next page of items. ( `null` if none)",
+            "nullable" : true
+          },
+          "offset" : {
+            "type" : "integer",
+            "description" : "The offset of the items returned (as set in the query or by default)",
+            "format" : "int32"
+          },
+          "previous" : {
+            "type" : "string",
+            "description" : "URL to the previous page of items. ( `null` if none)",
+            "nullable" : true
+          },
+          "total" : {
+            "type" : "integer",
+            "description" : "The total number of items available to return.",
+            "format" : "int32"
+          }
+        },
+        "description" : "Current playlist details",
+        "externalDocs" : {
+          "description" : "Find more info on the official Spotify Web API Reference",
+          "url" : "https://developer.spotify.com/documentation/web-api/reference/#object-pagingobject"
+        }
+      },
+      "ErrorResponseObject" : {
+        "type" : "object",
+        "properties" : {
+          "error" : {
+            "$ref" : "#/components/schemas/ErrorObject"
+          }
+        },
+        "description" : "Error response object"
+      },
+      "SimplifiedPlaylistObject" : {
+        "required" : [ "id", "name" ],
+        "type" : "object",
+        "properties" : {
+          "owner" : {
+            "$ref" : "#/components/schemas/PublicUserObject"
+          },
+          "images" : {
+            "type" : "array",
+            "description" : "Images for the playlist. The array may be empty or contain up to three images. The images are returned by size in descending order. See [Working with Playlists](https://developer.spotify.com/documentation/general/guides/working-with-playlists/). *Note: If returned, the source URL for the image (`url`) is temporary and will expire in less than a day.*",
+            "items" : {
+              "$ref" : "#/components/schemas/ImageObject"
+            }
+          },
+          "snapshot_id" : {
+            "type" : "string",
+            "description" : "The version identifier for the current playlist. Can be supplied in other requests to target a specific playlist version",
+            "x-ballerina-name" : "snapshotId"
+          },
+          "collaborative" : {
+            "type" : "boolean",
+            "description" : "`true` if the owner allows other users to modify the playlist"
+          },
+          "description" : {
+            "type" : "string",
+            "description" : "The playlist description. *Only returned for modified, verified playlists, otherwise* `null`"
+          },
+          "type" : {
+            "type" : "string",
+            "description" : "The object type: \"playlist\""
+          },
+          "uri" : {
+            "type" : "string",
+            "description" : "The [Spotify URI](https://developer.spotify.com/documentation/web-api/#spotify-uris-and-ids) for the playlist"
+          },
+          "tracks" : {
+            "$ref" : "#/components/schemas/PlaylistTracksRefObject"
+          },
+          "public" : {
+            "type" : "boolean",
+            "description" : "The playlist's public/private status: `true` the playlist is public, `false` the playlist is private, `null` the playlist status is not relevant. For more about public/private status, see [Working with Playlists](https://developer.spotify.com/documentation/general/guides/working-with-playlists/)",
+            "nullable" : true
+          },
+          "name" : {
+            "type" : "string",
+            "description" : "The name of the playlist"
+          },
+          "href" : {
+            "type" : "string",
+            "description" : "A link to the Web API endpoint providing full details of the playlist",
+            "nullable" : true
+          },
+          "id" : {
+            "type" : "string",
+            "description" : "The [Spotify ID](https://developer.spotify.com/documentation/web-api/#spotify-uris-and-ids) for the playlist"
+          },
+          "external_urls" : {
+            "allOf" : [ {
+              "$ref" : "#/components/schemas/ExternalUrlObject"
+            } ],
+            "x-ballerina-name" : "externalUrls"
+          }
+        },
+        "description" : "Simplified playlist object",
+        "externalDocs" : {
+          "description" : "Find more info on the official Spotify Web API Reference",
+          "url" : "https://developer.spotify.com/documentation/web-api/reference/#object-simplifiedplaylistobject"
+        }
+      },
+      "PlaylistTrackDetails" : {
+        "type" : "object",
+        "properties" : {
+          "next" : {
+            "type" : "string",
+            "description" : "URL to the next page of items. ( `null` if none)",
+            "nullable" : true
+          },
+          "total" : {
+            "type" : "integer",
+            "description" : "The total number of items available to return",
+            "format" : "int32"
+          },
+          "offset" : {
+            "type" : "integer",
+            "description" : "The offset of the items returned (as set in the query or by default)",
+            "format" : "int32"
+          },
+          "previous" : {
+            "type" : "string",
+            "description" : "URL to the previous page of items. ( `null` if none)",
+            "nullable" : true
+          },
+          "limit" : {
+            "type" : "integer",
+            "description" : "The maximum number of items in the response (as set in the query or by default)",
+            "format" : "int32"
+          },
+          "href" : {
+            "type" : "string",
+            "description" : "A link to the Web API endpoint returning the full result of the request"
+          },
+          "items" : {
+            "type" : "array",
+            "description" : "The requested data",
+            "items" : {
+              "$ref" : "#/components/schemas/PlaylistTrackObject"
+            }
+          }
+        },
+        "description" : "Playlist track details",
+        "externalDocs" : {
+          "description" : "Find more info on the official Spotify Web API Reference",
+          "url" : "https://developer.spotify.com/documentation/web-api/reference/#object-pagingobject"
+        }
+      },
+      "EpisodeRestrictionObject" : {
+        "type" : "object",
+        "properties" : {
+          "reason" : {
+            "type" : "string",
+            "description" : "The reason for the restriction. Supported values:  \n\n- `market` - The content item is not available in the given market.  \n- `product` - The content item is not available for the user's subscription type.  \n- `explicit` - The content item is explicit and the user's account is set to not play explicit content.  \n  Additional reasons may be added in the future. **Note**: If you use this field, make sure that your application safely handles unknown values"
+          }
+        },
+        "description" : "Episode restriction object",
+        "externalDocs" : {
+          "description" : "Find more info on the official Spotify Web API Reference",
+          "url" : "https://developer.spotify.com/documentation/web-api/reference/#object-episoderestrictionobject"
+        }
+      },
+      "NewReleasesObject" : {
+        "required" : [ "albums" ],
+        "type" : "object",
+        "properties" : {
+          "albums" : {
+            "$ref" : "#/components/schemas/NewReleasesObjectAlbums"
+          }
+        },
+        "description" : "New release object"
+      },
+      "ImageObject" : {
+        "type" : "object",
+        "properties" : {
+          "width" : {
+            "type" : "integer",
+            "description" : "The image width in pixels. If unknown: `null` or not returned",
+            "format" : "int32",
+            "nullable" : true
+          },
+          "url" : {
+            "type" : "string",
+            "description" : "The source URL of the image"
+          },
+          "height" : {
+            "type" : "integer",
+            "description" : "The image height in pixels. If unknown: `null` or not returned",
+            "format" : "int32",
+            "nullable" : true
+          }
+        },
+        "description" : "Image object",
+        "externalDocs" : {
+          "description" : "Find more info on the official Spotify Web API Reference",
+          "url" : "https://developer.spotify.com/documentation/web-api/reference/#object-imageobject"
+        }
+      },
+      "ErrorObject" : {
+        "type" : "object",
+        "properties" : {
+          "message" : {
+            "type" : "string",
+            "description" : "A short description of the cause of the error"
+          },
+          "status" : {
+            "type" : "integer",
+            "description" : "The HTTP status code (also returned in the response header; see [Response Status Codes](https://developer.spotify.com/documentation/web-api/#response-status-codes) for more information)",
+            "format" : "int32"
+          }
+        },
+        "description" : "Error object",
+        "externalDocs" : {
+          "description" : "Find more info on the official Spotify Web API Reference",
+          "url" : "https://developer.spotify.com/documentation/web-api/reference/#object-errorobject"
+        }
+      },
+      "FeaturedPlaylistObjectPlaylists" : {
+        "type" : "object",
+        "properties" : {
+          "next" : {
+            "type" : "string",
+            "description" : "URL to the next page of items. ( `null` if none)",
+            "nullable" : true
+          },
+          "total" : {
+            "type" : "integer",
+            "description" : "The total number of items available to return",
+            "format" : "int32"
+          },
+          "offset" : {
+            "type" : "integer",
+            "description" : "The offset of the items returned (as set in the query or by default)",
+            "format" : "int32"
+          },
+          "previous" : {
+            "type" : "string",
+            "description" : "URL to the previous page of items. ( `null` if none)",
+            "nullable" : true
+          },
+          "limit" : {
+            "type" : "integer",
+            "description" : "The maximum number of items in the response (as set in the query or by default)",
+            "format" : "int32"
+          },
+          "href" : {
+            "type" : "string",
+            "description" : "A link to the Web API endpoint returning the full result of the request",
+            "nullable" : true
+          },
+          "items" : {
+            "type" : "array",
+            "description" : "The requested data",
+            "items" : {
+              "$ref" : "#/components/schemas/SimplifiedPlaylistObject"
+            }
+          }
+        },
+        "description" : "Playlist details"
+      },
+      "PublicUserObject" : {
+        "required" : [ "id" ],
+        "type" : "object",
+        "properties" : {
+          "images" : {
+            "type" : "array",
+            "description" : "The user's profile image",
+            "items" : {
+              "$ref" : "#/components/schemas/ImageObject"
+            }
+          },
+          "followers" : {
+            "$ref" : "#/components/schemas/FollowersObject"
+          },
+          "href" : {
+            "type" : "string",
+            "description" : "A link to the Web API endpoint for this user",
+            "nullable" : true
+          },
+          "id" : {
+            "type" : "string",
+            "description" : "The [Spotify user ID](https://developer.spotify.com/documentation/web-api/#spotify-uris-and-ids) for this user"
+          },
+          "display_name" : {
+            "type" : "string",
+            "description" : "The name displayed on the user's profile. `null` if not available",
+            "x-ballerina-name" : "displayName"
+          },
+          "type" : {
+            "type" : "string",
+            "description" : "The object type: \"user\""
+          },
+          "external_urls" : {
+            "allOf" : [ {
+              "$ref" : "#/components/schemas/ExternalUrlObject"
+            } ],
+            "x-ballerina-name" : "externalUrls"
+          },
+          "uri" : {
+            "type" : "string",
+            "description" : "The [Spotify URI](https://developer.spotify.com/documentation/web-api/#spotify-uris-and-ids) for this user"
+          }
+        },
+        "description" : "Public user object",
+        "externalDocs" : {
+          "description" : "Find more info on the official Spotify Web API Reference",
+          "url" : "https://developer.spotify.com/documentation/web-api/reference/#object-publicuserobject"
+        }
+      },
+      "TrackRestrictionObject" : {
+        "type" : "object",
+        "properties" : {
+          "reason" : {
+            "type" : "string",
+            "description" : "The reason for the restriction. Supported values:  \n\n- `market` - The content item is not available in the given market.  \n- `product` - The content item is not available for the user's subscription type.  \n- `explicit` - The content item is explicit and the user's account is set to not play explicit content.  \n  Additional reasons may be added in the future. **Note**: If you use this field, make sure that your application safely handles unknown values"
+          }
+        },
+        "description" : "Track restriction object",
+        "externalDocs" : {
+          "description" : "Find more info on the official Spotify Web API Reference",
+          "url" : "https://developer.spotify.com/documentation/web-api/reference/#object-trackrestrictionobject"
+        }
+      },
+      "UserPlayListDetails" : {
+        "type" : "object",
+        "properties" : {
+          "next" : {
+            "type" : "string",
+            "description" : "URL to the next page of items. ( `null` if none)",
+            "nullable" : true
+          },
+          "total" : {
+            "type" : "integer",
+            "description" : "The total number of items available to return",
+            "format" : "int32"
+          },
+          "offset" : {
+            "type" : "integer",
+            "description" : "The offset of the items returned (as set in the query or by default)",
+            "format" : "int32"
+          },
+          "previous" : {
+            "type" : "string",
+            "description" : "URL to the previous page of items. ( `null` if none)",
+            "nullable" : true
+          },
+          "limit" : {
+            "type" : "integer",
+            "description" : "The maximum number of items in the response (as set in the query or by default)",
+            "format" : "int32"
+          },
+          "href" : {
+            "type" : "string",
+            "description" : "A link to the Web API endpoint returning the full result of the request"
+          },
+          "items" : {
+            "type" : "array",
+            "description" : "The requested data",
+            "items" : {
+              "$ref" : "#/components/schemas/SimplifiedPlaylistObject"
+            }
+          }
+        },
+        "description" : "User playlist Details",
+        "externalDocs" : {
+          "description" : "Find more info on the official Spotify Web API Reference",
+          "url" : "https://developer.spotify.com/documentation/web-api/reference/#object-pagingobject"
+        }
+      },
+      "TrackObject" : {
+        "required" : [ "id" ],
+        "type" : "object",
+        "properties" : {
+          "disc_number" : {
+            "type" : "integer",
+            "description" : "The disc number (usually `1` unless the album consists of more than one disc)",
+            "format" : "int32",
+            "x-ballerina-name" : "discNumber"
+          },
+          "album" : {
+            "$ref" : "#/components/schemas/SimplifiedAlbumObject"
+          },
+          "available_markets" : {
+            "type" : "array",
+            "description" : "A list of the countries in which the track can be played, identified by their [ISO 3166-1 alpha-2](http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2) code",
+            "items" : {
+              "type" : "string"
+            },
+            "x-ballerina-name" : "availableMarkets"
+          },
+          "restrictions" : {
+            "$ref" : "#/components/schemas/TrackRestrictionObject"
+          },
+          "type" : {
+            "type" : "string",
+            "description" : "The object type: \"track\""
+          },
+          "external_ids" : {
+            "allOf" : [ {
+              "$ref" : "#/components/schemas/ExternalIdObject"
+            } ],
+            "x-ballerina-name" : "externalIds"
+          },
+          "uri" : {
+            "type" : "string",
+            "description" : "The [Spotify URI](https://developer.spotify.com/documentation/web-api/#spotify-uris-and-ids) for the track"
+          },
+          "duration_ms" : {
+            "type" : "integer",
+            "description" : "The track length in milliseconds",
+            "format" : "int32",
+            "x-ballerina-name" : "durationMs"
+          },
+          "explicit" : {
+            "type" : "boolean",
+            "description" : "Whether or not the track has explicit lyrics ( `true` = yes it does; `false` = no it does not OR unknown)"
+          },
+          "is_playable" : {
+            "type" : "boolean",
+            "description" : "Part of the response when [Track Relinking](https://developer.spotify.com/documentation/general/guides/track-relinking-guide/) is applied. If `true` , the track is playable in the given market. Otherwise `false`",
+            "x-ballerina-name" : "isPlayable"
+          },
+          "artists" : {
+            "type" : "array",
+            "description" : "The artists who performed the track. Each artist object includes a link in `href` to more detailed information about the artist",
+            "items" : {
+              "$ref" : "#/components/schemas/ArtistObject"
+            }
+          },
+          "linked_from" : {
+            "allOf" : [ {
+              "$ref" : "#/components/schemas/LinkedTrackObject"
+            } ],
+            "x-ballerina-name" : "linkedFrom"
+          },
+          "preview_url" : {
+            "type" : "string",
+            "description" : "A link to a 30 second preview (MP3 format) of the track. Can be `null`",
+            "x-ballerina-name" : "previewUrl"
+          },
+          "popularity" : {
+            "type" : "integer",
+            "description" : "The popularity of the track. The value will be between 0 and 100, with 100 being the most popular.  \nThe popularity of a track is a value between 0 and 100, with 100 being the most popular. The popularity is calculated by algorithm and is based, in the most part, on the total number of plays the track has had and how recent those plays are.  \nGenerally speaking, songs that are being played a lot now will have a higher popularity than songs that were played a lot in the past. Duplicate tracks (e.g. the same track from a single and an album) are rated independently. Artist and album popularity is derived mathematically from track popularity. Note that the popularity value may lag actual popularity by a few days: the value is not updated in real time",
+            "format" : "int32"
+          },
+          "name" : {
+            "type" : "string",
+            "description" : "The name of the track"
+          },
+          "track_number" : {
+            "type" : "integer",
+            "description" : "The number of the track. If an album has several discs, the track number is the number on the specified disc",
+            "format" : "int32",
+            "x-ballerina-name" : "trackNumber"
+          },
+          "href" : {
+            "type" : "string",
+            "description" : "A link to the Web API endpoint providing full details of the track",
+            "nullable" : true
+          },
+          "id" : {
+            "type" : "string",
+            "description" : "The [Spotify ID](https://developer.spotify.com/documentation/web-api/#spotify-uris-and-ids) for the track"
+          },
+          "is_local" : {
+            "type" : "boolean",
+            "description" : "Whether or not the track is from a local file",
+            "x-ballerina-name" : "isLocal"
+          },
+          "external_urls" : {
+            "allOf" : [ {
+              "$ref" : "#/components/schemas/ExternalUrlObject"
+            } ],
+            "x-ballerina-name" : "externalUrls"
+          }
+        },
+        "description" : "Track object",
+        "externalDocs" : {
+          "description" : "Find more info on the official Spotify Web API Reference",
+          "url" : "https://developer.spotify.com/documentation/web-api/reference/#object-trackobject"
+        }
+      },
+      "ArtistObject" : {
+        "required" : [ "id", "name" ],
+        "type" : "object",
+        "properties" : {
+          "images" : {
+            "type" : "array",
+            "description" : "Images of the artist in various sizes, widest first",
+            "items" : {
+              "$ref" : "#/components/schemas/ImageObject"
+            }
+          },
+          "followers" : {
+            "$ref" : "#/components/schemas/FollowersObject"
+          },
+          "genres" : {
+            "type" : "array",
+            "description" : "A list of the genres the artist is associated with. For example: `\"Prog Rock\"` , `\"Post-Grunge\"`. (If not yet classified, the array is empty.)",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "popularity" : {
+            "type" : "integer",
+            "description" : "The popularity of the artist. The value will be between 0 and 100, with 100 being the most popular. The artist's popularity is calculated from the popularity of all the artist's tracks",
+            "format" : "int32"
+          },
+          "name" : {
+            "type" : "string",
+            "description" : "The name of the artist"
+          },
+          "href" : {
+            "type" : "string",
+            "description" : "A link to the Web API endpoint providing full details of the artist",
+            "nullable" : true
+          },
+          "id" : {
+            "type" : "string",
+            "description" : "The [Spotify ID](https://developer.spotify.com/documentation/web-api/#spotify-uris-and-ids) for the artist"
+          },
+          "type" : {
+            "type" : "string",
+            "description" : "The object type: `\"artist\"`"
+          },
+          "external_urls" : {
+            "allOf" : [ {
+              "$ref" : "#/components/schemas/ExternalUrlObject"
+            } ],
+            "x-ballerina-name" : "externalUrls"
+          },
+          "uri" : {
+            "type" : "string",
+            "description" : "The [Spotify URI](https://developer.spotify.com/documentation/web-api/#spotify-uris-and-ids) for the artist"
+          }
+        },
+        "description" : "Artist object",
+        "externalDocs" : {
+          "description" : "Find more info on the official Spotify Web API Reference",
+          "url" : "https://developer.spotify.com/documentation/web-api/reference/#object-artistobject"
+        }
+      },
+      "FeaturedPlaylistObject" : {
+        "type" : "object",
+        "properties" : {
+          "playlists" : {
+            "$ref" : "#/components/schemas/FeaturedPlaylistObjectPlaylists"
+          },
+          "message" : {
+            "type" : "string",
+            "description" : "Message"
+          }
+        },
+        "description" : "Featured playlist object"
+      },
+      "SnapshotIdObject" : {
+        "type" : "object",
+        "properties" : {
+          "snapshot_id" : {
+            "type" : "string",
+            "description" : "The snapshot_id can be used to identify your playlist version in future requests",
+            "x-ballerina-name" : "snapshotId"
+          }
+        }
+      },
+      "PlaylistTracksRefObject" : {
+        "type" : "object",
+        "properties" : {
+          "total" : {
+            "type" : "integer",
+            "description" : "Number of tracks in the playlist",
+            "format" : "int32"
+          },
+          "href" : {
+            "type" : "string",
+            "description" : "A link to the Web API endpoint where full details of the playlist's tracks can be retrieved",
+            "nullable" : true
+          }
+        },
+        "description" : "Playlist track reference object",
+        "externalDocs" : {
+          "description" : "Find more info on the official Spotify Web API Reference",
+          "url" : "https://developer.spotify.com/documentation/web-api/reference/#object-playlisttracksrefobject"
+        }
+      },
+      "SimplifiedShowObject" : {
+        "required" : [ "id" ],
+        "type" : "object",
+        "properties" : {
+          "images" : {
+            "type" : "array",
+            "description" : "The cover art for the show in various sizes, widest first",
+            "items" : {
+              "$ref" : "#/components/schemas/ImageObject"
+            }
+          },
+          "languages" : {
+            "type" : "array",
+            "description" : "A list of the languages used in the show, identified by their [ISO 639](https://en.wikipedia.org/wiki/ISO_639) code",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "copyrights" : {
+            "type" : "array",
+            "description" : "The copyright statements of the show",
+            "items" : {
+              "$ref" : "#/components/schemas/CopyrightObject"
+            }
+          },
+          "available_markets" : {
+            "type" : "array",
+            "description" : "A list of the countries in which the show can be played, identified by their [ISO 3166-1 alpha-2](http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2) code",
+            "items" : {
+              "type" : "string"
+            },
+            "x-ballerina-name" : "availableMarkets"
+          },
+          "description" : {
+            "type" : "string",
+            "description" : "A description of the show. HTML tags are stripped away from this field, use `html_description` field in case HTML tags are needed"
+          },
+          "type" : {
+            "type" : "string",
+            "description" : "The object type: \"show\""
+          },
+          "html_description" : {
+            "type" : "string",
+            "description" : "A description of the show. This field may contain HTML tags",
+            "x-ballerina-name" : "htmlDescription"
+          },
+          "uri" : {
+            "type" : "string",
+            "description" : "The [Spotify URI](https://developer.spotify.com/documentation/web-api/#spotify-uris-and-ids) for the show"
+          },
+          "is_externally_hosted" : {
+            "type" : "boolean",
+            "description" : "True if all of the show's episodes are hosted outside of Spotify's CDN. This field might be `null` in some cases",
+            "x-ballerina-name" : "isExternallyHosted"
+          },
+          "explicit" : {
+            "type" : "boolean",
+            "description" : "Whether or not the show has explicit content (true = yes it does; false = no it does not OR unknown)"
+          },
+          "media_type" : {
+            "type" : "string",
+            "description" : "The media type of the show",
+            "x-ballerina-name" : "mediaType"
+          },
+          "name" : {
+            "type" : "string",
+            "description" : "The name of the episode"
+          },
+          "publisher" : {
+            "type" : "string",
+            "description" : "The publisher of the show"
+          },
+          "href" : {
+            "type" : "string",
+            "description" : "A link to the Web API endpoint providing full details of the show",
+            "nullable" : true
+          },
+          "id" : {
+            "type" : "string",
+            "description" : "The [Spotify ID](https://developer.spotify.com/documentation/web-api/#spotify-uris-and-ids) for the show"
+          },
+          "external_urls" : {
+            "allOf" : [ {
+              "$ref" : "#/components/schemas/ExternalUrlObject"
+            } ],
+            "x-ballerina-name" : "externalUrls"
+          }
+        },
+        "description" : "Simplified show object",
+        "externalDocs" : {
+          "description" : "Find more info on the official Spotify Web API Reference",
+          "url" : "https://developer.spotify.com/documentation/web-api/reference/#object-simplifiedshowobject"
+        }
+      },
+      "AlbumRestrictionObject" : {
+        "type" : "object",
+        "properties" : {
+          "reason" : {
+            "type" : "string",
+            "description" : "The reason for the restriction. Supported values:  \n\n- `market` - The content item is not available in the given market.  \n- `product` - The content item is not available for the user's subscription type.  \n- `explicit` - The content item is explicit and the user's account is set to not play explicit content.  \n  Additional reasons may be added in the future. **Note**: If you use this field, make sure that your application safely handles unknown values"
+          }
+        },
+        "description" : "Album restriction object",
+        "externalDocs" : {
+          "description" : "Find more info on the official Spotify Web API Reference",
+          "url" : "https://developer.spotify.com/documentation/web-api/reference/#object-albumrestrictionobject"
+        }
+      },
+      "PlaylistObject" : {
+        "required" : [ "id" ],
+        "type" : "object",
+        "properties" : {
+          "owner" : {
+            "$ref" : "#/components/schemas/PublicUserObject"
+          },
+          "images" : {
+            "type" : "array",
+            "description" : "Images for the playlist. The array may be empty or contain up to three images. The images are returned by size in descending order. See [Working with Playlists](https://developer.spotify.com/documentation/general/guides/working-with-playlists/). *Note: If returned, the source URL for the image (`url`) is temporary and will expire in less than a day.*",
+            "items" : {
+              "$ref" : "#/components/schemas/ImageObject"
+            }
+          },
+          "snapshot_id" : {
+            "type" : "string",
+            "description" : "The version identifier for the current playlist. Can be supplied in other requests to target a specific playlist version",
+            "x-ballerina-name" : "snapshotId"
+          },
+          "collaborative" : {
+            "type" : "boolean",
+            "description" : "`true` if the owner allows other users to modify the playlist"
+          },
+          "description" : {
+            "type" : "string",
+            "description" : "The playlist description. *Only returned for modified, verified playlists, otherwise* `null`"
+          },
+          "type" : {
+            "type" : "string",
+            "description" : "The object type: \"playlist\""
+          },
+          "uri" : {
+            "type" : "string",
+            "description" : "The [Spotify URI](https://developer.spotify.com/documentation/web-api/#spotify-uris-and-ids) for the playlist"
+          },
+          "tracks" : {
+            "$ref" : "#/components/schemas/PlaylistObjectTracks"
+          },
+          "followers" : {
+            "$ref" : "#/components/schemas/FollowersObject"
+          },
+          "public" : {
+            "type" : "boolean",
+            "description" : "The playlist's public/private status: `true` the playlist is public, `false` the playlist is private, `null` the playlist status is not relevant. For more about public/private status, see [Working with Playlists](https://developer.spotify.com/documentation/general/guides/working-with-playlists/)",
+            "nullable" : true
+          },
+          "name" : {
+            "type" : "string",
+            "description" : "The name of the playlist"
+          },
+          "href" : {
+            "type" : "string",
+            "description" : "A link to the Web API endpoint providing full details of the playlist"
+          },
+          "id" : {
+            "type" : "string",
+            "description" : "The [Spotify ID](https://developer.spotify.com/documentation/web-api/#spotify-uris-and-ids) for the playlist"
+          },
+          "external_urls" : {
+            "allOf" : [ {
+              "$ref" : "#/components/schemas/ExternalUrlObject"
+            } ],
+            "x-ballerina-name" : "externalUrls"
+          }
+        },
+        "description" : "Playlist object",
+        "externalDocs" : {
+          "description" : "Find more info on the official Spotify Web API Reference",
+          "url" : "https://developer.spotify.com/documentation/web-api/reference/#object-playlistobject"
+        }
+      },
+      "ResumePointObject" : {
+        "type" : "object",
+        "properties" : {
+          "fully_played" : {
+            "type" : "boolean",
+            "description" : "Whether or not the episode has been fully played by the user",
+            "x-ballerina-name" : "fullyPlayed"
+          },
+          "resume_position_ms" : {
+            "type" : "integer",
+            "description" : "The user's most recent position in the episode in milliseconds",
+            "format" : "int32",
+            "x-ballerina-name" : "resumePositionMs"
+          }
+        },
+        "description" : "Resume point object",
+        "externalDocs" : {
+          "description" : "Find more info on the official Spotify Web API Reference",
+          "url" : "https://developer.spotify.com/documentation/web-api/reference/#object-resumepointobject"
+        }
+      },
+      "ExternalIdObject" : {
+        "type" : "object",
+        "properties" : {
+          "ean" : {
+            "type" : "string",
+            "description" : "[International Article Number](http://en.wikipedia.org/wiki/International_Article_Number_%28EAN%29)"
+          },
+          "upc" : {
+            "type" : "string",
+            "description" : "[Universal Product Code](http://en.wikipedia.org/wiki/Universal_Product_Code)"
+          },
+          "isrc" : {
+            "type" : "string",
+            "description" : "[International Standard Recording Code](http://en.wikipedia.org/wiki/International_Standard_Recording_Code)"
+          }
+        },
+        "description" : "External Id object",
+        "externalDocs" : {
+          "description" : "Find more info on the official Spotify Web API Reference",
+          "url" : "https://developer.spotify.com/documentation/web-api/reference/#object-externalidobject"
+        }
+      },
+      "PlaylistObjectTracks" : {
+        "type" : "object",
+        "properties" : {
+          "next" : {
+            "type" : "string",
+            "description" : "URL to the next page of items. ( `null` if none)",
+            "nullable" : true
+          },
+          "total" : {
+            "type" : "integer",
+            "description" : "The total number of items available to return",
+            "format" : "int32"
+          },
+          "offset" : {
+            "type" : "integer",
+            "description" : "The offset of the items returned (as set in the query or by default)",
+            "format" : "int32"
+          },
+          "previous" : {
+            "type" : "string",
+            "description" : "URL to the previous page of items. ( `null` if none)",
+            "nullable" : true
+          },
+          "limit" : {
+            "type" : "integer",
+            "description" : "The maximum number of items in the response (as set in the query or by default)",
+            "format" : "int32"
+          },
+          "href" : {
+            "type" : "string",
+            "description" : "A link to the Web API endpoint returning the full result of the request"
+          },
+          "items" : {
+            "type" : "array",
+            "description" : "The requested data",
+            "items" : {
+              "$ref" : "#/components/schemas/PlaylistTrackObject"
+            }
+          }
+        },
+        "description" : "Information about the tracks of the playlist. Note, a track object may be `null`. This can happen if a track is no longer available"
+      }
+    },
+    "responses" : {
+      "ErrorResponse" : {
+        "description" : "Unexpected error",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "$ref" : "#/components/schemas/ErrorResponseObject"
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "spotify_auth" : {
+        "type" : "oauth2",
+        "flows" : {
+          "authorizationCode" : {
+            "authorizationUrl" : "https://accounts.spotify.com/authorize",
+            "tokenUrl" : "https://accounts.spotify.com/api/token",
+            "scopes" : {
+              "app-remote-control" : "Remote control playback of Spotify. This scope is currently available to Spotify iOS and Android SDKs.",
+              "playlist-modify-private" : "Write access to a user's private playlists.",
+              "playlist-modify-public" : "Write access to a user's public playlists.",
+              "playlist-read-collaborative" : "Include collaborative playlists when requesting a user's playlists.",
+              "playlist-read-private" : "Read access to user's private playlists.",
+              "streaming" : "Control playback of a Spotify track. This scope is currently available to the Web Playback SDK. The user must have a Spotify Premium account.",
+              "ugc-image-upload" : "Write access to user-provided images.",
+              "user-follow-modify" : "Write/delete access to the list of artists and other users that the user follows.",
+              "user-follow-read" : "Read access to the list of artists and other users that the user follows.",
+              "user-library-modify" : "Write/delete access to a user's \"Your Music\" library.",
+              "user-library-read" : "Read access to a user's library.",
+              "user-modify-playback-state" : "Write access to a user’s playback state",
+              "user-read-currently-playing" : "Read access to a user’s currently playing content.",
+              "user-read-email" : "Read access to user’s email address.",
+              "user-read-playback-position" : "Read access to a user’s playback position in a content.",
+              "user-read-playback-state" : "Read access to a user’s player state.",
+              "user-read-private" : "Read access to user’s subscription details (type of user account).",
+              "user-read-recently-played" : "Read access to a user’s recently played tracks.",
+              "user-top-read" : "Read access to a user's top artists and tracks."
+            }
+          }
+        }
+      }
+    }
+  }
+}

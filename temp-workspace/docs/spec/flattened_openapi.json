@@ -151,7 +151,6 @@
         "tags" : [ "contacts" ],
         "summary" : "List Contacts",
         "description" : "Gets a list of the user's Smartsheet contacts.",
-        "operationId" : "list-contacts",
         "parameters" : [ {
           "$ref" : "#/components/parameters/includeAll"
         }, {
@@ -222,7 +221,6 @@
         "tags" : [ "contacts" ],
         "summary" : "Get Contact",
         "description" : "Gets the specified contact.",
-        "operationId" : "get-contact",
         "parameters" : [ {
           "$ref" : "#/components/parameters/contactInclude"
         } ],
@@ -288,7 +286,6 @@
         "tags" : [ "events" ],
         "summary" : "List events",
         "description" : "Fetches events for System Admin users. This includes actions such as creating, updating, loading, deleting, and more of items such as sheets, reports, dashboards, attachments, and users in your Smartsheet organization account.\n\nSee [Event types](/api/smartsheet/event-types.md) for the complete event listing, details, and example objects.\n\n> **Who can use this endpoint?**\n> \n> - **Plans:** Requires the Event Reporting premium add-on available for Enterprise and Advanced Work Management plans only.\n> - **Permissions:** System Admin\n\n> **NOTE:** You must specify exactly one of the query parameters `since` or `streamPosition`. Both are optional individually, but one is required.\n",
-        "operationId" : "list-events",
         "parameters" : [ {
           "$ref" : "#/components/parameters/Accept-Encoding"
         }, {

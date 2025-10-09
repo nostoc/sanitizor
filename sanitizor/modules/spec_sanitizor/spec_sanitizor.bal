@@ -31,6 +31,20 @@ public type BatchRenameResponse record {
     string newName;
 };
 
+public type OperationIdRequest record {
+    string id;
+    string path;
+    string method;
+    string summary?;
+    string description?;
+    string[] tags?;
+};
+
+public type BatchOperationIdResponse record {
+    string id;
+    string operationId;
+};
+
 // Retry configuration
 public type RetryConfig record {
     int maxRetries = 3;
@@ -126,7 +140,12 @@ function isRetryableError(error err) returns boolean {
                             message.includes("unavailable") ||
                             message.includes("overloaded");
 
-    return isNetworkError || isRateLimitError || isServerError || isTemporaryError;
+    boolean isLLMResponseError = message.includes("unrecognized token") ||
+                            message.includes("model") ||
+                            message.includes("service") ||
+                            message.includes("api");
+
+    return isNetworkError || isRateLimitError || isServerError || isTemporaryError || isLLMResponseError;
 }
 
 # Process multiple description requests with retry and exponential backoff
@@ -183,7 +202,54 @@ public function generateDescriptionsBatchWithRetry(DescriptionRequest[] requests
     return error LLMServiceError("Unexpected error in retry logic");
 }
 
-# Process multiple schema rename requests with retry and exponential backoff
+# Generate missing operationIds with retry and exponential backoff
+#
+# + requests - Array of operationId requests to process
+# + apiContext - API context for better naming
+# + existingOperationIds - Existing operationIds to avoid conflicts
+# + quietMode - Whether to suppress verbose logging
+# + config - Retry configuration (optional, uses default if not provided)
+# + return - Array of new operationIds or error
+public function generateOperationIdsBatchWithRetry(OperationIdRequest[] requests, string apiContext, string[] existingOperationIds, boolean quietMode = false, RetryConfig? config = ()) returns BatchOperationIdResponse[]|LLMServiceError {
+    RetryConfig retryConf = config ?: retryConfig;
+
+    int attempt = 0;
+    while attempt <= retryConf.maxRetries {
+        BatchOperationIdResponse[]|LLMServiceError result = generateOperationIdsBatch(requests, apiContext, existingOperationIds);
+
+        if result is BatchOperationIdResponse[] {
+            if attempt > 0 {
+                log:printInfo("Batch operationId generation succeeded after retry", attempt = attempt);
+            }
+            return result;
+        } else {
+            // Check if this is the last attempt
+            if attempt == retryConf.maxRetries {
+                log:printError("Batch operationId generation failed after all retries",
+                        finalAttempt = attempt, maxRetries = retryConf.maxRetries, 'error = result);
+                return result;
+            }
+
+            // Check if error is retryable
+            if !isRetryableError(result) {
+                log:printError("Non-retryable error in batch operationId generation", 'error = result);
+                return result;
+            }
+
+            // Calculate backoff delay and wait
+            decimal delay = calculateBackoffDelay(attempt, retryConf);
+            log:printWarn("Batch operationId generation failed, retrying",
+                    attempt = attempt + 1, maxRetries = retryConf.maxRetries,
+                    delaySeconds = delay, 'error = result);
+
+            runtime:sleep(delay);
+            attempt += 1;
+        }
+    }
+
+    // This should never be reached, but just in case
+    return error LLMServiceError("Unexpected error in retry logic");
+}
 #
 # + requests - Array of schema rename requests
 # + apiContext - API context for better naming
@@ -526,6 +592,118 @@ public function renameInlineResponseSchemasBatchWithRetry(string specFilePath, i
 
     return renamedCount;
 }
+# Add missing operationIds to OpenAPI spec operations (batch mode with retry)
+#
+# + specFilePath - Path to the OpenAPI specification file
+# + batchSize - Number of operations to process per batch (default: 15)
+# + quietMode - Whether to suppress verbose logging
+# + config - Retry configuration (optional, uses default if not provided)
+# + return - Number of operationIds added or error
+public function addMissingOperationIdsBatchWithRetry(string specFilePath, int batchSize = 15, boolean quietMode = false, RetryConfig? config = ()) returns int|LLMServiceError {
+    if !quietMode {
+        log:printInfo("Processing OpenAPI spec for missing operationIds (batch mode with retry)",
+                specPath = specFilePath, batchSize = batchSize);
+    }
+
+    // Read the OpenAPI spec file
+    json|error specResult = io:fileReadJson(specFilePath);
+    if specResult is error {
+        return error LLMServiceError("Failed to read OpenAPI spec file", specResult);
+    }
+
+    json specJson = specResult;
+
+    if !(specJson is map<json>) {
+        return error LLMServiceError("Invalid OpenAPI spec format");
+    }
+
+    map<json> specMap = <map<json>>specJson;
+
+    // Get paths section
+    json|error pathsResult = specMap.get("paths");
+    if !(pathsResult is map<json>) {
+        return error LLMServiceError("No paths section found in OpenAPI spec");
+    }
+
+    map<json> paths = <map<json>>pathsResult;
+
+    // Collect all existing operationIds to ensure uniqueness
+    string[] existingOperationIds = [];
+    collectExistingOperationIds(paths, existingOperationIds);
+
+    // Collect all missing operationId requests
+    OperationIdRequest[] missingOperationIds = [];
+    map<string> requestToLocationMap = {}; // Map request ID to location for updating
+
+    string apiContext = extractApiContext(specMap);
+    collectMissingOperationIdRequests(paths, missingOperationIds, requestToLocationMap, apiContext);
+
+    int totalRequests = missingOperationIds.length();
+    if totalRequests == 0 {
+        if !quietMode {
+            log:printInfo("No missing operationIds found");
+        }
+        return 0;
+    }
+
+    if !quietMode {
+        log:printInfo("Collected missing operationId requests", totalRequests = totalRequests);
+    }
+
+    int operationIdsAdded = 0;
+
+    // Process requests in batches with retry
+    int startIdx = 0;
+    while startIdx < totalRequests {
+        int endIdx = startIdx + batchSize;
+        if endIdx > totalRequests {
+            endIdx = totalRequests;
+        }
+
+        OperationIdRequest[] batch = missingOperationIds.slice(startIdx, endIdx);
+        if !quietMode {
+            log:printInfo("Processing operationId batch with retry", batchNumber = (startIdx / batchSize) + 1,
+                    batchSize = batch.length());
+        }
+
+        BatchOperationIdResponse[]|LLMServiceError batchResult = generateOperationIdsBatchWithRetry(batch, apiContext, existingOperationIds, quietMode, config);
+        if batchResult is BatchOperationIdResponse[] {
+            // Apply the generated operationIds
+            foreach BatchOperationIdResponse response in batchResult {
+                string? location = requestToLocationMap[response.id];
+                if location is string {
+                    error? updateResult = updateOperationIdInSpec(paths, location, response.operationId);
+                    if updateResult is () {
+                        // Add to existing list to prevent conflicts in next batches
+                        existingOperationIds.push(response.operationId);
+                        operationIdsAdded += 1;
+                        if !quietMode {
+                            log:printInfo("Applied batch operationId", id = response.id, 
+                                    location = location, operationId = response.operationId);
+                        }
+                    } else {
+                        log:printError("Failed to apply operationId", id = response.id, 'error = updateResult);
+                    }
+                }
+            }
+        } else {
+            if !quietMode {
+                log:printError("OperationId batch processing failed after all retries", 
+                        batchNumber = (startIdx / batchSize) + 1, 'error = batchResult);
+            }
+            // Continue with next batch instead of failing completely
+        }
+        startIdx += batchSize;
+    }
+
+    // Save updated spec back to file
+    error? writeResult = io:fileWriteJson(specFilePath, specJson);
+    if writeResult is error {
+        return error LLMServiceError("Failed to write updated OpenAPI spec", writeResult);
+    }
+
+    return operationIdsAdded;
+}
 
 # Process multiple description requests in a single LLM call
 #
@@ -623,7 +801,108 @@ REQUIRED RESPONSE FORMAT (JSON):
     }
 }
 
-# Process multiple schema rename requests in a single LLM call
+# Process multiple operationId requests in a single LLM call
+#
+# + requests - Array of operationId requests to process
+# + apiContext - API context for better naming
+# + existingOperationIds - Existing operationIds to avoid conflicts
+# + return - Array of generated operationIds or error
+public function generateOperationIdsBatch(OperationIdRequest[] requests, string apiContext, string[] existingOperationIds) returns BatchOperationIdResponse[]|LLMServiceError {
+    ai:ModelProvider? model = anthropicModel;
+    if model is () {
+        return error LLMServiceError("LLM service not initialized");
+    }
+
+    if requests.length() == 0 {
+        return [];
+    }
+
+    string requestsSection = "";
+    foreach int i in 0 ..< requests.length() {
+        OperationIdRequest req = requests[i];
+        string tags = req.tags is string[] ? string:'join(", ", ...<string[]>req.tags) : "N/A";
+        requestsSection += string `
+${i + 1}. ID: ${req.id}
+   Path: ${req.path}
+   Method: ${req.method.toUpperAscii()}
+   Summary: ${req.summary ?: "N/A"}
+   Description: ${req.description ?: "N/A"}
+   Tags: ${tags}
+`;
+    }
+
+    string existingIdsStr = string:'join(", ", ...existingOperationIds);
+
+    string prompt = string `You are an expert in REST API design. Generate meaningful, unique camelCase operationIds for these API operations.
+
+API CONTEXT:
+${apiContext}
+
+EXISTING OPERATION IDS (avoid conflicts):
+${existingIdsStr}
+
+OPERATIONS TO NAME:
+${requestsSection}
+
+REQUIREMENTS:
+- Use camelCase (e.g., getUserProfile, createPlaylist, updateUserSettings)
+- Be descriptive and follow REST conventions (get*, create*, update*, delete*, list*)
+- Ensure operationIds are unique and don't conflict with existing ones
+- Consider HTTP method, path, and operation purpose
+- Keep names concise but clear (prefer verbs + nouns)
+- Do not include fenced code blocks in the response
+
+REQUIRED RESPONSE FORMAT (JSON):
+{
+  "operationIds": [
+    {
+      "id": "request_id_1",
+      "operationId": "getUserProfile"
+    },
+    {
+      "id": "request_id_2",
+      "operationId": "createPlaylist"
+    }
+  ]
+}`;
+
+    ai:ChatMessage[] messages = [
+        {role: "user", content: prompt}
+    ];
+
+    ai:ChatAssistantMessage|error response = model->chat(messages);
+    if response is error {
+        return error LLMServiceError("Failed to generate batch operationIds", response);
+    }
+
+    string? content = response.content;
+    if content is string {
+        json|error jsonResult = content.fromJsonString();
+        if jsonResult is error {
+            return error LLMServiceError("Failed to parse batch operationId response JSON", jsonResult);
+        }
+
+        if jsonResult is map<json> && jsonResult.hasKey("operationIds") {
+            json operationIdsJson = jsonResult.get("operationIds");
+            if operationIdsJson is json[] {
+                BatchOperationIdResponse[] results = [];
+                foreach json opId in operationIdsJson {
+                    if opId is map<json> {
+                        string? id = opId.get("id") is string ? <string>opId.get("id") : ();
+                        string? operationId = opId.get("operationId") is string ? <string>opId.get("operationId") : ();
+                        if id is string && operationId is string {
+                            results.push({id: id, operationId: operationId.trim()});
+                        }
+                    }
+                }
+                return results;
+            }
+        }
+        return error LLMServiceError("Invalid batch operationId response format");
+    } else {
+        return error LLMServiceError("Empty response from LLM");
+    }
+}
 #
 # + requests - Array of schema rename requests
 # + apiContext - API context for better naming
@@ -1071,7 +1350,123 @@ function findSchemaUsageInPathItem(string path, map<json> pathItem, string refPa
     return string:'join("\n", ...usages);
 }
 
-// Helper function to recursively check if JSON contains schema reference
+// Helper function to collect existing operationIds from paths
+function collectExistingOperationIds(map<json> paths, string[] existingOperationIds) {
+    string[] httpMethods = ["get", "post", "put", "delete", "patch", "head", "options", "trace"];
+    
+    foreach string path in paths.keys() {
+        json|error pathItem = paths.get(path);
+        if pathItem is map<json> {
+            map<json> pathItemMap = <map<json>>pathItem;
+            
+            foreach string method in httpMethods {
+                if pathItemMap.hasKey(method) {
+                    json|error operation = pathItemMap.get(method);
+                    if operation is map<json> {
+                        map<json> operationMap = <map<json>>operation;
+                        if operationMap.hasKey("operationId") {
+                            json|error operationIdResult = operationMap.get("operationId");
+                            if operationIdResult is string {
+                                existingOperationIds.push(<string>operationIdResult);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// Helper function to collect missing operationId requests
+function collectMissingOperationIdRequests(map<json> paths, OperationIdRequest[] requests, 
+        map<string> locationMap, string apiContext) {
+    string[] httpMethods = ["get", "post", "put", "delete", "patch", "head", "options", "trace"];
+    
+    foreach string path in paths.keys() {
+        json|error pathItem = paths.get(path);
+        if pathItem is map<json> {
+            map<json> pathItemMap = <map<json>>pathItem;
+            
+            foreach string method in httpMethods {
+                if pathItemMap.hasKey(method) {
+                    json|error operation = pathItemMap.get(method);
+                    if operation is map<json> {
+                        map<json> operationMap = <map<json>>operation;
+                        
+                        // Check if operationId is missing
+                        if !operationMap.hasKey("operationId") {
+                            string requestId = generateOperationRequestId(path, method);
+                            
+                            // Extract operation details
+                            string? summary = operationMap.get("summary") is string ? 
+                                    <string>operationMap.get("summary") : ();
+                            string? description = operationMap.get("description") is string ? 
+                                    <string>operationMap.get("description") : ();
+                            
+                            string[]? tags = ();
+                            if operationMap.hasKey("tags") {
+                                json|error tagsResult = operationMap.get("tags");
+                                if tagsResult is json[] {
+                                    string[] tagStrings = [];
+                                    foreach json tag in tagsResult {
+                                        if tag is string {
+                                            tagStrings.push(<string>tag);
+                                        }
+                                    }
+                                    tags = tagStrings;
+                                }
+                            }
+                            
+                            requests.push({
+                                id: requestId,
+                                path: path,
+                                method: method,
+                                summary: summary,
+                                description: description,
+                                tags: tags
+                            });
+                            
+                            locationMap[requestId] = string `${path}.${method}`;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// Helper function to generate unique request IDs for operationId requests
+function generateOperationRequestId(string path, string method) returns string {
+    string cleanPath = regex:replaceAll(path, "[^a-zA-Z0-9]", "_");
+    return string `${method}_${cleanPath}`;
+}
+
+// Helper function to update operationId in the spec
+function updateOperationIdInSpec(map<json> paths, string location, string operationId) returns error? {
+    string[] locationParts = regex:split(location, "\\.");
+    if locationParts.length() != 2 {
+        return error("Invalid location format: " + location);
+    }
+    
+    string path = locationParts[0];
+    string method = locationParts[1];
+    
+    json|error pathItem = paths.get(path);
+    if pathItem is map<json> {
+        map<json> pathItemMap = <map<json>>pathItem;
+        
+        if pathItemMap.hasKey(method) {
+            json|error operation = pathItemMap.get(method);
+            if operation is map<json> {
+                map<json> operationMap = <map<json>>operation;
+                operationMap["operationId"] = operationId;
+                return ();
+            }
+        }
+    }
+    
+    return error("Could not find operation at location: " + location);
+}
 function containsSchemaReference(json data, string refPattern) returns boolean {
     if (data is map<json>) {
         foreach string key in data.keys() {
