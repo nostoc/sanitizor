@@ -9,13 +9,41 @@ public enum DocumentationType {
     EXAMPLE_SPECIFIC
 }
 
-// Basic connector analysis result
+// API Operation information
+public type Operation record {
+    string name;
+    string description;
+    string httpMethod?;
+    string endpoint?;
+};
+
+// Example project information
+public type ExampleProject record {
+    string name;
+    string path;
+    string description;
+    boolean hasConfig;
+};
+
+// Setup requirement information
+public type SetupRequirement record {
+    string requirement;
+    string description;
+    boolean isOptional;
+};
+
+// Enhanced connector analysis result
 public type ConnectorAnalysis record {
     string connectorName;
     string description;
     string version;
+    string[] keywords;
     boolean hasExamples;
     boolean hasTests;
+    Operation[] operations;
+    ExampleProject[] examples;
+    SetupRequirement[] setupRequirements;
+    string[] imports;
 };
 
 // Template content structure
