@@ -12,24 +12,34 @@ public enum DocumentationType {
 // API Operation information
 public type Operation record {
     string name;
+    string httpMethod;
     string description;
-    string httpMethod?;
-    string endpoint?;
 };
 
 // Example project information
 public type ExampleProject record {
     string name;
-    string path;
     string description;
-    boolean hasConfig;
+    string path;
+    boolean hasConfiguration;
 };
 
 // Setup requirement information
 public type SetupRequirement record {
-    string requirement;
+    string name;
     string description;
-    boolean isOptional;
+    boolean required;
+};
+
+// Template-related types
+public type TemplateContent record {
+    string content;
+    string[] placeholders;
+};
+
+public type PlaceholderValue record {
+    string placeholder;
+    string value;
 };
 
 // Enhanced connector analysis result
@@ -44,12 +54,6 @@ public type ConnectorAnalysis record {
     ExampleProject[] examples;
     SetupRequirement[] setupRequirements;
     string[] imports;
-};
-
-// Template content structure
-public type TemplateContent record {
-    string content;
-    string[] placeholders;
 };
 
 // Simple error type
