@@ -1,0 +1,76 @@
+Implementation Architecture
+
+  Project Structure
+
+  /home/hansika/dev/sanitizor/doc_generator/
+  ├── main.bal (CLI entry point)
+  ├── modules/
+  │   ├── ai_generator/
+  │   │   ├── ai_generator.bal
+  │   │   ├── connector_analyzer.bal
+  │   │   └── template_engine.bal
+  │   ├── templates/
+  │   │   ├── ballerina_readme_template.md
+  │   │   ├── tests_readme_template.md
+  │   │   ├── examples_readme_template.md
+  │   │   ├── example_specific_template.md
+  │   │   └── main_readme_template.md
+  │   └── prompts/
+  │       ├── ballerina_prompts.bal
+  │       ├── tests_prompts.bal
+  │       └── examples_prompts.bal
+
+  AI Integration Pattern
+
+  Using ballerinax/ai.anthropic v1.1.2:
+  import ballerina/ai;
+  import ballerinax/ai.anthropic;
+
+  final ai:ModelProvider anthropicModel = check new anthropic:ModelProvider(
+      "ANTHROPIC_API_KEY",
+      anthropic:CLAUDE_3_7_SONNET_20250219,
+      "2023-06-01"
+  );
+
+  ai:ChatMessage[] messages = [
+      {role: "user", content: promptContent}
+  ];
+  ai:ChatAssistantMessage response = check anthropicModel->chat(messages, tools = []);
+
+  Workflow Design
+
+  1. CLI Interface: bal run doc_generator -- generate-all /path/to/connector
+  2. Connector Analysis: Parse .bal files, extract metadata
+  3. Template Processing: Load templates with placeholders
+  4. AI Generation: Generate content for dynamic sections
+  5. File Output: Write final READMEs to appropriate locations
+
+  Template Strategy
+
+  Template Format:
+  # {{CONNECTOR_NAME}} Ballerina Connector
+
+  ## Overview
+  {{AI_GENERATED_OVERVIEW}}
+
+  ## Setup Guide
+  {{AI_GENERATED_SETUP}}
+
+  ## Quick Start
+  {{AI_GENERATED_QUICKSTART}}
+
+  ## Examples
+  {{AI_GENERATED_EXAMPLES}}
+
+  Prompt Strategy:
+  - Context-aware prompts based on actual code analysis
+  - Multi-stage generation (metadata → content → validation)
+  - Template-specific prompts for each README type
+
+  Key Benefits of This Approach
+
+  1. Template-driven - Consistent format, half-static/half-AI
+  2. Code-aware - Analyzes actual connector code for accuracy
+  3. Modular design - Each README type handled separately
+  4. CLI-friendly - Single command generates all documentation
+  5. No agent complexity - Direct AI calls with focused prompts

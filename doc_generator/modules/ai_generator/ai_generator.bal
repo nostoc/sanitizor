@@ -1,300 +1,381 @@
-import ballerinax/ai;
-import ballerina/log;
-import ballerina/regex;
+import ballerina/ai;
 import ballerinax/ai.anthropic;
-import doc_generator.doc_analyzer;
-import doc_generator.ai_generator.specialized_prompts;
+import ballerina/io;
+import ballerina/file;
 
-// AI service configuration
-configurable string apiKey = ?;
-configurable boolean enableAI = true;
-configurable string model = "claude-3-5-sonnet-20241022";
-configurable int maxRetries = 3;
-configurable int timeoutSeconds = 30;
-
-// AI model provider
-ai:ModelProvider? anthropicModel = ();
-
-// AI-enhanced documentation content
-public type AIEnhancedContent record {
-    string description;
-    string features;
-    string setupGuide;
-    string quickstart;
-    string examples;
-    string apiOverview;
-};
-
-// Initialize the AI service
-public function initAIService() returns error? {
-    if !enableAI {
-        log:printInfo("AI enhancement disabled, using template-based generation");
-        return;
+public class DocumentationGenerator {
+    private ai:ModelProvider anthropicModel;
+    private ConnectorAnalyzer analyzer;
+    private TemplateEngine templateEngine;
+    
+    public function init(string apiKey) returns error? {
+        self.anthropicModel = check new anthropic:ModelProvider(
+            apiKey,
+            anthropic:CLAUDE_3_7_SONNET_20250219,
+            "2023-06-01"
+        );
+        self.analyzer = new ConnectorAnalyzer();
+        self.templateEngine = new TemplateEngine();
     }
     
-    ai:ModelProvider|error modelProvider = new anthropic:ModelProvider(
-        apiKey: apiKey,
-        model: model,
-        timeout: timeoutSeconds
-    );
-    
-    if modelProvider is error {
-        log:printError("Failed to initialize AI service", modelProvider);
-        return modelProvider;
+    public function generateAllDocumentation(string connectorPath) returns error? {
+        io:println("📋 Analyzing connector structure...");
+        
+        io:println("📝 Generating documentation...");
+        check self.generateBallerinaReadme(connectorPath);
+        check self.generateTestsReadme(connectorPath);
+        check self.generateExamplesReadme(connectorPath);
+        check self.generateMainReadme(connectorPath);
+        
+        io:println("✅ All documentation generated successfully!");
     }
     
-    anthropicModel = modelProvider;
-    log:printInfo("✅ AI service initialized successfully");
-    return;
-}
-
-// Generate AI-enhanced documentation content
-public function generateAIEnhancedContent(doc_analyzer:ConnectorAnalysis analysis) returns AIEnhancedContent|error {
-    if anthropicModel is () {
-        return error("AI service not initialized. Call initAIService() first.");
+    public function generateBallerinaReadme(string connectorPath) returns error? {
+        io:println("📋 Analyzing connector for Ballerina README...");
+        ConnectorMetadata metadata = check self.analyzer.analyzeConnector(connectorPath);
+        
+        io:println("🤖 Generating AI content...");
+        map<string> aiContent = check self.generateBallerinaContent(metadata);
+        
+        io:println("📄 Processing template...");
+        TemplateData templateData = self.templateEngine.createTemplateData(metadata);
+        TemplateData finalData = self.templateEngine.mergeAIContent(templateData, aiContent);
+        
+        string content = check self.templateEngine.processTemplate("ballerina_readme_template.md", finalData);
+        
+        string outputPath = connectorPath + "/ballerina/README.md";
+        check self.ensureDirectoryExists(connectorPath + "/ballerina");
+        check self.templateEngine.writeOutput(content, outputPath);
+        
+        io:println("✅ Ballerina README generated: " + outputPath);
     }
     
-    log:printInfo("🤖 Generating AI-enhanced documentation content...");
-    
-    // Create comprehensive prompt based on real Smartsheet connector style
-    string prompt = createDocumentationPrompt(analysis);
-    
-    // Generate content using AI
-    ai:GenerateResponse|error response = anthropicModel.generate(prompt);
-    
-    if response is error {
-        log:printError("AI generation failed", response);
-        return response;
+    public function generateTestsReadme(string connectorPath) returns error? {
+        io:println("📋 Analyzing tests for README...");
+        ConnectorMetadata metadata = check self.analyzer.analyzeConnector(connectorPath);
+        
+        io:println("🤖 Generating AI content...");
+        map<string> aiContent = check self.generateTestsContent(metadata);
+        
+        io:println("📄 Processing template...");
+        TemplateData templateData = self.templateEngine.createTemplateData(metadata);
+        TemplateData finalData = self.templateEngine.mergeAIContent(templateData, aiContent);
+        
+        string content = check self.templateEngine.processTemplate("tests_readme_template.md", finalData);
+        
+        string outputPath = connectorPath + "/ballerina/tests/README.md";
+        check self.ensureDirectoryExists(connectorPath + "/ballerina/tests");
+        check self.templateEngine.writeOutput(content, outputPath);
+        
+        io:println("✅ Tests README generated: " + outputPath);
     }
     
-    // Parse AI response into structured content
-    AIEnhancedContent|error content = parseAIResponse(response.output);
+    public function generateExamplesReadme(string connectorPath) returns error? {
+        io:println("📋 Analyzing examples for README...");
+        ConnectorMetadata metadata = check self.analyzer.analyzeConnector(connectorPath);
+        
+        io:println("🤖 Generating AI content...");
+        map<string> aiContent = check self.generateExamplesContent(metadata);
+        
+        io:println("📄 Processing template...");
+        TemplateData templateData = self.templateEngine.createTemplateData(metadata);
+        TemplateData finalData = self.templateEngine.mergeAIContent(templateData, aiContent);
+        
+        string content = check self.templateEngine.processTemplate("examples_readme_template.md", finalData);
+        
+        string outputPath = connectorPath + "/examples/README.md";
+        check self.ensureDirectoryExists(connectorPath + "/examples");
+        check self.templateEngine.writeOutput(content, outputPath);
+        
+        io:println("✅ Examples README generated: " + outputPath);
+    }
     
-    if content is error {
-        log:printError("Failed to parse AI response", content);
+    public function generateMainReadme(string connectorPath) returns error? {
+        io:println("📋 Analyzing connector for Main README...");
+        ConnectorMetadata metadata = check self.analyzer.analyzeConnector(connectorPath);
+        
+        io:println("🤖 Generating AI content...");
+        map<string> aiContent = check self.generateMainContent(metadata);
+        
+        io:println("📄 Processing template...");
+        TemplateData templateData = self.templateEngine.createTemplateData(metadata);
+        TemplateData finalData = self.templateEngine.mergeAIContent(templateData, aiContent);
+        
+        string content = check self.templateEngine.processTemplate("main_readme_template.md", finalData);
+        
+        string outputPath = connectorPath + "/README.md";
+        check self.templateEngine.writeOutput(content, outputPath);
+        
+        io:println("✅ Main README generated: " + outputPath);
+    }
+    
+    private function generateBallerinaContent(ConnectorMetadata metadata) returns map<string>|error {
+        map<string> content = {};
+        
+        // Generate Overview
+        string overviewPrompt = self.createBallerinaOverviewPrompt(metadata);
+        content["overview"] = check self.callAI(overviewPrompt);
+        
+        // Generate Setup Guide
+        string setupPrompt = self.createBallerinaSetupPrompt(metadata);
+        content["setup"] = check self.callAI(setupPrompt);
+        
+        // Generate Quick Start
+        string quickstartPrompt = self.createBallerinaQuickstartPrompt(metadata);
+        content["quickstart"] = check self.callAI(quickstartPrompt);
+        
+        // Generate Examples
+        string examplesPrompt = self.createBallerinaExamplesPrompt(metadata);
+        content["examples"] = check self.callAI(examplesPrompt);
+        
         return content;
     }
     
-    log:printInfo("✅ AI-enhanced content generated successfully");
-    return content;
-}
-
-// Generate specific document content using specialized prompts
-public function generateSpecificDocument(doc_analyzer:ConnectorAnalysis analysis, doc_analyzer:DocumentationType docType) returns string|error {
-    if anthropicModel is () {
-        return error("AI service not initialized. Call initAIService() first.");
+    private function generateTestsContent(ConnectorMetadata metadata) returns map<string>|error {
+        map<string> content = {};
+        
+        string testingApproachPrompt = self.createTestingApproachPrompt(metadata);
+        content["testing_approach"] = check self.callAI(testingApproachPrompt);
+        
+        string testScenariosPrompt = self.createTestScenariosPrompt(metadata);
+        content["test_scenarios"] = check self.callAI(testScenariosPrompt);
+        
+        return content;
     }
     
-    log:printInfo(string `🤖 Generating AI content for document type: ${docType}`);
-    
-    // Select specialized prompt based on document type
-    string prompt = "";
-    match docType {
-        doc_analyzer:MAIN_README => {
-            prompt = specialized_prompts:createMainReadmePrompt(analysis);
-        }
-        doc_analyzer:BALLERINA_README => {
-            prompt = specialized_prompts:createBallerinaModulePrompt(analysis);
-        }
-        doc_analyzer:EXAMPLES_README => {
-            prompt = specialized_prompts:createExamplesReadmePrompt(analysis);
-        }
-        doc_analyzer:TESTS_README => {
-            prompt = specialized_prompts:createTestsReadmePrompt(analysis);
-        }
-        _ => {
-            prompt = specialized_prompts:createMainReadmePrompt(analysis);
-        }
+    private function generateExamplesContent(ConnectorMetadata metadata) returns map<string>|error {
+        map<string> content = {};
+        
+        string exampleDescPrompt = self.createExampleDescriptionsPrompt(metadata);
+        content["example_descriptions"] = check self.callAI(exampleDescPrompt);
+        
+        string gettingStartedPrompt = self.createGettingStartedPrompt(metadata);
+        content["getting_started"] = check self.callAI(gettingStartedPrompt);
+        
+        return content;
     }
     
-    // Generate content using AI
-    ai:GenerateResponse|error response = anthropicModel.generate(prompt);
-    
-    if response is error {
-        log:printError("AI generation failed for specific document", response);
-        return response;
+    private function generateMainContent(ConnectorMetadata metadata) returns map<string>|error {
+        map<string> content = {};
+        
+        string overviewPrompt = self.createMainOverviewPrompt(metadata);
+        content["overview"] = check self.callAI(overviewPrompt);
+        
+        string usagePrompt = self.createMainUsagePrompt(metadata);
+        content["usage"] = check self.callAI(usagePrompt);
+        
+        return content;
     }
     
-    log:printInfo(string `✅ AI content generated successfully for: ${docType}`);
-    return response.output.trim();
-}
-
-// Create comprehensive prompt for documentation generation
-function createDocumentationPrompt(doc_analyzer:ConnectorAnalysis analysis) returns string {
-    // Build operations summary
-    string operationsSummary = buildOperationsSummary(analysis.operations);
-    
-    // Build examples summary
-    string examplesSummary = buildExamplesSummary(analysis.examples);
-    
-    // Build keywords context
-    string keywordsContext = string:'join(", ", ...analysis.keywords);
-    
-    return string `You are an expert technical writer creating professional documentation for Ballerina connectors. 
-
-CONNECTOR ANALYSIS:
-- Name: ${analysis.connectorName}
-- Version: ${analysis.version}
-- Operations Count: ${analysis.operations.length()}
-- Examples Count: ${analysis.examples.length()}
-- Keywords: ${keywordsContext}
-
-OPERATIONS SUMMARY:
-${operationsSummary}
-
-EXAMPLES AVAILABLE:
-${examplesSummary}
-
-SETUP REQUIREMENTS:
-${buildSetupRequirementsSummary(analysis.setupRequirements)}
-
-TASK: Create professional Ballerina connector documentation that matches the quality and style of official Ballerina connectors (like the Smartsheet connector). The documentation should be:
-
-1. **Professional & Clear**: Use the same tone and structure as official Ballerina connectors
-2. **Comprehensive**: Cover all essential sections for a production-ready connector
-3. **Developer-Focused**: Include practical examples and clear instructions
-4. **API-Aware**: Highlight key operations and capabilities intelligently
-
-Generate the following sections as separate blocks:
-
-[DESCRIPTION]
-Write a compelling 2-3 sentence description of what this connector does and its main value proposition. Focus on real-world use cases.
-
-[FEATURES]
-List 4-6 key features in bullet points. Focus on capabilities that developers care about (operation types, authentication, key functionalities).
-
-[SETUP_GUIDE]
-Write a comprehensive setup guide with numbered steps. Include account setup, API key generation, and any prerequisites. Be specific and actionable.
-
-[QUICKSTART]
-Create a complete quickstart section with:
-- Module import
-- Configuration setup (Config.toml)
-- Basic client initialization
-- 1-2 practical code examples using actual operations from the analysis
-
-[EXAMPLES]
-Describe the available examples and their purposes. Make it engaging and show the value of each example.
-
-[API_OVERVIEW]
-Provide an overview of the API capabilities, organizing operations into logical groups (e.g., "User Management", "Data Operations", etc.).
-
-Format each section clearly with appropriate markdown headers and code blocks. Use the connector name "${analysis.connectorName}" throughout.`;
-}
-
-// Build operations summary for AI prompt
-function buildOperationsSummary(doc_analyzer:Operation[] operations) returns string {
-    if operations.length() == 0 {
-        return "No operations detected.";
+    private function callAI(string prompt) returns string|error {
+        ai:ChatMessage[] messages = [{role: "user", content: prompt}];
+        ai:ChatAssistantMessage response = check self.anthropicModel->chat(messages, tools = []);
+        string? content = response.content;
+        if content is string {
+            return content;
+        }
+        return "";
     }
     
-    // Group operations by HTTP method
-    string[] getOps = [];
-    string[] postOps = [];
-    string[] putOps = [];
-    string[] deleteOps = [];
-    
-    foreach doc_analyzer:Operation op in operations {
-        string opSummary = string `${op.name} - ${op.description}`;
-        match op.httpMethod {
-            "GET" => getOps.push(opSummary);
-            "POST" => postOps.push(opSummary);
-            "PUT" => putOps.push(opSummary);
-            "DELETE" => deleteOps.push(opSummary);
+    private function ensureDirectoryExists(string dirPath) returns error? {
+        if !check file:test(dirPath, file:EXISTS) {
+            check file:createDir(dirPath, file:RECURSIVE);
         }
     }
     
-    string[] summary = [];
-    if getOps.length() > 0 {
-        summary.push(string `GET Operations (${getOps.length()}): ${string:'join(", ", ...getOps.slice(0, 5))}${getOps.length() > 5 ? "..." : ""}`);
-    }
-    if postOps.length() > 0 {
-        summary.push(string `POST Operations (${postOps.length()}): ${string:'join(", ", ...postOps.slice(0, 5))}${postOps.length() > 5 ? "..." : ""}`);
-    }
-    if putOps.length() > 0 {
-        summary.push(string `PUT Operations (${putOps.length()}): ${string:'join(", ", ...putOps.slice(0, 3))}${putOps.length() > 3 ? "..." : ""}`);
-    }
-    if deleteOps.length() > 0 {
-        summary.push(string `DELETE Operations (${deleteOps.length()}): ${string:'join(", ", ...deleteOps.slice(0, 3))}${deleteOps.length() > 3 ? "..." : ""}`);
-    }
-    
-    return string:'join("\n", ...summary);
-}
+    // Prompt generation methods for Ballerina README
+    private function createBallerinaOverviewPrompt(ConnectorMetadata metadata) returns string {
+        return string `
+You are writing the Overview section for a Ballerina connector's README.md file.
 
-// Build examples summary for AI prompt
-function buildExamplesSummary(doc_analyzer:ExampleProject[] examples) returns string {
-    if examples.length() == 0 {
-        return "No examples available.";
-    }
-    
-    string[] summary = [];
-    foreach doc_analyzer:ExampleProject example in examples {
-        summary.push(string `- ${example.name}: ${example.description} (Config: ${example.hasConfiguration ? "Yes" : "No"})`);
-    }
-    
-    return string:'join("\n", ...summary);
-}
+Connector Information:
+${self.analyzer.getConnectorSummary(metadata)}
 
-// Build setup requirements summary
-function buildSetupRequirementsSummary(doc_analyzer:SetupRequirement[] requirements) returns string {
-    if requirements.length() == 0 {
-        return "Standard Ballerina setup required.";
-    }
-    
-    string[] summary = [];
-    foreach doc_analyzer:SetupRequirement req in requirements {
-        string marker = req.required ? "Required" : "Optional";
-        summary.push(string `- ${marker}: ${req.description}`);
-    }
-    
-    return string:'join("\n", ...summary);
-}
+Write a comprehensive overview section that:
+1. Explains what this connector does in 2-3 sentences
+2. Lists the key features and capabilities
+3. Mentions the service/API it connects to
+4. Highlights the main use cases
 
-// Parse AI response into structured content
-function parseAIResponse(string response) returns AIEnhancedContent|error {
-    // Extract sections using regex patterns
-    string description = extractSection(response, "\\[DESCRIPTION\\]", "\\[FEATURES\\]") ?: "Professional connector for seamless integration.";
-    string features = extractSection(response, "\\[FEATURES\\]", "\\[SETUP_GUIDE\\]") ?: "- Comprehensive API integration\n- Easy-to-use interface";
-    string setupGuide = extractSection(response, "\\[SETUP_GUIDE\\]", "\\[QUICKSTART\\]") ?: "1. Install Ballerina\n2. Configure your credentials";
-    string quickstart = extractSection(response, "\\[QUICKSTART\\]", "\\[EXAMPLES\\]") ?: "Import the module and create a client instance.";
-    string examples = extractSection(response, "\\[EXAMPLES\\]", "\\[API_OVERVIEW\\]") ?: "Practical examples are available in the examples directory.";
-    string apiOverview = extractSection(response, "\\[API_OVERVIEW\\]", "") ?: "Comprehensive API operations for full functionality.";
+Keep it professional, concise, and focused on the connector's value proposition.
+Format the response in markdown with appropriate headers and bullet points.
+`;
+    }
     
-    return {
-        description: description.trim(),
-        features: features.trim(),
-        setupGuide: setupGuide.trim(),
-        quickstart: quickstart.trim(),
-        examples: examples.trim(),
-        apiOverview: apiOverview.trim()
-    };
-}
+    private function createBallerinaSetupPrompt(ConnectorMetadata metadata) returns string {
+        return string `
+You are writing the Setup Guide section for a Ballerina connector's README.md file.
 
-// Extract section content between markers
-function extractSection(string text, string startMarker, string endMarker) returns string? {
-    string[] startMatches = regex:findAll(text, startMarker);
-    if startMatches.length() == 0 {
-        return ();
+Connector Information:
+${self.analyzer.getConnectorSummary(metadata)}
+
+Create a setup guide that includes:
+1. Prerequisites (Ballerina version, dependencies)
+2. Installation steps using Ballerina Central
+3. Configuration requirements (API keys, endpoints, etc.)
+4. Authentication setup if applicable
+5. Basic project structure recommendations
+
+Use proper Ballerina syntax and follow Ballerina conventions.
+Format as markdown with code blocks for configuration examples.
+`;
     }
     
-    int startIndex = text.indexOf(startMarker) ?: -1;
-    if startIndex == -1 {
-        return ();
+    private function createBallerinaQuickstartPrompt(ConnectorMetadata metadata) returns string {
+        return string `
+You are writing the Quick Start section for a Ballerina connector's README.md file.
+
+Connector Information:
+${self.analyzer.getConnectorSummary(metadata)}
+
+Create a quick start guide that shows:
+1. A simple, working code example
+2. How to import and initialize the connector
+3. One or two basic operations using the available methods
+4. Expected output or response
+
+Available client methods: ${metadata.clientMethods.toString()}
+
+Use realistic but simple examples. Code should be copy-pastable and functional.
+Format as markdown with proper code blocks and syntax highlighting.
+`;
     }
     
-    startIndex += startMarker.length();
-    
-    int endIndex = text.length();
-    if endMarker.length() > 0 {
-        int? foundEndIndex = text.indexOf(endMarker, startIndex);
-        if foundEndIndex is int {
-            endIndex = foundEndIndex;
-        }
+    private function createBallerinaExamplesPrompt(ConnectorMetadata metadata) returns string {
+        return string `
+You are writing the Examples section for a Ballerina connector's README.md file.
+
+Connector Information:
+${self.analyzer.getConnectorSummary(metadata)}
+
+Available Examples: ${metadata.examples.toString()}
+
+Create an examples section that:
+1. Lists and describes each available example
+2. Explains what each example demonstrates
+3. Provides links to the example files
+4. Suggests which examples to try first
+
+Keep descriptions brief but informative. Focus on the learning value of each example.
+Format as markdown with appropriate headers and links.
+`;
     }
     
-    if startIndex >= endIndex {
-        return ();
+    private function createTestingApproachPrompt(ConnectorMetadata metadata) returns string {
+        return string `
+You are writing the Testing Approach section for a Ballerina connector's tests README.md file.
+
+Connector Information:
+${self.analyzer.getConnectorSummary(metadata)}
+
+Explain the testing strategy including:
+1. Types of tests implemented (unit, integration, etc.)
+2. Mock service usage and approach
+3. Test data management
+4. How to run the tests
+5. What the tests validate
+
+Be specific about Ballerina testing conventions and tools used.
+Format as markdown with code examples where helpful.
+`;
     }
     
-    return text.substring(startIndex, endIndex);
+    private function createTestScenariosPrompt(ConnectorMetadata metadata) returns string {
+        return string `
+You are writing the Test Scenarios section for a Ballerina connector's tests README.md file.
+
+Connector Information:
+${self.analyzer.getConnectorSummary(metadata)}
+
+Available client methods: ${metadata.clientMethods.toString()}
+
+List and describe the test scenarios that cover:
+1. Happy path scenarios for each main operation
+2. Error handling and edge cases
+3. Authentication and authorization tests
+4. Data validation tests
+5. Performance and reliability tests
+
+Organize by functionality and explain what each scenario validates.
+Format as markdown with clear categorization.
+`;
+    }
+    
+    private function createExampleDescriptionsPrompt(ConnectorMetadata metadata) returns string {
+        return string `
+You are writing detailed descriptions for examples in a Ballerina connector's examples README.md file.
+
+Connector Information:
+${self.analyzer.getConnectorSummary(metadata)}
+
+Available Examples: ${metadata.examples.toString()}
+
+For each example, provide:
+1. A clear title and one-line description
+2. What problem it solves or demonstrates
+3. Key concepts or features it showcases
+4. Prerequisites or setup required
+5. Expected outcomes
+
+Make it easy for developers to choose the right example for their needs.
+Format as markdown with consistent structure for each example.
+`;
+    }
+    
+    private function createGettingStartedPrompt(ConnectorMetadata metadata) returns string {
+        return string `
+You are writing a Getting Started section for a Ballerina connector's examples README.md file.
+
+Connector Information:
+${self.analyzer.getConnectorSummary(metadata)}
+
+Create guidance that includes:
+1. Which example to start with first
+2. How to run the examples
+3. Common configuration steps
+4. Troubleshooting tips for beginners
+5. Next steps after trying the examples
+
+Focus on helping new users succeed quickly with their first example.
+Format as markdown with step-by-step instructions.
+`;
+    }
+    
+    private function createMainOverviewPrompt(ConnectorMetadata metadata) returns string {
+        return string `
+You are writing the main overview for a Ballerina connector's root README.md file.
+
+Connector Information:
+${self.analyzer.getConnectorSummary(metadata)}
+
+Create a compelling overview that:
+1. Introduces the connector and its purpose
+2. Highlights key benefits and features
+3. Shows who should use this connector
+4. Provides a high-level architecture overview
+5. Links to detailed documentation sections
+
+This is the first thing users see, so make it engaging and informative.
+Format as markdown with good visual hierarchy.
+`;
+    }
+    
+    private function createMainUsagePrompt(ConnectorMetadata metadata) returns string {
+        return string `
+You are writing the Usage section for a Ballerina connector's root README.md file.
+
+Connector Information:
+${self.analyzer.getConnectorSummary(metadata)}
+
+Create a usage section that covers:
+1. Installation and setup summary
+2. Basic usage patterns
+3. Key configuration options
+4. Common use cases with brief examples
+5. Links to detailed guides and examples
+
+Keep code examples minimal but representative of typical usage.
+Format as markdown with clear sections and code blocks.
+`;
+    }
 }
