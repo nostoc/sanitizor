@@ -1,195 +1,222 @@
 import ballerina/ai;
-import ballerinax/ai.anthropic;
-import ballerina/io;
 import ballerina/file;
+import ballerina/io;
+//import ballerina/lang.'string as strings;
+import ballerinax/ai.anthropic;
+import ballerina/log;
 
-public class DocumentationGenerator {
-    private ai:ModelProvider anthropicModel;
-    private ConnectorAnalyzer analyzer;
-    private TemplateEngine templateEngine;
-    
-    public function init(string apiKey) returns error? {
-        self.anthropicModel = check new anthropic:ModelProvider(
-            apiKey,
-            anthropic:CLAUDE_3_7_SONNET_20250219,
-            "2023-06-01"
-        );
-        self.analyzer = new ConnectorAnalyzer();
-        self.templateEngine = new TemplateEngine();
+// Module-level variable for AI model
+ai:ModelProvider? anthropicModel = ();
+configurable string apiKey = ?;
+
+// Template path for templates
+const string TEMPLATES_PATH = "modules/templates";
+
+// Initialize the documentation generator with API key
+
+
+public function initDocumentationGenerator() returns error? {
+
+    ai:ModelProvider|error modelProvider = new anthropic:ModelProvider(
+        apiKey,
+        anthropic:CLAUDE_SONNET_4_20250514,
+        maxTokens = 60000,
+        timeout = 300
+    );
+
+    if modelProvider is error {
+        return error ("Failed to initialize Anthropic model provider", modelProvider);
     }
+
+    anthropicModel = modelProvider;
     
-    public function generateAllDocumentation(string connectorPath) returns error? {
-        io:println("📋 Analyzing connector structure...");
-        
-        io:println("📝 Generating documentation...");
-        check self.generateBallerinaReadme(connectorPath);
-        check self.generateTestsReadme(connectorPath);
-        check self.generateExamplesReadme(connectorPath);
-        check self.generateMainReadme(connectorPath);
-        
-        io:println("✅ All documentation generated successfully!");
+        log:printInfo("LLM service initialized successfully");
+    
+}
+
+public function generateAllDocumentation(string connectorPath) returns error? {
+    io:println("📋 Analyzing connector structure...");
+
+    io:println("📝 Generating documentation...");
+    check generateBallerinaReadme(connectorPath);
+    check generateTestsReadme(connectorPath);
+    check generateExamplesReadme(connectorPath);
+    check generateMainReadme(connectorPath);
+
+    io:println("✅ All documentation generated successfully!");
+}
+
+public function generateBallerinaReadme(string connectorPath) returns error? {
+    ConnectorMetadata metadata = check analyzeConnector(connectorPath);
+    map<string> aiContent = check generateBallerinaContent(metadata);
+
+    TemplateData data = createTemplateData(metadata);
+    data = mergeAIContent(data, aiContent);
+
+    string content = check processTemplate("ballerina_readme_template.md", data);
+
+    string outputPath = connectorPath + "/ballerina/README.md";
+    if !check file:test(connectorPath + "/ballerina", file:EXISTS) {
+        outputPath = connectorPath + "/README.md";
     }
-    
-    public function generateBallerinaReadme(string connectorPath) returns error? {
-        io:println("📋 Analyzing connector for Ballerina README...");
-        ConnectorMetadata metadata = check self.analyzer.analyzeConnector(connectorPath);
-        
-        io:println("🤖 Generating AI content...");
-        map<string> aiContent = check self.generateBallerinaContent(metadata);
-        
-        io:println("📄 Processing template...");
-        TemplateData templateData = self.templateEngine.createTemplateData(metadata);
-        TemplateData finalData = self.templateEngine.mergeAIContent(templateData, aiContent);
-        
-        string content = check self.templateEngine.processTemplate("ballerina_readme_template.md", finalData);
-        
-        string outputPath = connectorPath + "/ballerina/README.md";
-        check self.ensureDirectoryExists(connectorPath + "/ballerina");
-        check self.templateEngine.writeOutput(content, outputPath);
-        
-        io:println("✅ Ballerina README generated: " + outputPath);
+
+    string? parentPath = check file:parentPath(outputPath);
+    if parentPath is string {
+        check ensureDirectoryExists(parentPath);
     }
-    
-    public function generateTestsReadme(string connectorPath) returns error? {
-        io:println("📋 Analyzing tests for README...");
-        ConnectorMetadata metadata = check self.analyzer.analyzeConnector(connectorPath);
-        
-        io:println("🤖 Generating AI content...");
-        map<string> aiContent = check self.generateTestsContent(metadata);
-        
-        io:println("📄 Processing template...");
-        TemplateData templateData = self.templateEngine.createTemplateData(metadata);
-        TemplateData finalData = self.templateEngine.mergeAIContent(templateData, aiContent);
-        
-        string content = check self.templateEngine.processTemplate("tests_readme_template.md", finalData);
-        
-        string outputPath = connectorPath + "/ballerina/tests/README.md";
-        check self.ensureDirectoryExists(connectorPath + "/ballerina/tests");
-        check self.templateEngine.writeOutput(content, outputPath);
-        
-        io:println("✅ Tests README generated: " + outputPath);
+    check writeOutput(content, outputPath);
+    io:println("✅ Generated: " + outputPath);
+}
+
+public function generateTestsReadme(string connectorPath) returns error? {
+    ConnectorMetadata metadata = check analyzeConnector(connectorPath);
+    map<string> aiContent = check generateTestsContent(metadata);
+
+    TemplateData data = createTemplateData(metadata);
+    data = mergeAIContent(data, aiContent);
+
+    string content = check processTemplate("tests_readme_template.md", data);
+
+    string outputPath = connectorPath + "/tests/README.md";
+    if !check file:test(connectorPath + "/tests", file:EXISTS) {
+        outputPath = connectorPath + "/ballerina/tests/README.md";
     }
-    
-    public function generateExamplesReadme(string connectorPath) returns error? {
-        io:println("📋 Analyzing examples for README...");
-        ConnectorMetadata metadata = check self.analyzer.analyzeConnector(connectorPath);
-        
-        io:println("🤖 Generating AI content...");
-        map<string> aiContent = check self.generateExamplesContent(metadata);
-        
-        io:println("📄 Processing template...");
-        TemplateData templateData = self.templateEngine.createTemplateData(metadata);
-        TemplateData finalData = self.templateEngine.mergeAIContent(templateData, aiContent);
-        
-        string content = check self.templateEngine.processTemplate("examples_readme_template.md", finalData);
-        
-        string outputPath = connectorPath + "/examples/README.md";
-        check self.ensureDirectoryExists(connectorPath + "/examples");
-        check self.templateEngine.writeOutput(content, outputPath);
-        
-        io:println("✅ Examples README generated: " + outputPath);
+
+    string? parentPath = check file:parentPath(outputPath);
+    if parentPath is string {
+        check ensureDirectoryExists(parentPath);
     }
-    
-    public function generateMainReadme(string connectorPath) returns error? {
-        io:println("📋 Analyzing connector for Main README...");
-        ConnectorMetadata metadata = check self.analyzer.analyzeConnector(connectorPath);
-        
-        io:println("🤖 Generating AI content...");
-        map<string> aiContent = check self.generateMainContent(metadata);
-        
-        io:println("📄 Processing template...");
-        TemplateData templateData = self.templateEngine.createTemplateData(metadata);
-        TemplateData finalData = self.templateEngine.mergeAIContent(templateData, aiContent);
-        
-        string content = check self.templateEngine.processTemplate("main_readme_template.md", finalData);
-        
-        string outputPath = connectorPath + "/README.md";
-        check self.templateEngine.writeOutput(content, outputPath);
-        
-        io:println("✅ Main README generated: " + outputPath);
+    check writeOutput(content, outputPath);
+    io:println("✅ Generated: " + outputPath);
+}
+
+public function generateExamplesReadme(string connectorPath) returns error? {
+    ConnectorMetadata metadata = check analyzeConnector(connectorPath);
+    map<string> aiContent = check generateExamplesContent(metadata);
+
+    TemplateData data = createTemplateData(metadata);
+    data = mergeAIContent(data, aiContent);
+
+    string content = check processTemplate("examples_readme_template.md", data);
+
+    string outputPath = connectorPath + "/examples/README.md";
+
+    string? parentPath = check file:parentPath(outputPath);
+    if parentPath is string {
+        check ensureDirectoryExists(parentPath);
     }
-    
-    private function generateBallerinaContent(ConnectorMetadata metadata) returns map<string>|error {
-        map<string> content = {};
-        
-        // Generate Overview
-        string overviewPrompt = self.createBallerinaOverviewPrompt(metadata);
-        content["overview"] = check self.callAI(overviewPrompt);
-        
-        // Generate Setup Guide
-        string setupPrompt = self.createBallerinaSetupPrompt(metadata);
-        content["setup"] = check self.callAI(setupPrompt);
-        
-        // Generate Quick Start
-        string quickstartPrompt = self.createBallerinaQuickstartPrompt(metadata);
-        content["quickstart"] = check self.callAI(quickstartPrompt);
-        
-        // Generate Examples
-        string examplesPrompt = self.createBallerinaExamplesPrompt(metadata);
-        content["examples"] = check self.callAI(examplesPrompt);
-        
+    check writeOutput(content, outputPath);
+    io:println("✅ Generated: " + outputPath);
+}
+
+public function generateMainReadme(string connectorPath) returns error? {
+    ConnectorMetadata metadata = check analyzeConnector(connectorPath);
+    map<string> aiContent = check generateMainContent(metadata);
+
+    TemplateData data = createTemplateData(metadata);
+    data = mergeAIContent(data, aiContent);
+
+    string content = check processTemplate("main_readme_template.md", data);
+
+    string outputPath = connectorPath + "/README.md";
+
+    string? parentPath = check file:parentPath(outputPath);
+    if parentPath is string {
+        check ensureDirectoryExists(parentPath);
+    }
+    check writeOutput(content, outputPath);
+    io:println("✅ Generated: " + outputPath);
+}
+
+function generateBallerinaContent(ConnectorMetadata metadata) returns map<string>|error {
+    map<string> content = {};
+
+    io:println("  🤖 Generating overview...");
+    content["overview"] = check callAI(createBallerinaOverviewPrompt(metadata));
+
+    io:println("  🤖 Generating setup guide...");
+    content["setup"] = check callAI(createBallerinaSetupPrompt(metadata));
+
+    io:println("  🤖 Generating quickstart...");
+    content["quickstart"] = check callAI(createBallerinaQuickstartPrompt(metadata));
+
+    io:println("  🤖 Generating examples section...");
+    content["examples"] = check callAI(createBallerinaExamplesPrompt(metadata));
+
+    return content;
+}
+
+function generateTestsContent(ConnectorMetadata metadata) returns map<string>|error {
+    map<string> content = {};
+
+    io:println("  🤖 Generating testing approach...");
+    content["testing_approach"] = check callAI(createTestingApproachPrompt(metadata));
+
+    io:println("  🤖 Generating test scenarios...");
+    content["test_scenarios"] = check callAI(createTestScenariosPrompt(metadata));
+
+    return content;
+}
+
+function generateExamplesContent(ConnectorMetadata metadata) returns map<string>|error {
+    map<string> content = {};
+
+    io:println("  🤖 Generating example descriptions...");
+    content["example_descriptions"] = check callAI(createExampleDescriptionsPrompt(metadata));
+
+    io:println("  🤖 Generating getting started guide...");
+    content["getting_started"] = check callAI(createGettingStartedPrompt(metadata));
+
+    return content;
+}
+
+function generateMainContent(ConnectorMetadata metadata) returns map<string>|error {
+    map<string> content = {};
+
+    io:println("  🤖 Generating main overview...");
+    content["overview"] = check callAI(createMainOverviewPrompt(metadata));
+
+    io:println("  🤖 Generating usage section...");
+    content["usage"] = check callAI(createMainUsagePrompt(metadata));
+
+    return content;
+}
+
+function callAI(string prompt) returns string|error {
+    ai:ModelProvider? model = anthropicModel;
+
+    if model is () {
+        return error("AI model not initialized. Please call initDocumentationGenerator() first.");
+    }
+    io:println("    Prompt: " + prompt);
+    ai:ChatMessage[] messages = [{role: "user", content: prompt}];
+    ai:ChatAssistantMessage|error response = model->chat(messages);
+    if response is error {
+        io:println(response);
+        return error("AI generation failed: " + response.message());
+    }
+    string? content = response.content;
+    if content is string {
         return content;
+    } else {
+        return error("AI response content is empty.");
     }
-    
-    private function generateTestsContent(ConnectorMetadata metadata) returns map<string>|error {
-        map<string> content = {};
-        
-        string testingApproachPrompt = self.createTestingApproachPrompt(metadata);
-        content["testing_approach"] = check self.callAI(testingApproachPrompt);
-        
-        string testScenariosPrompt = self.createTestScenariosPrompt(metadata);
-        content["test_scenarios"] = check self.callAI(testScenariosPrompt);
-        
-        return content;
+
+}
+
+function ensureDirectoryExists(string dirPath) returns error? {
+    if !check file:test(dirPath, file:EXISTS) {
+        check file:createDir(dirPath, file:RECURSIVE);
     }
-    
-    private function generateExamplesContent(ConnectorMetadata metadata) returns map<string>|error {
-        map<string> content = {};
-        
-        string exampleDescPrompt = self.createExampleDescriptionsPrompt(metadata);
-        content["example_descriptions"] = check self.callAI(exampleDescPrompt);
-        
-        string gettingStartedPrompt = self.createGettingStartedPrompt(metadata);
-        content["getting_started"] = check self.callAI(gettingStartedPrompt);
-        
-        return content;
-    }
-    
-    private function generateMainContent(ConnectorMetadata metadata) returns map<string>|error {
-        map<string> content = {};
-        
-        string overviewPrompt = self.createMainOverviewPrompt(metadata);
-        content["overview"] = check self.callAI(overviewPrompt);
-        
-        string usagePrompt = self.createMainUsagePrompt(metadata);
-        content["usage"] = check self.callAI(usagePrompt);
-        
-        return content;
-    }
-    
-    private function callAI(string prompt) returns string|error {
-        ai:ChatMessage[] messages = [{role: "user", content: prompt}];
-        ai:ChatAssistantMessage response = check self.anthropicModel->chat(messages, tools = []);
-        string? content = response.content;
-        if content is string {
-            return content;
-        }
-        return "";
-    }
-    
-    private function ensureDirectoryExists(string dirPath) returns error? {
-        if !check file:test(dirPath, file:EXISTS) {
-            check file:createDir(dirPath, file:RECURSIVE);
-        }
-    }
-    
-    // Prompt generation methods for Ballerina README
-    private function createBallerinaOverviewPrompt(ConnectorMetadata metadata) returns string {
-        return string `
+}
+
+// Prompt generation functions for Ballerina README
+function createBallerinaOverviewPrompt(ConnectorMetadata metadata) returns string {
+    return string `
 You are writing the Overview section for a Ballerina connector's README.md file.
 
 Connector Information:
-${self.analyzer.getConnectorSummary(metadata)}
+${getConnectorSummary(metadata)}
 
 Write a comprehensive overview section that:
 1. Explains what this connector does in 2-3 sentences
@@ -200,14 +227,14 @@ Write a comprehensive overview section that:
 Keep it professional, concise, and focused on the connector's value proposition.
 Format the response in markdown with appropriate headers and bullet points.
 `;
-    }
-    
-    private function createBallerinaSetupPrompt(ConnectorMetadata metadata) returns string {
-        return string `
+}
+
+function createBallerinaSetupPrompt(ConnectorMetadata metadata) returns string {
+    return string `
 You are writing the Setup Guide section for a Ballerina connector's README.md file.
 
 Connector Information:
-${self.analyzer.getConnectorSummary(metadata)}
+${getConnectorSummary(metadata)}
 
 Create a setup guide that includes:
 1. Prerequisites (Ballerina version, dependencies)
@@ -219,14 +246,14 @@ Create a setup guide that includes:
 Use proper Ballerina syntax and follow Ballerina conventions.
 Format as markdown with code blocks for configuration examples.
 `;
-    }
-    
-    private function createBallerinaQuickstartPrompt(ConnectorMetadata metadata) returns string {
-        return string `
+}
+
+function createBallerinaQuickstartPrompt(ConnectorMetadata metadata) returns string {
+    return string `
 You are writing the Quick Start section for a Ballerina connector's README.md file.
 
 Connector Information:
-${self.analyzer.getConnectorSummary(metadata)}
+${getConnectorSummary(metadata)}
 
 Create a quick start guide that shows:
 1. A simple, working code example
@@ -239,14 +266,14 @@ Available client methods: ${metadata.clientMethods.toString()}
 Use realistic but simple examples. Code should be copy-pastable and functional.
 Format as markdown with proper code blocks and syntax highlighting.
 `;
-    }
-    
-    private function createBallerinaExamplesPrompt(ConnectorMetadata metadata) returns string {
-        return string `
+}
+
+function createBallerinaExamplesPrompt(ConnectorMetadata metadata) returns string {
+    return string `
 You are writing the Examples section for a Ballerina connector's README.md file.
 
 Connector Information:
-${self.analyzer.getConnectorSummary(metadata)}
+${getConnectorSummary(metadata)}
 
 Available Examples: ${metadata.examples.toString()}
 
@@ -259,14 +286,14 @@ Create an examples section that:
 Keep descriptions brief but informative. Focus on the learning value of each example.
 Format as markdown with appropriate headers and links.
 `;
-    }
-    
-    private function createTestingApproachPrompt(ConnectorMetadata metadata) returns string {
-        return string `
+}
+
+function createTestingApproachPrompt(ConnectorMetadata metadata) returns string {
+    return string `
 You are writing the Testing Approach section for a Ballerina connector's tests README.md file.
 
 Connector Information:
-${self.analyzer.getConnectorSummary(metadata)}
+${getConnectorSummary(metadata)}
 
 Explain the testing strategy including:
 1. Types of tests implemented (unit, integration, etc.)
@@ -278,14 +305,14 @@ Explain the testing strategy including:
 Be specific about Ballerina testing conventions and tools used.
 Format as markdown with code examples where helpful.
 `;
-    }
-    
-    private function createTestScenariosPrompt(ConnectorMetadata metadata) returns string {
-        return string `
+}
+
+function createTestScenariosPrompt(ConnectorMetadata metadata) returns string {
+    return string `
 You are writing the Test Scenarios section for a Ballerina connector's tests README.md file.
 
 Connector Information:
-${self.analyzer.getConnectorSummary(metadata)}
+${getConnectorSummary(metadata)}
 
 Available client methods: ${metadata.clientMethods.toString()}
 
@@ -299,14 +326,14 @@ List and describe the test scenarios that cover:
 Organize by functionality and explain what each scenario validates.
 Format as markdown with clear categorization.
 `;
-    }
-    
-    private function createExampleDescriptionsPrompt(ConnectorMetadata metadata) returns string {
-        return string `
+}
+
+function createExampleDescriptionsPrompt(ConnectorMetadata metadata) returns string {
+    return string `
 You are writing detailed descriptions for examples in a Ballerina connector's examples README.md file.
 
 Connector Information:
-${self.analyzer.getConnectorSummary(metadata)}
+${getConnectorSummary(metadata)}
 
 Available Examples: ${metadata.examples.toString()}
 
@@ -320,14 +347,14 @@ For each example, provide:
 Make it easy for developers to choose the right example for their needs.
 Format as markdown with consistent structure for each example.
 `;
-    }
-    
-    private function createGettingStartedPrompt(ConnectorMetadata metadata) returns string {
-        return string `
+}
+
+function createGettingStartedPrompt(ConnectorMetadata metadata) returns string {
+    return string `
 You are writing a Getting Started section for a Ballerina connector's examples README.md file.
 
 Connector Information:
-${self.analyzer.getConnectorSummary(metadata)}
+${getConnectorSummary(metadata)}
 
 Create guidance that includes:
 1. Which example to start with first
@@ -339,14 +366,14 @@ Create guidance that includes:
 Focus on helping new users succeed quickly with their first example.
 Format as markdown with step-by-step instructions.
 `;
-    }
-    
-    private function createMainOverviewPrompt(ConnectorMetadata metadata) returns string {
-        return string `
+}
+
+function createMainOverviewPrompt(ConnectorMetadata metadata) returns string {
+    return string `
 You are writing the main overview for a Ballerina connector's root README.md file.
 
 Connector Information:
-${self.analyzer.getConnectorSummary(metadata)}
+${getConnectorSummary(metadata)}
 
 Create a compelling overview that:
 1. Introduces the connector and its purpose
@@ -358,14 +385,14 @@ Create a compelling overview that:
 This is the first thing users see, so make it engaging and informative.
 Format as markdown with good visual hierarchy.
 `;
-    }
-    
-    private function createMainUsagePrompt(ConnectorMetadata metadata) returns string {
-        return string `
+}
+
+function createMainUsagePrompt(ConnectorMetadata metadata) returns string {
+    return string `
 You are writing the Usage section for a Ballerina connector's root README.md file.
 
 Connector Information:
-${self.analyzer.getConnectorSummary(metadata)}
+${getConnectorSummary(metadata)}
 
 Create a usage section that covers:
 1. Installation and setup summary
@@ -377,5 +404,145 @@ Create a usage section that covers:
 Keep code examples minimal but representative of typical usage.
 Format as markdown with clear sections and code blocks.
 `;
+}
+
+// Template processing functions
+function processTemplate(string templateName, TemplateData data) returns string|error {
+    string templatePath = TEMPLATES_PATH + "/" + templateName;
+
+    if !check file:test(templatePath, file:EXISTS) {
+        return error("Template not found: " + templatePath);
     }
+
+    string template = check io:fileReadString(templatePath);
+    return substituteVariables(template, data);
+}
+
+function substituteVariables(string template, TemplateData data) returns string {
+    string result = template;
+
+    // Simple string replacement function
+    string connectorName = data.CONNECTOR_NAME ?: "";
+    if connectorName != "" {
+        result = simpleReplace(result, "{{CONNECTOR_NAME}}", connectorName);
+    }
+
+    string version = data.VERSION ?: "";
+    if version != "" {
+        result = simpleReplace(result, "{{VERSION}}", version);
+    }
+
+    string description = data.DESCRIPTION ?: "";
+    if description != "" {
+        result = simpleReplace(result, "{{DESCRIPTION}}", description);
+    }
+
+    string overview = data.AI_GENERATED_OVERVIEW ?: "";
+    if overview != "" {
+        result = simpleReplace(result, "{{AI_GENERATED_OVERVIEW}}", overview);
+    }
+
+    string setup = data.AI_GENERATED_SETUP ?: "";
+    if setup != "" {
+        result = simpleReplace(result, "{{AI_GENERATED_SETUP}}", setup);
+    }
+
+    string quickstart = data.AI_GENERATED_QUICKSTART ?: "";
+    if quickstart != "" {
+        result = simpleReplace(result, "{{AI_GENERATED_QUICKSTART}}", quickstart);
+    }
+
+    string examples = data.AI_GENERATED_EXAMPLES ?: "";
+    if examples != "" {
+        result = simpleReplace(result, "{{AI_GENERATED_EXAMPLES}}", examples);
+    }
+
+    string usage = data.AI_GENERATED_USAGE ?: "";
+    if usage != "" {
+        result = simpleReplace(result, "{{AI_GENERATED_USAGE}}", usage);
+    }
+
+    string testingApproach = data.AI_GENERATED_TESTING_APPROACH ?: "";
+    if testingApproach != "" {
+        result = simpleReplace(result, "{{AI_GENERATED_TESTING_APPROACH}}", testingApproach);
+    }
+
+    string testScenarios = data.AI_GENERATED_TEST_SCENARIOS ?: "";
+    if testScenarios != "" {
+        result = simpleReplace(result, "{{AI_GENERATED_TEST_SCENARIOS}}", testScenarios);
+    }
+
+    string exampleDescriptions = data.AI_GENERATED_EXAMPLE_DESCRIPTIONS ?: "";
+    if exampleDescriptions != "" {
+        result = simpleReplace(result, "{{AI_GENERATED_EXAMPLE_DESCRIPTIONS}}", exampleDescriptions);
+    }
+
+    string gettingStarted = data.AI_GENERATED_GETTING_STARTED ?: "";
+    if gettingStarted != "" {
+        result = simpleReplace(result, "{{AI_GENERATED_GETTING_STARTED}}", gettingStarted);
+    }
+
+    return result;
+}
+
+function simpleReplace(string text, string searchFor, string replaceWith) returns string {
+    string result = text;
+    int? index = result.indexOf(searchFor);
+    while index is int {
+        string before = result.substring(0, index);
+        string after = result.substring(index + searchFor.length());
+        result = before + replaceWith + after;
+        index = result.indexOf(searchFor);
+    }
+    return result;
+}
+
+function writeOutput(string content, string outputPath) returns error? {
+    check io:fileWriteString(outputPath, content);
+}
+
+function createTemplateData(ConnectorMetadata metadata) returns TemplateData {
+    return {
+        CONNECTOR_NAME: metadata.connectorName,
+        VERSION: metadata.version,
+        DESCRIPTION: metadata.description
+    };
+}
+
+function mergeAIContent(TemplateData baseData, map<string> aiContent) returns TemplateData {
+    TemplateData merged = baseData.clone();
+
+    foreach var [key, value] in aiContent.entries() {
+        match key {
+            "overview" => {
+                merged.AI_GENERATED_OVERVIEW = value;
+            }
+            "setup" => {
+                merged.AI_GENERATED_SETUP = value;
+            }
+            "quickstart" => {
+                merged.AI_GENERATED_QUICKSTART = value;
+            }
+            "examples" => {
+                merged.AI_GENERATED_EXAMPLES = value;
+            }
+            "usage" => {
+                merged.AI_GENERATED_USAGE = value;
+            }
+            "testing_approach" => {
+                merged.AI_GENERATED_TESTING_APPROACH = value;
+            }
+            "test_scenarios" => {
+                merged.AI_GENERATED_TEST_SCENARIOS = value;
+            }
+            "example_descriptions" => {
+                merged.AI_GENERATED_EXAMPLE_DESCRIPTIONS = value;
+            }
+            "getting_started" => {
+                merged.AI_GENERATED_GETTING_STARTED = value;
+            }
+        }
+    }
+
+    return merged;
 }

@@ -1,207 +1,341 @@
-# Ballerina Smartsheet connector
+# smartsheet Ballerina Connector
 
-[![Build](https://github.com/ballerina-platform/module-ballerinax-smartsheet/actions/workflows/ci.yml/badge.svg)](https://github.com/ballerina-platform/module-ballerinax-smartsheet/actions/workflows/ci.yml)
-[![Trivy](https://github.com/ballerina-platform/module-ballerinax-smartsheet/actions/workflows/trivy-scan.yml/badge.svg)](https://github.com/ballerina-platform/module-ballerinax-smartsheet/actions/workflows/trivy-scan.yml)
-[![GraalVM Check](https://github.com/ballerina-platform/module-ballerinax-smartsheet/actions/workflows/build-with-bal-test-graalvm.yml/badge.svg)](https://github.com/ballerina-platform/module-ballerinax-smartsheet/actions/workflows/build-with-bal-test-graalvm.yml)
-[![GitHub Last Commit](https://img.shields.io/github/last-commit/ballerina-platform/module-ballerinax-smartsheet.svg)](https://github.com/ballerina-platform/module-ballerinax-smartsheet/commits/master)
-[![GitHub Issues](https://img.shields.io/github/issues/ballerina-platform/ballerina-library/module/smartsheet.svg?label=Open%20Issues)](https://github.com/ballerina-platform/ballerina-library/labels/module%smartsheet)
+# Smartsheet Connector
 
-## Overview
+The Smartsheet connector for Ballerina provides seamless integration with the Smartsheet platform, enabling developers to build powerful work management and collaboration applications. This connector offers comprehensive access to Smartsheet's rich API, allowing you to programmatically manage sheets, reports, dashboards, workspaces, and collaborate with team members.
 
-[Smartsheet](https://www.smartsheet.com/) is a cloud-based platform that enables teams to plan, capture, manage, automate, and report on work at scale, empowering you to move from idea to impact, fast.
+## 🎯 Overview
 
-The `ballerinax/smartsheet` package offers APIs to connect and interact with [Smartsheet API](https://developers.smartsheet.com/api/smartsheet/introduction) endpoints, specifically based on [Smartsheet API v2.0](https://developers.smartsheet.com/api/smartsheet/openapi).
+Smartsheet is a leading work execution platform that enables organizations to plan, capture, manage, automate, and report on work at scale. This Ballerina connector empowers developers to integrate Smartsheet's capabilities directly into their applications, automating workflows and creating custom solutions for project management, resource planning, and team collaboration.
 
+## ✨ Key Features
 
-## Setup guide
+- **Complete Sheet Management** - Create, update, delete, and manipulate sheets with full CRUD operations
+- **Advanced Reporting** - Generate and manage reports with filtering, sorting, and data aggregation
+- **Dashboard Integration** - Build and customize dashboards for data visualization and insights  
+- **Workspace Collaboration** - Manage workspaces, folders, and team permissions
+- **Real-time Updates** - Handle webhooks and events for real-time data synchronization
+- **File Attachments** - Upload, download, and manage file attachments and proofs
+- **User Management** - Handle user accounts, groups, and access permissions
+- **Automation Rules** - Create and manage workflow automations
+- **Template Support** - Work with sheet templates for standardized processes
+- **Cross-sheet References** - Manage data relationships across multiple sheets
 
-To use the Smartsheet connector, you must have access to the Smartsheet API through a [Smartsheet developer account](https://developers.smartsheet.com/) and obtain an API access token. If you do not have a Smartsheet account, you can sign up for one [here](https://www.smartsheet.com/try-it).
+## 👥 Who Should Use This Connector
 
-### Step 1: Create a Smartsheet Account
+- **Enterprise Developers** building custom project management solutions
+- **System Integrators** connecting Smartsheet with existing business systems
+- **Automation Engineers** creating workflow automation between Smartsheet and other platforms
+- **Data Engineers** synchronizing data between Smartsheet and databases/analytics tools
+- **Application Developers** embedding Smartsheet functionality into web and mobile applications
 
-1. Navigate to the [Smartsheet website](https://www.smartsheet.com/) and sign up for an account or log in if you already have one.
+## 🏗️ Architecture Overview
 
-2. Ensure you have a Business or Enterprise plan, as the Smartsheet API is restricted to users on these plans.
-
-### Step 2: Generate an API Access Token
-
-1. Log in to your Smartsheet account.
-
-2. On the left Navigation Bar at the bottom, select Account (your profile image), then Personal Settings.
-
-3. In the new window, navigate to the API Access tab and select Generate new access token.
-
-![generate API token ](https://raw.githubusercontent.com/ballerina-platform/module-ballerinax-smartsheet/refs/heads/main/docs/setup/resources/generate-api-token.png)
-
-
-> **Tip:** You must copy and store this key somewhere safe. It won't be visible again in your account settings for security reasons
-
-## Quickstart
-
-To use the Smartsheet connector in your Ballerina application, update the `.bal` file as follows:
-
-### Step 1: Import the module
-
-Import the `smartsheet` module.
-
-```ballerina
-import ballerinax/smartsheet;
+```
+┌─────────────────────────┐    ┌──────────────────────┐    ┌─────────────────────────┐
+│   Ballerina Application │    │  Smartsheet Connector│    │    Smartsheet API      │
+│                         │    │                      │    │                         │
+│  ┌─────────────────────┐│    │ ┌──────────────────┐ │    │ ┌─────────────────────┐ │
+│  │   Business Logic    ││────┤ │   HTTP Client    │ ├────┤ │   REST Endpoints    │ │
+│  └─────────────────────┘│    │ └──────────────────┘ │    │ └─────────────────────┘ │
+│                         │    │                      │    │                         │
+│  ┌─────────────────────┐│    │ ┌──────────────────┐ │    │ ┌─────────────────────┐ │
+│  │   Data Processing   ││────┤ │  Type Definitions│ ├────┤ │   Data Models       │ │
+│  └─────────────────────┘│    │ └──────────────────┘ │    │ └─────────────────────┘ │
+│                         │    │                      │    │                         │
+│  ┌─────────────────────┐│    │ ┌──────────────────┐ │    │ ┌─────────────────────┐ │
+│  │   Error Handling    ││────┤ │  OAuth2 & Auth   │ ├────┤ │   Authentication    │ │
+│  └─────────────────────┘│    │ └──────────────────┘ │    │ └─────────────────────┘ │
+└─────────────────────────┘    └──────────────────────┘    └─────────────────────────┘
 ```
 
-### Step 2: Instantiate a new connector
+The connector acts as a bridge between your Ballerina application and Smartsheet's REST API, providing:
+- **Type-safe operations** with comprehensive data models
+- **OAuth2 authentication** for secure API access  
+- **Error handling** with detailed error responses
+- **Structured data exchange** using Ballerina's native types
 
-1. Create a `Config.toml` file and configure the obtained access token as follows:
+## 🚀 Quick Start
 
-```toml
-token = "<Your_Smartsheet_Access_Token>"
-```
-
-2. Create a `smartsheet:ConnectionConfig` with the obtained access token and initialize the connector with it.
+Get started with basic sheet operations:
 
 ```ballerina
-configurable string token = ?;
+import ballerina/smartsheet;
 
-final smartsheet:Client smartsheet = check new({
+// Initialize the connector
+smartsheet:Client smartsheetClient = new({
     auth: {
-        token
+        token: "your_access_token"
+    }
+});
+
+// Create a new sheet
+smartsheet:SheetCreate newSheet = {
+    name: "Project Tasks",
+    columns: [
+        {name: "Task Name", type: "TEXT_NUMBER", primary: true},
+        {name: "Assigned To", type: "CONTACT_LIST"},
+        {name: "Due Date", type: "DATE"},
+        {name: "Status", type: "PICKLIST"}
+    ]
+};
+
+smartsheet:SheetResponse|error result = smartsheetClient->createSheet(newSheet);
+```
+
+## 📚 Documentation Sections
+
+- **[Authentication Setup](docs/auth.md)** - Configure OAuth2 and API tokens
+- **[Sheet Operations](docs/sheets.md)** - Complete guide to sheet management
+- **[Report Management](docs/reports.md)** - Creating and managing reports
+- **[Dashboard Integration](docs/dashboards.md)** - Building interactive dashboards  
+- **[Workspace Collaboration](docs/workspaces.md)** - Managing workspaces and permissions
+- **[Webhook Integration](docs/webhooks.md)** - Real-time event handling
+- **[Error Handling](docs/errors.md)** - Best practices for error management
+- **[Examples](examples/)** - Practical implementation examples
+
+---
+
+**Version:** 1.0.0 | **Compatibility:** Ballerina 2201.x and above
+
+Ready to streamline your work management processes? Start building with the Smartsheet connector today! 🚀
+
+## Usage
+
+# Usage
+
+## Installation and Setup
+
+Add the Smartsheet connector to your Ballerina project:
+
+```bash
+bal add smartsheet
+```
+
+### Configuration
+
+Create a Smartsheet client with your API token:
+
+```ballerina
+import ballerina/smartsheet;
+
+configurable string smartsheetToken = ?;
+
+smartsheet:Client smartsheetClient = check new({
+    auth: {
+        token: smartsheetToken
     }
 });
 ```
 
-### Step 3: Invoke the connector operation
+You can obtain your API token from your Smartsheet account settings under "Personal Settings" > "API Access".
 
-Now, utilize the available connector operations.
+## Basic Usage Patterns
 
-#### Create a new sheet
+### Working with Sheets
 
 ```ballerina
-public function main() returns error? {
-    smartsheet:SheetsBody newSheet = {
-        name: "New Project Sheet",
-        columns: [
-            {
-                title: "Task Name",
-                type: "TEXT_NUMBER",
-                primary: true
-            },
-            {
-                title: "Status",
-                type: "PICKLIST",
-                options: ["Not Started", "In Progress", "Complete"]
-            },
-            {
-                title: "Due Date",
-                type: "DATE"
-            }
-        ]
-    };
+// List all sheets
+smartsheet:SheetList sheets = check smartsheetClient->listSheets();
 
-    smartsheet:WebhookResponse response = check smartsheet->/sheets.post(newSheet);
+// Get a specific sheet
+smartsheet:Sheet sheet = check smartsheetClient->getSheet(sheetId);
+
+// Create a new sheet
+smartsheet:SheetCreate newSheet = {
+    name: "Project Tasks",
+    columns: [
+        {name: "Task Name", type: "TEXT_NUMBER", primary: true},
+        {name: "Status", type: "PICKLIST", options: ["Not Started", "In Progress", "Complete"]}
+    ]
+};
+smartsheet:SheetCreated createdSheet = check smartsheetClient->createSheet(newSheet);
+```
+
+### Managing Rows and Data
+
+```ballerina
+// Add rows to a sheet
+smartsheet:RowCreateData[] newRows = [
+    {
+        cells: [
+            {columnId: columnId1, value: "Task 1"},
+            {columnId: columnId2, value: "In Progress"}
+        ]
+    }
+];
+smartsheet:RowCreateResponse rowResponse = check smartsheetClient->addRows(sheetId, newRows);
+
+// Update existing rows
+smartsheet:UpdateRowsObject updateData = {
+    id: rowId,
+    cells: [{columnId: columnId2, value: "Complete"}]
+};
+check smartsheetClient->updateRows(sheetId, [updateData]);
+```
+
+### Working with Workspaces and Folders
+
+```ballerina
+// List workspaces
+smartsheet:WorkspaceListResponse workspaces = check smartsheetClient->listWorkspaces();
+
+// Create a folder
+smartsheet:FolderCreateData folderData = {
+    name: "Q1 Projects"
+};
+smartsheet:FolderCreateResponse folder = check smartsheetClient->createFolder(folderData);
+```
+
+## Key Configuration Options
+
+### Authentication
+- **API Token**: Personal access token for API authentication
+- **OAuth2**: For applications requiring user authorization
+
+### Client Configuration
+```ballerina
+smartsheet:ConnectionConfig config = {
+    auth: {
+        token: smartsheetToken
+    },
+    timeout: 30, // Request timeout in seconds
+    retryConfig: {
+        count: 3,
+        interval: 2
+    }
+};
+```
+
+## Common Use Cases
+
+### Project Management Dashboard
+
+```ballerina
+// Create a project tracking sheet
+smartsheet:SheetCreate projectSheet = {
+    name: "Project Dashboard",
+    columns: [
+        {name: "Project Name", type: "TEXT_NUMBER", primary: true},
+        {name: "Owner", type: "CONTACT_LIST"},
+        {name: "Status", type: "PICKLIST", options: ["Planning", "Active", "On Hold", "Complete"]},
+        {name: "Due Date", type: "DATE"}
+    ]
+};
+
+smartsheet:SheetCreated sheet = check smartsheetClient->createSheet(projectSheet);
+```
+
+### Automated Reporting
+
+```ballerina
+// Generate and share reports
+smartsheet:ReportCreate reportConfig = {
+    name: "Weekly Status Report",
+    sourceSheets: [sheetId1, sheetId2]
+};
+
+smartsheet:Report report = check smartsheetClient->createReport(reportConfig);
+
+// Share the report
+smartsheet:ShareCreateData shareData = {
+    email: "manager@company.com",
+    accessLevel: "VIEWER"
+};
+check smartsheetClient->shareReport(report.id, shareData);
+```
+
+### Bulk Data Operations
+
+```ballerina
+// Import data from external sources
+smartsheet:RowCreateData[] bulkRows = [];
+foreach var dataItem in externalData {
+    bulkRows.push({
+        cells: [
+            {columnId: nameColumnId, value: dataItem.name},
+            {columnId: statusColumnId, value: dataItem.status}
+        ]
+    });
+}
+
+smartsheet:RowCreateResponse bulkResult = check smartsheetClient->addRows(sheetId, bulkRows);
+```
+
+### Webhook Integration
+
+```ballerina
+// Set up webhooks for real-time updates
+smartsheet:CreateWebhookRequest webhookConfig = {
+    name: "Sheet Updates",
+    callbackUrl: "https://myapp.com/webhook",
+    scope: "sheet",
+    scopeObjectId: sheetId,
+    events: ["*.*"]
+};
+
+smartsheet:WebhookResponse webhook = check smartsheetClient->createWebhook(webhookConfig);
+```
+
+## Error Handling
+
+```ballerina
+import ballerina/http;
+
+smartsheet:Sheet|error result = smartsheetClient->getSheet(sheetId);
+if result is error {
+    if result is http:ClientError {
+        // Handle HTTP errors (rate limits, authentication, etc.)
+        log:printError("API Error", result);
+    } else {
+        // Handle other errors
+        log:printError("Unexpected error", result);
+    }
+} else {
+    // Process the sheet data
+    log:printInfo("Sheet retrieved: " + result.name);
 }
 ```
 
-### Step 4: Run the Ballerina application
+## Additional Resources
 
-```bash
-bal run
-```
+- [Ballerina Smartsheet Connector Examples](examples/)
+- [Smartsheet API Documentation](https://smartsheet.redoc.ly/)
+- [Authentication Guide](docs/authentication.md)
+- [Best Practices](docs/best-practices.md)
+- [Rate Limiting and Error Handling](docs/error-handling.md)
 
+For more detailed examples and advanced usage patterns, refer to the [examples directory](examples/) in this repository.
 
-## Examples
+## Documentation
 
-The `Smartsheet` connector provides practical examples illustrating usage in various scenarios. Explore these [examples](https://github.com/ballerina-platform/module-ballerinax-smartsheet/tree/main/examples), covering the following use cases:
+- **[Connector Documentation](ballerina/README.md)** - Detailed setup, configuration, and API reference
+- **[Examples](examples/README.md)** - Practical examples and use cases
+- **[Tests](ballerina/tests/README.md)** - Test suite documentation and guidelines
 
-1. [Project task management](https://github.com/ballerina-platform/module-ballerinax-smartsheet/tree/main/examples/project_task_management) - Demonstrates how to automate project task creation using Ballerina connector for Smartsheet.
+## Quick Links
 
-## Build from the source
+- [Ballerina Central](https://central.ballerina.io)
+- [Ballerina Documentation](https://ballerina.io/learn/)
+- [Connector API Reference](ballerina/README.md)
 
-### Setting up the prerequisites
+## Version Information
 
-1. Download and install Java SE Development Kit (JDK) version 17. You can download it from either of the following sources:
+- **Version**: 1.0.0
+- **Ballerina Version**: 2201.8.0 or later
+- **License**: Apache 2.0
 
-    * [Oracle JDK](https://www.oracle.com/java/technologies/downloads/)
-    * [OpenJDK](https://adoptium.net/)
+## Contributing
 
-   > **Note:** After installation, remember to set the `JAVA_HOME` environment variable to the directory where JDK was installed.
+We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details on how to get started.
 
-2. Download and install [Ballerina Swan Lake](https://ballerina.io/).
+## Support
 
-3. Download and install [Docker](https://www.docker.com/get-started).
+For questions and support:
+- Create an issue in this repository
+- Visit the [Ballerina Discord](https://discord.gg/ballerinalang)
+- Check the [Ballerina documentation](https://ballerina.io/learn/)
 
-   > **Note**: Ensure that the Docker daemon is running before executing any tests.
+## License
 
-4. Export Github Personal access token with read package permissions as follows,
-
-    ```bash
-    export packageUser=<Username>
-    export packagePAT=<Personal access token>
-    ```
-
-### Build options
-
-Execute the commands below to build from the source.
-
-1. To build the package:
-
-   ```bash
-   ./gradlew clean build
-   ```
-
-2. To run the tests:
-
-   ```bash
-   ./gradlew clean test
-   ```
-
-3. To build the without the tests:
-
-   ```bash
-   ./gradlew clean build -x test
-   ```
-
-4. To run tests against different environments:
-
-   ```bash
-   ./gradlew clean test -Pgroups=<Comma separated groups/test cases>
-   ```
-
-5. To debug the package with a remote debugger:
-
-   ```bash
-   ./gradlew clean build -Pdebug=<port>
-   ```
-
-6. To debug with the Ballerina language:
-
-   ```bash
-   ./gradlew clean build -PbalJavaDebug=<port>
-   ```
-
-7. Publish the generated artifacts to the local Ballerina Central repository:
-
-    ```bash
-    ./gradlew clean build -PpublishToLocalCentral=true
-    ```
-
-8. Publish the generated artifacts to the Ballerina Central repository:
-
-   ```bash
-   ./gradlew clean build -PpublishToCentral=true
-   ```
-
-## Contribute to Ballerina
-
-As an open-source project, Ballerina welcomes contributions from the community.
-
-For more information, go to the [contribution guidelines](https://github.com/ballerina-platform/ballerina-lang/blob/master/CONTRIBUTING.md).
-
-## Code of conduct
-
-All the contributors are encouraged to read the [Ballerina Code of Conduct](https://ballerina.io/code-of-conduct).
-
-## Useful links
-
-* For more information go to the [`smartsheet` package](https://central.ballerina.io/ballerinax/smartsheet/latest).
-* For example demonstrations of the usage, go to [Ballerina By Examples](https://ballerina.io/learn/by-example/).
-* Chat live with us via our [Discord server](https://discord.gg/ballerinalang).
-* Post all technical questions on Stack Overflow with the [#ballerina](https://stackoverflow.com/questions/tagged/ballerina) tag.
+This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.

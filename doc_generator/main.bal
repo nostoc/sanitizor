@@ -1,6 +1,7 @@
+import doc_generator.ai_generator;
+
 import ballerina/io;
 import ballerina/os;
-import doc_generator.ai_generator;
 
 public function main(string... args) {
     if args.length() == 0 {
@@ -9,7 +10,7 @@ public function main(string... args) {
     }
 
     string command = args[0];
-    
+
     match command {
         "generate-all" => {
             if args.length() < 2 {
@@ -82,120 +83,120 @@ function printUsage() {
 
 function generateAllReadmes(string connectorPath) {
     io:println("Generating all READMEs for connector at: " + connectorPath);
-    
+
     string|error apiKey = os:getEnv("ANTHROPIC_API_KEY");
     if apiKey is error {
         io:println("Error: ANTHROPIC_API_KEY environment variable is not set");
         return;
     }
-    
-    ai_generator:DocumentationGenerator|error generator = new(apiKey);
-    if generator is error {
-        io:println("Error initializing AI generator: " + generator.message());
+
+    error? initResult = ai_generator:initDocumentationGenerator();
+    if initResult is error {
+        io:println("Error initializing AI generator: " + initResult.message());
         return;
     }
-    
-    error? result = generator.generateAllDocumentation(connectorPath);
+
+    error? result = ai_generator:generateAllDocumentation(connectorPath);
     if result is error {
         io:println("Error generating documentation: " + result.message());
         return;
     }
-    
+
     io:println("✓ All READMEs generated successfully!");
 }
 
 function generateBallerinaReadme(string connectorPath) {
     io:println("Generating Ballerina module README for: " + connectorPath);
-    
+
     string|error apiKey = os:getEnv("ANTHROPIC_API_KEY");
     if apiKey is error {
         io:println("Error: ANTHROPIC_API_KEY environment variable is not set");
         return;
     }
-    
-    ai_generator:DocumentationGenerator|error generator = new(apiKey);
-    if generator is error {
-        io:println("Error initializing AI generator: " + generator.message());
+
+    error? initResult = ai_generator:initDocumentationGenerator();
+    if initResult is error {
+        io:println("Error initializing AI generator: " + initResult.message());
         return;
     }
-    
-    error? result = generator.generateBallerinaReadme(connectorPath);
+
+    error? result = ai_generator:generateBallerinaReadme(connectorPath);
     if result is error {
         io:println("Error generating Ballerina README: " + result.message());
         return;
     }
-    
+
     io:println("✓ Ballerina README generated successfully!");
 }
 
 function generateTestsReadme(string connectorPath) {
     io:println("Generating Tests README for: " + connectorPath);
-    
+
     string|error apiKey = os:getEnv("ANTHROPIC_API_KEY");
     if apiKey is error {
         io:println("Error: ANTHROPIC_API_KEY environment variable is not set");
         return;
     }
-    
-    ai_generator:DocumentationGenerator|error generator = new(apiKey);
-    if generator is error {
-        io:println("Error initializing AI generator: " + generator.message());
+
+    error? initResult = ai_generator:initDocumentationGenerator();
+    if initResult is error {
+        io:println("Error initializing AI generator: " + initResult.message());
         return;
     }
-    
-    error? result = generator.generateTestsReadme(connectorPath);
+
+    error? result = ai_generator:generateTestsReadme(connectorPath);
     if result is error {
         io:println("Error generating Tests README: " + result.message());
         return;
     }
-    
+
     io:println("✓ Tests README generated successfully!");
 }
 
 function generateExamplesReadme(string connectorPath) {
     io:println("Generating Examples README for: " + connectorPath);
-    
+
     string|error apiKey = os:getEnv("ANTHROPIC_API_KEY");
     if apiKey is error {
         io:println("Error: ANTHROPIC_API_KEY environment variable is not set");
         return;
     }
-    
-    ai_generator:DocumentationGenerator|error generator = new(apiKey);
-    if generator is error {
-        io:println("Error initializing AI generator: " + generator.message());
+
+    error? initResult = ai_generator:initDocumentationGenerator();
+    if initResult is error {
+        io:println("Error initializing AI generator: " + initResult.message());
         return;
     }
-    
-    error? result = generator.generateExamplesReadme(connectorPath);
+
+    error? result = ai_generator:generateExamplesReadme(connectorPath);
     if result is error {
         io:println("Error generating Examples README: " + result.message());
         return;
     }
-    
+
     io:println("✓ Examples README generated successfully!");
 }
 
 function generateMainReadme(string connectorPath) {
     io:println("Generating Main README for: " + connectorPath);
-    
+
     string|error apiKey = os:getEnv("ANTHROPIC_API_KEY");
     if apiKey is error {
         io:println("Error: ANTHROPIC_API_KEY environment variable is not set");
         return;
     }
-    
-    ai_generator:DocumentationGenerator|error generator = new(apiKey);
-    if generator is error {
-        io:println("Error initializing AI generator: " + generator.message());
+
+    error? initResult = ai_generator:initDocumentationGenerator();
+    if initResult is error {
+        io:println("Error initializing AI generator: " + initResult.message());
         return;
     }
-    
-    error? result = generator.generateMainReadme(connectorPath);
+
+    error? result = ai_generator:generateMainReadme(connectorPath);
     if result is error {
         io:println("Error generating Main README: " + result.message());
         return;
     }
-    
+
     io:println("✓ Main README generated successfully!");
 }
