@@ -245,21 +245,65 @@ ${getConnectorSummary(metadata)}
 }
 
 function createBallerinaSetupPrompt(ConnectorMetadata metadata) returns string {
+    string connectorName = metadata.connectorName;
+    string backtick = "`";
     return string `
-You are writing the Setup Guide section for a Ballerina connector's README.md file.
+You are a technical writer creating the "Setup guide" section for a Ballerina connector's README.md file. Your task is to explain how a user can get the necessary API credentials from the third-party service.
 
-Connector Information:
-${getConnectorSummary(metadata)}
+Your goal is to generate a guide that is **structurally and tonally identical** to the perfect example provided below.
 
-Create a setup guide that includes:
-1. Prerequisites (Ballerina version, dependencies)
-2. Installation steps using Ballerina Central
-3. Configuration requirements (API keys, endpoints, etc.)
-4. Authentication setup if applicable
-5. Basic project structure recommendations
+---
+**PERFECT OUTPUT EXAMPLE (for Smartsheet):**
 
-Use proper Ballerina syntax and follow Ballerina conventions.
-Format as markdown with code blocks for configuration examples.
+## Setup guide
+
+To use the Smartsheet connector, you must have access to the Smartsheet API through a [Smartsheet developer account](${backtick}https://developers.smartsheet.com/${backtick}) and obtain an API access token. If you do not have a Smartsheet account, you can sign up for one [here](${backtick}https://www.smartsheet.com/try-it${backtick}).
+
+### Step 1: Create a Smartsheet Account
+
+1. Navigate to the [Smartsheet website](${backtick}https://www.smartsheet.com/${backtick}) and sign up for an account or log in if you already have one.
+
+2. Ensure you have a Business or Enterprise plan, as the Smartsheet API is restricted to users on these plans.
+
+### Step 2: Generate an API Access Token
+
+1. Log in to your Smartsheet account.
+
+2. On the left Navigation Bar at the bottom, select Account (your profile image), then Personal Settings.
+
+3. In the new window, navigate to the API Access tab and select Generate new access token.
+
+> **Tip:** You must copy and store this key somewhere safe. It won't be visible again in your account settings for security reasons.
+
+---
+
+**TASK INSTRUCTIONS:**
+
+Now, generate a new "Setup guide" section for the ${connectorName} connector specified below. You must adhere to these rules strictly:
+
+1.  **Perform Web Research:** You MUST search the web to find the following for the service:
+    * The main website / sign-up page.
+    * The developer portal or API documentation homepage.
+    * An official guide or help article on how to generate API keys/access tokens.
+
+2.  **Follow the Exact Structure:** Use the ${backtick}## Setup guide${backtick}, ${backtick}### Step 1${backtick}, and ${backtick}### Step 2${backtick} headers precisely as shown in the example.
+
+3.  **Introductory Paragraph:** Write a paragraph explaining the need for an account and API token. It must include a Markdown link to the developer portal and the main sign-up page you found.
+
+4.  **Step 1 (Create Account):**
+    * Provide a link to the main website.
+    * **Crucially, research and mention if the API access is limited to specific subscription plans** (e.g., "Business or Enterprise plan", "Pro plan or higher").
+
+5.  **Step 2 (Generate Token):**
+    * Provide clear, step-by-step instructions on how to find the API key generation page within the service's user interface.
+    * **Use the official guide you researched to make these steps accurate.** (e.g., "Navigate to Settings > Developer > API Keys").
+
+6.  **Include the Tip:** End the section with the exact "> **Tip:** ..." blockquote about saving the key securely.
+
+**CONNECTOR INFORMATION TO USE:**
+connector name: ${connectorName}
+
+Generate the "Setup guide" section now.
 `;
 }
 
