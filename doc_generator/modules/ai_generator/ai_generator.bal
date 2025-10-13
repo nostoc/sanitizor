@@ -149,11 +149,8 @@ function generateTestsContent(ConnectorMetadata metadata) returns map<string>|er
     map<string> content = {};
 
     io:println("  🤖 Generating testing approach...");
-    content["testing_approach"] = check callAI(createTestingApproachPrompt(metadata));
-
-    io:println("  🤖 Generating test scenarios...");
-    content["test_scenarios"] = check callAI(createTestScenariosPrompt(metadata));
-
+    content["testing_approach"] = check callAI(createTestReadmePrompt(metadata));
+    io:println(content);
     return content;
 }
 
@@ -418,44 +415,116 @@ Available Examples: ${metadata.examples.toString()}
 `;
 }
 
-function createTestingApproachPrompt(ConnectorMetadata metadata) returns string {
+// prompt generation functions for tests README
+
+function createTestReadmePrompt(ConnectorMetadata metadata) returns string {
+    string backtick = "`";
+    string tripleBacktick = "```";
+    string conectorName = metadata.connectorName;
+    string lowerCaseConnectorName = conectorName.toLowerAscii();
+
     return string `
-You are writing the Testing Approach section for a Ballerina connector's tests README.md file.
+    You are a senior Ballerina developer creating the README.md file for the tests directory of a Ballerina connector.
 
-Connector Information:
-${getConnectorSummary(metadata)}
+Your goal is to generate a complete "Running Tests" guide that is **structurally and textually identical** to the perfect example provided below, only replacing the service-specific placeholders.
 
-Explain the testing strategy including:
-1. Types of tests implemented (unit, integration, etc.)
-2. Mock service usage and approach
-3. Test data management
-4. How to run the tests
-5. What the tests validate
+---
+**PERFECT OUTPUT EXAMPLE (for Smartsheet):**
 
-Be specific about Ballerina testing conventions and tools used.
-Format as markdown with code examples where helpful.
+# Running Tests
+
+## Prerequisites
+You need an API Access token from Smartsheet developer account.
+
+To do this, refer to [Ballerina Smartsheet Connector](${backtick}https://github.com/ballerina-platform/module-ballerinax-smartsheet/blob/main/ballerina/README.md${backtick}).
+
+## Running Tests
+
+There are two test environments for running the Smartsheet connector tests. The default test environment is the mock server for Smartsheet API. The other test environment is the actual Smartsheet API.
+
+You can run the tests in either of these environments and each has its own compatible set of tests.
+
+ Test Groups | Environment
+-------------|---------------------------------------------------
+ mock_tests  | Mock server for Smartsheet API (Default Environment)
+ live_tests  | Smartsheet API
+
+## Running Tests in the Mock Server
+
+To execute the tests on the mock server, ensure that the ${backtick}IS_LIVE_SERVER${backtick} environment variable is either set to ${backtick}false${backtick} or unset before initiating the tests.
+
+This environment variable can be configured within the ${backtick}Config.toml${backtick} file located in the tests directory or specified as an environmental variable.
+
+#### Using a Config.toml File
+
+Create a ${backtick}Config.toml${backtick} file in the tests directory and the following content:
+
+${tripleBacktick}toml
+isLiveServer = false
+${tripleBacktick}
+
+#### Using Environment Variables
+
+Alternatively, you can set your authentication credentials as environment variables:
+If you are using linux or mac, you can use following method:
+${tripleBacktick}bash
+   export IS_LIVE_SERVER=false
+${tripleBacktick}
+If you are using Windows you can use following method:
+${tripleBacktick}bash
+   setx IS_LIVE_SERVER false
+${tripleBacktick}
+Then, run the following command to run the tests:
+
+${tripleBacktick}bash
+   ./gradlew clean test
+${tripleBacktick}
+
+## Running Tests Against Smartsheet Live API
+
+#### Using a Config.toml File
+
+Create a ${backtick}Config.toml${backtick} file in the tests directory and add your authentication credentials:
+
+${tripleBacktick}toml
+   isLiveServer = true
+   token = "<your-smartsheet-access-token>"
+${tripleBacktick}
+
+#### Using Environment Variables
+
+Alternatively, you can set your authentication credentials as environment variables:
+If you are using linux or mac, you can use following method:
+${tripleBacktick}bash
+   export IS_LIVE_SERVER=true
+   export SMARTSHEET_TOKEN="<your-smartsheet-access-token>"
+${tripleBacktick}
+
+If you are using Windows you can use following method:
+${tripleBacktick}bash
+   setx IS_LIVE_SERVER true
+   setx SMARTSHEET_TOKEN <your-smartsheet-access-token>
+${tripleBacktick}
+Then, run the following command to run the tests:
+
+${tripleBacktick}bash
+   ./gradlew clean test
+${tripleBacktick}
+---
+
+**TASK INSTRUCTIONS:**
+
+Now, generate a new "Running Tests" README for the connector specified below. You must use the example above as a strict template and replace the placeholders as follows:
+
+1.  Replace every instance of **"Smartsheet"** with **"${conectorName}"**.
+2.  Replace every instance of **"smartsheet"** (in lowercase) with **"${lowerCaseConnectorName}"**. This applies to URLs and token placeholders like ${backtick}<your-smartsheet-access-token>${backtick}.
+3.  Replace the link to the main README with the link matching the provided GitHub Repo URL, specifically pointing to ${backtick}/ballerina/README.md${backtick}.
+4.  In the final "Environment Variables" section for the live API, replace **"SMARTSHEET_TOKEN"** with **"[CONNECTOR_UPPERCASE_NAME]_TOKEN"**.
+5.  All other text, formatting, code blocks, and commands must be kept exactly the same.
+
+Generate the complete "Running Tests" README now.
 `;
-}
 
-function createTestScenariosPrompt(ConnectorMetadata metadata) returns string {
-    return string `
-You are writing the Test Scenarios section for a Ballerina connector's tests README.md file.
-
-Connector Information:
-${getConnectorSummary(metadata)}
-
-Available client methods: ${metadata.clientMethods.toString()}
-
-List and describe the test scenarios that cover:
-1. Happy path scenarios for each main operation
-2. Error handling and edge cases
-3. Authentication and authorization tests
-4. Data validation tests
-5. Performance and reliability tests
-
-Organize by functionality and explain what each scenario validates.
-Format as markdown with clear categorization.
-`;
 }
 
 function createExampleDescriptionsPrompt(ConnectorMetadata metadata) returns string {
@@ -595,11 +664,6 @@ function substituteVariables(string template, TemplateData data) returns string 
     string testingApproach = data.AI_GENERATED_TESTING_APPROACH ?: "";
     if testingApproach != "" {
         result = simpleReplace(result, "{{AI_GENERATED_TESTING_APPROACH}}", testingApproach);
-    }
-
-    string testScenarios = data.AI_GENERATED_TEST_SCENARIOS ?: "";
-    if testScenarios != "" {
-        result = simpleReplace(result, "{{AI_GENERATED_TEST_SCENARIOS}}", testScenarios);
     }
 
     string exampleDescriptions = data.AI_GENERATED_EXAMPLE_DESCRIPTIONS ?: "";
