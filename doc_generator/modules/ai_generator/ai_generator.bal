@@ -195,11 +195,9 @@ function callAI(string prompt) returns string|error {
     if model is () {
         return error("AI model not initialized. Please call initDocumentationGenerator() first.");
     }
-    io:println("    Prompt: " + prompt);
     ai:ChatMessage[] messages = [{role: "user", content: prompt}];
     ai:ChatAssistantMessage|error response = model->chat(messages);
     if response is error {
-        io:println(response);
         return error("AI generation failed: " + response.message());
     }
     string? content = response.content;
