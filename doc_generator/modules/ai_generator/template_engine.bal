@@ -11,5 +11,9 @@ public type TemplateData record {|
     string AI_GENERATED_TEST_SCENARIOS?;
     string AI_GENERATED_EXAMPLE_DESCRIPTIONS?;
     string AI_GENERATED_GETTING_STARTED?;
+    string AI_GENERATED_HEADER_AND_BADGES?;
+    string AI_GENERATED_USEFUL_LINKS?;
+
+
 |};
 

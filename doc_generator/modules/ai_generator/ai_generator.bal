@@ -169,12 +169,23 @@ function generateExamplesContent(ConnectorMetadata metadata) returns map<string>
 function generateMainContent(ConnectorMetadata metadata) returns map<string>|error {
     map<string> content = {};
 
-    io:println("  🤖 Generating main overview...");
-    content["overview"] = check callAI(createMainOverviewPrompt(metadata));
+    io:println("  📄 Generating Header and Badges...");
+    content["header_and_badges"] = createHeaderAndBadges(metadata);
 
-    io:println("  🤖 Generating usage section...");
-    content["usage"] = check callAI(createMainUsagePrompt(metadata));
+    io:println("  🤖 Generating Overview section...");
+    content["overview"] = check callAI(createBallerinaOverviewPrompt(metadata));
 
+    io:println("  🤖 Generating Setup guide section...");
+    content["setup"] = check callAI(createBallerinaSetupPrompt(metadata));
+
+    io:println("  🤖 Generating Quickstart section...");
+    content["quickstart"] = check callAI(createBallerinaQuickstartPrompt(metadata));
+
+    io:println("  🤖 Generating Examples section...");
+    content["examples"] = check callAI(createBallerinaExamplesPrompt(metadata));
+
+    io:println("  🤖 Generating Useful Links section...");
+    content["useful_links"] = createUsefulLinksSection(metadata);
     return content;
 }
 
@@ -226,7 +237,7 @@ The ${backtick}ballerinax/smartsheet${backtick} package offers APIs to connect a
 
 **TASK INSTRUCTIONS:**
 
-Now, generate a new overview for the following connector. Follow these rules meticulously:
+Now, generate a new overview for the following connector. DONT include any follow up questions or your opinions or any thing other than the given format. Follow these rules meticulously:
 
 1.  **Research:** You MUST perform a web search to find the official homepage and the developer API documentation for the service.
 2.  **Paragraph 1 (The Service):**
@@ -611,41 +622,35 @@ Format as markdown with step-by-step instructions.
 `;
 }
 
-function createMainOverviewPrompt(ConnectorMetadata metadata) returns string {
+// prompt generation functions for main README
+
+function createHeaderAndBadges(ConnectorMetadata metadata) returns string {
+    string connectorName = metadata.connectorName;
+    string lowercaseConnectorName = connectorName.toLowerAscii();
+    string githubRepoUrl = string `https://github.com/ballerina-platform/module-ballerinax-${lowercaseConnectorName}`;
+    string githubOrgAndRepo = string `ballerina-platform/module-ballerinax-${lowercaseConnectorName}`;
+
     return string `
-You are writing the main overview for a Ballerina connector's root README.md file.
+# Ballerina ${metadata.connectorName} connector
 
-Connector Information:
-${getConnectorSummary(metadata)}
-
-Create a compelling overview that:
-1. Introduces the connector and its purpose
-2. Highlights key benefits and features
-3. Shows who should use this connector
-4. Provides a high-level architecture overview
-5. Links to detailed documentation sections
-
-This is the first thing users see, so make it engaging and informative.
-Format as markdown with good visual hierarchy.
+[![Build](${githubRepoUrl}/actions/workflows/ci.yml/badge.svg)](${githubRepoUrl}/actions/workflows/ci.yml)
+[![Trivy](${githubRepoUrl}/actions/workflows/trivy-scan.yml/badge.svg)](${githubRepoUrl}/actions/workflows/trivy-scan.yml)
+[![GraalVM Check](${githubRepoUrl}/actions/workflows/build-with-bal-test-graalvm.yml/badge.svg)](${githubRepoUrl}/actions/workflows/build-with-bal-test-graalvm.yml)
+[![GitHub Last Commit](https://img.shields.io/github/last-commit/${githubOrgAndRepo}.svg)](https://github.com/${githubOrgAndRepo}/commits/master)
+[![GitHub Issues](https://img.shields.io/github/issues/ballerina-platform/ballerina-library/module/${lowercaseConnectorName}.svg?label=Open%20Issues)](https://github.com/ballerina-platform/ballerina-library/labels/module%${lowercaseConnectorName})
 `;
 }
 
-function createMainUsagePrompt(ConnectorMetadata metadata) returns string {
+function createUsefulLinksSection(ConnectorMetadata metadata) returns string {
+    string backtick = "`";
+    string lowercaseName = metadata.connectorName.toLowerAscii();
     return string `
-You are writing the Usage section for a Ballerina connector's root README.md file.
+## Useful links
 
-Connector Information:
-${getConnectorSummary(metadata)}
-
-Create a usage section that covers:
-1. Installation and setup summary
-2. Basic usage patterns
-3. Key configuration options
-4. Common use cases with brief examples
-5. Links to detailed guides and examples
-
-Keep code examples minimal but representative of typical usage.
-Format as markdown with clear sections and code blocks.
+* For more information go to the [${backtick}${lowercaseName}${backtick} package](https://central.ballerina.io/ballerinax/${lowercaseName}/latest).
+* For example demonstrations of the usage, go to [Ballerina By Examples](https://ballerina.io/learn/by-example/).
+* Chat live with us via our [Discord server](https://discord.gg/ballerinalang).
+* Post all technical questions on Stack Overflow with the [#ballerina](https://stackoverflow.com/questions/tagged/ballerina) tag.
 `;
 }
 
@@ -720,6 +725,16 @@ function substituteVariables(string template, TemplateData data) returns string 
         result = simpleReplace(result, "{{AI_GENERATED_GETTING_STARTED}}", gettingStarted);
     }
 
+    string headerAndBadges = data.AI_GENERATED_HEADER_AND_BADGES ?: "";
+    if headerAndBadges != "" {
+        result = simpleReplace(result, "{{AI_GENERATED_HEADER_AND_BADGES}}", headerAndBadges);
+    }
+
+    string usefulLinks = data.AI_GENERATED_USEFUL_LINKS ?: "";
+    if usefulLinks != "" {
+        result = simpleReplace(result, "{{AI_GENERATED_USEFUL_LINKS}}", usefulLinks);
+    }
+
     return result;
 }
 
@@ -778,6 +793,12 @@ function mergeAIContent(TemplateData baseData, map<string> aiContent) returns Te
             }
             "getting_started" => {
                 merged.AI_GENERATED_GETTING_STARTED = value;
+            }
+            "header_and_badges" => {
+                merged.AI_GENERATED_HEADER_AND_BADGES = value;
+            }
+            "useful_links" => {
+                merged.AI_GENERATED_USEFUL_LINKS = value;
             }
         }
     }

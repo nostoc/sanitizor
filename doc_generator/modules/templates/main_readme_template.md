@@ -1,40 +1,92 @@
-# {{CONNECTOR_NAME}} Ballerina Connector
-
+{{AI_GENERATED_HEADER_AND_BADGES}}
 {{AI_GENERATED_OVERVIEW}}
+{{AI_GENERATED_SETUP}}
+{{AI_GENERATED_QUICKSTART}}
+{{AI_GENERATED_EXAMPLES}}
+## Build from the source
 
-## Usage
+### Setting up the prerequisites
 
-{{AI_GENERATED_USAGE}}
+1. Download and install Java SE Development Kit (JDK) version 17. You can download it from either of the following sources:
 
-## Documentation
+    * [Oracle JDK](https://www.oracle.com/java/technologies/downloads/)
+    * [OpenJDK](https://adoptium.net/)
 
-- **[Connector Documentation](ballerina/README.md)** - Detailed setup, configuration, and API reference
-- **[Examples](examples/README.md)** - Practical examples and use cases
-- **[Tests](ballerina/tests/README.md)** - Test suite documentation and guidelines
+    > **Note:** After installation, remember to set the `JAVA_HOME` environment variable to the directory where JDK was installed.
 
-## Quick Links
+2. Download and install [Ballerina Swan Lake](https://ballerina.io/).
 
-- [Ballerina Central](https://central.ballerina.io)
-- [Ballerina Documentation](https://ballerina.io/learn/)
-- [Connector API Reference](ballerina/README.md)
+3. Download and install [Docker](https://www.docker.com/get-started).
 
-## Version Information
+    > **Note**: Ensure that the Docker daemon is running before executing any tests.
 
-- **Version**: {{VERSION}}
-- **Ballerina Version**: 2201.8.0 or later
-- **License**: Apache 2.0
+4. Export Github Personal access token with read package permissions as follows,
 
-## Contributing
+    ```bash
+    export packageUser=<Username>
+    export packagePAT=<Personal access token>
+    ```
 
-We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details on how to get started.
+### Build options
 
-## Support
+Execute the commands below to build from the source.
 
-For questions and support:
-- Create an issue in this repository
-- Visit the [Ballerina Discord](https://discord.gg/ballerinalang)
-- Check the [Ballerina documentation](https://ballerina.io/learn/)
+1. To build the package:
 
-## License
+    ```bash
+    ./gradlew clean build
+    ```
 
-This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
+2. To run the tests:
+
+    ```bash
+    ./gradlew clean test
+    ```
+
+3. To build the without the tests:
+
+    ```bash
+    ./gradlew clean build -x test
+    ```
+
+4. To run tests against different environments:
+
+    ```bash
+    ./gradlew clean test -Pgroups=<Comma separated groups/test cases>
+    ```
+
+5. To debug the package with a remote debugger:
+
+    ```bash
+    ./gradlew clean build -Pdebug=<port>
+    ```
+
+6. To debug with the Ballerina language:
+
+    ```bash
+    ./gradlew clean build -PbalJavaDebug=<port>
+    ```
+
+7. Publish the generated artifacts to the local Ballerina Central repository:
+
+    ```bash
+    ./gradlew clean build -PpublishToLocalCentral=true
+    ```
+
+8. Publish the generated artifacts to the Ballerina Central repository:
+
+    ```bash
+    ./gradlew clean build -PpublishToCentral=true
+    ```
+
+## Contribute to Ballerina
+
+As an open-source project, Ballerina welcomes contributions from the community.
+
+For more information, go to the [contribution guidelines](https://github.com/ballerina-platform/ballerina-lang/blob/master/CONTRIBUTING.md).
+
+## Code of conduct
+
+All the contributors are encouraged to read the [Ballerina Code of Conduct](https://ballerina.io/code-of-conduct).
+
+{{AI_GENERATED_USEFUL_LINKS}}
