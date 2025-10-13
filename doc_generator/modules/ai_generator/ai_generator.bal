@@ -1,9 +1,9 @@
 import ballerina/ai;
 import ballerina/file;
 import ballerina/io;
+import ballerina/log;
 //import ballerina/lang.'string as strings;
 import ballerinax/ai.anthropic;
-import ballerina/log;
 
 // Module-level variable for AI model
 ai:ModelProvider? anthropicModel = ();
@@ -13,7 +13,6 @@ configurable string apiKey = ?;
 const string TEMPLATES_PATH = "modules/templates";
 
 // Initialize the documentation generator with API key
-
 
 public function initDocumentationGenerator() returns error? {
 
@@ -25,13 +24,13 @@ public function initDocumentationGenerator() returns error? {
     );
 
     if modelProvider is error {
-        return error ("Failed to initialize Anthropic model provider", modelProvider);
+        return error("Failed to initialize Anthropic model provider", modelProvider);
     }
 
     anthropicModel = modelProvider;
-    
-        log:printInfo("LLM service initialized successfully");
-    
+
+    log:printInfo("LLM service initialized successfully");
+
 }
 
 public function generateAllDocumentation(string connectorPath) returns error? {
@@ -268,22 +267,114 @@ Format as markdown with code blocks for configuration examples.
 }
 
 function createBallerinaQuickstartPrompt(ConnectorMetadata metadata) returns string {
+    string backtick = "`";
+    string tripleBacktick = "```";
     return string `
-You are writing the Quick Start section for a Ballerina connector's README.md file.
+You are a senior Ballerina developer and technical writer creating the "Quickstart" section for a Ballerina connector's README.md file.
 
-Connector Information:
+Your goal is to generate a guide that is **structurally identical** to the perfect example provided below.
+
+---
+**PERFECT OUTPUT EXAMPLE (for Smartsheet):**
+
+## Quickstart
+
+To use the ${backtick}Smartsheet${backtick} connector in your Ballerina application, update the ${backtick}.bal${backtick} file as follows:
+
+### Step 1: Import the module
+
+Import the ${backtick}smartsheet${backtick} module.
+
+${tripleBacktick}ballerina
+import ballerinax/smartsheet;
+${tripleBacktick}
+
+### Step 2: Instantiate a new connector
+
+1. Create a ${backtick}Config.toml${backtick} file and configure the obtained access token as follows:
+
+${tripleBacktick}toml
+token = "<Your_Smartsheet_Access_Token>"
+${tripleBacktick}
+
+2. Create a ${backtick}smartsheet:ConnectionConfig${backtick} with the obtained access token and initialize the connector with it.
+
+${tripleBacktick}ballerina
+configurable string token = ?;
+
+final smartsheet:Client smartsheet = check new({
+    auth: {
+        token
+    }
+});
+${tripleBacktick}
+
+### Step 3: Invoke the connector operation
+
+Now, utilize the available connector operations.
+
+#### Create a new sheet
+
+${tripleBacktick}ballerina
+public function main() returns error? {
+    smartsheet:SheetsBody newSheet = {
+        name: "New Project Sheet",
+        columns: [
+            {
+                title: "Task Name",
+                type: "TEXT_NUMBER",
+                primary: true
+            },
+            {
+                title: "Status",
+                type: "PICKLIST",
+                options: ["Not Started", "In Progress", "Complete"]
+            },
+            {
+                title: "Due Date",
+                type: "DATE"
+            }
+        ]
+    };
+
+    smartsheet:WebhookResponse response = check smartsheet->/sheets.post(newSheet);
+}
+${tripleBacktick}
+
+### Step 4: Run the Ballerina application
+
+${tripleBacktick}bash
+bal run
+${tripleBacktick}
+
+---
+
+**TASK INSTRUCTIONS:**
+
+Now, generate a new Quickstart section for the connector specified below. Adhere to these rules strictly:
+
+1.  **Follow the Exact Structure:** Use the ${backtick}## Quickstart${backtick} title, the introductory sentence, and the ${backtick}### Step 1${backtick}, ${backtick}### Step 2${backtick}, ${backtick}### Step 3${backtick}, and ${backtick}### Step 4${backtick} markdown headers precisely as shown in the example.
+
+2.  **Step 1 (Import):** Use the format ${backtick}import ballerinax/[connector_lowercase_name];${backtick}.
+
+3.  **Step 2 (Instantiate):**
+    * Show the ${backtick}Config.toml${backtick} file for configuring an access token. Use the placeholder ${backtick}<Your_[ConnectorDisplayName]_Access_Token>${backtick}.
+    * Show the Ballerina code for initializing the client using ${backtick}configurable string token = ?;${backtick} and ${backtick}final [connector_lowercase_name]:Client ...${backtick}.
+
+4.  **Step 3 (Invoke):**
+    * **Choose ONE simple, representative operation** from the list of available methods. **Prioritize a "create", "add", or "post" operation.** If none are suitable, choose a simple "list" or "get all" operation.
+    * Create a ${backtick}####${backtick} sub-heading for the operation (e.g., ${backtick}#### Create a new issue${backtick}, ${backtick}#### List all users${backtick}).
+    * Write a complete, copy-pastable Ballerina code block inside a ${backtick}public function main() returns error? { ... }${backtick}.
+    * The code must demonstrate how to build the necessary request payload and how to call the chosen operation. Use realistic and simple data for the payload.
+
+5.  **Step 4 (Run):** Include the command to run the application, ${backtick}bal run${backtick}, within a ${backtick}bash${backtick} code block exactly as shown in the example.
+
+
+**CONNECTOR INFORMATION TO USE:**
 ${getConnectorSummary(metadata)}
-
-Create a quick start guide that shows:
-1. A simple, working code example
-2. How to import and initialize the connector
-3. One or two basic operations using the available methods
-4. Expected output or response
-
 Available client methods: ${metadata.clientMethods.toString()}
 
-Use realistic but simple examples. Code should be copy-pastable and functional.
-Format as markdown with proper code blocks and syntax highlighting.
+Generate the "Quickstart" section now.
 `;
 }
 
