@@ -379,22 +379,42 @@ Generate the "Quickstart" section now.
 }
 
 function createBallerinaExamplesPrompt(ConnectorMetadata metadata) returns string {
+    string backtick = "`";
     return string `
-You are writing the Examples section for a Ballerina connector's README.md file.
 
-Connector Information:
+You are a technical writer tasked with creating the "Examples" section for a Ballerina connector's README.md file.
+
+Your goal is to generate a section that is **structurally identical** to the perfect example provided below, including the exact introductory paragraph and the formatted list.
+
+---
+**PERFECT OUTPUT EXAMPLE (for Smartsheet):**
+
+## Examples
+
+The ${backtick}Smartsheet${backtick} connector provides practical examples illustrating usage in various scenarios. Explore these [examples](https://github.com/ballerina-platform/module-ballerinax-smartsheet/tree/main/examples), covering the following use cases:
+
+1. [Project task management](https://github.com/ballerina-platform/module-ballerinax-smartsheet/tree/main/examples/project_task_management) - Demonstrates how to automate project task creation using Ballerina connector for Smartsheet.
+2. [Basic sheet operations](https://github.com/ballerina-platform/module-ballerinax-smartsheet/tree/main/examples/basic_sheet_operations) - Illustrates creating, retrieving, and deleting sheets.
+
+---
+
+**TASK INSTRUCTIONS:**
+
+Now, generate a new "Examples" section for the connector specified below. You must follow these rules precisely:
+
+1.  **Replicate the Header and Intro:** Start with the ${backtick}## Examples${backtick} header. Use the exact introductory paragraph from the example, replacing the connector name and the main examples URL with the information provided. The main examples URL is the GitHub Repo URL followed by ${backtick}/tree/main/examples${backtick}.
+
+2.  **Create an Ordered List:** For each example directory name provided in the "Connector Information", create one item in an ordered list (1., 2., 3., etc.).
+
+3.  **Format Each List Item:** Each item in the list MUST follow this exact format:
+    ${backtick}[Example Title](URL_to_example) - One-sentence description.${backtick}
+    * **Example Title:** Convert the snake_case directory name (e.g., ${backtick}project_task_management${backtick}) into a human-readable, lowercase title (e.g., "project task management").
+    * **URL_to_example:** Construct the full URL to the specific example's directory. This will be ${backtick}[GitHub_Repo_URL]/tree/main/examples/[example_directory_name]${backtick}.
+    * **One-sentence description:** Write a single, concise sentence that summarizes the purpose of the example based on its name.
+
+**CONNECTOR INFORMATION TO USE:**
 ${getConnectorSummary(metadata)}
-
 Available Examples: ${metadata.examples.toString()}
-
-Create an examples section that:
-1. Lists and describes each available example
-2. Explains what each example demonstrates
-3. Provides links to the example files
-4. Suggests which examples to try first
-
-Keep descriptions brief but informative. Focus on the learning value of each example.
-Format as markdown with appropriate headers and links.
 `;
 }
 
