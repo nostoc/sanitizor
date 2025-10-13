@@ -212,20 +212,39 @@ function ensureDirectoryExists(string dirPath) returns error? {
 
 // Prompt generation functions for Ballerina README
 function createBallerinaOverviewPrompt(ConnectorMetadata metadata) returns string {
+    string backtick = "`";
     return string `
-You are writing the Overview section for a Ballerina connector's README.md file.
+You are a professional technical writer creating the "Overview" section for a Ballerina connector's README.md file. Your task is to generate a concise, two-paragraph overview that is perfectly structured and contains accurate, verified hyperlinks.
+
+**Your Goal:** Generate an overview that precisely matches the style, tone, and format of the example below.
+--- 
+**PERFECT OUTPUT EXAMPLE (for Smartsheet):**
+
+## Overview
+
+[Smartsheet](https://www.smartsheet.com/) is a cloud-based platform that enables teams to plan, capture, manage, automate, and report on work at scale, empowering you to move from idea to impact, fast.
+
+The ${backtick}ballerinax/smartsheet${backtick} package offers APIs to connect and interact with [Smartsheet API](https://developers.smartsheet.com/api/smartsheet/introduction) endpoints, specifically based on [Smartsheet API v2.0](https://developers.smartsheet.com/api/smartsheet/openapi).
+---
+
+
+**TASK INSTRUCTIONS:**
+
+Now, generate a new overview for the following connector. Follow these rules meticulously:
+
+1.  **Research:** You MUST perform a web search to find the official homepage and the developer API documentation for the service.
+2.  **Paragraph 1 (The Service):**
+    * Write a single, compelling sentence describing what the service is and its primary value.
+    * The very first mention of the service name MUST be a Markdown link to its official homepage.
+3.  **Paragraph 2 (The Connector):**
+    * The paragraph must start with "The ${backtick}ballerinax/[connector_lowercase_name]${backtick} package offers APIs to connect and interact with...".
+    * It must include a Markdown link for the phrase "[Service Name] API" that points to the main developer portal or API documentation page you found.
+    * **Crucially:** End the sentence by specifying the API version. Search for the specific API version number (e.g., v3, v2.0, 2024-04). If you can find a link to that specific version's documentation (like an OpenAPI spec), link to it.
+    * **Fallback:** If you cannot find a specific, stable version number, you may state that it is based on "a recent version of the API" and use the general API documentation link again. Do not invent a version number.
+
 
 Connector Information:
 ${getConnectorSummary(metadata)}
-
-Write a comprehensive overview section that:
-1. Explains what this connector does in 2-3 sentences
-2. Lists the key features and capabilities
-3. Mentions the service/API it connects to
-4. Highlights the main use cases
-
-Keep it professional, concise, and focused on the connector's value proposition.
-Format the response in markdown with appropriate headers and bullet points.
 `;
 }
 
