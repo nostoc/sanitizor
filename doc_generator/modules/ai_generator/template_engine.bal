@@ -14,6 +14,7 @@ public type TemplateData record {|
     string AI_GENERATED_HEADER_AND_BADGES?;
     string AI_GENERATED_USEFUL_LINKS?;
     string AI_GENERATED_INDIVIDUAL_README?;
+    string AI_GENERATED_MAIN_EXAMPLES_README?;
 
 
 |};

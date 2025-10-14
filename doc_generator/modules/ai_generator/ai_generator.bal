@@ -147,7 +147,7 @@ function generateSingleExampleReadme(string examplePath, string exampleDirName, 
 function generateIndividualExampleContent(ExampleData exampleData, ConnectorMetadata connectorMetadata) returns map<string>|error {
     map<string> content = {};
 
-    io:println("  🤖 Generating example description...");
+    io:println("  🤖 Generating individual Examle README...");
     content["individual_readme"] = check callAI(createIndividualExamplePrompt(exampleData, connectorMetadata));
     return content;
 }
@@ -220,11 +220,8 @@ function generateTestsContent(ConnectorMetadata metadata) returns map<string>|er
 function generateExamplesContent(ConnectorMetadata metadata) returns map<string>|error {
     map<string> content = {};
 
-    io:println("  🤖 Generating example descriptions...");
-    content["example_descriptions"] = check callAI(createExampleDescriptionsPrompt(metadata));
-
-    io:println("  🤖 Generating getting started guide...");
-    content["getting_started"] = check callAI(createGettingStartedPrompt(metadata));
+    io:println("  🤖 Generating main readme ...");
+    content["main_examples_readme"] = check callAI(createMainExampleReadmePrompt(metadata));
 
     return content;
 }
@@ -893,6 +890,80 @@ Generate the complete README.md now.
 `;
 }
 
+function createMainExampleReadmePrompt(ConnectorMetadata metadata) returns string {
+    string backtick = "`";
+    string tripleBacktick = "```";
+    return string `
+You are a senior technical writer creating the main README.md for a Ballerina connector's "examples" directory.
+
+Your goal is to generate a complete guide that is **structurally and textually identical** to the perfect example provided below, filling in the dynamic content based on the connector information.
+
+---
+**PERFECT OUTPUT EXAMPLE (for Twitter):**
+
+# Examples
+
+The ${backtick}twitter${backtick} connector provides practical examples illustrating usage in various scenarios. Explore these [examples](https://github.com/ballerina-platform/module-ballerinax-twitter/tree/main/examples), covering use cases like Direct message company mentions, and tweet performance tracker.
+
+1. [Direct message company mentions](https://github.com/ballerina-platform/module-ballerinax-twitter/tree/main/examples/DM-mentions) - Integrate Twitter to send direct messages to users who mention the company in tweets.
+
+2. [Tweet performance tracker](https://github.com/ballerina-platform/module-ballerinax-twitter/tree/main/examples/tweet-performance-tracker) - Analyze the performance of tweets posted by a user over the past month.
+
+## Prerequisites
+
+1. Generate Twitter credentials to authenticate the connector as described in the [Setup guide](https://central.ballerina.io/ballerinax/twitter/latest#setup-guide).
+
+2. For each example, create a ${backtick}Config.toml${backtick} file the related configuration. Here's an example of how your ${backtick}Config.toml${backtick} file should look:
+
+    ${tripleBacktick}toml
+    token = "<Access Token>"
+    ${tripleBacktick}
+
+## Running an Example
+
+Execute the following commands to build an example from the source:
+
+* To build an example:
+
+    ${tripleBacktick}bash
+    bal build
+    ${tripleBacktick}
+
+* To run an example:
+
+    ${tripleBacktick}bash
+    bal run
+    ${tripleBacktick}
+---
+
+**TASK INSTRUCTIONS:**
+
+Now, generate a new "Examples" README for the connector specified below. You must use the example above as a strict template and adhere to these rules:
+
+1.  **Header and Introduction:**
+    * Start with the ${backtick}# Examples${backtick} header.
+    * Write the introductory paragraph, replacing the connector name and constructing the main examples URL from the GitHub Repo URL provided.
+    * Based on the list of "Available Example Directories", infer and mention a few representative use cases at the end of the sentence.
+
+2.  **Numbered Example List:**
+    * For each directory name in "Available Example Directories", create one item in a numbered list (1., 2., 3., etc.).
+    * Each list item MUST follow this format: ${backtick}[Example Title](URL_to_example) - One-sentence description.${backtick}
+    * **Example Title:** Convert the directory name (e.g., "DM-mentions") into a human-readable title (e.g., "Direct message company mentions").
+    * **URL_to_example:** Construct the full URL using the GitHub Repo URL and the example directory name.
+    * **One-sentence description:** Write a single, concise sentence that summarizes the purpose of the example based on its name.
+
+3.  **Static Sections:**
+    * Append the ${backtick}## Prerequisites${backtick} section exactly as shown, but replace the service name ("Twitter") and the link to the setup guide.
+    * Append the ${backtick}## Running an Example${backtick} section exactly as shown. **Do not change this section.**
+
+**CONNECTOR INFORMATION TO USE:**
+${getConnectorSummary(metadata)}
+Available Example Directories: ${metadata.examples.toString()}
+
+Generate the complete examples/README.md now.
+`;
+}
+
 // Template processing functions
 function processTemplate(string templateName, TemplateData data) returns string|error {
     string templatePath = TEMPLATES_PATH + "/" + templateName;
@@ -977,6 +1048,10 @@ function substituteVariables(string template, TemplateData data) returns string 
     if individualReadme != "" {
         result = simpleReplace(result, "{{AI_GENERATED_INDIVIDUAL_README}}", individualReadme);
     }
+    string mainExamplesReadme = data.AI_GENERATED_MAIN_EXAMPLES_README ?: "";
+    if mainExamplesReadme != "" {
+        result = simpleReplace(result, "{{AI_GENERATED_MAIN_EXAMPLES_README}}", mainExamplesReadme);
+    }
     return result;
 }
 
@@ -1044,6 +1119,9 @@ function mergeAIContent(TemplateData baseData, map<string> aiContent) returns Te
             }
             "individual_readme" => {
                 merged.AI_GENERATED_INDIVIDUAL_README = value;
+            }
+            "main_examples_readme" => {
+                merged.AI_GENERATED_MAIN_EXAMPLES_README = value;
             }
             
         }
