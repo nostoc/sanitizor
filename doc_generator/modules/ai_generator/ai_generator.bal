@@ -17,15 +17,11 @@ public function initDocumentationGenerator() returns error? {
         maxTokens = 60000,
         timeout = 300
     );
-
     if modelProvider is error {
         return error("Failed to initialize Anthropic model provider", modelProvider);
     }
-
     anthropicModel = modelProvider;
-
     log:printInfo("LLM service initialized successfully");
-
 }
 
 public function generateAllDocumentation(string connectorPath) returns error? {
@@ -86,7 +82,6 @@ public function generateTestsReadme(string connectorPath) returns error? {
 }
 
 // Generate Examples README
-
 public function generateIndividualExampleReadmes(string connectorPath) returns error? {
     ConnectorMetadata metadata = check analyzeConnector(connectorPath);
 
@@ -251,6 +246,8 @@ function callAI(string prompt) returns string|error {
     }
     ai:ChatMessage[] messages = [{role: "user", content: prompt}];
     ai:ChatAssistantMessage|error response = model->chat(messages);
+    //messages.push({role: "assistant", content: response is ai:ChatAssistantMessage ? response.content : ""});
+    //io:println(messages);
     if response is error {
         return error("AI generation failed: " + response.message());
     }

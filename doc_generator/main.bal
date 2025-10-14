@@ -3,68 +3,65 @@ import doc_generator.ai_generator;
 import ballerina/io;
 import ballerina/os;
 
-public function main(string... args) {
+public function main(string... args) returns error? {
+    io:println("Starting Ballerina Connector Documentation Generator...");
+
     if args.length() == 0 {
         printUsage();
         return;
     }
 
+    if args.length() < 2 {
+        io:println("Error: Missing connector path");
+        printUsage();
+        return;
+    }
+
     string command = args[0];
+    string connectorPath = args[1];
+
+    // Check for auto flag and quiet mode
+    boolean autoYes = false;
+    boolean quietMode = false;
+    foreach string arg in args {
+        if arg == "yes" {
+            autoYes = true;
+        } else if arg == "quiet" {
+            quietMode = true;
+        }
+    }
+
+    if autoYes {
+        if !quietMode {
+            io:println("Running in automated mode - all prompts will be auto-confirmed");
+        }
+    }
+
+    if quietMode {
+        if !autoYes {
+            io:println("Running in quiet mode - reduced logging output");
+        }
+        io:println("Quiet mode enabled - minimal logging output");
+    }
 
     match command {
         "generate-all" => {
-            if args.length() < 2 {
-                io:println("Error: Missing connector path");
-                printUsage();
-                return;
-            }
-            string connectorPath = args[1];
-            generateAllReadmes(connectorPath);
+            check generateAllReadmes(connectorPath, autoYes, quietMode);
         }
         "generate-ballerina" => {
-            if args.length() < 2 {
-                io:println("Error: Missing connector path");
-                printUsage();
-                return;
-            }
-            string connectorPath = args[1];
-            generateBallerinaReadme(connectorPath);
+            check generateBallerinaReadme(connectorPath, autoYes, quietMode);
         }
         "generate-tests" => {
-            if args.length() < 2 {
-                io:println("Error: Missing connector path");
-                printUsage();
-                return;
-            }
-            string connectorPath = args[1];
-            generateTestsReadme(connectorPath);
+            check generateTestsReadme(connectorPath, autoYes, quietMode);
         }
         "generate-examples" => {
-            if args.length() < 2 {
-                io:println("Error: Missing connector path");
-                printUsage();
-                return;
-            }
-            string connectorPath = args[1];
-            generateExamplesReadme(connectorPath);
+            check generateExamplesReadme(connectorPath, autoYes, quietMode);
         }
         "generate-individual-examples" => {
-            if args.length() < 2 {
-                io:println("Error: Missing connector path");
-                printUsage();
-                return;
-            }
-            string connectorPath = args[1];
-            generateIndividualExampleReadmes(connectorPath);
+            check generateIndividualExampleReadmes(connectorPath, autoYes, quietMode);
         }
         "generate-main" => {
-            if args.length() < 2 {
-                io:println("Error: Missing connector path");
-                printUsage();
-                return;
-            }
-            string connectorPath = args[1];
-            generateMainReadme(connectorPath);
+            check generateMainReadme(connectorPath, autoYes, quietMode);
         }
         _ => {
             io:println("Error: Unknown command '" + command + "'");
@@ -86,151 +83,303 @@ function printUsage() {
     io:println("  generate-individual-examples Generate individual example READMEs");
     io:println("  generate-main                Generate root README");
     io:println("");
+    io:println("Options:");
+    io:println("  yes                          Auto-confirm all prompts (for CI/CD)");
+    io:println("  quiet                        Reduce logging output");
+    io:println("");
     io:println("Examples:");
     io:println("  bal run doc_generator -- generate-all /path/to/connector");
-    io:println("  bal run doc_generator -- generate-individual-examples /path/to/connector");
+    io:println("  bal run doc_generator -- generate-all /path/to/connector yes");
+    io:println("  bal run doc_generator -- generate-all /path/to/connector yes quiet");
+    io:println("");
+    io:println("Environment Variables:");
+    io:println("  ANTHROPIC_API_KEY            Required for AI-powered documentation generation");
+    io:println("");
 }
 
-function generateAllReadmes(string connectorPath) {
-    io:println("Generating all READMEs for connector at: " + connectorPath);
+// Helper function to get user confirmation
+function getUserConfirmation(string message, boolean autoYes = false) returns boolean {
+    if autoYes {
+        io:println(string `${message} (y/n): y [auto-confirmed]`);
+        return true;
+    }
 
-    string|error apiKey = os:getEnv("ANTHROPIC_API_KEY");
-    if apiKey is error {
-        io:println("Error: ANTHROPIC_API_KEY environment variable is not set");
+    io:print(string `${message} (y/n): `);
+    string|io:Error userInput = io:readln();
+    if userInput is io:Error {
+        io:println("Failed to read user input, defaulting to 'no'");
+        return false;
+    }
+    string trimmedInput = userInput.trim().toLowerAscii();
+    return trimmedInput == "y" || trimmedInput == "yes";
+}
+
+function generateAllReadmes(string connectorPath, boolean autoYes = false, boolean quietMode = false) returns error? {
+    io:println("=== Comprehensive README Generation ===");
+    io:println(string `Connector path: ${connectorPath}`);
+    io:println("\nREADMEs to be generated:");
+    io:println("1. Ballerina module README (/ballerina/README.md)");
+    io:println("2. Tests README (/tests/README.md)");
+    io:println("3. Main examples README (/examples/README.md)");
+    io:println("4. Individual example READMEs (/examples/*/README.md)");
+    io:println("5. Root module README (/README.md)");
+
+    if !getUserConfirmation("\nProceed with generating all READMEs?", autoYes) {
+        io:println("Operation cancelled by user.");
         return;
     }
+
+    check validateApiKey();
 
     error? initResult = ai_generator:initDocumentationGenerator();
     if initResult is error {
-        io:println("Error initializing AI generator: " + initResult.message());
-        return;
+        if !quietMode {
+            io:println("Error initializing AI generator: " + initResult.message());
+        }
+
+        if !getUserConfirmation("Continue despite initialization failure?", autoYes) {
+            return error("AI generator initialization failed: " + initResult.message());
+        }
+    } else {
+        if !quietMode {
+            io:println("✓ AI generator initialized successfully");
+        }
     }
 
+    io:println("Processing all README generation...");
     error? result = ai_generator:generateAllDocumentation(connectorPath);
     if result is error {
-        io:println("Error generating documentation: " + result.message());
-        return;
-    }
+        if !quietMode {
+            io:println("Error generating documentation: " + result.message());
+        }
 
-    io:println("✓ All READMEs generated successfully!");
+        if !getUserConfirmation("Continue despite generation failure?", autoYes) {
+            return error("Documentation generation failed: " + result.message());
+        }
+    } else {
+        io:println("✓ All READMEs generated successfully!");
+        if !quietMode {
+            io:println("Generated files can be found in the respective directories under: " + connectorPath);
+        }
+    }
 }
 
-function generateBallerinaReadme(string connectorPath) {
-    io:println("Generating Ballerina module README for: " + connectorPath);
+function generateBallerinaReadme(string connectorPath, boolean autoYes = false, boolean quietMode = false) returns error? {
+    io:println("=== Ballerina Module README Generation ===");
+    io:println(string `Connector path: ${connectorPath}`);
+    io:println("This will generate the core Ballerina module README file with:");
+    io:println("• Overview and feature descriptions");
+    io:println("• Setup instructions");
+    io:println("• Quickstart guide");
+    io:println("• Usage examples");
 
-    string|error apiKey = os:getEnv("ANTHROPIC_API_KEY");
-    if apiKey is error {
-        io:println("Error: ANTHROPIC_API_KEY environment variable is not set");
+    if !getUserConfirmation("\nProceed with Ballerina README generation?", autoYes) {
+        io:println("Operation cancelled by user.");
         return;
     }
+
+    check validateApiKey();
 
     error? initResult = ai_generator:initDocumentationGenerator();
     if initResult is error {
-        io:println("Error initializing AI generator: " + initResult.message());
-        return;
+        if !quietMode {
+            io:println("Error initializing AI generator: " + initResult.message());
+        }
+        return error("AI generator initialization failed: " + initResult.message());
+    }
+
+    if !quietMode {
+        io:println("✓ AI generator initialized successfully");
+        io:println("Generating Ballerina module README...");
     }
 
     error? result = ai_generator:generateBallerinaReadme(connectorPath);
     if result is error {
-        io:println("Error generating Ballerina README: " + result.message());
-        return;
+        if !quietMode {
+            io:println("Error generating Ballerina README: " + result.message());
+        }
+        return error("Ballerina README generation failed: " + result.message());
     }
 
     io:println("✓ Ballerina README generated successfully!");
+    if !quietMode {
+        io:println(string `Generated file: ${connectorPath}/ballerina/README.md`);
+    }
 }
 
-function generateTestsReadme(string connectorPath) {
-    io:println("Generating Tests README for: " + connectorPath);
+function generateTestsReadme(string connectorPath, boolean autoYes = false, boolean quietMode = false) returns error? {
+    io:println("=== Tests README Generation ===");
+    io:println(string `Connector path: ${connectorPath}`);
+    io:println("This will generate the Tests README file with:");
+    io:println("• Testing approach and methodology");
+    io:println("• Test scenario descriptions");
+    io:println("• Test execution instructions");
 
-    string|error apiKey = os:getEnv("ANTHROPIC_API_KEY");
-    if apiKey is error {
-        io:println("Error: ANTHROPIC_API_KEY environment variable is not set");
+    if !getUserConfirmation("\nProceed with Tests README generation?", autoYes) {
+        io:println("Operation cancelled by user.");
         return;
     }
 
+    check validateApiKey();
+
     error? initResult = ai_generator:initDocumentationGenerator();
     if initResult is error {
-        io:println("Error initializing AI generator: " + initResult.message());
-        return;
+        if !quietMode {
+            io:println("Error initializing AI generator: " + initResult.message());
+        }
+        return error("AI generator initialization failed: " + initResult.message());
+    }
+
+    if !quietMode {
+        io:println("✓ AI generator initialized successfully");
+        io:println("Generating Tests README...");
     }
 
     error? result = ai_generator:generateTestsReadme(connectorPath);
     if result is error {
-        io:println("Error generating Tests README: " + result.message());
-        return;
+        if !quietMode {
+            io:println("Error generating Tests README: " + result.message());
+        }
+        return error("Tests README generation failed: " + result.message());
     }
 
     io:println("✓ Tests README generated successfully!");
+    if !quietMode {
+        io:println(string `Generated file: ${connectorPath}/tests/README.md`);
+    }
 }
 
-function generateIndividualExampleReadmes(string connectorPath) {
-    io:println("Generating Individual Example READMEs for: " + connectorPath);
+function generateIndividualExampleReadmes(string connectorPath, boolean autoYes = false, boolean quietMode = false) returns error? {
+    io:println("=== Individual Example READMEs Generation ===");
+    io:println(string `Connector path: ${connectorPath}`);
+    io:println("This will generate individual README files for each example with:");
+    io:println("• Example-specific descriptions");
+    io:println("• Setup and configuration instructions");
+    io:println("• Usage examples and code walkthroughs");
 
-    string|error apiKey = os:getEnv("ANTHROPIC_API_KEY");
-    if apiKey is error {
-        io:println("Error: ANTHROPIC_API_KEY environment variable is not set");
+    if !getUserConfirmation("\nProceed with Individual Example READMEs generation?", autoYes) {
+        io:println("Operation cancelled by user.");
         return;
     }
 
+    check validateApiKey();
+
     error? initResult = ai_generator:initDocumentationGenerator();
     if initResult is error {
-        io:println("Error initializing AI generator: " + initResult.message());
-        return;
+        if !quietMode {
+            io:println("Error initializing AI generator: " + initResult.message());
+        }
+        return error("AI generator initialization failed: " + initResult.message());
+    }
+
+    if !quietMode {
+        io:println("✓ AI generator initialized successfully");
+        io:println("Generating Individual Example READMEs...");
     }
 
     error? result = ai_generator:generateIndividualExampleReadmes(connectorPath);
     if result is error {
-        io:println("Error generating Individual Example READMEs: " + result.message());
-        return;
+        if !quietMode {
+            io:println("Error generating Individual Example READMEs: " + result.message());
+        }
+        return error("Individual Example READMEs generation failed: " + result.message());
     }
 
     io:println("✓ Individual Example READMEs generated successfully!");
+    if !quietMode {
+        io:println(string `Generated files in: ${connectorPath}/examples/*/README.md`);
+    }
 }
 
-function generateExamplesReadme(string connectorPath) {
-    io:println("Generating Examples README for: " + connectorPath);
+function generateExamplesReadme(string connectorPath, boolean autoYes = false, boolean quietMode = false) returns error? {
+    io:println("=== Main Examples README Generation ===");
+    io:println(string `Connector path: ${connectorPath}`);
+    io:println("This will generate the main Examples README file with:");
+    io:println("• Overview of all available examples");
+    io:println("• Getting started with examples");
+    io:println("• Example descriptions and use cases");
 
-    string|error apiKey = os:getEnv("ANTHROPIC_API_KEY");
-    if apiKey is error {
-        io:println("Error: ANTHROPIC_API_KEY environment variable is not set");
+    if !getUserConfirmation("\nProceed with Examples README generation?", autoYes) {
+        io:println("Operation cancelled by user.");
         return;
     }
 
+    check validateApiKey();
+
     error? initResult = ai_generator:initDocumentationGenerator();
     if initResult is error {
-        io:println("Error initializing AI generator: " + initResult.message());
-        return;
+        if !quietMode {
+            io:println("Error initializing AI generator: " + initResult.message());
+        }
+        return error("AI generator initialization failed: " + initResult.message());
+    }
+
+    if !quietMode {
+        io:println("✓ AI generator initialized successfully");
+        io:println("Generating Examples README...");
     }
 
     error? result = ai_generator:generateExamplesReadme(connectorPath);
     if result is error {
-        io:println("Error generating Examples README: " + result.message());
-        return;
+        if !quietMode {
+            io:println("Error generating Examples README: " + result.message());
+        }
+        return error("Examples README generation failed: " + result.message());
     }
 
     io:println("✓ Examples README generated successfully!");
+    if !quietMode {
+        io:println(string `Generated file: ${connectorPath}/examples/README.md`);
+    }
 }
 
-function generateMainReadme(string connectorPath) {
-    io:println("Generating Main README for: " + connectorPath);
+function generateMainReadme(string connectorPath, boolean autoYes = false, boolean quietMode = false) returns error? {
+    io:println("=== Root Module README Generation ===");
+    io:println(string `Connector path: ${connectorPath}`);
+    io:println("This will generate the root README file with:");
+    io:println("• Complete project overview");
+    io:println("• Installation and build instructions");
+    io:println("• Comprehensive feature documentation");
+    io:println("• Usage examples and links");
 
-    string|error apiKey = os:getEnv("ANTHROPIC_API_KEY");
-    if apiKey is error {
-        io:println("Error: ANTHROPIC_API_KEY environment variable is not set");
+    if !getUserConfirmation("\nProceed with Main README generation?", autoYes) {
+        io:println("Operation cancelled by user.");
         return;
     }
 
+    check validateApiKey();
+
     error? initResult = ai_generator:initDocumentationGenerator();
     if initResult is error {
-        io:println("Error initializing AI generator: " + initResult.message());
-        return;
+        if !quietMode {
+            io:println("Error initializing AI generator: " + initResult.message());
+        }
+        return error("AI generator initialization failed: " + initResult.message());
+    }
+
+    if !quietMode {
+        io:println("✓ AI generator initialized successfully");
+        io:println("Generating Main README...");
     }
 
     error? result = ai_generator:generateMainReadme(connectorPath);
     if result is error {
-        io:println("Error generating Main README: " + result.message());
-        return;
+        if !quietMode {
+            io:println("Error generating Main README: " + result.message());
+        }
+        return error("Main README generation failed: " + result.message());
     }
 
     io:println("✓ Main README generated successfully!");
+    if !quietMode {
+        io:println(string `Generated file: ${connectorPath}/README.md`);
+    }
+}
+
+function validateApiKey() returns error? {
+    string|error apiKey = os:getEnv("ANTHROPIC_API_KEY");
+    if apiKey is error {
+        return error("ANTHROPIC_API_KEY environment variable is not set");
+    }
+
 }
