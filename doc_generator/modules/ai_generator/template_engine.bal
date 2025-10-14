@@ -13,6 +13,7 @@ public type TemplateData record {|
     string AI_GENERATED_GETTING_STARTED?;
     string AI_GENERATED_HEADER_AND_BADGES?;
     string AI_GENERATED_USEFUL_LINKS?;
+    string AI_GENERATED_INDIVIDUAL_README?;
 
 
 |};

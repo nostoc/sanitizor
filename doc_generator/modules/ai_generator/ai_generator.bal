@@ -40,6 +40,7 @@ public function generateAllDocumentation(string connectorPath) returns error? {
     check generateBallerinaReadme(connectorPath);
     check generateTestsReadme(connectorPath);
     check generateExamplesReadme(connectorPath);
+    check generateIndividualExampleReadmes(connectorPath);
     check generateMainReadme(connectorPath);
 
     io:println("✅ All documentation generated successfully!");
@@ -87,6 +88,68 @@ public function generateTestsReadme(string connectorPath) returns error? {
     }
     check writeOutput(content, outputPath);
     io:println("✅ Generated: " + outputPath);
+}
+
+// Generate Examples README
+
+public function generateIndividualExampleReadmes(string connectorPath) returns error? {
+    ConnectorMetadata metadata = check analyzeConnector(connectorPath);
+
+    string examplesPath = connectorPath + "/examples";
+
+    // Check if examples directory exists
+    if !check file:test(examplesPath, file:EXISTS) {
+        io:println("⚠️  No examples directory found at: " + examplesPath);
+        return;
+    }
+
+    // Get all example directories
+    file:MetaData[] examples = check file:readDir(examplesPath);
+
+    foreach file:MetaData example in examples {
+        if example.dir {
+            string exampleDirName = example.absPath.substring(examplesPath.length() + 1);
+            io:println("📝 Generating README for example: " + exampleDirName);
+
+            error? result = generateSingleExampleReadme(example.absPath, exampleDirName, metadata);
+            if result is error {
+                io:println("❌ Failed to generate README for " + exampleDirName + ": " + result.message());
+            } else {
+                io:println("✅ Generated README for: " + exampleDirName);
+            }
+        }
+    }
+}
+
+function generateSingleExampleReadme(string examplePath, string exampleDirName, ConnectorMetadata metadata) returns error? {
+    // Read all .bal files in the example directory
+    ExampleData exampleData = check analyzeExampleDirectory(examplePath, exampleDirName);
+
+    // Generate AI content for this specific example
+    map<string> aiContent = check generateIndividualExampleContent(exampleData, metadata);
+
+    // Create template data
+    TemplateData data = createTemplateData(metadata);
+    data = mergeAIContent(data, aiContent);
+
+    // Add example-specific data
+    data.CONNECTOR_NAME = metadata.connectorName;
+
+    string content = check processTemplate("example_specific_template.md", data);
+
+    // Create the README filename: "automated-summary-report" -> "Automated summary report.md"
+    string readmeFileName = formatExampleName(exampleDirName) + ".md";
+    string outputPath = examplePath + "/" + readmeFileName;
+
+    check writeOutput(content, outputPath);
+}
+
+function generateIndividualExampleContent(ExampleData exampleData, ConnectorMetadata connectorMetadata) returns map<string>|error {
+    map<string> content = {};
+
+    io:println("  🤖 Generating example description...");
+    content["individual_readme"] = check callAI(createIndividualExamplePrompt(exampleData, connectorMetadata));
+    return content;
 }
 
 public function generateExamplesReadme(string connectorPath) returns error? {
@@ -652,6 +715,184 @@ function createUsefulLinksSection(ConnectorMetadata metadata) returns string {
 `;
 }
 
+function createIndividualExampleDescriptionPrompt(ExampleData exampleData, ConnectorMetadata connectorMetadata) returns string {
+    return string `
+You are writing a detailed description for a specific Ballerina connector example.
+
+Example Information:
+- Name: ${exampleData.exampleName}
+- Directory: ${exampleData.exampleDirName}
+- Connector: ${connectorMetadata.connectorName}
+- Directory: ${exampleData.exampleDirName}
+- Connector: ${connectorMetadata.connectorName}
+
+Ballerina Code Files:
+${string:'join("\n\n---\n\n", ...exampleData.balFileContents)}
+
+Write a comprehensive description that explains:
+1. What this example demonstrates
+2. The main use case it addresses
+3. Key features of the ${connectorMetadata.connectorName} API it uses
+4. Why someone would use this example
+
+Keep it concise but informative, 2-3 paragraphs maximum.
+Use markdown formatting.
+`;
+}
+
+function createConfigExamplePrompt(ExampleData exampleMetadata, ConnectorMetadata connectorMetadata) returns string {
+    return string `
+Based on the Ballerina code below, generate a Config.toml example that shows what configuration is needed.
+
+Ballerina Code:
+${exampleMetadata.mainBalContent}
+
+Connector: ${connectorMetadata.connectorName}
+
+Provide a realistic Config.toml example with:
+1. All required configuration fields
+2. Placeholder values that clearly indicate what the user needs to provide
+3. Comments explaining any complex fields
+
+Format as a TOML code block.
+`;
+}
+
+function createExpectedOutputPrompt(ExampleData exampleData) returns string {
+    return string `
+Based on this Ballerina example code, describe what output the user should expect when running this example:
+
+${exampleData.mainBalContent}
+
+Provide:
+1. A brief description of what happens when the code runs
+2. Example output format (if applicable)
+3. Success indicators the user should look for
+
+Keep it concise and practical.
+`;
+}
+
+function createKeyConceptsPrompt(ExampleData exampleData) returns string {
+    return string `
+Analyze this Ballerina example code and identify the key concepts it demonstrates:
+
+${exampleData.mainBalContent}
+
+List the main programming concepts, API patterns, or Ballerina features showcased in this example.
+Format as a bulleted list with brief explanations.
+Focus on what developers can learn from this example.
+`;
+}
+
+function createNextStepsPrompt(ExampleData exampleData, ConnectorMetadata connectorMetadata) returns string {
+    return string `
+Based on this example for ${connectorMetadata.connectorName}, suggest practical next steps for developers:
+
+Example: ${exampleData.exampleName}
+Code: ${exampleData.mainBalContent}
+
+Provide 3-4 actionable next steps that help developers:
+1. Extend or modify this example
+2. Explore related ${connectorMetadata.connectorName} features
+3. Build upon this example for real-world use
+
+Keep suggestions practical and specific.
+`;
+}
+
+public function createIndividualExamplePrompt(ExampleData exampleData, ConnectorMetadata connectorMetadata) returns string {
+    string backtick = "`";
+    string tripleBacktick = "```";
+    return string `
+    You are a senior Ballerina developer and technical writer creating a complete, self-contained README.md file for a single Ballerina example.
+
+Your goal is to generate a guide that is **structurally identical** to the perfect example provided below, based on the Ballerina code you are given.
+
+---
+**PERFECT OUTPUT EXAMPLE (for Smartsheet + Slack):**
+
+# Project Task Management Integration
+
+This example demonstrates how to automate project task creation using Ballerina connector for Smartsheet. When a new project is created, the system automatically creates initial tasks in Smartsheet and sends a summary notification message to Slack.
+
+## Prerequisites
+
+1. **Smartsheet Setup**
+   - Create a Smartsheet account (Business/Enterprise plan required)
+   - Generate an API access token
+   - Create two sheets:
+     - "Projects" sheet with columns: Project Name, Start Date, Status
+     - "Tasks" sheet with columns: Task Name, Assigned To, Due Date, Project Name
+
+   > Refer the [Smartsheet setup guide](${backtick}https://github.com/ballerina-platform/module-ballerinax-smartsheet/blob/main/ballerina/README.md${backtick}) here.
+
+2. **Slack Setup**
+   - Refer the [Slack setup guide](${backtick}https://github.com/ballerina-platform/module-ballerinax-slack/blob/main/ballerina/README.md${backtick}) here.
+
+3. For this example, create a ${backtick}Config.toml${backtick} file with your credentials. Here's an example of how your ${backtick}Config.toml${backtick} file should look:
+
+${tripleBacktick}toml
+smartsheetToken = "SMARTSHEET_ACCESS_TOKEN"
+projectsSheetName = "PROJECT_SHEET_NAME"
+tasksSheetName = "TASK_SHEET_NAME"
+slackToken = "SLACK_TOKEN"
+slackChannel = "SLACK_CHANNEL"
+${tripleBacktick}
+
+## Run the Example
+
+1. Execute the following command to run the example:
+
+${tripleBacktick}bash
+bal run
+${tripleBacktick}
+
+2. The service will start on port 8080. You can test the integration by sending a POST request to create a new project:
+
+${tripleBacktick}bash
+curl -X POST http://localhost:8080/projects \
+  -H "Content-Type: application/json" \
+  -d '{
+    "projectName": "Website Redesign",
+    "startDate": "2025-08-25",
+    "status" : "ACTIVE",
+    "assignedTo": "developer@example.com"
+  }'
+${tripleBacktick}
+
+---
+
+**TASK INSTRUCTIONS:**
+
+Now, generate a new, complete README for the following Ballerina example. You must analyze the provided Ballerina code and adhere to these rules strictly:
+
+1.  **Analyze the Code:** Thoroughly read the provided Ballerina code to understand its purpose, what services it connects to, its configurable variables, and its HTTP endpoints.
+
+2.  **Title:** Create a human-readable title from the example's directory name (e.g., from "${exampleData.exampleDirName}", create "${exampleData.exampleName}").
+
+3.  **Introduction:** Write a single, concise paragraph describing what the example does.
+
+4.  **Prerequisites Section:**
+    * **Identify External Services:** From the ${backtick}import ballerinax/...${backtick} statements, identify all external connectors used (e.g., Smartsheet, Slack, etc.).
+    * **Create Service Setup Steps:** For each service, create a numbered list item (e.g., "1. Smartsheet Setup").
+    * **Add Setup Guide Links:** For each service, construct a link to its standard setup guide using the pattern: ${backtick}https://github.com/ballerina-platform/module-ballerinax-[SERVICE_NAME]/blob/main/ballerina/README.md${backtick}.
+    * **Generate Config.toml:** Analyze the ${backtick}configurable${backtick} variables in the Ballerina code and create a complete ${backtick}Config.toml${backtick} example block. Use descriptive placeholder values (e.g., "YOUR_API_KEY").
+
+5.  **Run the Example Section:**
+    * Always include the ${backtick}bal run${backtick} command.
+    * If the code defines an HTTP listener (${backtick}http:Listener${backtick}), analyze the service path and resource functions to construct a sample ${backtick}curl${backtick} command to test it. Infer a realistic JSON payload from the record types used in the function signatures. Assume the default port is 8080 unless specified otherwise.
+
+**EXAMPLE CODE TO ANALYZE:**
+- **Connector:** ${connectorMetadata.connectorName}
+- **Example Name:** ${exampleData.exampleName}
+- **Main Ballerina File Content:**
+${exampleData.mainBalContent}
+
+Generate the complete README.md now.
+`;
+}
+
 // Template processing functions
 function processTemplate(string templateName, TemplateData data) returns string|error {
     string templatePath = TEMPLATES_PATH + "/" + templateName;
@@ -732,7 +973,10 @@ function substituteVariables(string template, TemplateData data) returns string 
     if usefulLinks != "" {
         result = simpleReplace(result, "{{AI_GENERATED_USEFUL_LINKS}}", usefulLinks);
     }
-
+    string individualReadme = data.AI_GENERATED_INDIVIDUAL_README ?: "";
+    if individualReadme != "" {
+        result = simpleReplace(result, "{{AI_GENERATED_INDIVIDUAL_README}}", individualReadme);
+    }
     return result;
 }
 
@@ -798,6 +1042,10 @@ function mergeAIContent(TemplateData baseData, map<string> aiContent) returns Te
             "useful_links" => {
                 merged.AI_GENERATED_USEFUL_LINKS = value;
             }
+            "individual_readme" => {
+                merged.AI_GENERATED_INDIVIDUAL_README = value;
+            }
+            
         }
     }
 

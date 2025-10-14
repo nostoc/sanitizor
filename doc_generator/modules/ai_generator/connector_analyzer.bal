@@ -13,6 +13,14 @@ public type ConnectorMetadata record {
     string[] examples;
 };
 
+public type ExampleData record {|
+    string exampleName;
+    string exampleDirName;
+    string[] balFiles;
+    string[] balFileContents;
+    string mainBalContent;
+|};
+
 public function analyzeConnector(string connectorPath) returns ConnectorMetadata|error {
     file:MetaData|error pathMeta = file:getMetaData(connectorPath);
     if pathMeta is error {
@@ -182,4 +190,54 @@ public function getConnectorSummary(ConnectorMetadata metadata) returns string {
     summary += "Examples: " + strings:'join(", ", ...metadata.examples) + "\n";
 
     return summary;
+}
+
+public function analyzeExampleDirectory(string examplePath, string exampleDirName) returns ExampleData|error {
+    ExampleData exampleData = {
+        exampleName: formatExampleName(exampleDirName),
+        exampleDirName: exampleDirName,
+        balFiles: [],
+        balFileContents: [],
+        mainBalContent: ""
+    };
+
+    file:MetaData[] files = check file:readDir(examplePath);
+
+    foreach file:MetaData fileInfo in files {
+        if !fileInfo.dir && fileInfo.absPath.endsWith(".bal") {
+            string fileName = fileInfo.absPath.substring(examplePath.length() + 1);
+            string content = check io:fileReadString(fileInfo.absPath);
+
+            exampleData.balFiles.push(fileName);
+            exampleData.balFileContents.push(content);
+
+            // If it's main.bal, store it separately
+            if fileName == "main.bal" {
+                exampleData.mainBalContent = content;
+            }
+        }
+    }
+
+    return exampleData;
+}
+
+public function formatExampleName(string dirName) returns string {
+    // Convert "automated-summary-report" to "Automated summary report"
+    string[] parts = regexp:split(re `[-_]`, dirName);
+    string[] capitalizedParts = [];
+
+    foreach int i in 0 ..< parts.length() {
+        string part = parts[i];
+        if part.length() > 0 {
+            if i == 0 {
+                // Capitalize first word completely
+                capitalizedParts.push(part.substring(0, 1).toUpperAscii() + part.substring(1).toLowerAscii());
+            } else {
+                // Keep other words lowercase
+                capitalizedParts.push(part.toLowerAscii());
+            }
+        }
+    }
+
+    return strings:'join(" ", ...capitalizedParts);
 }

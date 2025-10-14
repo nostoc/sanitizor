@@ -48,6 +48,15 @@ public function main(string... args) {
             string connectorPath = args[1];
             generateExamplesReadme(connectorPath);
         }
+        "generate-individual-examples" => {
+            if args.length() < 2 {
+                io:println("Error: Missing connector path");
+                printUsage();
+                return;
+            }
+            string connectorPath = args[1];
+            generateIndividualExampleReadmes(connectorPath);
+        }
         "generate-main" => {
             if args.length() < 2 {
                 io:println("Error: Missing connector path");
@@ -70,17 +79,17 @@ function printUsage() {
     io:println("Usage: bal run doc_generator -- <command> <connector-path> [options]");
     io:println("");
     io:println("Commands:");
-    io:println("  generate-all      Generate all README files");
-    io:println("  generate-ballerina Generate core module README");
-    io:println("  generate-tests    Generate tests README");
-    io:println("  generate-examples Generate examples README");
-    io:println("  generate-main     Generate root README");
+    io:println("  generate-all                 Generate all README files");
+    io:println("  generate-ballerina           Generate core module README");
+    io:println("  generate-tests               Generate tests README");
+    io:println("  generate-examples            Generate main examples README");
+    io:println("  generate-individual-examples Generate individual example READMEs");
+    io:println("  generate-main                Generate root README");
     io:println("");
     io:println("Examples:");
     io:println("  bal run doc_generator -- generate-all /path/to/connector");
-    io:println("  bal run doc_generator -- generate-ballerina /path/to/connector");
+    io:println("  bal run doc_generator -- generate-individual-examples /path/to/connector");
 }
-
 function generateAllReadmes(string connectorPath) {
     io:println("Generating all READMEs for connector at: " + connectorPath);
 
@@ -151,6 +160,30 @@ function generateTestsReadme(string connectorPath) {
     }
 
     io:println("✓ Tests README generated successfully!");
+}
+
+function generateIndividualExampleReadmes(string connectorPath) {
+    io:println("Generating Individual Example READMEs for: " + connectorPath);
+
+    string|error apiKey = os:getEnv("ANTHROPIC_API_KEY");
+    if apiKey is error {
+        io:println("Error: ANTHROPIC_API_KEY environment variable is not set");
+        return;
+    }
+
+    error? initResult = ai_generator:initDocumentationGenerator();
+    if initResult is error {
+        io:println("Error initializing AI generator: " + initResult.message());
+        return;
+    }
+
+    error? result = ai_generator:generateIndividualExampleReadmes(connectorPath);
+    if result is error {
+        io:println("Error generating Individual Example READMEs: " + result.message());
+        return;
+    }
+
+    io:println("✓ Individual Example READMEs generated successfully!");
 }
 
 function generateExamplesReadme(string connectorPath) {
