@@ -90,6 +90,7 @@ function printUsage() {
     io:println("  bal run doc_generator -- generate-all /path/to/connector");
     io:println("  bal run doc_generator -- generate-individual-examples /path/to/connector");
 }
+
 function generateAllReadmes(string connectorPath) {
     io:println("Generating all READMEs for connector at: " + connectorPath);
 

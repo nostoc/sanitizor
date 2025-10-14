@@ -416,7 +416,6 @@ dependencies = [
 modules = [
 	{org = "hansika", packageName = "doc_generator", moduleName = "doc_generator"},
 	{org = "hansika", packageName = "doc_generator", moduleName = "doc_generator.ai_generator"},
-	{org = "hansika", packageName = "doc_generator", moduleName = "doc_generator.prompts"},
 	{org = "hansika", packageName = "doc_generator", moduleName = "doc_generator.templates"}
 ]
 

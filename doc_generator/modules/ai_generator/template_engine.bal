@@ -16,6 +16,5 @@ public type TemplateData record {|
     string AI_GENERATED_INDIVIDUAL_README?;
     string AI_GENERATED_MAIN_EXAMPLES_README?;
 
-
 |};
 
