@@ -1,7 +1,9 @@
+string backtick = "`";
+string tripleBacktick = "```";
 
 // Prompt generation functions for Ballerina README
 function createBallerinaOverviewPrompt(ConnectorMetadata metadata) returns string {
-    string backtick = "`";
+
     return string `
 You are a professional technical writer creating the "Overview" section for a Ballerina connector's README.md file. Your task is to generate a concise, two-paragraph overview that is perfectly structured and contains accurate, verified hyperlinks.
 
@@ -15,7 +17,6 @@ You are a professional technical writer creating the "Overview" section for a Ba
 
 The ${backtick}ballerinax/smartsheet${backtick} package offers APIs to connect and interact with [Smartsheet API](https://developers.smartsheet.com/api/smartsheet/introduction) endpoints, specifically based on [Smartsheet API v2.0](https://developers.smartsheet.com/api/smartsheet/openapi).
 ---
-
 
 **TASK INSTRUCTIONS:**
 
@@ -31,7 +32,6 @@ Now, generate a new overview for the following connector. DONT include any follo
     * **Crucially:** End the sentence by specifying the API version. Search for the specific API version number (e.g., v3, v2.0, 2024-04). If you can find a link to that specific version's documentation (like an OpenAPI spec), link to it.
     * **Fallback:** If you cannot find a specific, stable version number, you may state that it is based on "a recent version of the API" and use the general API documentation link again. Do not invent a version number.
 
-
 Connector Information:
 ${getConnectorSummary(metadata)}
 `;
@@ -39,7 +39,7 @@ ${getConnectorSummary(metadata)}
 
 function createBallerinaSetupPrompt(ConnectorMetadata metadata) returns string {
     string connectorName = metadata.connectorName;
-    string backtick = "`";
+
     return string `
 You are a technical writer creating the "Setup guide" section for a Ballerina connector's README.md file. Your task is to explain how a user can get the necessary API credentials from the third-party service.
 
@@ -101,8 +101,7 @@ Generate the "Setup guide" section now.
 }
 
 function createBallerinaQuickstartPrompt(ConnectorMetadata metadata) returns string {
-    string backtick = "`";
-    string tripleBacktick = "```";
+
     string connectorName = metadata.connectorName;
 
     return string `
@@ -317,7 +316,7 @@ Generate the complete and final ${backtick}## Quickstart${backtick} section now.
 }
 
 function createBallerinaExamplesPrompt(ConnectorMetadata metadata) returns string {
-    string backtick = "`";
+
     return string `
 
 You are a technical writer tasked with creating the "Examples" section for a Ballerina connector's README.md file.
@@ -359,8 +358,7 @@ Available Examples: ${metadata.examples.toString()}
 // prompt generation functions for tests README
 
 function createTestReadmePrompt(ConnectorMetadata metadata) returns string {
-    string backtick = "`";
-    string tripleBacktick = "```";
+
     string conectorName = metadata.connectorName;
     string lowerCaseConnectorName = conectorName.toLowerAscii();
 
@@ -468,28 +466,6 @@ Generate the complete "Running Tests" README now.
 
 }
 
-function createExampleDescriptionsPrompt(ConnectorMetadata metadata) returns string {
-    return string `
-You are writing detailed descriptions for examples in a Ballerina connector's examples README.md file.
-
-Connector Information:
-${getConnectorSummary(metadata)}
-
-Available Examples: ${metadata.examples.toString()}
-
-For each example, provide:
-1. A clear title and one-line description
-2. What problem it solves or demonstrates
-3. Key concepts or features it showcases
-4. Prerequisites or setup required
-5. Expected outcomes
-
-Make it easy for developers to choose the right example for their needs.
-Format as markdown with consistent structure for each example.
-`;
-}
-
-
 // prompt generation functions for main README
 
 function createHeaderAndBadges(ConnectorMetadata metadata) returns string {
@@ -510,7 +486,7 @@ function createHeaderAndBadges(ConnectorMetadata metadata) returns string {
 }
 
 function createUsefulLinksSection(ConnectorMetadata metadata) returns string {
-    string backtick = "`";
+
     string lowercaseName = metadata.connectorName.toLowerAscii();
     return string `
 ## Useful links
@@ -521,102 +497,121 @@ function createUsefulLinksSection(ConnectorMetadata metadata) returns string {
 * Post all technical questions on Stack Overflow with the [#ballerina](https://stackoverflow.com/questions/tagged/ballerina) tag.
 `;
 }
+
 // prompt generation functions for example README
 public function createIndividualExamplePrompt(ExampleData exampleData, ConnectorMetadata connectorMetadata) returns string {
-    string backtick = "`";
-    string tripleBacktick = "```";
     return string `
-    You are a senior Ballerina developer and technical writer creating a complete, self-contained README.md file for a single Ballerina example.
-
-Your goal is to generate a guide that is **structurally identical** to the perfect example provided below, based on the Ballerina code you are given.
+    You are a senior Ballerina developer and technical writer. Your goal is to create a complete, self-contained README.md file for a single Ballerina example. The structure of the README **must adapt** based on the patterns you identify in the provided Ballerina code.
 
 ---
-**PERFECT OUTPUT EXAMPLE (for Smartsheet + Slack):**
+**PERFECT OUTPUT EXAMPLES (Notice the differences):**
 
-# Project Task Management Integration
+**Example 1: HTTP Service with Multiple Connectors (Bearer Token)**
+<details>
+  <summary>Click to view HTTP Service example</summary>
+  
+  # Project Task Management Integration
+  
+  This example demonstrates how to automate project task creation...
+  
+  ## Prerequisites
+  
+  1. **Smartsheet Setup**
+     > Refer the [Smartsheet setup guide](${backtick}https://...${backtick}) here.
+  
+  2. **Slack Setup**
+     > Refer the [Slack setup guide](${backtick}https://...${backtick}) here.
+  
+  3. For this example, create a ${backtick}Config.toml${backtick} file with your credentials:
+  
+  ${tripleBacktick}toml
+  smartsheetToken = "SMARTSHEET_ACCESS_TOKEN"
+  slackToken = "SLACK_TOKEN"
+  ...
+  ${tripleBacktick}
+  
+  ## Run the Example
+  
+  1. Execute the command:
+  
+  ${tripleBacktick}bash
+  bal run
+  ${tripleBacktick}
+  
+  2. The service will start. You can test it by sending a POST request:
+  
+  ${tripleBacktick}bash
+  curl -X POST http://localhost:8080/projects ...
+  ${tripleBacktick}
+</details>
 
-This example demonstrates how to automate project task creation using Ballerina connector for Smartsheet. When a new project is created, the system automatically creates initial tasks in Smartsheet and sends a summary notification message to Slack.
+**Example 2: Command-Line Script with OAuth2**
+<details>
+  <summary>Click to view Command-Line Script example</summary>
 
-## Prerequisites
-
-1. **Smartsheet Setup**
-   - Create a Smartsheet account (Business/Enterprise plan required)
-   - Generate an API access token
-   - Create two sheets:
-     - "Projects" sheet with columns: Project Name, Start Date, Status
-     - "Tasks" sheet with columns: Task Name, Assigned To, Due Date, Project Name
-
-   > Refer the [Smartsheet setup guide](${backtick}https://github.com/ballerina-platform/module-ballerinax-smartsheet/blob/main/ballerina/README.md${backtick}) here.
-
-2. **Slack Setup**
-   - Refer the [Slack setup guide](${backtick}https://github.com/ballerina-platform/module-ballerinax-slack/blob/main/ballerina/README.md${backtick}) here.
-
-3. For this example, create a ${backtick}Config.toml${backtick} file with your credentials. Here's an example of how your ${backtick}Config.toml${backtick} file should look:
-
-${tripleBacktick}toml
-smartsheetToken = "SMARTSHEET_ACCESS_TOKEN"
-projectsSheetName = "PROJECT_SHEET_NAME"
-tasksSheetName = "TASK_SHEET_NAME"
-slackToken = "SLACK_TOKEN"
-slackChannel = "SLACK_CHANNEL"
-${tripleBacktick}
-
-## Run the Example
-
-1. Execute the following command to run the example:
-
-${tripleBacktick}bash
-bal run
-${tripleBacktick}
-
-2. The service will start on port 8080. You can test the integration by sending a POST request to create a new project:
-
-${tripleBacktick}bash
-curl -X POST http://localhost:8080/projects \
-  -H "Content-Type: application/json" \
-  -d '{
-    "projectName": "Website Redesign",
-    "startDate": "2025-08-25",
-    "status" : "ACTIVE",
-    "assignedTo": "developer@example.com"
-  }'
-${tripleBacktick}
+  # Customer Feedback Import
+  
+  This use case demonstrates how to import CRM records...
+  
+  ## Prerequisites
+  
+  1. **Setup HubSpot developer account**
+     > Refer to the [Setup guide](${backtick}https://...${backtick}) to obtain credentials.
+  
+  2. **Configuration**
+     Create a ${backtick}Config.toml${backtick} file...
+  
+  ${tripleBacktick}toml
+  clientId = "<Client ID>"
+  clientSecret = "<Client Secret>"
+  refreshToken = "<Refresh Token>"
+  ${tripleBacktick}
+  
+  ## Run the example
+  
+  Execute the following command to run the example. The script will print its progress to the console.
+  
+  ${tripleBacktick}shell
+  bal run
+  ${tripleBacktick}
+</details>
 
 ---
 
-**TASK INSTRUCTIONS:**
+**MASTER INSTRUCTIONS CHECKLIST:**
 
-Now, generate a new, complete README for the following Ballerina example. You must analyze the provided Ballerina code and adhere to these rules strictly:
+You must analyze the provided Ballerina code and generate a README by strictly following this checklist.
 
-1.  **Analyze the Code:** Thoroughly read the provided Ballerina code to understand its purpose, what services it connects to, its configurable variables, and its HTTP endpoints.
+**1.  Analyze the Title and Introduction:**
+    * Generate a human-readable title from the example's directory name ("${exampleData.exampleDirName}").
+    * Write a 1-2 sentence introduction that summarizes what the ${backtick}main.bal${backtick} code *actually does*. If it's a script that performs a sequence of actions, describe that sequence.
 
-2.  **Title:** Create a human-readable title from the example's directory name (e.g., from "${exampleData.exampleDirName}", create "${exampleData.exampleName}").
+**2.  Analyze Prerequisites:**
+    * **Identify Connectors:** Find all ${backtick}import ballerinax/...${backtick} statements. For each unique connector, create a "Setup" prerequisite section with a link to its main setup guide.
+    * **CRITICAL for Config.toml:** Analyze the ${backtick}configurable${backtick} variables at the top of the ${backtick}main.bal${backtick} file. Your ${backtick}Config.toml${backtick} example **MUST** exactly match these variables.
+        * If you see ${backtick}configurable string clientId${backtick}, you **MUST** include ${backtick}clientId${backtick}, ${backtick}clientSecret${backtick}, and ${backtick}refreshToken${backtick} in the TOML file.
+        * If you see ${backtick}configurable string token${backtick}, you **MUST** include only the ${backtick}token${backtick} in the TOML file.
+        * Use descriptive placeholder values like ${backtick}"<Your Client ID>"${backtick} or ${backtick}"YOUR_API_KEY"${backtick}.
 
-3.  **Introduction:** Write a single, concise paragraph describing what the example does.
-
-4.  **Prerequisites Section:**
-    * **Identify External Services:** From the ${backtick}import ballerinax/...${backtick} statements, identify all external connectors used (e.g., Smartsheet, Slack, etc.).
-    * **Create Service Setup Steps:** For each service, create a numbered list item (e.g., "1. Smartsheet Setup").
-    * **Add Setup Guide Links:** For each service, construct a link to its standard setup guide using the pattern: ${backtick}https://github.com/ballerina-platform/module-ballerinax-[SERVICE_NAME]/blob/main/ballerina/README.md${backtick}.
-    * **Generate Config.toml:** Analyze the ${backtick}configurable${backtick} variables in the Ballerina code and create a complete ${backtick}Config.toml${backtick} example block. Use descriptive placeholder values (e.g., "YOUR_API_KEY").
-
-5.  **Run the Example Section:**
-    * Always include the ${backtick}bal run${backtick} command.
-    * If the code defines an HTTP listener (${backtick}http:Listener${backtick}), analyze the service path and resource functions to construct a sample ${backtick}curl${backtick} command to test it. Infer a realistic JSON payload from the record types used in the function signatures. Assume the default port is 8080 unless specified otherwise.
+**3.  Analyze the "Run the Example" Section:**
+    * **Action:** Analyze the ${backtick}main.bal${backtick} file for the presence of an ${backtick}http:Listener${backtick}.
+    * **Rule A (HTTP Service):** If an ${backtick}http:Listener${backtick} is present, your "Run the Example" section **MUST** provide a sample ${backtick}curl${backtick} command to test the service, as shown in Example 1. Infer the endpoint path, HTTP method, and a realistic JSON payload from the resource function's signature.
+    * **Rule B (Script):** If **NO** ${backtick}http:Listener${backtick} is present, your "Run the Example" section **MUST NOT** include a ${backtick}curl${backtick} command. It should only show the ${backtick}bal run${backtick} command.
 
 **EXAMPLE CODE TO ANALYZE:**
 - **Connector:** ${connectorMetadata.connectorName}
 - **Example Name:** ${exampleData.exampleName}
 - **Main Ballerina File Content:**
+${tripleBacktick}ballerina
 ${exampleData.mainBalContent}
+${tripleBacktick}
 
-Generate the complete README.md now.
+Generate the complete README.md now, strictly following the checklist and adapting its structure to the code provided.
 `;
 }
 
 function createMainExampleReadmePrompt(ConnectorMetadata metadata) returns string {
-    string backtick = "`";
-    string tripleBacktick = "```";
+
     return string `
 You are a senior technical writer creating the main README.md for a Ballerina connector's "examples" directory.
 
