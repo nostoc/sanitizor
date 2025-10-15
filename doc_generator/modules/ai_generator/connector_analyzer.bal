@@ -6,8 +6,6 @@ import ballerina/lang.regexp;
 public type ConnectorMetadata record {
     string connectorName;
     string version;
-    string description;
-    string[] dependencies;
     string[] examples;
     string clientBalContent;
     string typesBalContent;
@@ -35,8 +33,6 @@ public function analyzeConnector(string connectorPath) returns ConnectorMetadata
     ConnectorMetadata metadata = {
         connectorName: "",
         version: "1.0.0",
-        description: "",
-        dependencies: [],
         examples: [],
         clientBalContent: "",
         typesBalContent: ""
@@ -107,12 +103,7 @@ function analyzeBallerinaToml(string connectorPath, ConnectorMetadata metadata) 
                     metadata.version = strings:trim(regexp:replaceAll(re `"`, parts[1], ""));
                 }
             }
-            if strings:startsWith(trimmedLine, "description") {
-                string[] parts = regexp:split(re `=`, trimmedLine);
-                if parts.length() > 1 {
-                    metadata.description = strings:trim(regexp:replaceAll(re `"`, parts[1], ""));
-                }
-            }
+            
         }
     }
 }
@@ -135,7 +126,6 @@ function analyzeExamples(string connectorPath, ConnectorMetadata metadata) retur
 public function getConnectorSummary(ConnectorMetadata metadata) returns string {
     string summary = "Connector: " + metadata.connectorName + "\n";
     summary += "Version: " + metadata.version + "\n";
-    summary += "Description: " + metadata.description + "\n";
     summary += "Examples: " + strings:'join(", ", ...metadata.examples) + "\n";
 
     return summary;

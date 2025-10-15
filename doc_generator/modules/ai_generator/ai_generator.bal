@@ -348,8 +348,8 @@ function writeOutput(string content, string outputPath) returns error? {
 function createTemplateData(ConnectorMetadata metadata) returns TemplateData {
     return {
         CONNECTOR_NAME: metadata.connectorName,
-        VERSION: metadata.version,
-        DESCRIPTION: metadata.description
+        VERSION: metadata.version
+        
     };
 }
 
