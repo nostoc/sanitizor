@@ -8,9 +8,10 @@ public type ConnectorMetadata record {
     string version;
     string description;
     string[] dependencies;
-    string[] clientMethods;
-    string[] types;
     string[] examples;
+    string clientBalContent;
+    string typesBalContent;
+
 };
 
 public type ExampleData record {|
@@ -36,24 +37,49 @@ public function analyzeConnector(string connectorPath) returns ConnectorMetadata
         version: "1.0.0",
         description: "",
         dependencies: [],
-        clientMethods: [],
-        types: [],
-        examples: []
+        examples: [],
+        clientBalContent: "",
+        typesBalContent: ""
     };
 
-    error? result = extractMetadata(connectorPath, metadata);
-    if result is error {
-        return result;
-    }
+    // Analyze Ballerina.toml
+    check analyzeBallerinaToml(connectorPath, metadata);
+
+    // Get client.bal and types.bal content
+    check analyzeClientAndTypesFiles(connectorPath, metadata);
+
+    // Analyze examples directory
+    check analyzeExamples(connectorPath, metadata);
 
     return metadata;
 }
 
-function extractMetadata(string connectorPath, ConnectorMetadata metadata) returns error? {
-    check analyzeBallerinaToml(connectorPath, metadata);
-    check analyzeClientFile(connectorPath, metadata);
-    check analyzeTypesFile(connectorPath, metadata);
-    check analyzeExamples(connectorPath, metadata);
+function analyzeClientAndTypesFiles(string connectorPath, ConnectorMetadata metadata) returns error? {
+    // Get client.bal content
+    string[] possibleClientPaths = [
+        connectorPath + "/ballerina/client.bal",
+        connectorPath + "/client.bal"
+    ];
+
+    foreach string clientPath in possibleClientPaths {
+        if check file:test(clientPath, file:EXISTS) {
+            metadata.clientBalContent = check io:fileReadString(clientPath);
+            break;
+        }
+    }
+
+    // Get types.bal content
+    string[] possibleTypesPaths = [
+        connectorPath + "/ballerina/types.bal",
+        connectorPath + "/types.bal"
+    ];
+
+    foreach string typesPath in possibleTypesPaths {
+        if check file:test(typesPath, file:EXISTS) {
+            metadata.typesBalContent = check io:fileReadString(typesPath);
+            break;
+        }
+    }
 }
 
 function analyzeBallerinaToml(string connectorPath, ConnectorMetadata metadata) returns error? {
@@ -91,36 +117,6 @@ function analyzeBallerinaToml(string connectorPath, ConnectorMetadata metadata) 
     }
 }
 
-function analyzeClientFile(string connectorPath, ConnectorMetadata metadata) returns error? {
-    string[] possibleClientPaths = [
-        connectorPath + "/ballerina/client.bal",
-        connectorPath + "/client.bal"
-    ];
-
-    foreach string clientPath in possibleClientPaths {
-        if check file:test(clientPath, file:EXISTS) {
-            string content = check io:fileReadString(clientPath);
-            metadata.clientMethods = extractFunctionNames(content);
-            break;
-        }
-    }
-}
-
-function analyzeTypesFile(string connectorPath, ConnectorMetadata metadata) returns error? {
-    string[] possibleTypesPaths = [
-        connectorPath + "/ballerina/types.bal",
-        connectorPath + "/types.bal"
-    ];
-
-    foreach string typesPath in possibleTypesPaths {
-        if check file:test(typesPath, file:EXISTS) {
-            string content = check io:fileReadString(typesPath);
-            metadata.types = extractTypeNames(content);
-            break;
-        }
-    }
-}
-
 function analyzeExamples(string connectorPath, ConnectorMetadata metadata) returns error? {
     string examplesPath = connectorPath + "/examples";
 
@@ -129,64 +125,17 @@ function analyzeExamples(string connectorPath, ConnectorMetadata metadata) retur
 
         foreach file:MetaData example in examples {
             if example.dir {
-                string exampleName = example.absPath.substring(examplesPath.length() + 1);
+                string exampleName = example.absPath.substring(examplesPath.length());
                 metadata.examples.push(exampleName);
             }
         }
     }
 }
 
-function extractFunctionNames(string content) returns string[] {
-    string[] functions = [];
-    string[] lines = regexp:split(re `\n`, content);
-
-    foreach string line in lines {
-        string trimmedLine = strings:trim(line);
-        if strings:includes(trimmedLine, "remote function") ||
-            strings:includes(trimmedLine, "resource function") {
-            string[] parts = regexp:split(re ` `, trimmedLine);
-            foreach int i in 0 ..< parts.length() - 1 {
-                if parts[i] == "function" && parts.length() > i + 1 {
-                    string funcName = parts[i + 1];
-                    if strings:includes(funcName, "(") {
-                        int? parenIndex = funcName.indexOf("(");
-                        if parenIndex is int {
-                            funcName = funcName.substring(0, parenIndex);
-                        }
-                    }
-                    functions.push(funcName);
-                    break;
-                }
-            }
-        }
-    }
-
-    return functions;
-}
-
-function extractTypeNames(string content) returns string[] {
-    string[] types = [];
-    string[] lines = regexp:split(re `\n`, content);
-
-    foreach string line in lines {
-        string trimmedLine = strings:trim(line);
-        if strings:startsWith(trimmedLine, "public type") {
-            string[] parts = regexp:split(re ` `, trimmedLine);
-            if parts.length() >= 3 {
-                types.push(parts[2]);
-            }
-        }
-    }
-
-    return types;
-}
-
 public function getConnectorSummary(ConnectorMetadata metadata) returns string {
     string summary = "Connector: " + metadata.connectorName + "\n";
     summary += "Version: " + metadata.version + "\n";
     summary += "Description: " + metadata.description + "\n";
-    summary += "Client Methods: " + strings:'join(", ", ...metadata.clientMethods) + "\n";
-    summary += "Types: " + strings:'join(", ", ...metadata.types) + "\n";
     summary += "Examples: " + strings:'join(", ", ...metadata.examples) + "\n";
 
     return summary;
@@ -205,7 +154,7 @@ public function analyzeExampleDirectory(string examplePath, string exampleDirNam
 
     foreach file:MetaData fileInfo in files {
         if !fileInfo.dir && fileInfo.absPath.endsWith(".bal") {
-            string fileName = fileInfo.absPath.substring(examplePath.length() + 1);
+            string fileName = fileInfo.absPath.substring(examplePath.length());
             string content = check io:fileReadString(fileInfo.absPath);
 
             exampleData.balFiles.push(fileName);

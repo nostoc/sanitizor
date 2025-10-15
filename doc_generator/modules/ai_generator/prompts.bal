@@ -103,112 +103,216 @@ Generate the "Setup guide" section now.
 function createBallerinaQuickstartPrompt(ConnectorMetadata metadata) returns string {
     string backtick = "`";
     string tripleBacktick = "```";
+    string connectorName = metadata.connectorName;
+
     return string `
-You are a senior Ballerina developer and technical writer creating the "Quickstart" section for a Ballerina connector's README.md file.
+You are an expert Ballerina technical writer and developer. Your task is to create a complete and perfect "Quickstart" section for a Ballerina connector's README.md file.
 
-Your goal is to generate a guide that is **structurally identical** to the perfect example provided below.
-
----
-**PERFECT OUTPUT EXAMPLE (for Smartsheet):**
-
-## Quickstart
-
-To use the ${backtick}Smartsheet${backtick} connector in your Ballerina application, update the ${backtick}.bal${backtick} file as follows:
-
-### Step 1: Import the module
-
-Import the ${backtick}smartsheet${backtick} module.
-
-${tripleBacktick}ballerina
-import ballerinax/smartsheet;
-${tripleBacktick}
-
-### Step 2: Instantiate a new connector
-
-1. Create a ${backtick}Config.toml${backtick} file and configure the obtained access token as follows:
-
-${tripleBacktick}toml
-token = "<Your_Smartsheet_Access_Token>"
-${tripleBacktick}
-
-2. Create a ${backtick}smartsheet:ConnectionConfig${backtick} with the obtained access token and initialize the connector with it.
-
-${tripleBacktick}ballerina
-configurable string token = ?;
-
-final smartsheet:Client smartsheet = check new({
-    auth: {
-        token
-    }
-});
-${tripleBacktick}
-
-### Step 3: Invoke the connector operation
-
-Now, utilize the available connector operations.
-
-#### Create a new sheet
-
-${tripleBacktick}ballerina
-public function main() returns error? {
-    smartsheet:SheetsBody newSheet = {
-        name: "New Project Sheet",
-        columns: [
-            {
-                title: "Task Name",
-                type: "TEXT_NUMBER",
-                primary: true
-            },
-            {
-                title: "Status",
-                type: "PICKLIST",
-                options: ["Not Started", "In Progress", "Complete"]
-            },
-            {
-                title: "Due Date",
-                type: "DATE"
-            }
-        ]
-    };
-
-    smartsheet:WebhookResponse response = check smartsheet->/sheets.post(newSheet);
-}
-${tripleBacktick}
-
-### Step 4: Run the Ballerina application
-
-${tripleBacktick}bash
-bal run
-${tripleBacktick}
+You MUST analyze the provided source code (${backtick}client.bal${backtick} and ${backtick}types.bal${backtick}) and follow the examples and rules below with extreme precision.
 
 ---
+**PERFECT OUTPUT EXAMPLES:**
 
-**TASK INSTRUCTIONS:**
+**Example 1: Bearer Token Auth with Simple Payload (Slack)**
+<details>
+  <summary>Click to view Slack example</summary>
+  
+  ## Quickstart
+  
+  To use the ${backtick}slack${backtick} connector in your Ballerina application, update the ${backtick}.bal${backtick} file as follows:
+  
+  ### Step 1: Import the module
+  
+  ${tripleBacktick}ballerina
+  import ballerinax/slack;
+  ${tripleBacktick}
+  
+  ### Step 2: Instantiate a new connector
+  
+  1. Create a ${backtick}Config.toml${backtick} file and configure the obtained access token:
+  
+  ${tripleBacktick}toml
+  token = "<Your_Slack_Access_Token>"
+  ${tripleBacktick}
+  
+  2. Create a ${backtick}slack:ConnectionConfig${backtick} and initialize the client:
+  
+  ${tripleBacktick}ballerina
+  configurable string token = ?;
+  
+  final slack:Client slackClient = check new({
+      auth: {
+          token
+      }
+  });
+  ${tripleBacktick}
+  
+  ### Step 3: Invoke the connector operation
+  
+  Now, utilize the available connector operations.
+  
+  #### Post a message
+  
+  ${tripleBacktick}ballerina
+  public function main() returns error? {
+      slack:ChatPostMessageResponse response = check slackClient->/chat\.postMessage.post({
+          channel: "general", 
+          text: "Hello from Ballerina!"
+      });
+  }
+  ${tripleBacktick}
+  
+  ### Step 4: Run the Ballerina application
+  
+  ${tripleBacktick}bash
+  bal run
+  ${tripleBacktick}
+</details>
 
-Now, generate a new Quickstart section for the connector specified below. Adhere to these rules strictly:
+**Example 2: OAuth2 Auth with Complex Payload (HubSpot Forms)**
+<details>
+  <summary>Click to view HubSpot Forms example</summary>
 
-1.  **Follow the Exact Structure:** Use the ${backtick}## Quickstart${backtick} title, the introductory sentence, and the ${backtick}### Step 1${backtick}, ${backtick}### Step 2${backtick}, ${backtick}### Step 3${backtick}, and ${backtick}### Step 4${backtick} markdown headers precisely as shown in the example.
+  ## Quickstart
 
-2.  **Step 1 (Import):** Use the format ${backtick}import ballerinax/[connector_lowercase_name];${backtick}.
+  To use the ${backtick}HubSpot Marketing Forms${backtick} connector in your Ballerina application, update the ${backtick}.bal${backtick} file as follows:
 
-3.  **Step 2 (Instantiate):**
-    * Show the ${backtick}Config.toml${backtick} file for configuring an access token. Use the placeholder ${backtick}<Your_[ConnectorDisplayName]_Access_Token>${backtick}.
-    * Show the Ballerina code for initializing the client using ${backtick}configurable string token = ?;${backtick} and ${backtick}final [connector_lowercase_name]:Client ...${backtick}.
+  ### Step 1: Import the module
+  
+  ${tripleBacktick}ballerina
+  import ballerina/oauth2;
+  import ballerinax/hubspot.marketing.forms as hsmforms;
+  ${tripleBacktick}
+  
+  ### Step 2: Instantiate a new connector
+  
+  1. Create a ${backtick}Config.toml${backtick} file with your credentials:
+  
+  ${tripleBacktick}toml
+  clientId = "<Your_Client_Id>"
+  clientSecret = "<Your_Client_Secret>"
+  refreshToken = "<Your_Refresh_Token>"
+  ${tripleBacktick}
+  
+  2. Create a ${backtick}hsmforms:ConnectionConfig${backtick} and initialize the client:
+  
+  ${tripleBacktick}ballerina
+  configurable string clientId = ?;
+  configurable string clientSecret = ?;
+  configurable string refreshToken = ?;
+  
+  final hsmforms:Client hsmformsClient = check new({
+      auth: {
+          clientId,
+          clientSecret,
+          refreshToken
+      }
+  });
+  ${tripleBacktick}
+  
+  ### Step 3: Invoke the connector operation
+  
+  Now, utilize the available connector operations.
+  
+  #### Create a new form
+  
+  ${tripleBacktick}ballerina
+  public function main() returns error? {
+      hsmforms:FormDefinitionCreateRequestBase newForm = {
+          formType: "hubspot",
+          name: "New Lead Capture Form",
+          archived: false,
+          fieldGroups: [
+              {
+                  fields: [
+                      {
+                          objectTypeId: "0-1",
+                          name: "email",
+                          label: "Email",
+                          fieldType: "email",
+                          required: true
+                      }
+                  ]
+              }
+          ]
+      };
+  
+      hsmforms:FormDefinitionBase response = check hsmformsClient->/.post(newForm);
+  }
+  ${tripleBacktick}
+  
+  ### Step 4: Run the Ballerina application
+  
+  ${tripleBacktick}bash
+  bal run
+  ${tripleBacktick}
+</details>
 
-4.  **Step 3 (Invoke):**
-    * **Choose ONE simple, representative operation** from the list of available methods. **Prioritize a "create", "add", or "post" operation.** If none are suitable, choose a simple "list" or "get all" operation.
-    * Create a ${backtick}####${backtick} sub-heading for the operation (e.g., ${backtick}#### Create a new issue${backtick}, ${backtick}#### List all users${backtick}).
-    * Write a complete, copy-pastable Ballerina code block inside a ${backtick}public function main() returns error? { ... }${backtick}.
-    * The code must demonstrate how to build the necessary request payload and how to call the chosen operation. Use realistic and simple data for the payload.
+**Example 3: OAuth2 Auth with No Payload / GET (HubSpot CRM Imports)**
+<details>
+  <summary>Click to view HubSpot Imports example</summary>
+  
+  ## Quickstart
+  
+  ### Step 3: Invoke the connector operation
+  
+  #### Get a paged list of active imports
+  
+  ${tripleBacktick}ballerina
+  public function main() returns error? {
+      crmImport:CollectionResponsePublicImportResponse response = check crmImportsClient->/.get({});
+  }
+  ${tripleBacktick}
+</details>
 
-5.  **Step 4 (Run):** Include the command to run the application, ${backtick}bal run${backtick}, within a ${backtick}bash${backtick} code block exactly as shown in the example.
+---
 
+**MASTER INSTRUCTIONS CHECKLIST:**
 
-**CONNECTOR INFORMATION TO USE:**
-${getConnectorSummary(metadata)}
-Available client methods: ${metadata.clientMethods.toString()}
+You must follow this checklist to generate the new Quickstart section.
 
-Generate the "Quickstart" section now.
+**1.  Analyze Authentication:**
+    * **Action:** Look for ${backtick}public type ConnectionConfig${backtick} in ${backtick}types.bal${backtick}.
+    * **Rule:** If the ${backtick}auth${backtick} field uses ${backtick}oauth2:OAuth2RefreshTokenGrantConfig${backtick}, you MUST generate the **OAuth2 pattern** (like Example 2). This requires importing ${backtick}ballerina/oauth2${backtick}, using ${backtick}clientId${backtick}, ${backtick}clientSecret${backtick}, ${backtick}refreshToken${backtick} in ${backtick}Config.toml${backtick}, and initializing the client with those configurable variables.
+    * **Rule:** Otherwise, generate the **Bearer Token pattern** (like Example 1). This requires a simple ${backtick}token${backtick} in ${backtick}Config.toml${backtick}.
+
+**2.  Handle Imports:**
+    * **Rule:** If the module name (e.g., ${backtick}hubspot.marketing.forms${backtick}) contains dots, you MUST use an alias in the import statement (e.g., ${backtick}import ballerinax/hubspot.marketing.forms as hsmforms;${backtick}).
+    * **Rule:** Always import ${backtick}ballerina/oauth2${backtick} for the OAuth2 pattern.
+
+**3.  Select the Best Operation:**
+    * **Action:** Analyze the resource and remote functions in ${backtick}client.bal${backtick}.
+    * **Priority 1:** Choose a **${backtick}POST${backtick}** operation that clearly creates a new resource (e.g., a function that takes a request body payload).
+    * **Priority 2:** If no suitable ${backtick}POST${backtick} is found, choose a **${backtick}GET${backtick}** operation that lists resources and does not require path parameters.
+
+**4.  Construct the Payload:**
+    * **Action:** Identify the request payload type from the signature of the operation you selected in ${backtick}client.bal${backtick}.
+    * **Action:** Find the full definition of that type in ${backtick}types.bal${backtick}.
+    * **Rule:** Create a variable of that type. Populate it with **simple, realistic placeholder data**. For example, use ${backtick}"New Contact Form"${backtick} for a name, not an empty string or ${backtick}"<name>"${backtick}. Only include a few essential fields to keep the example clean.
+    * **CRITICAL Rule:** If you chose a ${backtick}GET${backtick} operation that does not take a payload (like Example 3), you MUST call it with an empty map: ${backtick}check client->/path.get({});${backtick}.
+
+**5.  Assemble the Code:**
+    * **Rule:** All code in Step 3 must be inside a ${backtick}public function main() returns error? { ... }${backtick}.
+    * **Rule:** Create a sensible, camelCase variable name for the client instance (e.g., ${backtick}slackClient${backtick}, ${backtick}hubspotFormsClient${backtick}). Use this variable when invoking the operation.
+    * **Rule:** Create a ${backtick}####${backtick} sub-heading for the operation description (e.g., ${backtick}#### Create a new form${backtick}).
+
+**SOURCE CODE FOR YOUR ANALYSIS:**
+
+**Connector Name:** ${connectorName}
+
+**${backtick}client.bal${backtick} Content:**
+${tripleBacktick}ballerina
+${metadata.clientBalContent}
+${tripleBacktick}
+
+**${backtick}types.bal${backtick} Content:**
+${tripleBacktick}ballerina
+${metadata.typesBalContent}
+${tripleBacktick}
+
+---
+
+Generate the complete and final ${backtick}## Quickstart${backtick} section now.
 `;
 }
 
@@ -385,24 +489,6 @@ Format as markdown with consistent structure for each example.
 `;
 }
 
-function createGettingStartedPrompt(ConnectorMetadata metadata) returns string {
-    return string `
-You are writing a Getting Started section for a Ballerina connector's examples README.md file.
-
-Connector Information:
-${getConnectorSummary(metadata)}
-
-Create guidance that includes:
-1. Which example to start with first
-2. How to run the examples
-3. Common configuration steps
-4. Troubleshooting tips for beginners
-5. Next steps after trying the examples
-
-Focus on helping new users succeed quickly with their first example.
-Format as markdown with step-by-step instructions.
-`;
-}
 
 // prompt generation functions for main README
 
@@ -435,93 +521,7 @@ function createUsefulLinksSection(ConnectorMetadata metadata) returns string {
 * Post all technical questions on Stack Overflow with the [#ballerina](https://stackoverflow.com/questions/tagged/ballerina) tag.
 `;
 }
-
-function createIndividualExampleDescriptionPrompt(ExampleData exampleData, ConnectorMetadata connectorMetadata) returns string {
-    return string `
-You are writing a detailed description for a specific Ballerina connector example.
-
-Example Information:
-- Name: ${exampleData.exampleName}
-- Directory: ${exampleData.exampleDirName}
-- Connector: ${connectorMetadata.connectorName}
-- Directory: ${exampleData.exampleDirName}
-- Connector: ${connectorMetadata.connectorName}
-
-Ballerina Code Files:
-${string:'join("\n\n---\n\n", ...exampleData.balFileContents)}
-
-Write a comprehensive description that explains:
-1. What this example demonstrates
-2. The main use case it addresses
-3. Key features of the ${connectorMetadata.connectorName} API it uses
-4. Why someone would use this example
-
-Keep it concise but informative, 2-3 paragraphs maximum.
-Use markdown formatting.
-`;
-}
-
-function createConfigExamplePrompt(ExampleData exampleMetadata, ConnectorMetadata connectorMetadata) returns string {
-    return string `
-Based on the Ballerina code below, generate a Config.toml example that shows what configuration is needed.
-
-Ballerina Code:
-${exampleMetadata.mainBalContent}
-
-Connector: ${connectorMetadata.connectorName}
-
-Provide a realistic Config.toml example with:
-1. All required configuration fields
-2. Placeholder values that clearly indicate what the user needs to provide
-3. Comments explaining any complex fields
-
-Format as a TOML code block.
-`;
-}
-
-function createExpectedOutputPrompt(ExampleData exampleData) returns string {
-    return string `
-Based on this Ballerina example code, describe what output the user should expect when running this example:
-
-${exampleData.mainBalContent}
-
-Provide:
-1. A brief description of what happens when the code runs
-2. Example output format (if applicable)
-3. Success indicators the user should look for
-
-Keep it concise and practical.
-`;
-}
-
-function createKeyConceptsPrompt(ExampleData exampleData) returns string {
-    return string `
-Analyze this Ballerina example code and identify the key concepts it demonstrates:
-
-${exampleData.mainBalContent}
-
-List the main programming concepts, API patterns, or Ballerina features showcased in this example.
-Format as a bulleted list with brief explanations.
-Focus on what developers can learn from this example.
-`;
-}
-
-function createNextStepsPrompt(ExampleData exampleData, ConnectorMetadata connectorMetadata) returns string {
-    return string `
-Based on this example for ${connectorMetadata.connectorName}, suggest practical next steps for developers:
-
-Example: ${exampleData.exampleName}
-Code: ${exampleData.mainBalContent}
-
-Provide 3-4 actionable next steps that help developers:
-1. Extend or modify this example
-2. Explore related ${connectorMetadata.connectorName} features
-3. Build upon this example for real-world use
-
-Keep suggestions practical and specific.
-`;
-}
-
+// prompt generation functions for example README
 public function createIndividualExamplePrompt(ExampleData exampleData, ConnectorMetadata connectorMetadata) returns string {
     string backtick = "`";
     string tripleBacktick = "```";

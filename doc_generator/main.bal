@@ -146,7 +146,6 @@ function generateAllReadmes(string connectorPath, boolean autoYes = false, boole
         }
     }
 
-    io:println("Processing all README generation...");
     error? result = ai_generator:generateAllDocumentation(connectorPath);
     if result is error {
         if !quietMode {

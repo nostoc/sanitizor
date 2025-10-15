@@ -25,9 +25,8 @@ public function initDocumentationGenerator() returns error? {
 }
 
 public function generateAllDocumentation(string connectorPath) returns error? {
-    io:println("📋 Analyzing connector structure...");
 
-    io:println("Generating documentation...");
+    io:println(" Starting Document generation...");
     check generateBallerinaReadme(connectorPath);
     check generateTestsReadme(connectorPath);
     check generateExamplesReadme(connectorPath);
@@ -99,13 +98,13 @@ public function generateIndividualExampleReadmes(string connectorPath) returns e
     foreach file:MetaData example in examples {
         if example.dir {
             string exampleDirName = example.absPath.substring(examplesPath.length() + 1);
-            io:println("Generating README for example: " + exampleDirName);
+            string exampleDirPath = examplesPath + "/" + exampleDirName;
 
             error? result = generateSingleExampleReadme(example.absPath, exampleDirName, metadata);
             if result is error {
                 io:println("Failed to generate README for " + exampleDirName + ": " + result.message());
             } else {
-                io:println("Generated README for: " + exampleDirName);
+                io:println("Generated: " + exampleDirPath);
             }
         }
     }
@@ -135,8 +134,6 @@ function generateSingleExampleReadme(string examplePath, string exampleDirName, 
 
 function generateIndividualExampleContent(ExampleData exampleData, ConnectorMetadata connectorMetadata) returns map<string>|error {
     map<string> content = {};
-
-    io:println("Generating individual Examle README...");
     content["individual_readme"] = check callAI(createIndividualExamplePrompt(exampleData, connectorMetadata));
     return content;
 }
@@ -181,17 +178,9 @@ public function generateMainReadme(string connectorPath) returns error? {
 
 function generateBallerinaContent(ConnectorMetadata metadata) returns map<string>|error {
     map<string> content = {};
-
-    io:println("Generating overview...");
     content["overview"] = check callAI(createBallerinaOverviewPrompt(metadata));
-
-    io:println("Generating setup guide...");
     content["setup"] = check callAI(createBallerinaSetupPrompt(metadata));
-
-    io:println("Generating quickstart...");
     content["quickstart"] = check callAI(createBallerinaQuickstartPrompt(metadata));
-
-    io:println("Generating examples section...");
     content["examples"] = check callAI(createBallerinaExamplesPrompt(metadata));
 
     return content;
@@ -199,41 +188,24 @@ function generateBallerinaContent(ConnectorMetadata metadata) returns map<string
 
 function generateTestsContent(ConnectorMetadata metadata) returns map<string>|error {
     map<string> content = {};
-
-    io:println("Generating testing approach...");
     content["testing_approach"] = check callAI(createTestReadmePrompt(metadata));
-    io:println(content);
     return content;
 }
 
 function generateExamplesContent(ConnectorMetadata metadata) returns map<string>|error {
     map<string> content = {};
-
-    io:println("Generating main readme ...");
     content["main_examples_readme"] = check callAI(createMainExampleReadmePrompt(metadata));
-
     return content;
 }
 
 function generateMainContent(ConnectorMetadata metadata) returns map<string>|error {
     map<string> content = {};
 
-    io:println("Generating Header and Badges...");
     content["header_and_badges"] = createHeaderAndBadges(metadata);
-
-    io:println("Generating Overview section...");
     content["overview"] = check callAI(createBallerinaOverviewPrompt(metadata));
-
-    io:println("Generating Setup guide section...");
     content["setup"] = check callAI(createBallerinaSetupPrompt(metadata));
-
-    io:println("Generating Quickstart section...");
     content["quickstart"] = check callAI(createBallerinaQuickstartPrompt(metadata));
-
-    io:println("Generating Examples section...");
     content["examples"] = check callAI(createBallerinaExamplesPrompt(metadata));
-
-    io:println("Generating Useful Links section...");
     content["useful_links"] = createUsefulLinksSection(metadata);
     return content;
 }
