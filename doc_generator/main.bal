@@ -4,7 +4,7 @@ import ballerina/io;
 import ballerina/os;
 
 public function main(string... args) returns error? {
-    io:println("Starting Ballerina Connector Documentation Generator...");
+    io:println("Starting Ballerina Connector Documentation Generator...\n");
 
     if args.length() == 0 {
         printUsage();
@@ -115,14 +115,19 @@ function getUserConfirmation(string message, boolean autoYes = false) returns bo
 }
 
 function generateAllReadmes(string connectorPath, boolean autoYes = false, boolean quietMode = false) returns error? {
-    io:println("=== Comprehensive README Generation ===");
-    io:println(string `Connector path: ${connectorPath}`);
+        io:println(string `Connector path: ${connectorPath}`);
     io:println("\nREADMEs to be generated:");
     io:println("1. Ballerina module README (/ballerina/README.md)");
     io:println("2. Tests README (/tests/README.md)");
     io:println("3. Main examples README (/examples/README.md)");
     io:println("4. Individual example READMEs (/examples/*/README.md)");
     io:println("5. Root module README (/README.md)");
+
+    if !autoYes && !quietMode {
+        io:println("\n  AI Generation Notice:");
+        io:println("   These READMEs are generated using AI and may contain inaccuracies.");
+        io:println("   Manual review and verification is strongly recommended.");
+    }
 
     if !getUserConfirmation("\nProceed with generating all READMEs?", autoYes) {
         io:println("Operation cancelled by user.");
@@ -159,6 +164,14 @@ function generateAllReadmes(string connectorPath, boolean autoYes = false, boole
         io:println("✓ All READMEs generated successfully!");
         if !quietMode {
             io:println("Generated files can be found in the respective directories under: " + connectorPath);
+            io:println("\n IMPORTANT: All content is AI-generated and requires manual review!");
+            io:println(" Please verify across all generated READMEs:");
+            io:println("   - All API URLs, documentation links, and setup guides");
+            io:println("   - Authentication steps and credential formats");
+            io:println("   - Code examples, Config.toml variables, and syntax");
+            io:println("   - GitHub repository links and CI/CD badge URLs");
+            io:println("   - Example descriptions matching actual functionality");
+            io:println("   - Test commands and environment variable names");
         }
     }
 }
@@ -167,10 +180,10 @@ function generateBallerinaReadme(string connectorPath, boolean autoYes = false, 
     io:println("=== Ballerina Module README Generation ===");
     io:println(string `Connector path: ${connectorPath}`);
     io:println("This will generate the core Ballerina module README file with:");
-    io:println("• Overview and feature descriptions");
-    io:println("• Setup instructions");
-    io:println("• Quickstart guide");
-    io:println("• Usage examples");
+    io:println("• Service overview with official links");
+    io:println("• Step-by-step setup guide with credentials");
+    io:println("• Quickstart code example with authentication");
+    io:println("• List of available examples with descriptions");
 
     if !getUserConfirmation("\nProceed with Ballerina README generation?", autoYes) {
         io:println("Operation cancelled by user.");
@@ -203,6 +216,10 @@ function generateBallerinaReadme(string connectorPath, boolean autoYes = false, 
     io:println("✓ Ballerina README generated successfully!");
     if !quietMode {
         io:println(string `Generated file: ${connectorPath}/ballerina/README.md`);
+        io:println(" Note: This is AI-generated content. Please review and verify all information, especially:");
+        io:println("   - API URLs and documentation links");
+        io:println("   - Authentication setup steps");
+        io:println("   - Code examples and syntax");
     }
 }
 
@@ -210,9 +227,10 @@ function generateTestsReadme(string connectorPath, boolean autoYes = false, bool
     io:println("=== Tests README Generation ===");
     io:println(string `Connector path: ${connectorPath}`);
     io:println("This will generate the Tests README file with:");
-    io:println("• Testing approach and methodology");
-    io:println("• Test scenario descriptions");
-    io:println("• Test execution instructions");
+    io:println("• Prerequisites for running tests");
+    io:println("• Mock server vs live API test environments");
+    io:println("• Configuration setup (Config.toml and environment variables)");
+    io:println("• Commands to execute tests");
 
     if !getUserConfirmation("\nProceed with Tests README generation?", autoYes) {
         io:println("Operation cancelled by user.");
@@ -245,6 +263,10 @@ function generateTestsReadme(string connectorPath, boolean autoYes = false, bool
     io:println("✓ Tests README generated successfully!");
     if !quietMode {
         io:println(string `Generated file: ${connectorPath}/tests/README.md`);
+        io:println(" Note: This is AI-generated content. Please review and verify:");
+        io:println("   - Environment variable names and values");
+        io:println("   - Test execution commands");
+        io:println("   - Configuration file formats");
     }
 }
 
@@ -252,9 +274,10 @@ function generateIndividualExampleReadmes(string connectorPath, boolean autoYes 
     io:println("=== Individual Example READMEs Generation ===");
     io:println(string `Connector path: ${connectorPath}`);
     io:println("This will generate individual README files for each example with:");
-    io:println("• Example-specific descriptions");
-    io:println("• Setup and configuration instructions");
-    io:println("• Usage examples and code walkthroughs");
+    io:println("• Human-readable titles and use case descriptions");
+    io:println("• Connector-specific setup guides with links");
+    io:println("• Accurate Config.toml examples matching configurable variables");
+    io:println("• Appropriate run instructions (with/without curl commands)");
 
     if !getUserConfirmation("\nProceed with Individual Example READMEs generation?", autoYes) {
         io:println("Operation cancelled by user.");
@@ -287,6 +310,11 @@ function generateIndividualExampleReadmes(string connectorPath, boolean autoYes 
     io:println("✓ Individual Example READMEs generated successfully!");
     if !quietMode {
         io:println(string `Generated files in: ${connectorPath}/examples/*/README.md`);
+        io:println(" Note: This is AI-generated content. Please review each example README for:");
+        io:println("   - Correct Config.toml variable names and formats");
+        io:println("   - Accurate setup guide links");
+        io:println("   - Proper curl commands for HTTP services");
+        io:println("   - Example descriptions matching actual functionality");
     }
 }
 
@@ -294,9 +322,10 @@ function generateExamplesReadme(string connectorPath, boolean autoYes = false, b
     io:println("=== Main Examples README Generation ===");
     io:println(string `Connector path: ${connectorPath}`);
     io:println("This will generate the main Examples README file with:");
-    io:println("• Overview of all available examples");
-    io:println("• Getting started with examples");
-    io:println("• Example descriptions and use cases");
+    io:println("• Connector overview with example scenarios");
+    io:println("• Numbered list of examples with GitHub links");
+    io:println("• Prerequisites and credential setup");
+    io:println("• Build and run instructions");
 
     if !getUserConfirmation("\nProceed with Examples README generation?", autoYes) {
         io:println("Operation cancelled by user.");
@@ -329,6 +358,10 @@ function generateExamplesReadme(string connectorPath, boolean autoYes = false, b
     io:println("✓ Examples README generated successfully!");
     if !quietMode {
         io:println(string `Generated file: ${connectorPath}/examples/README.md`);
+        io:println(" Note: This is AI-generated content. Please verify:");
+        io:println("   - Example names and descriptions");
+        io:println("   - GitHub repository links");
+        io:println("   - Build commands and prerequisites");
     }
 }
 
@@ -336,10 +369,10 @@ function generateMainReadme(string connectorPath, boolean autoYes = false, boole
     io:println("=== Root Module README Generation ===");
     io:println(string `Connector path: ${connectorPath}`);
     io:println("This will generate the root README file with:");
-    io:println("• Complete project overview");
-    io:println("• Installation and build instructions");
-    io:println("• Comprehensive feature documentation");
-    io:println("• Usage examples and links");
+    io:println("• Header with connector name and CI/CD badges");
+    io:println("• Complete overview, setup guide, and quickstart");
+    io:println("• Examples section with GitHub links");
+    io:println("• Useful links to Ballerina Central and community resources");
 
     if !getUserConfirmation("\nProceed with Main README generation?", autoYes) {
         io:println("Operation cancelled by user.");
@@ -372,6 +405,11 @@ function generateMainReadme(string connectorPath, boolean autoYes = false, boole
     io:println("✓ Main README generated successfully!");
     if !quietMode {
         io:println(string `Generated file: ${connectorPath}/README.md`);
+        io:println(" Note: This is AI-generated content. Please review and verify:");
+        io:println("   - CI/CD badge URLs and status");
+        io:println("   - Ballerina Central package links");
+        io:println("   - All GitHub repository references");
+        io:println("   - Community and documentation links");
     }
 }
 
