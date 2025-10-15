@@ -2,13 +2,13 @@
 
 The `hubspot.marketing.events` connector provides practical examples illustrating usage in various scenarios. Explore these [examples](https://github.com/ballerina-platform/module-ballerinax-hubspot.marketing.events/tree/main/examples), covering use cases like event participation management and marketing event management.
 
-1. [Event participation management](https://github.com/ballerina-platform/module-ballerinax-hubspot.marketing.events/tree/main/examples/event_participation_management) - Manage and track participant registrations and attendance for marketing events.
+1. [Event participation management](https://github.com/ballerina-platform/module-ballerinax-hubspot.marketing.events/tree/main/examples/event_participation_management) - Manage participant registrations and attendance tracking for marketing events.
 
 2. [Marketing event management](https://github.com/ballerina-platform/module-ballerinax-hubspot.marketing.events/tree/main/examples/marketing_event_management) - Create, update, and manage marketing events within the HubSpot platform.
 
 ## Prerequisites
 
-1. Generate HubSpot credentials to authenticate the connector as described in the [Setup guide](https://central.ballerina.io/ballerinax/hubspot.marketing.events/latest#setup-guide).
+1. Generate HubSpot Marketing Events credentials to authenticate the connector as described in the [Setup guide](https://central.ballerina.io/ballerinax/hubspot.marketing.events/latest#setup-guide).
 
 2. For each example, create a `Config.toml` file the related configuration. Here's an example of how your `Config.toml` file should look:
 

@@ -1,6 +1,6 @@
 # Event Participation Management
 
-This example demonstrates how to manage event participation using the HubSpot Marketing Events API. The script creates an event, registers participants, and retrieves participation details to showcase comprehensive event management workflows.
+This example demonstrates how to manage event participation using the HubSpot Marketing Events API to create events and register participants.
 
 ## Prerequisites
 

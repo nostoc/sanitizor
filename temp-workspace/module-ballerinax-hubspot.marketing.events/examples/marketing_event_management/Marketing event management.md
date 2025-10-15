@@ -5,7 +5,7 @@ This example demonstrates how to manage marketing events using the HubSpot Marke
 ## Prerequisites
 
 1. **HubSpot Setup**
-   > Refer to the [HubSpot setup guide](https://central.ballerina.io/ballerinax/hubspot.marketing.events/latest#setup-guide) to obtain the necessary credentials.
+   > Refer the [HubSpot setup guide](https://central.ballerina.io/ballerinax/hubspot.marketing.events) here.
 
 2. For this example, create a `Config.toml` file with your credentials:
 
@@ -17,10 +17,8 @@ refreshToken = "<Your Refresh Token>"
 
 ## Run the example
 
-Execute the following command to run the example. The script will demonstrate various marketing event management operations and print the results to the console.
+Execute the following command to run the example. The script will print its progress to the console.
 
 ```shell
 bal run
 ```
-
-The example will perform operations such as creating marketing events, updating event details, and retrieving event information from your HubSpot account.

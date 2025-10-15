@@ -1,35 +1,31 @@
 ## Overview
 
-[HubSpot](https://www.hubspot.com/) is a comprehensive customer relationship management (CRM) platform that provides marketing, sales, service, and content management tools to help businesses attract, engage, and delight customers throughout their entire customer journey.
+[HubSpot](https://www.hubspot.com/) is a comprehensive customer relationship management (CRM) platform that provides tools for marketing, sales, customer service, and content management to help businesses attract, engage, and delight customers.
 
-The `ballerinax/hubspot.marketing.events` package offers APIs to connect and interact with [HubSpot API](https://developers.hubspot.com/docs/api/overview) endpoints, specifically based on [HubSpot API v3](https://developers.hubspot.com/docs/api/marketing/events).
+The `ballerinax/hubspot.marketing.events` package offers APIs to connect and interact with [HubSpot API](https://developers.hubspot.com/docs/api/overview) endpoints, specifically based on [HubSpot Marketing Events API v3](https://developers.hubspot.com/docs/api/marketing/marketing-events).
 ## Setup guide
 
-To use the HubSpot Marketing Events connector, you must have access to the HubSpot API through a [HubSpot developer account](https://developers.hubspot.com/) and obtain a private app access token. If you do not have a HubSpot account, you can sign up for one [here](https://www.hubspot.com/products/get-started).
+To use the HubSpot Marketing Events connector, you must have access to the HubSpot API through a [HubSpot developer account](https://developers.hubspot.com/) and obtain an API access token. If you do not have a HubSpot account, you can sign up for one [here](https://www.hubspot.com/products/get-started).
 
 ### Step 1: Create a HubSpot Account
 
 1. Navigate to the [HubSpot website](https://www.hubspot.com/) and sign up for an account or log in if you already have one.
 
-2. Ensure you have appropriate permissions to create private apps in your HubSpot account. Super admin permissions are typically required for creating private apps and accessing developer features.
+2. Ensure you have a Professional or Enterprise plan, as the HubSpot Marketing Events API requires access to HubSpot's premium marketing features which are available on these plans.
 
 ### Step 2: Generate an API Access Token
 
 1. Log in to your HubSpot account.
 
-2. In the main navigation, click the settings icon (gear icon) in the top right corner to access your account settings.
+2. Click on the settings icon (gear icon) in the top navigation bar to access your account settings.
 
-3. In the left sidebar menu, navigate to Integrations > Private Apps.
+3. In the left sidebar, navigate to Integrations and select Private Apps.
 
-4. Click Create a private app in the top right corner.
+4. Click Create a private app and provide a name and description for your app.
 
-5. On the Basic Info tab, configure your app name and description.
+5. Navigate to the Scopes tab and select the necessary scopes for marketing events, including `marketing-events.read` and `marketing-events.write`.
 
-6. Click the Scopes tab and select the required scopes for marketing events, including `marketing-events.read` and `marketing-events.write`.
-
-7. Click Create app in the top right corner, then click Continue creating to confirm.
-
-8. Copy the generated access token from the app details page.
+6. Click Create app and then Show token to reveal your access token.
 
 > **Tip:** You must copy and store this key somewhere safe. It won't be visible again in your account settings for security reasons.
 ## Quickstart
@@ -40,7 +36,7 @@ To use the `HubSpot Marketing Events` connector in your Ballerina application, u
 
 ```ballerina
 import ballerina/oauth2;
-import ballerinax/hubspot.marketing.events as hsme;
+import ballerinax/hubspot.marketing.events as hsevents;
 ```
 
 ### Step 2: Instantiate a new connector
@@ -53,14 +49,14 @@ clientSecret = "<Your_Client_Secret>"
 refreshToken = "<Your_Refresh_Token>"
 ```
 
-2. Create a `hsme:ConnectionConfig` and initialize the client:
+2. Create a `hsevents:ConnectionConfig` and initialize the client:
 
 ```ballerina
 configurable string clientId = ?;
 configurable string clientSecret = ?;
 configurable string refreshToken = ?;
 
-final hsme:Client hubspotMarketingEventsClient = check new({
+final hsevents:Client hubspotEventsClient = check new({
     auth: {
         clientId,
         clientSecret,
@@ -73,23 +69,23 @@ final hsme:Client hubspotMarketingEventsClient = check new({
 
 Now, utilize the available connector operations.
 
-#### Create a marketing event
+#### Create a new marketing event
 
 ```ballerina
 public function main() returns error? {
-    hsme:MarketingEventCreateRequestParams newEvent = {
+    hsevents:MarketingEventCreateRequestParams newEvent = {
         eventName: "Product Launch Webinar",
         eventOrganizer: "Marketing Team",
-        eventType: "WEBINAR",
-        externalAccountId: "company-123",
         externalEventId: "webinar-2024-001",
-        eventDescription: "Join us for the launch of our latest product features",
-        startDateTime: "2024-06-15T10:00:00Z",
-        endDateTime: "2024-06-15T11:00:00Z",
-        eventUrl: "https://example.com/webinar/product-launch"
+        externalAccountId: "marketing-app-123",
+        eventDescription: "Join us for an exciting product launch presentation",
+        eventType: "WEBINAR",
+        startDateTime: "2024-03-15T14:00:00Z",
+        endDateTime: "2024-03-15T15:30:00Z",
+        eventUrl: "https://example.com/events/webinar-2024-001"
     };
 
-    hsme:MarketingEventDefaultResponse response = check hubspotMarketingEventsClient->postEventsCreate(newEvent);
+    hsevents:MarketingEventDefaultResponse response = check hubspotEventsClient->postEventsCreate(newEvent);
 }
 ```
 

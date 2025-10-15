@@ -9,7 +9,7 @@
 
 ## Overview
 
-[HubSpot](https://www.hubspot.com/) is a comprehensive customer relationship management (CRM) platform that provides marketing, sales, customer service, and content management tools to help businesses attract, engage, and delight customers throughout their entire journey.
+[HubSpot](https://www.hubspot.com/) is a comprehensive customer relationship management (CRM) platform that provides marketing, sales, customer service, and content management tools to help businesses attract, engage, and delight customers throughout their entire lifecycle.
 
 The `ballerinax/hubspot.marketing.events` package offers APIs to connect and interact with [HubSpot API](https://developers.hubspot.com/docs/api/overview) endpoints, specifically based on [HubSpot API v3](https://developers.hubspot.com/docs/api/marketing/events).
 ## Setup guide
@@ -20,7 +20,7 @@ To use the HubSpot Marketing Events connector, you must have access to the HubSp
 
 1. Navigate to the [HubSpot website](https://www.hubspot.com/) and sign up for an account or log in if you already have one.
 
-2. Ensure you have a Marketing Hub Professional or Enterprise plan, as the Marketing Events API requires access to advanced marketing features available in these plans.
+2. Ensure you have a Professional or Enterprise plan, as access to the Marketing Events API requires these higher-tier subscriptions with advanced marketing features.
 
 ### Step 2: Generate an API Access Token
 
@@ -65,7 +65,7 @@ configurable string clientId = ?;
 configurable string clientSecret = ?;
 configurable string refreshToken = ?;
 
-final hsme:Client hubspotMarketingEventsClient = check new({
+final hsme:Client marketingEventsClient = check new({
     auth: {
         clientId,
         clientSecret,
@@ -78,23 +78,23 @@ final hsme:Client hubspotMarketingEventsClient = check new({
 
 Now, utilize the available connector operations.
 
-#### Create a new marketing event
+#### Create a marketing event
 
 ```ballerina
 public function main() returns error? {
     hsme:MarketingEventCreateRequestParams newEvent = {
-        eventName: "Product Launch Webinar",
+        eventName: "Annual Product Conference 2024",
         eventOrganizer: "Marketing Team",
-        eventType: "WEBINAR",
-        externalAccountId: "my-app-account",
-        externalEventId: "webinar-2024-001",
-        startDateTime: "2024-06-15T10:00:00Z",
-        endDateTime: "2024-06-15T11:00:00Z",
-        eventDescription: "Join us for the launch of our new product line",
-        eventUrl: "https://myapp.com/events/webinar-2024-001"
+        externalEventId: "conf-2024-001",
+        externalAccountId: "company-events",
+        eventType: "CONFERENCE",
+        eventDescription: "Join us for our annual product conference featuring the latest innovations",
+        startDateTime: "2024-06-15T09:00:00Z",
+        endDateTime: "2024-06-15T17:00:00Z",
+        eventUrl: "https://events.company.com/conference-2024"
     };
 
-    hsme:MarketingEventDefaultResponse response = check hubspotMarketingEventsClient->postEventsCreate(newEvent);
+    hsme:MarketingEventDefaultResponse response = check marketingEventsClient->postEventsCreate(newEvent);
 }
 ```
 
@@ -108,7 +108,7 @@ bal run
 The `hubspot.marketing.events` connector provides practical examples illustrating usage in various scenarios. Explore these [examples](https://github.com/ballerina-platform/module-ballerinax-hubspot.marketing.events/tree/main/examples), covering the following use cases:
 
 1. [Event participation management](https://github.com/ballerina-platform/module-ballerinax-hubspot.marketing.events/tree/main/examples/event_participation_management) - Demonstrates how to manage participant registrations and attendance for marketing events.
-2. [Marketing event management](https://github.com/ballerina-platform/module-ballerinax-hubspot.marketing.events/tree/main/examples/marketing_event_management) - Illustrates creating, updating, and managing marketing events through the HubSpot platform.
+2. [Marketing event management](https://github.com/ballerina-platform/module-ballerinax-hubspot.marketing.events/tree/main/examples/marketing_event_management) - Illustrates creating, updating, and managing marketing events in HubSpot.
 ## Build from the source
 
 ### Setting up the prerequisites
