@@ -416,7 +416,7 @@ modules = [
 [[package]]
 org = "connectorautomation"
 name = "fixer"
-version = "0.1.0"
+version = "0.1.2"
 dependencies = [
 	{org = "ballerina", name = "ai"},
 	{org = "ballerina", name = "file"},
@@ -431,8 +431,6 @@ dependencies = [
 	{org = "ballerinax", name = "ai.anthropic"}
 ]
 modules = [
-	{org = "connectorautomation", packageName = "fixer", moduleName = "fixer"},
-	{org = "connectorautomation", packageName = "fixer", moduleName = "fixer.command_executor"},
-	{org = "connectorautomation", packageName = "fixer", moduleName = "fixer.fixer"}
+	{org = "connectorautomation", packageName = "fixer", moduleName = "fixer"}
 ]
 

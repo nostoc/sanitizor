@@ -1,5 +1,3 @@
-import fixer.command_executor;
-
 import ballerina/ai;
 import ballerina/file;
 import ballerina/io;
@@ -228,9 +226,9 @@ public function fixAllErrors(string projectPath) returns FixResult|error {
         log:printInfo("Starting iteration", iteration = iteration, maxIterations = maxIterations);
 
         // Build the project and get diagnostics
-        command_executor:CommandResult buildResult = command_executor:executeBalBuild(projectPath);
+        CommandResult buildResult = executeBalBuild(projectPath);
 
-        if command_executor:isCommandSuccessfull(buildResult) {
+        if isCommandSuccessfull(buildResult) {
             log:printInfo("Build successful! All errors fixed.", iteration = iteration);
             result.success = true;
             result.errorsRemaining = 0;
@@ -251,7 +249,7 @@ public function fixAllErrors(string projectPath) returns FixResult|error {
             // If we reach here, build failed but no compilation errors were parsed
             // This might be due to different types of build issues (warnings, other errors, etc.)
             // Let's check the build output to see if it's actually successful
-            
+
             // Sometimes builds fail with warnings or other issues that aren't compilation errors
             // If no compilation errors were found, we should consider this a success
             log:printInfo("No compilation errors detected - considering build successful", iteration = iteration);
@@ -365,8 +363,8 @@ public function fixAllErrors(string projectPath) returns FixResult|error {
     }
 
     // Final build check
-    command_executor:CommandResult finalBuildResult = command_executor:executeBalBuild(projectPath);
-    if command_executor:isCommandSuccessfull(finalBuildResult) {
+    CommandResult finalBuildResult = executeBalBuild(projectPath);
+    if isCommandSuccessfull(finalBuildResult) {
         result.success = true;
         result.errorsRemaining = 0;
         result.errorsFixed = initialErrorCount; // All initial errors were fixed

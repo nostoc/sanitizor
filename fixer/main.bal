@@ -1,5 +1,3 @@
-import fixer.fixer;
-
 import ballerina/io;
 import ballerina/log;
 
@@ -27,9 +25,9 @@ public function main(string... args) returns error? {
 
     io:println("Starting AI-powered Ballerina code fixer...");
 
-    fixer:FixResult|fixer:BallerinaFixerError result = fixer:fixAllErrors(projectPath);
+    FixResult|BallerinaFixerError result = fixAllErrors(projectPath);
 
-    if result is fixer:FixResult {
+    if result is FixResult {
         if result.success {
             io:println("\nAll compilation errors fixed successfully!");
             io:println(string `✓ Fixed ${result.errorsFixed} errors`);

@@ -1,8 +1,9 @@
 [package]
 org = "connectorautomation"
 name = "fixer"
-version = "0.1.0"
+version = "0.1.2"
 distribution = "2201.12.7"
 
 [build-options]
 observabilityIncluded = true
+
