@@ -1,0 +1,14 @@
+[package]
+distribution = "2201.8.0"
+org = "ballerinax"
+name = "github"
+version = "5.1.0"
+authors = ["Ballerina"]
+export = ["github"]
+keywords = ["IT Operations/Source Control", "Cost/Freemium"]
+icon = "icon.png"
+repository = "https://github.com/ballerina-platform/module-ballerinax-github"
+license = ["Apache-2.0"]
+
+[build-options]
+observabilityIncluded = false
