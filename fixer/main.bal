@@ -9,7 +9,33 @@ public function main(string... args) returns error? {
 
     string projectPath = args[0];
 
-    log:printInfo("Starting Ballerina code fixer", projectPath = projectPath);
+    // Check for auto flag for automated mode and quiet mode for log control
+    boolean autoYes = false;
+    boolean quietMode = false;
+    foreach string arg in args {
+        if arg == "yes" {
+            autoYes = true;
+        } else if arg == "quiet" {
+            quietMode = true;
+        }
+    }
+
+    if autoYes {
+        if !quietMode {
+            io:println("Running in automated mode - all prompts will be auto-confirmed");
+        }
+    }
+    
+    if quietMode {
+        if !autoYes {
+            io:println("Running in quiet mode - reduced logging output");
+        }
+        io:println("Quiet mode enabled - minimal logging output");
+    }
+
+    if !quietMode {
+        log:printInfo("Starting Ballerina code fixer", projectPath = projectPath);
+    }
     io:println("=== AI-Powered Ballerina Code Fixer ===");
     io:println(string `Project path: ${projectPath}`);
     io:println("\nOperations to be performed:");
@@ -18,14 +44,14 @@ public function main(string... args) returns error? {
     io:println("3. Apply fixes with user confirmation");
     io:println("4. Iterate until all errors are resolved");
 
-    if !getUserConfirmation("\nProceed with error fixing?") {
+    if !getUserConfirmation("\nProceed with error fixing?", autoYes) {
         io:println("Operation cancelled by user.");
         return;
     }
 
     io:println("Starting AI-powered Ballerina code fixer...");
 
-    FixResult|BallerinaFixerError result = fixAllErrors(projectPath);
+    FixResult|BallerinaFixerError result = fixAllErrors(projectPath, quietMode, autoYes);
 
     if result is FixResult {
         if result.success {
@@ -54,7 +80,12 @@ public function main(string... args) returns error? {
 }
 
 // Helper function to get user confirmation
-function getUserConfirmation(string message) returns boolean {
+function getUserConfirmation(string message, boolean autoYes = false) returns boolean {
+    if autoYes {
+        io:println(string `${message} (y/n): y [auto-confirmed]`);
+        return true;
+    }
+
     io:print(string `${message} (y/n): `);
     string|io:Error userInput = io:readln();
     if userInput is io:Error {
@@ -67,18 +98,24 @@ function getUserConfirmation(string message) returns boolean {
 
 function printCodeFixerUsage() {
     io:println("Ballerina AI Code Fixer");
-    io:println("Usage: bal run -- <project-path>");
+    io:println("Usage: bal run -- <project-path> [yes] [quiet]");
     io:println("  <project-path>: Path to the Ballerina project directory");
+    io:println("  yes: Automatically answer 'yes' to all prompts (for CI/CD)");
+    io:println("  quiet: Reduce logging output (minimal logs for CI/CD)");
     io:println("");
     io:println("Environment Variables:");
     io:println("  ANTHROPIC_API_KEY: Required for AI-powered fixes");
     io:println("");
     io:println("Example:");
     io:println("  bal run -- ./my-ballerina-project");
+    io:println("  bal run -- ./my-ballerina-project yes");
+    io:println("  bal run -- ./my-ballerina-project yes quiet");
     io:println("");
     io:println("Interactive Features:");
     io:println("  • Step-by-step confirmation for each fix");
     io:println("  • Review AI-generated changes before applying");
     io:println("  • Automatic backup creation before modifications");
     io:println("  • Progress feedback and iteration summaries");
+    io:println("  • Use 'yes' argument to skip all prompts for automated execution");
+    io:println("  • Use 'quiet' argument to reduce logging output for CI/CD");
 }
