@@ -125,7 +125,7 @@ public function fixExampleCode(string exampleDir, string exampleName) returns er
     io:println(string `Checking and fixing compilation errors for example: ${exampleName}`);
     
     // Use the fixer to fix all compilation errors in the example directory
-    fixer:FixResult|fixer:BallerinaFixerError fixResult = fixer:fixAllErrors(exampleDir);
+    fixer:FixResult|fixer:BallerinaFixerError fixResult = fixer:fixAllErrors(exampleDir, autoYes = true);
     
     if fixResult is fixer:FixResult {
         if fixResult.success {

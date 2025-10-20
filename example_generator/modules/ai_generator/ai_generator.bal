@@ -3,6 +3,7 @@ import example_generator.analyzer;
 import ballerina/ai;
 import ballerina/log;
 import ballerinax/ai.anthropic;
+import ballerina/io;
 
 //import connectorautomation/fixer;
 
@@ -32,6 +33,7 @@ public function generateuseCase(analyzer:ConnectorDetails details) returns strin
     }
     ai:ChatMessage[] messages = [{role: "user", content: prompt}];
     ai:ChatAssistantMessage|error response = model->chat(messages);
+    io:println("Usecase generation response: ", response);
 
     if response is error {
         return error("Failed to generate use case", response);

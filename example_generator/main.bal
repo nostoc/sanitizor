@@ -66,6 +66,18 @@ public function main(string... args) returns error? {
             continue;
         }
         io:println("Successfully wrote example ", i.toString(), " to file system.");
+
+        // Fix compilation errors in the generated example
+         string exampleDir = connectorPath + "/examples/" + exampleName;
+        error? fixResult = analyzer:fixExampleCode(exampleDir, exampleName);
+        if fixResult is error {
+            io:println("Warning: Failed to fix compilation errors for example ", i.toString(), ": ", fixResult.message());
+            io:println("Example may require manual intervention.");
+            // Continue with other examples even if one fails to fix
+        }
+        
+        io:println(string `✓ Example ${i} (${exampleName}) completed successfully!`);
     }
+
     io:println("Example generation completed successfully!");
 }
