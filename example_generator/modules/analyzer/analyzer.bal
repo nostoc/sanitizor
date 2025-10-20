@@ -1,3 +1,4 @@
+import ballerina/file;
 import ballerina/io;
 import ballerina/lang.'string as strings;
 import ballerina/lang.regexp;
@@ -61,9 +62,61 @@ public function numberOfExamples(int apiCount) returns int {
         return 1;
     } else if apiCount <= 20 {
         return 2;
-    } else if apiCount <=30 {
+    } else if apiCount <= 30 {
         return 3;
     } else {
         return 4;
     }
+}
+
+public function writeExampleToFile(string connectorPath, string exampleName, string useCase, string exampleCode) returns error? {
+    // Create examples directory if it doesn't exist
+    string examplesDir = connectorPath + "/examples";
+    check file:createDir(examplesDir, file:RECURSIVE);
+
+    // Use the provided example name directly
+    string exampleDir = examplesDir + "/" + exampleName;
+
+    // Create example directory
+    check file:createDir(exampleDir, file:RECURSIVE);
+
+    // Create .github directory
+    string githubDir = exampleDir + "/.github";
+    check file:createDir(githubDir, file:RECURSIVE);
+
+    // Write main.bal file
+    string mainBalPath = exampleDir + "/main.bal";
+    check io:fileWriteString(mainBalPath, exampleCode);
+
+    // Write Ballerina.toml file
+    string ballerinaTomlPath = exampleDir + "/Ballerina.toml";
+    string ballerinaTomlContent = generateBallerinaToml(exampleName);
+    check io:fileWriteString(ballerinaTomlPath, ballerinaTomlContent);
+}
+
+
+// Function to sanitize example name for Ballerina package name
+function sanitizePackageName(string exampleName) returns string {
+    string sanitized = regexp:replaceAll(re `-`, exampleName, "_");
+    
+    sanitized = regexp:replaceAll(re `[^a-zA-Z0-9_.]`, sanitized, "");
+    // Ensure it's not empty
+    if sanitized == "" {
+        sanitized = "example";
+    }
+    
+    return sanitized;
+}
+
+function generateBallerinaToml(string exampleName) returns string {
+    string packageName = sanitizePackageName(exampleName);
+    return string `[package]
+org = "ballerina"
+name = "${packageName}"
+version = "0.1.0"
+distribution = "2201.10.0"
+
+[build-options]
+observabilityIncluded = true
+`;
 }

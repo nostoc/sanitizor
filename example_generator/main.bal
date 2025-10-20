@@ -1,6 +1,7 @@
-import ballerina/io;
-import example_generator.analyzer;
 import example_generator.ai_generator;
+import example_generator.analyzer;
+
+import ballerina/io;
 
 public function main(string... args) returns error? {
     if args.length() < 1 {
@@ -19,9 +20,9 @@ public function main(string... args) returns error? {
     // Initialize ai ai_generator
     error? initResult = ai_generator:initExampleGenerator();
     if initResult is error {
-        
-            io:println("Error initializing AI generator: " + initResult.message());
-        
+
+        io:println("Error initializing AI generator: " + initResult.message());
+
         return error("AI generator initialization failed: " + initResult.message());
     }
 
@@ -41,6 +42,14 @@ public function main(string... args) returns error? {
         }
         io:println("Use Case ", i.toString(), ": ", useCase);
 
+        io:println("Generating example name for use case ", i.toString(), "...");
+        string|error exampleName = ai_generator:generateExampleName(useCase);
+        if exampleName is error {
+            io:println("Failed to generate example name: ", exampleName.message());
+            continue;
+        }
+        io:println("Example Name ", i.toString(), ": ", exampleName);
+
         io:println("Generating example code for use case ", i.toString(), "...");
         string|error exampleCode = ai_generator:generateExampleCode(details, useCase);
         if exampleCode is error {
@@ -48,6 +57,15 @@ public function main(string... args) returns error? {
             continue;
         }
         io:println("Generated Example Code for Use Case ", i.toString(), ":\n", exampleCode);
-    }
 
+        // Write the generated example to file
+        io:println("Writing example ", i.toString(), " to file...");
+        error? writeResult = analyzer:writeExampleToFile(connectorPath, exampleName, useCase, exampleCode);
+        if writeResult is error {
+            io:println("Failed to write example to file: ", writeResult.message());
+            continue;
+        }
+        io:println("Successfully wrote example ", i.toString(), " to file system.");
+    }
+    io:println("Example generation completed successfully!");
 }

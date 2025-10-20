@@ -42,3 +42,26 @@ ${backTick}**types.bal:**${backTick}
 ${details.typesBalContent}
 `;
 }
+
+function getExampleNamePrompt(string useCase) returns string {
+    return string `
+Generate a concise, descriptive example name for the following use case. The name should be 3-4 words maximum, use kebab-case (lowercase with hyphens), and clearly describe what the example demonstrates.
+
+**Use Case:**
+${useCase}
+
+**Requirements:**
+- Exactly 3-4 words
+- Use kebab-case (e.g., "send-slack-message", "user-profile-management")
+- Be descriptive and professional
+- Focus on the main action or workflow
+
+**Examples of good names:**
+- "channel-message-posting"
+- "user-profile-creation" 
+- "file-upload-workflow"
+- "team-member-invitation"
+
+Return ONLY the example name, no explanations or additional text.
+`;
+}

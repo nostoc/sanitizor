@@ -54,3 +54,18 @@ public function generateExampleCode(analyzer:ConnectorDetails details, string us
     return response.content ?: error("Empty code response from LLM");
 }
 
+public function generateExampleName(string useCase) returns string|error {
+    string prompt = getExampleNamePrompt(useCase);
+    ai:ModelProvider? model = anthropicModel;
+    if model is () {
+        return error("AI model not initialized. Please call initExampleGenerator() first.");
+    }
+    ai:ChatMessage[] messages = [{role: "user", content: prompt}];
+    ai:ChatAssistantMessage|error response = model->chat(messages);
+
+    if response is error {
+        return error("Failed to generate example name", response);
+    }
+    string  exampleName = response.content ?: "Example-1";
+    return exampleName;
+}
