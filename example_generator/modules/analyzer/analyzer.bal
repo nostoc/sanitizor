@@ -2,6 +2,7 @@ import ballerina/file;
 import ballerina/io;
 import ballerina/lang.'string as strings;
 import ballerina/lang.regexp;
+import connectorautomation/fixer;
 
 public type ConnectorDetails record {|
     string connectorName;
@@ -94,17 +95,16 @@ public function writeExampleToFile(string connectorPath, string exampleName, str
     check io:fileWriteString(ballerinaTomlPath, ballerinaTomlContent);
 }
 
-
 // Function to sanitize example name for Ballerina package name
 function sanitizePackageName(string exampleName) returns string {
     string sanitized = regexp:replaceAll(re `-`, exampleName, "_");
-    
+
     sanitized = regexp:replaceAll(re `[^a-zA-Z0-9_.]`, sanitized, "");
     // Ensure it's not empty
     if sanitized == "" {
         sanitized = "example";
     }
-    
+
     return sanitized;
 }
 
@@ -119,4 +119,43 @@ distribution = "2201.10.0"
 [build-options]
 observabilityIncluded = true
 `;
+}
+
+public function fixExampleCode(string exampleDir, string exampleName) returns error? {
+    io:println(string `Checking and fixing compilation errors for example: ${exampleName}`);
+    
+    // Use the fixer to fix all compilation errors in the example directory
+    fixer:FixResult|fixer:BallerinaFixerError fixResult = fixer:fixAllErrors(exampleDir);
+    
+    if fixResult is fixer:FixResult {
+        if fixResult.success {
+            io:println(string `✓ Example '${exampleName}' compiles successfully!`);
+            if fixResult.errorsFixed > 0 {
+                io:println(string `  Fixed ${fixResult.errorsFixed} compilation errors`);
+                if fixResult.appliedFixes.length() > 0 {
+                    io:println("  Applied fixes:");
+                    foreach string fix in fixResult.appliedFixes {
+                        io:println(string `    • ${fix}`);
+                    }
+                }
+            }
+        } else {
+            io:println(string `⚠ Example '${exampleName}' partially fixed:`);
+            io:println(string `  Fixed ${fixResult.errorsFixed} errors`);
+            io:println(string `  ${fixResult.errorsRemaining} errors remain`);
+            if fixResult.appliedFixes.length() > 0 {
+                io:println("  Applied fixes:");
+                foreach string fix in fixResult.appliedFixes {
+                    io:println(string `    • ${fix}`);
+                }
+            }
+            // Don't fail completely, but warn about remaining errors
+            io:println("  Some errors may require manual intervention");
+        }
+    } else {
+        io:println(string `✗ Failed to fix example '${exampleName}': ${fixResult.message()}`);
+        return error(string `Failed to fix compilation errors in example: ${exampleName}`, fixResult);
+    }
+    
+    return;
 }
