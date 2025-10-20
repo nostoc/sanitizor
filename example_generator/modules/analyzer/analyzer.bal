@@ -2,6 +2,7 @@ import ballerina/file;
 import ballerina/io;
 import ballerina/lang.'string as strings;
 import ballerina/lang.regexp;
+
 import connectorautomation/fixer;
 
 public type ConnectorDetails record {|
@@ -123,10 +124,10 @@ observabilityIncluded = true
 
 public function fixExampleCode(string exampleDir, string exampleName) returns error? {
     io:println(string `Checking and fixing compilation errors for example: ${exampleName}`);
-    
+
     // Use the fixer to fix all compilation errors in the example directory
     fixer:FixResult|fixer:BallerinaFixerError fixResult = fixer:fixAllErrors(exampleDir, autoYes = true);
-    
+
     if fixResult is fixer:FixResult {
         if fixResult.success {
             io:println(string `✓ Example '${exampleName}' compiles successfully!`);
@@ -156,6 +157,40 @@ public function fixExampleCode(string exampleDir, string exampleName) returns er
         io:println(string `✗ Failed to fix example '${exampleName}': ${fixResult.message()}`);
         return error(string `Failed to fix compilation errors in example: ${exampleName}`, fixResult);
     }
-    
+
     return;
+}
+
+// Extract targeted context from client and types content based on use case
+public function extractTargetedContext(string clientContent, string typesContent, string useCase) returns string {
+
+    string[] functionNames = findMentionedFunctions(clientContent, useCase);
+    string[] typeNames = findMetionedTypes(typesContent, useCase);
+
+    string context = "";
+
+    // Extract relevant function definitions from client.bal
+    foreach string funcName in functionNames {
+        context += extractBlock(clientContent, "function " + funcName, "{", "}") + "\n\n";
+    }
+
+    // Extract relevant type definitions from types.bal
+    foreach string typeName in typeNames {
+        context += extractBlock(typesContent, "public type " + typeName, "record {|", "|};" + "\n\n");
+    }
+    return context;
+
+}
+
+function extractBlock(string s, string s1, string s2, string s3) returns string {
+    return "";
+}
+
+function findMetionedTypes(string typesContent, string useCase) returns string[] {
+    return regexp:findAll(re `\b([a-zA-Z0-9_]+)\(`).map(match => match.groups[0] ?: "", useCase);
+    return [];
+}
+
+function findMentionedFunctions(string s, string s1) returns string[] {
+    return [];
 }
