@@ -117,16 +117,21 @@ public function findMatchingFunction(string clientContent, string llmFunctionNam
 public function isMatchingFunction(string functionDef, string llmFunctionName) returns boolean {
     // Clean the function definition by removing Ballerina's path escapes `\.` -> `.`
     // and convert to lowercase for case-insensitive comparison.
-    string cleanFuncDef = regexp:replaceAll(re `\\`, functionDef, "").toLowerAscii();
+    string cleanFuncDef = regexp:replaceAll(re `\\\.`, functionDef, ".").toLowerAscii();
 
     // Convert the LLM function name to lowercase as well.
     string lowerLLMName = llmFunctionName.toLowerAscii();
 
-    // For resource functions (e.g., "get admin.apps.list"), the LLM name will contain a space.
-    // For remote functions (e.g., "createRepository"), it will not.
-    // This simple `includes` check is robust enough to find the matching substring
-    // in both cases without being overly restrictive.
-    return cleanFuncDef.includes(lowerLLMName);
+    // For resource functions, check if the cleaned function definition contains the LLM name
+    // For example: "get admin\.apps\.requests\.list" becomes "get admin.apps.requests.list"  
+    // and should match "get admin.apps.requests.list"
+    if lowerLLMName.includes(" ") {
+        // Resource function - check if the entire pattern matches
+        return cleanFuncDef.includes(lowerLLMName);
+    } else {
+        // Remote function - check function name only
+        return cleanFuncDef.includes(lowerLLMName);
+    }
 }
 
 public function numberOfExamples(int apiCount) returns int {
@@ -350,17 +355,21 @@ function extractBlock(string content, string startPattern, string openChar, stri
 
 // Extract only function signature without implementation
 function findMatchingFunctionSignature(string clientContent, string llmFunctionName) returns string? {
-    // Extract function signatures only (everything up to and including the closing parenthesis before return type)
-    regexp:RegExp signaturePattern = re `(resource\s+isolated\s+function|remote\s+isolated\s+function)\s+[^{]*\)\s*returns\s+[^{]*`;
-    regexp:Span[] matches = signaturePattern.findAll(clientContent);
+    // Find function lines using the regex that works
+    regexp:RegExp functionLinePattern = re `(resource\s+isolated\s+function|remote\s+isolated\s+function)\s+[^\n\r]*`;
+    regexp:Span[] matches = functionLinePattern.findAll(clientContent);
 
     foreach regexp:Span span in matches {
-        string signature = clientContent.substring(span.startIndex, span.endIndex);
+        string functionLine = clientContent.substring(span.startIndex, span.endIndex);
 
         // Check if this function could match the LLM-provided name
-        if isMatchingFunction(signature, llmFunctionName) {
+        if isMatchingFunction(functionLine, llmFunctionName) {
+            // Extract just the signature part (up to '{' or end of line)
+            int? openBraceIndex = functionLine.indexOf("{");
+            string signature = openBraceIndex is int ? functionLine.substring(0, openBraceIndex).trim() : functionLine.trim();
+            
             // Clean up and format the signature
-            string cleanSignature = regexp:replaceAll(re `\s+`, signature.trim(), " ");
+            string cleanSignature = regexp:replaceAll(re `\s+`, signature, " ");
 
             // Extract documentation comment if available
             string docComment = extractFunctionDocumentation(clientContent, span.startIndex);
