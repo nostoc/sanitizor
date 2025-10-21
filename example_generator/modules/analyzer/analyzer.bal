@@ -355,29 +355,38 @@ function extractBlock(string content, string startPattern, string openChar, stri
 
 // Extract only function signature without implementation
 function findMatchingFunctionSignature(string clientContent, string llmFunctionName) returns string? {
-    // Find function lines using the regex that works
-    regexp:RegExp functionLinePattern = re `(resource\s+isolated\s+function|remote\s+isolated\s+function)\s+[^\n\r]*`;
-    regexp:Span[] matches = functionLinePattern.findAll(clientContent);
+    // Find all function starts and then extract the complete signature manually
+    regexp:RegExp functionStartPattern = re `(resource\s+isolated\s+function|remote\s+isolated\s+function)`;
+    regexp:Span[] startMatches = functionStartPattern.findAll(clientContent);
 
-    foreach regexp:Span span in matches {
-        string functionLine = clientContent.substring(span.startIndex, span.endIndex);
-
-        // Check if this function could match the LLM-provided name
-        if isMatchingFunction(functionLine, llmFunctionName) {
-            // Extract just the signature part (up to '{' or end of line)
-            int? openBraceIndex = functionLine.indexOf("{");
-            string signature = openBraceIndex is int ? functionLine.substring(0, openBraceIndex).trim() : functionLine.trim();
+    foreach regexp:Span startSpan in startMatches {
+        // From the start of the function, find the complete signature up to the function body brace
+        int startIndex = startSpan.startIndex;
+        
+        // Find the pattern "returns ... {" to identify the function body start
+        int? returnsIndex = clientContent.indexOf("returns", startIndex);
+        
+        if returnsIndex is int {
+            // Find the opening brace after "returns"
+            int? braceIndex = clientContent.indexOf("{", returnsIndex);
             
-            // Clean up and format the signature
-            string cleanSignature = regexp:replaceAll(re `\s+`, signature, " ");
+            if braceIndex is int {
+                string functionSignature = clientContent.substring(startIndex, braceIndex).trim();
+            
+                // Check if this function could match the LLM-provided name
+                if isMatchingFunction(functionSignature, llmFunctionName) {
+                    // Clean up the signature by removing extra whitespace and normalizing
+                    string cleanSignature = regexp:replaceAll(re `\s+`, functionSignature.trim(), " ");
+                    
+                    // Extract documentation comment if available
+                    string docComment = extractFunctionDocumentation(clientContent, startIndex);
 
-            // Extract documentation comment if available
-            string docComment = extractFunctionDocumentation(clientContent, span.startIndex);
-
-            if docComment != "" {
-                return docComment + "\n" + cleanSignature + ";";
-            } else {
-                return cleanSignature + ";";
+                    if docComment != "" {
+                        return docComment + "\n" + cleanSignature + ";";
+                    } else {
+                        return cleanSignature + ";";
+                    }
+                }
             }
         }
     }
