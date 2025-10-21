@@ -79,28 +79,18 @@ function countApiOperations(string clientContent) returns int {
 
 public function extractFunctionSignatures(string clientContent) returns string {
     string[] signatures = [];
+    // This regex now correctly handles various return types and function structures
+    regexp:RegExp functionPattern = re `(resource|remote)\s+isolated\s+function\s+[\s\S]*?returns\s+[^{]+`;
+    regexp:Span[] matches = functionPattern.findAll(clientContent);
 
-    // Extract resource functions with cleaner formatting
-    regexp:RegExp resourcePattern = re `resource\s+isolated\s+function\s+[^{]+`;
-    regexp:Span[] resourceMatches = resourcePattern.findAll(clientContent);
-    foreach regexp:Span span in resourceMatches {
+    foreach regexp:Span span in matches {
         string signature = clientContent.substring(span.startIndex, span.endIndex);
-        // Clean up the signature for better LLM understanding
-        signature = regexp:replaceAll(re `\s+`, signature, " ");
-        signatures.push(signature.trim());
+        // Clean up whitespace for better LLM understanding
+        signature = regexp:replaceAll(re `\s+`, signature, " ").trim();
+        signatures.push(signature);
     }
 
-    // Extract remote functions with cleaner formatting
-    regexp:RegExp remotePattern = re `remote\s+isolated\s+function\s+[^{]+`;
-    regexp:Span[] remoteMatches = remotePattern.findAll(clientContent);
-    foreach regexp:Span span in remoteMatches {
-        string signature = clientContent.substring(span.startIndex, span.endIndex);
-        // Clean up the signature for better LLM understanding
-        signature = regexp:replaceAll(re `\s+`, signature, " ");
-        signatures.push(signature.trim());
-    }
-
-    return string:'join("\n\n", ...signatures);
+    return string:'join("\n", ...signatures);
 }
 
 // Find a matching function in client content based on LLM-provided function name
@@ -150,7 +140,7 @@ public function numberOfExamples(int apiCount) returns int {
     } else if apiCount <= 60 {
         return 3;
     } else {
-        return 4;
+        return 1;
     }
 }
 
