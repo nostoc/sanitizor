@@ -58,15 +58,21 @@ public function main(string... args) returns error? {
             log:printError("requiredFunctions is not a JSON array");
             continue;
         }
-        log:printInfo("Generated use case: " + useCase);
-        log:printInfo("Required functions: " + functionNames.toString());
+        io:println("Generated use case: " + useCase);
+        io:println("Required functions: " + functionNames.toString());
+
 
         // Step 2: Extract the targeted context based on the required functions
         string|error targetedContext = analyzer:extractTargetedContext(details, functionNames);
+        io:Error? writeText = io:fileWriteString("extractedte.bal",check targetedContext);
         if targetedContext is error {
             log:printError("Failed to extract targeted context", targetedContext);
             continue;
         }
+        
+        // Debug: Write targeted context to file for inspection (disabled to avoid compilation errors)
+        // io:Error? extractedText = io:fileWriteString("extracted.bal", targetedContext);
+        io:println("\n", "=========TARGETED CONTEXT==========",targetedContext);
         string|error generatedCode = ai_generator:generateExampleCode(details, useCase, targetedContext);
         if generatedCode is error {
             log:printError("Failed to generate example code", generatedCode);

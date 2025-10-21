@@ -32,7 +32,7 @@ You are a Ballerina software architect. Your task is to design a realistic, mult
 **Instructions:**
 1.  Analyze the provided function signatures to understand the connector's capabilities.
 2.  Devise a logical workflow that uses 2-3 functions in a sequence.
-3.  Describe this workflow in a concise 'useCase' paragraph.
+3.  Describe this workflow in a concise 'useCase' paragraph.The generated usecase should be unique.
 4.  For the 'requiredFunctions' array, extract key descriptive words from the function signatures that identify the functionality (e.g., if you see "resource isolated function get advisories", include "get advisories" as keywords).
 5.  Your final output MUST be a single, valid JSON object with the keys "useCase" and "requiredFunctions". Do not include any other text or markdown.
 
