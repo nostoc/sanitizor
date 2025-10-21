@@ -115,30 +115,27 @@ public function findMatchingFunction(string clientContent, string llmFunctionNam
 
 // Helper to determine if a function definition matches the LLM-provided name
 public function isMatchingFunction(string functionDef, string llmFunctionName) returns boolean {
-    string lowerFuncDef = functionDef.toLowerAscii();
+    // Clean the function definition by removing Ballerina's path escapes `\.` -> `.`
+    // and convert to lowercase for case-insensitive comparison.
+    string cleanFuncDef = regexp:replaceAll(re `\\`, functionDef, "").toLowerAscii();
+
+    // Convert the LLM function name to lowercase as well.
     string lowerLLMName = llmFunctionName.toLowerAscii();
 
-    // Simple keyword matching - if key words from LLM name appear in function definition
-    string[] keywords = regexp:split(re `[\s/\[\]]+`, lowerLLMName);
-    int matchCount = 0;
-
-    foreach string keyword in keywords {
-        if keyword.length() > 2 && lowerFuncDef.includes(keyword) {
-            matchCount += 1;
-        }
-    }
-
-    // If more than half the keywords match, consider it a match
-    return matchCount >= (keywords.length() / 2);
+    // For resource functions (e.g., "get admin.apps.list"), the LLM name will contain a space.
+    // For remote functions (e.g., "createRepository"), it will not.
+    // This simple `includes` check is robust enough to find the matching substring
+    // in both cases without being overly restrictive.
+    return cleanFuncDef.includes(lowerLLMName);
 }
 
 public function numberOfExamples(int apiCount) returns int {
     if apiCount < 15 {
         return 1;
     } else if apiCount <= 30 {
-        return 2;
+        return 1;
     } else if apiCount <= 60 {
-        return 3;
+        return 1;
     } else {
         return 1;
     }
@@ -237,7 +234,7 @@ public function fixExampleCode(string exampleDir, string exampleName) returns er
 public function extractTargetedContext(ConnectorDetails details, string[] functionNames) returns string|error {
     string clientContent = details.clientBalContent;
     string typesContent = details.typesBalContent;
-    
+
     io:println("=== EXTRACTING TARGETED CONTEXT ===");
     io:println("Original client.bal size: ", clientContent.length(), " chars");
     io:println("Original types.bal size: ", typesContent.length(), " chars");
@@ -283,7 +280,7 @@ public function extractTargetedContext(ConnectorDetails details, string[] functi
     int originalSize = clientContent.length() + typesContent.length();
     int reductionPercent = (originalSize - context.length()) * 100 / originalSize;
     io:println("Size reduction: ", reductionPercent, "%");
-    
+
     return context;
 }
 
@@ -356,18 +353,18 @@ function findMatchingFunctionSignature(string clientContent, string llmFunctionN
     // Extract function signatures only (everything up to and including the closing parenthesis before return type)
     regexp:RegExp signaturePattern = re `(resource\s+isolated\s+function|remote\s+isolated\s+function)\s+[^{]*\)\s*returns\s+[^{]*`;
     regexp:Span[] matches = signaturePattern.findAll(clientContent);
-    
+
     foreach regexp:Span span in matches {
         string signature = clientContent.substring(span.startIndex, span.endIndex);
-        
+
         // Check if this function could match the LLM-provided name
         if isMatchingFunction(signature, llmFunctionName) {
             // Clean up and format the signature
             string cleanSignature = regexp:replaceAll(re `\s+`, signature.trim(), " ");
-            
+
             // Extract documentation comment if available
             string docComment = extractFunctionDocumentation(clientContent, span.startIndex);
-            
+
             if docComment != "" {
                 return docComment + "\n" + cleanSignature + ";";
             } else {
@@ -375,7 +372,7 @@ function findMatchingFunctionSignature(string clientContent, string llmFunctionN
             }
         }
     }
-    
+
     return ();
 }
 
@@ -384,15 +381,15 @@ function extractFunctionDocumentation(string content, int functionStartIndex) re
     // Look backwards from function start to find documentation comment
     int currentIndex = functionStartIndex - 1;
     string docComment = "";
-    
+
     // Skip whitespace
-    while currentIndex >= 0 && (content.substring(currentIndex, currentIndex + 1) == " " || 
-           content.substring(currentIndex, currentIndex + 1) == "\n" || 
-           content.substring(currentIndex, currentIndex + 1) == "\r" || 
-           content.substring(currentIndex, currentIndex + 1) == "\t") {
+    while currentIndex >= 0 && (content.substring(currentIndex, currentIndex + 1) == " " ||
+            content.substring(currentIndex, currentIndex + 1) == "\n" ||
+            content.substring(currentIndex, currentIndex + 1) == "\r" ||
+            content.substring(currentIndex, currentIndex + 1) == "\t") {
         currentIndex -= 1;
     }
-    
+
     // Check if there's a documentation comment ending here
     if currentIndex >= 1 && content.substring(currentIndex - 1, currentIndex + 1) == "*/" {
         // Find the start of the comment
@@ -402,20 +399,20 @@ function extractFunctionDocumentation(string content, int functionStartIndex) re
             // Extract only the essential parts (# lines)
             string[] lines = regexp:split(re `\n`, comment);
             string[] docLines = [];
-            
+
             foreach string line in lines {
                 string trimmed = line.trim();
                 if trimmed.startsWith("#") || trimmed.startsWith("# +") || trimmed.startsWith("# -") {
                     docLines.push(trimmed);
                 }
             }
-            
+
             if docLines.length() > 0 && docLines.length() <= 5 { // Limit doc comment size
                 docComment = string:'join("\n", ...docLines);
             }
         }
     }
-    
+
     return docComment;
 }
 
@@ -424,13 +421,13 @@ function findEssentialNestedTypes(string[] typesToSearch, string typesContent, s
     if maxDepth <= 0 {
         return; // Stop recursion at max depth
     }
-    
+
     string[] newTypesFound = [];
     foreach string typeName in typesToSearch {
         // Only search for essential types (skip Headers, Queries, and overly generic types)
         if isEssentialType(typeName) {
             string typeDef = extractCompactTypeDefinition(typesContent, typeName);
-            
+
             if typeDef != "" {
                 string[] nested = findTypesInSignatures(typeDef);
                 foreach string nestedType in nested {
@@ -443,7 +440,7 @@ function findEssentialNestedTypes(string[] typesToSearch, string typesContent, s
             }
         }
     }
-    
+
     // Continue search with remaining depth
     if newTypesFound.length() > 0 {
         findEssentialNestedTypes(newTypesFound, typesContent, foundTypes, maxDepth - 1);
@@ -453,17 +450,17 @@ function findEssentialNestedTypes(string[] typesToSearch, string typesContent, s
 // Check if a type is essential (not a header, query, or internal type)
 function isEssentialType(string typeName) returns boolean {
     string lowerType = typeName.toLowerAscii();
-    
+
     // Skip non-essential types
-    if lowerType.endsWith("headers") || lowerType.endsWith("queries") || 
-       lowerType.endsWith("header") || lowerType.endsWith("query") ||
-       lowerType.startsWith("http") || lowerType.startsWith("internal") ||
-       lowerType == "error" || lowerType == "string" || lowerType == "decimal" || 
-       lowerType == "int" || lowerType == "boolean" || lowerType == "json" ||
-       lowerType.length() < 3 {
+    if lowerType.endsWith("headers") || lowerType.endsWith("queries") ||
+        lowerType.endsWith("header") || lowerType.endsWith("query") ||
+        lowerType.startsWith("http") || lowerType.startsWith("internal") ||
+        lowerType == "error" || lowerType == "string" || lowerType == "decimal" ||
+        lowerType == "int" || lowerType == "boolean" || lowerType == "json" ||
+        lowerType.length() < 3 {
         return false;
     }
-    
+
     return true;
 }
 
@@ -473,7 +470,7 @@ function extractCompactTypeDefinition(string typesContent, string typeName) retu
     if typeDef == "" {
         typeDef = extractBlock(typesContent, "public type " + typeName + " ", ";", ";");
     }
-    
+
     if typeDef != "" && typeDef.length() > 1000 { // Limit type definition size
         // If type is too large, create a simplified version
         string[] lines = regexp:split(re `\n`, typeDef);
@@ -486,7 +483,7 @@ function extractCompactTypeDefinition(string typesContent, string typeName) retu
                 if count >= 12 { // Keep first few lines including opening
                     limitedLines.push("    // ... (additional fields omitted for brevity)");
                     // Find and add the closing brace
-                    foreach int i in (lines.length() - 3)...(lines.length() - 1) {
+                    foreach int i in (lines.length() - 3) ... (lines.length() - 1) {
                         if i < lines.length() && lines[i].includes("}") {
                             limitedLines.push(lines[i]);
                             break;
@@ -498,6 +495,6 @@ function extractCompactTypeDefinition(string typesContent, string typeName) retu
             typeDef = string:'join("\n", ...limitedLines);
         }
     }
-    
+
     return typeDef;
 }

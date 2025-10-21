@@ -27,25 +27,32 @@ ${targetedContext}
 
 function getUsecasePrompt(analyzer:ConnectorDetails details) returns string {
     return string `
-You are a Ballerina software architect. Your task is to design a realistic, multi-step use case for a developer using the provided connector.
+You are a Ballerina software architect.
+Your task is to design a realistic, multi-step use case for a developer using the provided connector.
 
 **Instructions:**
 1.  Analyze the provided function signatures to understand the connector's capabilities.
 2.  Devise a logical workflow that uses 2-3 functions in a sequence.
-3.  Describe this workflow in a concise 'useCase' paragraph.The generated usecase should be unique.
-4.  For the 'requiredFunctions' array, extract key descriptive words from the function signatures that identify the functionality (e.g., if you see "resource isolated function get advisories", include "get advisories" as keywords).
-5.  Your final output MUST be a single, valid JSON object with the keys "useCase" and "requiredFunctions". Do not include any other text or markdown.
+3.  Describe this workflow in a concise 'useCase' paragraph.
+4.  For the 'requiredFunctions' array, extract the function identifiers based on these **strict rules**:
+    - For a **resource** function like 'resource isolated function get admin\.apps\.approved\.list(...)', extract the **HTTP method** and the **full path**. The format MUST be **"get admin.apps.approved.list"**.
+    - For a **remote** function like 'remote isolated function createRepository(...)', extract only the **function name** itself. The format MUST be **"createRepository"**.
+5.  Your final output MUST be a single, valid JSON object with the keys "useCase" and "requiredFunctions".
+Do not include any other text or markdown.
 
 **Available Function Signatures:**
 ${details.functionSignatures}
 
-**Required JSON Output Format:**
+**Available Types**
+${details.typeNames}
+
+**Required JSON Output Format (Example with both types):**
 {
-  "useCase": "A paragraph describing the multi-step workflow. For example: 'First, retrieve all security advisories to understand threats. Then, get scanning alerts for the organization. Finally, examine details of a specific advisory.'",
-  "requiredFunctions": ["get advisories", "get scanning alerts", "get advisory details"]
+  "useCase": "A paragraph describing a multi-step workflow. For example: 'First, get the list of approved apps for the organization. Then, create a new repository to store the application data and configuration.'",
+  "requiredFunctions": ["get admin.apps.approved.list", "createRepository"]
 }
 
-**Important:** For requiredFunctions, use descriptive keywords that capture the main functionality, not exact function names.
+**CRITICAL:** Follow the function format rules precisely. Do not add extra words or descriptions.
 `;
 }
 
