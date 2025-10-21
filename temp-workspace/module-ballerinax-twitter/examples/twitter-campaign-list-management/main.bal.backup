@@ -1,0 +1,71 @@
+import ballerina/io;
+import ballerinax/twitter;
+
+configurable string bearerToken = ?;
+
+public function main() returns error? {
+    twitter:Client twitterClient = check new ({
+        auth: {
+            token: bearerToken
+        }
+    });
+
+    // Create a new list
+    twitter:ListCreateRequest createListRequest = {
+        name: "Marketing Campaign 2024",
+        description: "Curated list for our latest marketing campaign to track engagement and trends",
+        'private: false
+    };
+    
+    twitter:ListCreateResponse createdListResponse = check twitterClient->createList(createListRequest);
+    if createdListResponse.data is () {
+        io:println("Failed to create list");
+        return;
+    }
+    twitter:List createdList = <twitter:List>createdListResponse.data;
+    io:println("Created list successfully:");
+    io:println(string `List ID: ${createdList.id}`);
+    io:println(string `List Name: ${createdList.name}`);
+    io:println(string `List Description: ${createdList.description ?: "No description"}`);
+
+    // Add members to the list
+    string[] userIds = ["783214", "2244994945", "17874544"];
+    
+    foreach string userId in userIds {
+        twitter:ListAddMemberRequest addMemberRequest = {
+            user_id: userId
+        };
+        
+        twitter:ListMutateResponse addMemberResponse = check twitterClient->addListMember(createdList.id, addMemberRequest);
+        if addMemberResponse.data is twitter:ListMutateResponse_data {
+            twitter:ListMutateResponse_data responseData = <twitter:ListMutateResponse_data>addMemberResponse.data;
+            boolean isMember = responseData.is_member ?: false;
+            io:println(string `Added user ${userId} to list: ${isMember}`);
+        }
+    }
+
+    // Fetch recent tweets from the list
+    string listId = createdList.id;
+    
+    twitter:Get2ListsIdTweetsResponse listTweetsResponse = check twitterClient->getListTweets(listId, max_results = 10, tweet_fields = ["created_at", "author_id", "public_metrics", "text"]);
+    
+    io:println("\nRecent tweets from the list:");
+    if listTweetsResponse.data is twitter:Tweet[] {
+        twitter:Tweet[] tweets = <twitter:Tweet[]>listTweetsResponse.data;
+        foreach twitter:Tweet tweet in tweets {
+            io:println(string `Tweet ID: ${tweet.id ?: "Unknown"}`);
+            io:println(string `Author ID: ${tweet.author_id ?: "Unknown"}`);
+            io:println(string `Text: ${tweet.text ?: "No text"}`);
+            io:println(string `Created At: ${tweet.created_at ?: "Unknown"}`);
+            if tweet.public_metrics is twitter:Tweet_public_metrics {
+                twitter:Tweet_public_metrics metrics = <twitter:Tweet_public_metrics>tweet.public_metrics;
+                io:println(string `Retweets: ${metrics.retweet_count}`);
+                io:println(string `Likes: ${metrics.like_count}`);
+                io:println(string `Replies: ${metrics.reply_count}`);
+            }
+            io:println("---");
+        }
+    } else {
+        io:println("No tweets found in the list");
+    }
+}

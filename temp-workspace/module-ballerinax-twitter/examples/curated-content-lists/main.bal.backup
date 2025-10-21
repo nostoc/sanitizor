@@ -1,0 +1,55 @@
+import ballerina/io;
+import ballerinax/twitter;
+
+configurable string bearerToken = ?;
+configurable string apiKey = ?;
+configurable string apiSecret = ?;
+configurable string accessToken = ?;
+configurable string accessTokenSecret = ?;
+
+public function main() returns error? {
+    twitter:ConnectionConfig config = {
+        auth: {
+            token: bearerToken
+        }
+    };
+    
+    twitter:Client twitterClient = check new (config);
+    
+    // Step 1: Create a new list
+    twitter:ListCreateRequest createListRequest = {
+        name: "Tech Innovation",
+        description: "Curated content about technology and innovation"
+    };
+    
+    twitter:ListCreateResponse createResponse = check twitterClient->post_2_lists(createListRequest);
+    string listId = createResponse.data?.id ?: "";
+    io:println("Created list with ID: " + listId);
+    
+    // Step 2: Add members to the list
+    string[] userIds = ["783214", "17874544", "6253282"];
+    
+    foreach string userId in userIds {
+        twitter:ListAddUserRequest addMemberRequest = {
+            user_id: userId
+        };
+        
+        twitter:ListMutateResponse addMemberResponse = check twitterClient->post_2_lists_by_id_members(listId, addMemberRequest);
+        io:println("Added member " + userId + " to list.");
+    }
+    
+    // Step 3: Retrieve tweets from the list
+    twitter:Get2ListsIdTweetsResponse listTweetsResponse = check twitterClient->get_2_lists_by_id_tweets(listId, max_results = 10);
+    
+    io:println("\nTweets from the curated list:");
+    if listTweetsResponse.data is twitter:Tweet[] {
+        twitter:Tweet[] tweets = <twitter:Tweet[]>listTweetsResponse.data;
+        foreach twitter:Tweet tweet in tweets {
+            string tweetId = tweet.id ?: "";
+            string tweetText = tweet.text ?: "";
+            io:println("Tweet ID: " + tweetId);
+            io:println("Text: " + tweetText);
+            io:println("---");
+        }
+    }
+}

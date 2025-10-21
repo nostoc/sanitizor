@@ -1,0 +1,41 @@
+import ballerina/io;
+import ballerinax/smartsheet;
+
+configurable string accessToken = ?;
+
+public function main() returns error? {
+    smartsheet:Client smartsheetClient = check new ({
+        auth: {
+            token: accessToken
+        }
+    });
+
+    string csvContent = "Task Name,Status,Due Date\nProject Planning,Not Started,2024-01-15\nRequirements Gathering,Not Started,2024-01-20\nDesign Phase,Not Started,2024-02-01";
+    byte[] csvBytes = csvContent.toBytes();
+
+    string workspaceId = "1234567890";
+
+    smartsheet:ImportSheetIntoWorkspaceHeaders headers = {
+        contentType: "text/csv",
+        contentDisposition: "attachment; filename=\"project_tasks.csv\""
+    };
+
+    smartsheet:ImportSheetIntoWorkspaceQueries queries = {
+        sheetName: "Project Tasks and Milestones",
+        headerRowIndex: 0,
+        primaryColumnIndex: 0
+    };
+
+    smartsheet:WebhookListResponse response = check smartsheetClient->/workspaces/[workspaceId]/sheets/'import.post(headers, csvBytes, ...queries);
+
+    io:println("Sheet import result: ", response.message);
+    if response.result is smartsheet:SheetImported {
+        smartsheet:SheetImported sheet = <smartsheet:SheetImported>response.result;
+        io:println("Sheet created successfully:");
+        io:println("Sheet ID: ", sheet.id);
+        io:println("Sheet Name: ", sheet.name);
+        io:println("Sheet Type: ", sheet.'type);
+        io:println("Access Level: ", sheet.accessLevel);
+        io:println("Permalink: ", sheet.permalink);
+    }
+}
