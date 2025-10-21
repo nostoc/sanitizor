@@ -25,7 +25,7 @@ public function initExampleGenerator() returns error? {
     log:printInfo("LLM service initialized successfully");
 }
 
-public function generateuseCase(analyzer:ConnectorDetails details) returns string|error {
+public function generateUseCaseAndFunctions(analyzer:ConnectorDetails details) returns string|error {
     string prompt = getUsecasePrompt(details);
     ai:ModelProvider? model = anthropicModel;
     if model is () {
@@ -41,8 +41,9 @@ public function generateuseCase(analyzer:ConnectorDetails details) returns strin
     return response.content ?: error("Empty use case response from LLM");
 }
 
-public function generateExampleCode(analyzer:ConnectorDetails details, string useCase) returns string|error {
-    string prompt = getExampleCodegenerationPrompt(details, useCase);
+
+public function generateExampleCode(analyzer:ConnectorDetails details, string useCase, string targetedContext) returns string|error {
+    string prompt = getExampleCodegenerationPrompt(details, useCase, targetedContext);
     ai:ModelProvider? model = anthropicModel;
     if model is () {
         return error("AI model not initialized. Please call initDocumentationGenerator() first.");

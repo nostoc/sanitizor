@@ -2,6 +2,7 @@ import example_generator.ai_generator;
 import example_generator.analyzer;
 
 import ballerina/io;
+import ballerina/log;
 
 public function main(string... args) returns error? {
     if args.length() < 1 {
@@ -32,35 +33,36 @@ public function main(string... args) returns error? {
     io:println("Number of Examples to generate: ", numberOfExamples.toString());
 
     // 3. Loop to generate each example
-
     foreach int i in 1 ... numberOfExamples {
         io:println("Generating use case ", i.toString(), "...");
-        string|error useCase = ai_generator:generateuseCase(details);
-        if useCase is error {
-            io:println("Failed to generate use case: ", useCase.message());
+                io:println("Generating example name for use case ", i.toString(), "...");
+
+        json|error useCaseResponse = ai_generator:generateUseCaseAndFunctions(details);
+        if useCaseResponse is error {
+            log:printError("Failed to generate use case", useCaseResponse);
             continue;
         }
-        io:println("Use Case ", i.toString(), ": ", useCase);
 
-        io:println("Generating example name for use case ", i.toString(), "...");
-        string|error exampleName = ai_generator:generateExampleName(useCase);
-        if exampleName is error {
-            io:println("Failed to generate example name: ", exampleName.message());
+        string useCase = check useCaseResponse.useCase.ensureType();
+        string[] functionNames = check useCaseResponse.requiredFunctions.ensureType();
+        log:printInfo("Generated use case: " + useCase);
+        log:printInfo("Required functions: " + functionNames.toString());
+
+        // Step 2: Extract the targeted context based on the required functions
+        string|error targetedContext = analyzer:extractTargetedContext(details, functionNames);
+        if targetedContext is error {
+            log:printError("Failed to extract targeted context", targetedContext);
             continue;
         }
-        io:println("Example Name ", i.toString(), ": ", exampleName);
-
+        string|error generatedCode = ai_generator:generateExampleCode(details, useCase, targetedContext);
         io:println("Generating example code for use case ", i.toString(), "...");
-        string|error exampleCode = ai_generator:generateExampleCode(details, useCase);
-        if exampleCode is error {
-            io:println("Failed to generate example code: ", exampleCode.message());
-            continue;
-        }
-        io:println("Generated Example Code for Use Case ", i.toString(), ":\n", exampleCode);
+        io:println("Generated Example Code for Use Case ", i.toString(), ":\n", generatedCode);
+
+        string exampleName = "example_" + i.toString();
 
         // Write the generated example to file
         io:println("Writing example ", i.toString(), " to file...");
-        error? writeResult = analyzer:writeExampleToFile(connectorPath, exampleName, useCase, exampleCode);
+        error? writeResult = analyzer:writeExampleToFile(connectorPath, exampleName, useCase, generatedCode);
         if writeResult is error {
             io:println("Failed to write example to file: ", writeResult.message());
             continue;

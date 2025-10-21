@@ -10,6 +10,9 @@ public type ConnectorDetails record {|
     int apiCount;
     string clientBalContent;
     string typesBalContent;
+    string functionSignatures;
+    string typeNames;
+
 |};
 
 public function analyzeConnector(string connectorPath) returns ConnectorDetails|error {
@@ -39,7 +42,9 @@ public function analyzeConnector(string connectorPath) returns ConnectorDetails|
         connectorName: connectorName,
         apiCount: apiCount,
         clientBalContent: clientContent,
-        typesBalContent: typesContent
+        typesBalContent: typesContent,
+        functionSignatures: "",
+        typeNames: ""
     };
 }
 
@@ -71,7 +76,7 @@ public function numberOfExamples(int apiCount) returns int {
     }
 }
 
-public function writeExampleToFile(string connectorPath, string exampleName, string useCase, string exampleCode) returns error? {
+public function writeExampleToFile(string connectorPath, string exampleName, string useCase, string|error exampleCode) returns error? {
     // Create examples directory if it doesn't exist
     string examplesDir = connectorPath + "/examples";
     check file:createDir(examplesDir, file:RECURSIVE);
@@ -161,36 +166,91 @@ public function fixExampleCode(string exampleDir, string exampleName) returns er
     return;
 }
 
-// Extract targeted context from client and types content based on use case
-public function extractTargetedContext(string clientContent, string typesContent, string useCase) returns string {
-
-    string[] functionNames = findMentionedFunctions(clientContent, useCase);
-    string[] typeNames = findMetionedTypes(typesContent, useCase);
+public function extractTargetedContext(ConnectorDetails details, string[] functionNames) returns string|error {
+    string clientContent = details.clientBalContent;
+    string typesContent = details.typesBalContent;
 
     string context = "";
+    string[] allDependentTypes = [];
 
-    // Extract relevant function definitions from client.bal
-    foreach string funcName in functionNames {
-        context += extractBlock(clientContent, "function " + funcName, "{", "}") + "\n\n";
+    // Extract the full function definitions
+    foreach string fucName in functionNames {
+        context += extractBlock(clientContent, "function" + fucName, "{", "}" + "\n\n");
     }
 
-    // Extract relevant type definitions from types.bal
-    foreach string typeName in typeNames {
-        context += extractBlock(typesContent, "public type " + typeName, "record {|", "|};" + "\n\n");
+    // Find all types used in the funcion signature (paramteres and return types)
+    string[] directTypes = findTypesInSignatures(context);
+    allDependentTypes.push(...directTypes);
+
+    // Recursively find all nested types
+    findNestedTypes(directTypes, typesContent, allDependentTypes);
+
+    // Extract the full definitions for all identified types
+    foreach string typeName in allDependentTypes {
+        string typeDef = extractBlock(typesContent, "public type " + typeName, "{", "}");
+        if typeDef == "" {
+            typeDef = extractBlock(typesContent, "public type " + typeName, ";", ";");
+        }
+        context += typeDef + "\n\n";
     }
     return context;
 
 }
 
-function extractBlock(string s, string s1, string s2, string s3) returns string {
-    return "";
+function findNestedTypes(string[] typesToSearch, string typesContent, string[] foundTypes) {
+    string[] newTypesFound = [];
+    foreach string typeName in typesToSearch {
+        string typeDef = extractBlock(typesContent, "public type " + typeName, "{", "}");
+        if typeDef == "" {
+            typeDef = extractBlock(typesContent, "public type " + typeName, ";", ";");
+        }
+
+        if typeDef != "" {
+            string[] nested = findTypesInSignatures(typeDef);
+            foreach string nestedType in nested {
+                // If it's a new type we haven't processed yet, add it to the list
+                if !foundTypes.includes(nestedType) {
+                    newTypesFound.push(nestedType);
+                    foundTypes.push(nestedType);
+                }
+            }
+        }
+    }
+    // If we found new types, we need to search within them as well
+    if newTypesFound.length() > 0 {
+        findNestedTypes(newTypesFound, typesContent, foundTypes);
+    }
 }
 
-function findMetionedTypes(string typesContent, string useCase) returns string[] {
-    return regexp:findAll(re `\b([a-zA-Z0-9_]+)\(`).map(match => match.groups[0] ?: "", useCase);
-    return [];
+function findTypesInSignatures(string signatures) returns string[] {
+    string:RegExp r = re `\[A-Z][a-zA-Z0-9_]*\`;
+    return regex:findAll(signatures, re `\b[A-Z][a-zA-Z0-9_]*\b`);
+
 }
 
-function findMentionedFunctions(string s, string s1) returns string[] {
-    return [];
+function extractBlock(string content, string startPattern, string openChar, string closeChar) returns string {
+    // This is a simplified block extractor. It finds the start pattern and then balances
+    // the open/close characters to find the end of the block.
+    int? startIndex = content.indexOf(startPattern);
+    if startIndex is () {
+        return "";
+    }
+
+    int? openBraceIndex = content.indexOf(openChar, startIndex);
+    if openBraceIndex is () {
+        return "";
+    }
+
+    int braceCount = 1;
+    int currentIndex = openBraceIndex + 1;
+    while (braceCount > 0 && currentIndex < content.length()) {
+        if content.substring(currentIndex, currentIndex + 1) == openChar {
+            braceCount += 1;
+        } else if content.substring(currentIndex, currentIndex + 1) == closeChar {
+            braceCount -= 1;
+        }
+        currentIndex += 1;
+    }
+
+    return content.substring(startIndex, currentIndex);
 }
