@@ -32,12 +32,15 @@ public function main(string... args) returns error? {
     int numberOfExamples = analyzer:numberOfExamples(details.apiCount);
     io:println("Number of Examples to generate: ", numberOfExamples.toString());
 
+    // array to keep track of functions used in generated examples. 
+    string[] usedFunctionaNames = [];
+
     // 3. Loop to generate each example
     foreach int i in 1 ... numberOfExamples {
         io:println("Generating use case ", i.toString(), "...");
         io:println("Generating example name for use case ", i.toString(), "...");
 
-        json|error useCaseResponse = ai_generator:generateUseCaseAndFunctions(details);
+        json|error useCaseResponse = ai_generator:generateUseCaseAndFunctions(details, usedFunctionaNames);
         if useCaseResponse is error {
             log:printError("Failed to generate use case", useCaseResponse);
             continue;
@@ -58,12 +61,17 @@ public function main(string... args) returns error? {
             log:printError("requiredFunctions is not a JSON array");
             continue;
         }
+
+        // adding the newly used function to the tacking list
+        usedFunctionaNames.push(...functionNames);
+
+
         io:println("Generated use case: " + useCase);
         io:println("Required functions: " + functionNames.toString());
 
         // Step 2: Extract the targeted context based on the required functions
         string|error targetedContext = analyzer:extractTargetedContext(details, functionNames);
-        io:Error? writeText = io:fileWriteString("extracted.bal", check targetedContext);
+        //io:Error? writeText = io:fileWriteString("extracted.bal", check targetedContext);
         if targetedContext is error {
             log:printError("Failed to extract targeted context", targetedContext);
             continue;

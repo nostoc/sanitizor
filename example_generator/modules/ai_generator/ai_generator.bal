@@ -25,12 +25,12 @@ public function initExampleGenerator() returns error? {
     log:printInfo("LLM service initialized successfully");
 }
 
-public function generateUseCaseAndFunctions(analyzer:ConnectorDetails details) returns json|error {
+public function generateUseCaseAndFunctions(analyzer:ConnectorDetails details, string[] usedFunctions) returns json|error {
     io:println("\n -------Function SIgnatures ----------");
     io:println(details.functionSignatures);
     io:println("\n ---------- Types ------");
     io:println(details.typeNames);
-    string prompt = getUsecasePrompt(details);
+    string prompt = getUsecasePrompt(details, usedFunctions);
     ai:ModelProvider? model = anthropicModel;
     if model is () {
         return error("AI model not initialized. Please call initDocumentationGenerator() first.");

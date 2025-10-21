@@ -25,34 +25,44 @@ ${targetedContext}
 `;
 }
 
-function getUsecasePrompt(analyzer:ConnectorDetails details) returns string {
+function getUsecasePrompt(analyzer:ConnectorDetails details, string[] usedFunctions) returns string {
+    string previouslyUsedSection = "";
+    if usedFunctions.length() > 0 {
+        string[] formattedUsedFunctions = from string func in usedFunctions
+            select string `- '${func}'`;
+        previouslyUsedSection = string `
+**IMPORTANT: Previously Used Functions (Avoid these):**
+You have already generated examples using the functions below.
+To ensure variety, create a NEW and DISTINCT use case that does NOT use these functions.
+${string:'join("\n", ...formattedUsedFunctions)}
+`;
+    }
+
     return string `
 You are a Ballerina software architect.
-Your task is to design a realistic, multi-step use case for a developer using the provided connector.
+Your task is to design a realistic, unique, and multi-step use case for a developer.
 
 **Instructions:**
 1.  Analyze the provided function signatures to understand the connector's capabilities.
 2.  Devise a logical workflow that uses 2-3 functions in a sequence.
-3.  Describe this workflow in a concise 'useCase' paragraph.
+3.  Describe this workflow in a concise 'useCase' paragraph. The use case MUST be unique and different from any previous ones.
 4.  For the 'requiredFunctions' array, extract the function identifiers based on these **strict rules**:
-    - For a **resource** function like 'resource isolated function get admin\.apps\.approved\.list(...)', extract the **HTTP method** and the **full path**. The format MUST be **"get admin.apps.approved.list"**.
-    - For a **remote** function like 'remote isolated function createRepository(...)', extract only the **function name** itself. The format MUST be **"createRepository"**.
-5.  Your final output MUST be a single, valid JSON object with the keys "useCase" and "requiredFunctions".
-Do not include any other text or markdown.
+    - For a **resource** function, use the format **"METHOD function.path"** (e.g., "get admin.apps.approved.list").
+    - For a **remote** function, use only the **function name** (e.g., "createRepository").
+5.  Your final output MUST be a single, valid JSON object. Don't inlcude code  fences in the response. 
+
+${previouslyUsedSection}
 
 **Available Function Signatures:**
 ${details.functionSignatures}
 
-**Available Types**
-${details.typeNames}
-
-**Required JSON Output Format (Example with both types):**
+**Required JSON Output Format:**
 {
-  "useCase": "A paragraph describing a multi-step workflow. For example: 'First, get the list of approved apps for the organization. Then, create a new repository to store the application data and configuration.'",
-  "requiredFunctions": ["get admin.apps.approved.list", "createRepository"]
+  "useCase": "A unique, multi-step workflow description.",
+  "requiredFunctions": ["get admin.teams.list", "post admin.teams.create"]
 }
 
-**CRITICAL:** Follow the function format rules precisely. Do not add extra words or descriptions.
+**CRITICAL:** Follow the function format rules and create a distinct use case.
 `;
 }
 
