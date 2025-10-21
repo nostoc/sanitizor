@@ -33,7 +33,7 @@ You are a Ballerina software architect. Your task is to design a realistic, mult
 1.  Analyze the provided function signatures to understand the connector's capabilities.
 2.  Devise a logical workflow that uses 2-3 functions in a sequence.
 3.  Describe this workflow in a concise 'useCase' paragraph.
-4.  List the exact function names required to implement this use case in a 'requiredFunctions' array.
+4.  For the 'requiredFunctions' array, extract key descriptive words from the function signatures that identify the functionality (e.g., if you see "resource isolated function get advisories", include "get advisories" as keywords).
 5.  Your final output MUST be a single, valid JSON object with the keys "useCase" and "requiredFunctions". Do not include any other text or markdown.
 
 **Available Function Signatures:**
@@ -41,9 +41,11 @@ ${details.functionSignatures}
 
 **Required JSON Output Format:**
 {
-  "useCase": "A paragraph describing the multi-step workflow. For example: 'First, create a new marketing event. Then, register a list of attendees for that event via their email addresses. Finally, retrieve the participation analytics to see the registration numbers.'",
-  "requiredFunctions": ["createMarketingEvent", "subscribeByEmail", "getParticipationBreakdown"]
+  "useCase": "A paragraph describing the multi-step workflow. For example: 'First, retrieve all security advisories to understand threats. Then, get scanning alerts for the organization. Finally, examine details of a specific advisory.'",
+  "requiredFunctions": ["get advisories", "get scanning alerts", "get advisory details"]
 }
+
+**Important:** For requiredFunctions, use descriptive keywords that capture the main functionality, not exact function names.
 `;
 }
 

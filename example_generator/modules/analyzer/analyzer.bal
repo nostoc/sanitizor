@@ -5,6 +5,16 @@ import ballerina/lang.regexp;
 
 import connectorautomation/fixer;
 
+// Helper function to check if array contains a value
+function arrayContains(string[] arr, string value) returns boolean {
+    foreach string item in arr {
+        if item == value {
+            return true;
+        }
+    }
+    return false;
+}
+
 public type ConnectorDetails record {|
     string connectorName;
     int apiCount;
@@ -38,12 +48,15 @@ public function analyzeConnector(string connectorPath) returns ConnectorDetails|
         }
     }
 
+    // Extract function signatures
+    string functionSignatures = extractFunctionSignatures(clientContent);
+
     return {
         connectorName: connectorName,
         apiCount: apiCount,
         clientBalContent: clientContent,
         typesBalContent: typesContent,
-        functionSignatures: "",
+        functionSignatures: functionSignatures,
         typeNames: ""
     };
 }
@@ -64,6 +77,71 @@ function countApiOperations(string clientContent) returns int {
     return count;
 }
 
+public function extractFunctionSignatures(string clientContent) returns string {
+    string[] signatures = [];
+    
+    // Extract resource functions with cleaner formatting
+    regexp:RegExp resourcePattern = re `resource\s+isolated\s+function\s+[^{]+`;
+    regexp:Span[] resourceMatches = resourcePattern.findAll(clientContent);
+    foreach regexp:Span span in resourceMatches {
+        string signature = clientContent.substring(span.startIndex, span.endIndex);
+        // Clean up the signature for better LLM understanding
+        signature = regexp:replaceAll(re `\s+`, signature, " ");
+        signatures.push(signature.trim());
+    }
+    
+    // Extract remote functions with cleaner formatting
+    regexp:RegExp remotePattern = re `remote\s+isolated\s+function\s+[^{]+`;
+    regexp:Span[] remoteMatches = remotePattern.findAll(clientContent);
+    foreach regexp:Span span in remoteMatches {
+        string signature = clientContent.substring(span.startIndex, span.endIndex);
+        // Clean up the signature for better LLM understanding
+        signature = regexp:replaceAll(re `\s+`, signature, " ");
+        signatures.push(signature.trim());
+    }
+    
+    return string:'join("\n\n", ...signatures);
+}
+
+// Find a matching function in client content based on LLM-provided function name
+public function findMatchingFunction(string clientContent, string llmFunctionName) returns string? {
+    // Extract all function definitions
+    regexp:RegExp functionPattern = re `(resource\s+isolated\s+function|remote\s+isolated\s+function)\s+[^{]+\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}`;
+    regexp:Span[] matches = functionPattern.findAll(clientContent);
+    
+    foreach regexp:Span span in matches {
+        string functionDef = clientContent.substring(span.startIndex, span.endIndex);
+        
+        // Check if this function could match the LLM-provided name
+        // For resource functions like "get advisories" -> look for "get" method in path with "advisories"
+        // For remote functions, match by function name more directly
+        if isMatchingFunction(functionDef, llmFunctionName) {
+            return functionDef;
+        }
+    }
+    
+    return ();
+}
+
+// Helper to determine if a function definition matches the LLM-provided name
+public function isMatchingFunction(string functionDef, string llmFunctionName) returns boolean {
+    string lowerFuncDef = functionDef.toLowerAscii();
+    string lowerLLMName = llmFunctionName.toLowerAscii();
+    
+    // Simple keyword matching - if key words from LLM name appear in function definition
+    string[] keywords = regexp:split(re `[\s/\[\]]+`, lowerLLMName);
+    int matchCount = 0;
+    
+    foreach string keyword in keywords {
+        if keyword.length() > 2 && lowerFuncDef.includes(keyword) {
+            matchCount += 1;
+        }
+    }
+    
+    // If more than half the keywords match, consider it a match
+    return matchCount >= (keywords.length() / 2);
+}
+
 public function numberOfExamples(int apiCount) returns int {
     if apiCount < 10 {
         return 1;
@@ -76,7 +154,7 @@ public function numberOfExamples(int apiCount) returns int {
     }
 }
 
-public function writeExampleToFile(string connectorPath, string exampleName, string useCase, string|error exampleCode) returns error? {
+public function writeExampleToFile(string connectorPath, string exampleName, string useCase, string exampleCode) returns error? {
     // Create examples directory if it doesn't exist
     string examplesDir = connectorPath + "/examples";
     check file:createDir(examplesDir, file:RECURSIVE);
@@ -173,12 +251,15 @@ public function extractTargetedContext(ConnectorDetails details, string[] functi
     string context = "";
     string[] allDependentTypes = [];
 
-    // Extract the full function definitions
-    foreach string fucName in functionNames {
-        context += extractBlock(clientContent, "function" + fucName, "{", "}" + "\n\n");
+    // Extract function definitions by matching the LLM-provided names to actual function signatures
+    foreach string funcName in functionNames {
+        string? matchedFunction = findMatchingFunction(clientContent, funcName);
+        if matchedFunction is string {
+            context += matchedFunction + "\n\n";
+        }
     }
 
-    // Find all types used in the funcion signature (paramteres and return types)
+    // Find all types used in the function signatures (parameters and return types)
     string[] directTypes = findTypesInSignatures(context);
     allDependentTypes.push(...directTypes);
 
@@ -194,7 +275,6 @@ public function extractTargetedContext(ConnectorDetails details, string[] functi
         context += typeDef + "\n\n";
     }
     return context;
-
 }
 
 function findNestedTypes(string[] typesToSearch, string typesContent, string[] foundTypes) {
@@ -209,7 +289,7 @@ function findNestedTypes(string[] typesToSearch, string typesContent, string[] f
             string[] nested = findTypesInSignatures(typeDef);
             foreach string nestedType in nested {
                 // If it's a new type we haven't processed yet, add it to the list
-                if !foundTypes.includes(nestedType) {
+                if !arrayContains(foundTypes, nestedType) {
                     newTypesFound.push(nestedType);
                     foundTypes.push(nestedType);
                 }
@@ -223,9 +303,13 @@ function findNestedTypes(string[] typesToSearch, string typesContent, string[] f
 }
 
 function findTypesInSignatures(string signatures) returns string[] {
-    string:RegExp r = re `\[A-Z][a-zA-Z0-9_]*\`;
-    return regex:findAll(signatures, re `\b[A-Z][a-zA-Z0-9_]*\b`);
-
+    regexp:RegExp typePattern = re `[A-Z][a-zA-Z0-9_]*`;
+    regexp:Span[] matches = typePattern.findAll(signatures);
+    string[] types = [];
+    foreach regexp:Span span in matches {
+        types.push(signatures.substring(span.startIndex, span.endIndex));
+    }
+    return types;
 }
 
 function extractBlock(string content, string startPattern, string openChar, string closeChar) returns string {

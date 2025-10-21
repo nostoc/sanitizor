@@ -15,7 +15,7 @@ public function initExampleGenerator() returns error? {
     ai:ModelProvider|error modelProvider = new anthropic:ModelProvider(
         apiKey,
         anthropic:CLAUDE_SONNET_4_20250514,
-        maxTokens = 60000,
+        maxTokens = 64000,
         timeout = 300
     );
     if modelProvider is error {
@@ -25,7 +25,7 @@ public function initExampleGenerator() returns error? {
     log:printInfo("LLM service initialized successfully");
 }
 
-public function generateUseCaseAndFunctions(analyzer:ConnectorDetails details) returns string|error {
+public function generateUseCaseAndFunctions(analyzer:ConnectorDetails details) returns json|error {
     string prompt = getUsecasePrompt(details);
     ai:ModelProvider? model = anthropicModel;
     if model is () {
@@ -38,7 +38,17 @@ public function generateUseCaseAndFunctions(analyzer:ConnectorDetails details) r
     if response is error {
         return error("Failed to generate use case", response);
     }
-    return response.content ?: error("Empty use case response from LLM");
+    string? content = response.content;
+    if content is () {
+        return error("Empty use case response from LLM");
+    }
+    
+    // Parse the JSON response
+    json|error jsonResponse = content.fromJsonString();
+    if jsonResponse is error {
+        return error("Failed to parse JSON response from LLM", jsonResponse);
+    }
+    return jsonResponse;
 }
 
 

@@ -44,7 +44,20 @@ public function main(string... args) returns error? {
         }
 
         string useCase = check useCaseResponse.useCase.ensureType();
-        string[] functionNames = check useCaseResponse.requiredFunctions.ensureType();
+        json functionNamesJson = check useCaseResponse.requiredFunctions.ensureType();
+        string[] functionNames = [];
+        
+        // Convert json array to string array
+        if functionNamesJson is json[] {
+            foreach json item in functionNamesJson {
+                if item is string {
+                    functionNames.push(item);
+                }
+            }
+        } else {
+            log:printError("requiredFunctions is not a JSON array");
+            continue;
+        }
         log:printInfo("Generated use case: " + useCase);
         log:printInfo("Required functions: " + functionNames.toString());
 
@@ -55,10 +68,23 @@ public function main(string... args) returns error? {
             continue;
         }
         string|error generatedCode = ai_generator:generateExampleCode(details, useCase, targetedContext);
+        if generatedCode is error {
+            log:printError("Failed to generate example code", generatedCode);
+            continue;
+        }
+        // Generate AI-powered example name
+        string|error exampleNameResult = ai_generator:generateExampleName(useCase);
+        string exampleName;
+        if exampleNameResult is error {
+            log:printError("Failed to generate example name, using fallback", exampleNameResult);
+            exampleName = "example_" + i.toString();
+        } else {
+            exampleName = exampleNameResult;
+        }
+        
+        io:println("Generated example name: ", exampleName);
         io:println("Generating example code for use case ", i.toString(), "...");
         io:println("Generated Example Code for Use Case ", i.toString(), ":\n", generatedCode);
-
-        string exampleName = "example_" + i.toString();
 
         // Write the generated example to file
         io:println("Writing example ", i.toString(), " to file...");
