@@ -15,16 +15,6 @@ function arrayContains(string[] arr, string value) returns boolean {
     return false;
 }
 
-public type ConnectorDetails record {|
-    string connectorName;
-    int apiCount;
-    string clientBalContent;
-    string typesBalContent;
-    string functionSignatures;
-    string typeNames;
-
-|};
-
 public function analyzeConnector(string connectorPath) returns ConnectorDetails|error {
     string clientBalPath = connectorPath + "/ballerina/client.bal";
     string typesBalPath = connectorPath + "/ballerina/types.bal";
@@ -362,22 +352,22 @@ function findMatchingFunctionSignature(string clientContent, string llmFunctionN
     foreach regexp:Span startSpan in startMatches {
         // From the start of the function, find the complete signature up to the function body brace
         int startIndex = startSpan.startIndex;
-        
+
         // Find the pattern "returns ... {" to identify the function body start
         int? returnsIndex = clientContent.indexOf("returns", startIndex);
-        
+
         if returnsIndex is int {
             // Find the opening brace after "returns"
             int? braceIndex = clientContent.indexOf("{", returnsIndex);
-            
+
             if braceIndex is int {
                 string functionSignature = clientContent.substring(startIndex, braceIndex).trim();
-            
+
                 // Check if this function could match the LLM-provided name
                 if isMatchingFunction(functionSignature, llmFunctionName) {
                     // Clean up the signature by removing extra whitespace and normalizing
                     string cleanSignature = regexp:replaceAll(re `\s+`, functionSignature.trim(), " ");
-                    
+
                     // Extract documentation comment if available
                     string docComment = extractFunctionDocumentation(clientContent, startIndex);
 

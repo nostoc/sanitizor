@@ -1,9 +1,7 @@
-import example_generator.analyzer;
-
 import ballerina/ai;
+import ballerina/io;
 import ballerina/log;
 import ballerinax/ai.anthropic;
-import ballerina/io;
 
 //import connectorautomation/fixer;
 
@@ -25,7 +23,7 @@ public function initExampleGenerator() returns error? {
     log:printInfo("LLM service initialized successfully");
 }
 
-public function generateUseCaseAndFunctions(analyzer:ConnectorDetails details, string[] usedFunctions) returns json|error {
+public function generateUseCaseAndFunctions(ConnectorDetails details, string[] usedFunctions) returns json|error {
     io:println("\n -------Function SIgnatures ----------");
     io:println(details.functionSignatures);
     io:println("\n ---------- Types ------");
@@ -46,7 +44,7 @@ public function generateUseCaseAndFunctions(analyzer:ConnectorDetails details, s
     if content is () {
         return error("Empty use case response from LLM");
     }
-    
+
     // Parse the JSON response
     json|error jsonResponse = content.fromJsonString();
     if jsonResponse is error {
@@ -55,8 +53,7 @@ public function generateUseCaseAndFunctions(analyzer:ConnectorDetails details, s
     return jsonResponse;
 }
 
-
-public function generateExampleCode(analyzer:ConnectorDetails details, string useCase, string targetedContext) returns string|error {
+public function generateExampleCode(ConnectorDetails details, string useCase, string targetedContext) returns string|error {
     string prompt = getExampleCodegenerationPrompt(details, useCase, targetedContext);
     ai:ModelProvider? model = anthropicModel;
     if model is () {
@@ -83,6 +80,6 @@ public function generateExampleName(string useCase) returns string|error {
     if response is error {
         return error("Failed to generate example name", response);
     }
-    string  exampleName = response.content ?: "Example-1";
+    string exampleName = response.content ?: "Example-1";
     return exampleName;
 }

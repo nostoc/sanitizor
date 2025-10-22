@@ -1,6 +1,3 @@
-import example_generator.ai_generator;
-import example_generator.analyzer;
-
 import ballerina/io;
 import ballerina/log;
 
@@ -12,14 +9,14 @@ public function main(string... args) returns error? {
 
     string connectorPath = args[0];
     // 1. analyze the connector
-    analyzer:ConnectorDetails|error details = analyzer:analyzeConnector(connectorPath);
+    ConnectorDetails|error details = analyzeConnector(connectorPath);
     if details is error {
         io:println("Failed to analyze connector: ", details.message());
         return;
     }
 
     // Initialize ai ai_generator
-    error? initResult = ai_generator:initExampleGenerator();
+    error? initResult = initExampleGenerator();
     if initResult is error {
 
         io:println("Error initializing AI generator: " + initResult.message());
@@ -29,18 +26,18 @@ public function main(string... args) returns error? {
 
     // 2. Determine the number of examples
 
-    int numberOfExamples = analyzer:numberOfExamples(details.apiCount);
+    int numExamples = numberOfExamples(details.apiCount);
     io:println("Number of Examples to generate: ", numberOfExamples.toString());
 
     // array to keep track of functions used in generated examples. 
     string[] usedFunctionaNames = [];
 
     // 3. Loop to generate each example
-    foreach int i in 1 ... numberOfExamples {
+    foreach int i in 1 ... numExamples {
         io:println("Generating use case ", i.toString(), "...");
         io:println("Generating example name for use case ", i.toString(), "...");
 
-        json|error useCaseResponse = ai_generator:generateUseCaseAndFunctions(details, usedFunctionaNames);
+        json|error useCaseResponse = generateUseCaseAndFunctions(details, usedFunctionaNames);
         if useCaseResponse is error {
             log:printError("Failed to generate use case", useCaseResponse);
             continue;
@@ -65,12 +62,11 @@ public function main(string... args) returns error? {
         // adding the newly used function to the tacking list
         usedFunctionaNames.push(...functionNames);
 
-
         io:println("Generated use case: " + useCase);
         io:println("Required functions: " + functionNames.toString());
 
         // Step 2: Extract the targeted context based on the required functions
-        string|error targetedContext = analyzer:extractTargetedContext(details, functionNames);
+        string|error targetedContext = extractTargetedContext(details, functionNames);
         //io:Error? writeText = io:fileWriteString("extracted.bal", check targetedContext);
         if targetedContext is error {
             log:printError("Failed to extract targeted context", targetedContext);
@@ -78,13 +74,13 @@ public function main(string... args) returns error? {
         }
 
         io:println("\n", "=========TARGETED CONTEXT==========", targetedContext);
-        string|error generatedCode = ai_generator:generateExampleCode(details, useCase, targetedContext);
+        string|error generatedCode = generateExampleCode(details, useCase, targetedContext);
         if generatedCode is error {
             log:printError("Failed to generate example code", generatedCode);
             continue;
         }
         // Generate AI-powered example name
-        string|error exampleNameResult = ai_generator:generateExampleName(useCase);
+        string|error exampleNameResult = generateExampleName(useCase);
         string exampleName;
         if exampleNameResult is error {
             log:printError("Failed to generate example name, using fallback", exampleNameResult);
@@ -99,7 +95,7 @@ public function main(string... args) returns error? {
 
         // Write the generated example to file
         io:println("Writing example ", i.toString(), " to file...");
-        error? writeResult = analyzer:writeExampleToFile(connectorPath, exampleName, useCase, generatedCode);
+        error? writeResult = writeExampleToFile(connectorPath, exampleName, useCase, generatedCode);
         if writeResult is error {
             io:println("Failed to write example to file: ", writeResult.message());
             continue;
@@ -108,7 +104,7 @@ public function main(string... args) returns error? {
 
         // Fix compilation errors in the generated example
         string exampleDir = connectorPath + "/examples/" + exampleName;
-        error? fixResult = analyzer:fixExampleCode(exampleDir, exampleName);
+        error? fixResult = fixExampleCode(exampleDir, exampleName);
         if fixResult is error {
             io:println("Warning: Failed to fix compilation errors for example ", i.toString(), ": ", fixResult.message());
             io:println("Example may require manual intervention.");

@@ -1,9 +1,7 @@
-import example_generator.analyzer;
-
 string backTick = "`";
 string tripleBackTick = "```";
 
-function getExampleCodegenerationPrompt(analyzer:ConnectorDetails details, string useCase, string targetedContext) returns string {
+function getExampleCodegenerationPrompt(ConnectorDetails details, string useCase, string targetedContext) returns string {
     return string `
 You are an expert Ballerina developer. Write a complete, error-free Ballerina example code for the following use case for the connector ${details.connectorName}. using ONLY the provided code definitions.
 
@@ -25,7 +23,7 @@ ${targetedContext}
 `;
 }
 
-function getUsecasePrompt(analyzer:ConnectorDetails details, string[] usedFunctions) returns string {
+function getUsecasePrompt(ConnectorDetails details, string[] usedFunctions) returns string {
     string previouslyUsedSection = "";
     if usedFunctions.length() > 0 {
         string[] formattedUsedFunctions = from string func in usedFunctions
