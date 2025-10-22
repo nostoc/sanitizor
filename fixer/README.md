@@ -2,27 +2,27 @@
 
 An intelligent AI-powered tool that automatically detects and fixes compilation errors in Ballerina projects using advanced language models.
 
-## 🚀 Overview
+## Overview
 
-The Ballerina AI Code Fixer is a sophisticated tool designed to streamline the development process by automatically identifying and resolving compilation errors in Ballerina codebases. Leveraging the power of Anthropic's Claude AI, it provides intelligent, context-aware fixes that maintain code quality and follow Ballerina best practices.
+The Ballerina AI Code Fixer is a sophisticated development tool designed to streamline the software development process by automatically identifying and resolving compilation errors in Ballerina codebases. By leveraging the advanced capabilities of Anthropic's Claude AI, it provides intelligent, context-aware fixes that maintain code quality and adhere to Ballerina best practices.
 
-## ✨ Key Features
+## Key Features
 
-- **AI-Powered Error Resolution**: Uses Anthropic's Claude Sonnet 4 for intelligent code analysis and fixing
-- **Interactive Workflow**: Step-by-step confirmation for each proposed fix
-- **Automatic Backup**: Creates backup files before applying changes
-- **Iterative Fixing**: Continues fixing until all compilation errors are resolved
-- **Progress Tracking**: Detailed feedback and iteration summaries
-- **Error Analysis**: Comprehensive parsing of Ballerina compilation errors
-- **Multi-file Support**: Handles complex projects with multiple error sources
+- **AI-Powered Error Resolution**: Utilizes Anthropic's Claude Sonnet 4 for intelligent code analysis and automated fixing
+- **Interactive Workflow**: Provides step-by-step confirmation for each proposed fix
+- **Automatic Backup**: Creates backup files before applying changes to ensure code safety
+- **Iterative Fixing**: Continues the fixing process until all compilation errors are resolved
+- **Progress Tracking**: Offers detailed feedback and comprehensive iteration summaries
+- **Error Analysis**: Performs thorough parsing of Ballerina compilation errors
+- **Multi-file Support**: Handles complex projects with multiple error sources across different files
 
-## 📋 Prerequisites
+## Prerequisites
 
 - Ballerina 2201.12.7 or later
 - Valid Anthropic API key
 - Internet connection for AI model access
 
-## ⚙️ Configuration
+## Configuration
 
 ### Environment Setup
 
@@ -45,70 +45,74 @@ The Ballerina AI Code Fixer is a sophisticated tool designed to streamline the d
 | `apiKey` | Required | Your Anthropic API key for Claude access |
 | `maxIterations` | 10 | Maximum number of fix iterations before stopping |
 
-## 🚀 Installation & Usage
+## Installation and Usage
 
 ### Quick Start
 
-1. **Clone and Navigate**:
+1. **Navigate to the fixer directory**:
    ```bash
    cd fixer
    ```
 
-2. **Configure API Key**:
+2. **Configure your API key**:
    Update `Config.toml` with your Anthropic API key
 
-3. **Run the Fixer**:
+3. **Run the fixer**:
    ```bash
    bal run -- <path-to-your-ballerina-project>
    ```
 
 ### Usage Examples
 
-**Basic Usage**:
+**Basic usage**:
 ```bash
 bal run -- ./my-ballerina-project
 ```
 
-**With Relative Path**:
+**With relative path**:
 ```bash
 bal run -- ../another-project
 ```
 
-**With Absolute Path**:
+**With absolute path**:
 ```bash
 bal run -- /home/user/ballerina-projects/my-app
 ```
 
-## 🔄 How It Works
+## How It Works
 
 ### Workflow Overview
 
+The fixing process follows a systematic approach:
+
 1. **Error Detection**: Analyzes `bal build` output to identify compilation errors
-2. **Error Parsing**: Extracts detailed error information (file, line, column, message)
-3. **Context Analysis**: Reads source files and prepares context for AI analysis
-4. **AI Processing**: Sends code and errors to Claude for intelligent fixing
-5. **User Review**: Presents proposed fixes for user approval
-6. **Fix Application**: Applies approved changes with automatic backup
-7. **Iteration**: Repeats process until all errors are resolved
+2. **Error Parsing**: Extracts detailed error information including file location, line number, column, and error message
+3. **Context Analysis**: Reads source files and prepares comprehensive context for AI analysis
+4. **AI Processing**: Sends code and errors to Claude for intelligent analysis and fixing
+5. **User Review**: Presents proposed fixes for user approval and confirmation
+6. **Fix Application**: Applies approved changes with automatic backup creation
+7. **Iteration**: Repeats the process until all errors are resolved or maximum iterations reached
 
 ### Error Types Handled
+
+The tool can effectively handle various types of compilation errors including:
 
 - Syntax errors
 - Type mismatches
 - Import resolution issues
 - Function signature problems
 - Variable declaration errors
-- And many more Ballerina compilation issues
+- Many other common Ballerina compilation issues
 
-## 📊 Interactive Features
+## Interactive Features
 
 ### User Confirmation Process
 
-For each proposed fix, the tool provides:
-- Clear error description
-- Proposed code changes
-- Interactive confirmation prompt
-- Option to review before applying
+For each proposed fix, the tool provides comprehensive information including:
+- Clear and detailed error descriptions
+- Complete proposed code changes
+- Interactive confirmation prompts
+- Options to review changes before applying
 
 ### Example Output
 
@@ -126,7 +130,7 @@ Proposed fix:
 Apply this fix? (y/n): 
 ```
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 fixer/
@@ -144,7 +148,7 @@ fixer/
         └── command_executor.bal # Build command execution
 ```
 
-## 📈 Performance & Cost
+## Performance and Cost
 
 ### Typical Performance
 
@@ -160,11 +164,11 @@ Based on moderate usage (10 fix requests per developer per day):
 
 See `FIXER_COST_ESTIMATION.md` for detailed cost analysis.
 
-## 🔧 Advanced Configuration
+## Advanced Configuration
 
 ### Custom Iteration Limits
 
-Adjust the maximum number of fixing iterations:
+You can adjust the maximum number of fixing iterations to accommodate more complex projects:
 ```toml
 [fixer.fixer]
 maxIterations=15  # Increase for complex projects
@@ -172,59 +176,59 @@ maxIterations=15  # Increase for complex projects
 
 ### Timeout Settings
 
-The AI model has built-in timeout protection (300 seconds) to prevent hanging on complex fixes.
+The AI model includes built-in timeout protection (300 seconds) to prevent the system from hanging on complex fixes.
 
-## 🛠️ Troubleshooting
+## Troubleshooting
 
 ### Common Issues
 
 1. **API Key Issues**:
-   - Ensure your Anthropic API key is valid
-   - Check that the key has sufficient credits
+   - Ensure your Anthropic API key is valid and active
+   - Check that the key has sufficient credits available
    - Verify the key is properly configured in `Config.toml`
 
 2. **Build Failures**:
-   - Ensure the target project is a valid Ballerina project
-   - Check that all dependencies are properly configured
-   - Verify Ballerina version compatibility
+   - Ensure the target project is a valid Ballerina project with proper structure
+   - Check that all dependencies are properly configured and accessible
+   - Verify Ballerina version compatibility with your project requirements
 
 3. **No Progress on Fixes**:
-   - Some errors may require manual intervention
-   - Complex architectural issues may need human review
-   - Check if the same errors persist across iterations
+   - Some complex errors may require manual intervention
+   - Architectural issues may need human review and redesign
+   - Check if the same errors persist across multiple iterations
 
 ### Debug Tips
 
-- Review the generated backup files (`.backup` extension) if fixes need to be reverted
-- Check console output for detailed error parsing information
-- Monitor API usage if experiencing rate limiting
+- Review the generated backup files (with `.backup` extension) if fixes need to be reverted
+- Check console output for detailed error parsing information and debugging data
+- Monitor API usage if experiencing rate limiting or connection issues
 
-## 🎯 Best Practices
+## Best Practices
 
-1. **Review Before Applying**: Always review proposed fixes before confirmation
-2. **Backup Management**: Keep track of backup files for important changes
-3. **Incremental Fixing**: Fix errors in small batches for better results
-4. **Manual Review**: Review complex fixes manually after AI application
-5. **Version Control**: Commit changes after successful fix sessions
+1. **Review Before Applying**: Always carefully review proposed fixes before confirming application
+2. **Backup Management**: Keep track of backup files for important changes and maintain version history
+3. **Incremental Fixing**: Process errors in small batches for better results and easier troubleshooting
+4. **Manual Review**: Conduct thorough manual reviews of complex fixes after AI application
+5. **Version Control**: Commit changes after successful fix sessions to maintain project history
 
-## 🤝 Contributing
+## Contributing
 
-This project is part of the Ballerina sanitizer toolkit. Contributions are welcome for:
-- Enhanced error parsing
-- Additional AI model support
-- Improved user interface
-- Performance optimizations
+This project is part of the Ballerina sanitizer toolkit. We welcome contributions in the following areas:
+- Enhanced error parsing capabilities
+- Additional AI model support and integration
+- Improved user interface and experience
+- Performance optimizations and efficiency improvements
 
-## 📄 License
+## License
 
 This project is part of the Ballerina development tools ecosystem.
-sudo bal push
-## 🔗 Related Tools
 
-- **Sanitizor**: Spec sanitization tool
-- **Doc Generator**: Documentation generation tool
-- **Example Generator**: Example code generation tool
+## Related Tools
+
+- **Sanitizor**: Comprehensive spec sanitization tool for cleaning and standardizing code specifications
+- **Doc Generator**: Automated documentation generation tool for creating comprehensive project documentation
+- **Example Generator**: Intelligent example code generation tool for creating practical code samples
 
 ---
 
-**Note**: This tool uses AI models for code generation. Always review and test generated fixes in a safe environment before deploying to production.
+**Important Note**: This tool utilizes AI models for automated code generation and modification. Always thoroughly review and test all generated fixes in a safe development environment before deploying changes to production systems.
