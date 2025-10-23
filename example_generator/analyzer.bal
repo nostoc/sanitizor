@@ -130,9 +130,9 @@ public function numberOfExamples(int apiCount) returns int {
     } else if apiCount <= 30 {
         return 2;
     } else if apiCount <= 60 {
-        return 2;
+        return 3;
     } else {
-        return 2;
+        return 4;
     }
 }
 

@@ -67,7 +67,7 @@ public function main(string... args) returns error? {
 
         // Step 2: Extract the targeted context based on the required functions
         string|error targetedContext = extractTargetedContext(details, functionNames);
-        //io:Error? writeText = io:fileWriteString("extracted.bal", check targetedContext);
+        io:Error? targeted_context = io:fileWriteString("targeted_context.txt", check targetedContext);
         if targetedContext is error {
             log:printError("Failed to extract targeted context", targetedContext);
             continue;

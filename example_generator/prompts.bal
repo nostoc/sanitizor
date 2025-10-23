@@ -3,16 +3,19 @@ string tripleBackTick = "```";
 
 function getExampleCodegenerationPrompt(ConnectorDetails details, string useCase, string targetedContext) returns string {
     return string `
-You are an expert Ballerina developer. Write a complete, error-free Ballerina example code for the following use case for the connector ${details.connectorName}. using ONLY the provided code definitions.
+You are an expert Ballerina developer.
+Write a complete, error-free Ballerina example code for the following use case for the connector ${details.connectorName}.
+
+**CRITICAL INSTRUCTION: You MUST use the exact function and type names provided in the "Relevant Code Definitions" below. Do NOT shorten, simplify, invent, or modify any names. The provided names may be long and auto-generated; you MUST use them verbatim for the code to be correct.**
 
 **Use Case:**
 ${useCase}
 
 **Instructions:**
 - Generate a single, complete ${backTick}main.bal${backTick} file.
-- Use the provided **Relevant Code Definitions** as your only reference.
+- **Your ONLY source for function and type names is the "Relevant Code Definitions" section.** Every function call in your code must exactly match a signature from this section.
 - The code must be ready to compile and run.
-- Include necessary imports (e.g., ${backTick}ballerina/io${backTick}, ${backTick}ballerinax/${details.connectorName}${backTick}).
+- Include necessary imports (e.g., ${backTick}ballerina/io${backTick}, ${backTick}ballerinax/${details.connectorName}${backTick}). 
 - Initialize the client using configurable variables for credentials.
 - Implement the use case logic inside a ${backTick}public function main() returns error?${backTick}.
 - Print the results of each step to the console using ${backTick}io:println()${backTick}.
@@ -22,7 +25,6 @@ ${useCase}
 ${targetedContext}
 `;
 }
-
 function getUsecasePrompt(ConnectorDetails details, string[] usedFunctions) returns string {
     string previouslyUsedSection = "";
     if usedFunctions.length() > 0 {
