@@ -25,6 +25,7 @@ ${useCase}
 ${targetedContext}
 `;
 }
+
 function getUsecasePrompt(ConnectorDetails details, string[] usedFunctions) returns string {
     string previouslyUsedSection = "";
     if usedFunctions.length() > 0 {

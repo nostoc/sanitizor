@@ -1,9 +1,9 @@
+import connector_automator.code_fixer;
+
 import ballerina/file;
 import ballerina/io;
 import ballerina/lang.'string as strings;
 import ballerina/lang.regexp;
-
-import connectorautomation/fixer;
 
 // Helper function to check if array contains a value
 function arrayContains(string[] arr, string value) returns boolean {
@@ -188,12 +188,12 @@ observabilityIncluded = true
 }
 
 public function fixExampleCode(string exampleDir, string exampleName) returns error? {
-    io:println(string `Checking and fixing compilation errors for example: ${exampleName}`);
+    //io:println(string `Checking and fixing compilation errors for example: ${exampleName}`);
 
     // Use the fixer to fix all compilation errors in the example directory
-    fixer:FixResult|fixer:BallerinaFixerError fixResult = fixer:fixAllErrors(exampleDir, autoYes = true, quietMode = true);
+    code_fixer:FixResult|code_fixer:BallerinaFixerError fixResult = code_fixer:fixAllErrors(exampleDir, autoYes = true, quietMode = true);
 
-    if fixResult is fixer:FixResult {
+    if fixResult is code_fixer:FixResult {
         if fixResult.success {
             io:println(string `✓ Example '${exampleName}' compiles successfully!`);
             if fixResult.errorsFixed > 0 {
@@ -230,10 +230,10 @@ public function extractTargetedContext(ConnectorDetails details, string[] functi
     string clientContent = details.clientBalContent;
     string typesContent = details.typesBalContent;
 
-    io:println("=== EXTRACTING TARGETED CONTEXT ===");
-    io:println("Original client.bal size: ", clientContent.length(), " chars");
-    io:println("Original types.bal size: ", typesContent.length(), " chars");
-    io:println("Function names to match: ", functionNames.toString());
+    // io:println("=== EXTRACTING TARGETED CONTEXT ===");
+    // io:println("Original client.bal size: ", clientContent.length(), " chars");
+    // io:println("Original types.bal size: ", typesContent.length(), " chars");
+    // io:println("Function names to match: ", functionNames.toString());
 
     string context = "// FUNCTION SIGNATURES\n\n";
     string[] allDependentTypes = [];
@@ -245,12 +245,12 @@ public function extractTargetedContext(ConnectorDetails details, string[] functi
         if matchedSignature is string {
             context += matchedSignature + "\n\n";
             matchedFunctions += 1;
-            io:println("✓ Matched function: '", funcName, "' -> signature length: ", matchedSignature.length(), " chars");
+            // io:println("✓ Matched function: '", funcName, "' -> signature length: ", matchedSignature.length(), " chars");
         } else {
-            io:println("✗ No match found for: '", funcName, "'");
+            // io:println("✗ No match found for: '", funcName, "'");
         }
     }
-    io:println("Total matched functions: ", matchedFunctions, "/", functionNames.length());
+    //  io:println("Total matched functions: ", matchedFunctions, "/", functionNames.length());
 
     // Find all types used in the function signatures (parameters and return types)
     string[] directTypes = findTypesInSignatures(context);
@@ -271,10 +271,10 @@ public function extractTargetedContext(ConnectorDetails details, string[] functi
         }
     }
 
-    io:println("Final targeted context size: ", context.length(), " chars");
+    // io:println("Final targeted context size: ", context.length(), " chars");
     int originalSize = clientContent.length() + typesContent.length();
     int reductionPercent = (originalSize - context.length()) * 100 / originalSize;
-    io:println("Size reduction: ", reductionPercent, "%");
+    // io:println("Size reduction: ", reductionPercent, "%");
 
     return context;
 }

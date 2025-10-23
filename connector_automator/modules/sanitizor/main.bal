@@ -29,7 +29,7 @@ public function main(string... args) returns error? {
             io:println("Running in automated mode - all prompts will be auto-confirmed");
         }
     }
-    
+
     if quietMode {
         if !autoYes {
             io:println("Running in quiet mode - reduced logging output");

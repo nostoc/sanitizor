@@ -62,18 +62,18 @@ public function main(string... args) returns error? {
         // adding the newly used function to the tacking list
         usedFunctionaNames.push(...functionNames);
 
-        io:println("Generated use case: " + useCase);
-        io:println("Required functions: " + functionNames.toString());
+        //io:println("Generated use case: " + useCase);
+        //io:println("Required functions: " + functionNames.toString());
 
         // Step 2: Extract the targeted context based on the required functions
         string|error targetedContext = extractTargetedContext(details, functionNames);
-        io:Error? targeted_context = io:fileWriteString("targeted_context.txt", check targetedContext);
+        // io:Error? targeted_context = io:fileWriteString("targeted_context.txt", check targetedContext);
         if targetedContext is error {
             log:printError("Failed to extract targeted context", targetedContext);
             continue;
         }
 
-        io:println("\n", "=========TARGETED CONTEXT==========", targetedContext);
+        // io:println("\n", "=========TARGETED CONTEXT==========", targetedContext);
         string|error generatedCode = generateExampleCode(details, useCase, targetedContext);
         if generatedCode is error {
             log:printError("Failed to generate example code", generatedCode);
@@ -89,18 +89,18 @@ public function main(string... args) returns error? {
             exampleName = exampleNameResult;
         }
 
-        io:println("Generated example name: ", exampleName);
-        io:println("Generating example code for use case ", i.toString(), "...");
-        io:println("Generated Example Code for Use Case ", i.toString(), ":\n", generatedCode);
+        //io:println("Generated example name: ", exampleName);
+        //io:println("Generating example code for use case ", i.toString(), "...");
+        //io:println("Generated Example Code for Use Case ", i.toString(), ":\n", generatedCode);
 
         // Write the generated example to file
-        io:println("Writing example ", i.toString(), " to file...");
+        //io:println("Writing example ", i.toString(), " to file...");
         error? writeResult = writeExampleToFile(connectorPath, exampleName, useCase, generatedCode);
         if writeResult is error {
-            io:println("Failed to write example to file: ", writeResult.message());
+            // io:println("Failed to write example to file: ", writeResult.message());
             continue;
         }
-        io:println("Successfully wrote example ", i.toString(), " to file system.");
+        //io:println("Successfully wrote example ", i.toString(), " to file system.");
 
         // Fix compilation errors in the generated example
         string exampleDir = connectorPath + "/examples/" + exampleName;
@@ -114,5 +114,5 @@ public function main(string... args) returns error? {
         io:println(string `✓ Example ${i} (${exampleName}) completed successfully!`);
     }
 
-    io:println("Example generation completed successfully!");
+    //io:println("Example generation completed successfully!");
 }

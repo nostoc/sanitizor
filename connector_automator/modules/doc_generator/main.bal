@@ -113,7 +113,7 @@ function getUserConfirmation(string message, boolean autoYes = false) returns bo
 }
 
 function generateAllReadmes(string connectorPath, boolean autoYes = false, boolean quietMode = false) returns error? {
-        io:println(string `Connector path: ${connectorPath}`);
+    io:println(string `Connector path: ${connectorPath}`);
     io:println("\nREADMEs to be generated:");
     io:println("1. Ballerina module README (/ballerina/README.md)");
     io:println("2. Tests README (/tests/README.md)");

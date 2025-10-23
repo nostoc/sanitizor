@@ -250,6 +250,7 @@ public function generateOperationIdsBatchWithRetry(OperationIdRequest[] requests
     // This should never be reached, but just in case
     return error LLMServiceError("Unexpected error in retry logic");
 }
+
 #
 # + requests - Array of schema rename requests
 # + apiContext - API context for better naming
@@ -592,6 +593,7 @@ public function renameInlineResponseSchemasBatchWithRetry(string specFilePath, i
 
     return renamedCount;
 }
+
 # Add missing operationIds to OpenAPI spec operations (batch mode with retry)
 #
 # + specFilePath - Path to the OpenAPI specification file
@@ -678,7 +680,7 @@ public function addMissingOperationIdsBatchWithRetry(string specFilePath, int ba
                         existingOperationIds.push(response.operationId);
                         operationIdsAdded += 1;
                         if !quietMode {
-                            log:printInfo("Applied batch operationId", id = response.id, 
+                            log:printInfo("Applied batch operationId", id = response.id,
                                     location = location, operationId = response.operationId);
                         }
                     } else {
@@ -688,7 +690,7 @@ public function addMissingOperationIdsBatchWithRetry(string specFilePath, int ba
             }
         } else {
             if !quietMode {
-                log:printError("OperationId batch processing failed after all retries", 
+                log:printError("OperationId batch processing failed after all retries",
                         batchNumber = (startIdx / batchSize) + 1, 'error = batchResult);
             }
             // Continue with next batch instead of failing completely
@@ -903,6 +905,7 @@ REQUIRED RESPONSE FORMAT (JSON):
         return error LLMServiceError("Empty response from LLM");
     }
 }
+
 #
 # + requests - Array of schema rename requests
 # + apiContext - API context for better naming
@@ -1353,12 +1356,12 @@ function findSchemaUsageInPathItem(string path, map<json> pathItem, string refPa
 // Helper function to collect existing operationIds from paths
 function collectExistingOperationIds(map<json> paths, string[] existingOperationIds) {
     string[] httpMethods = ["get", "post", "put", "delete", "patch", "head", "options", "trace"];
-    
+
     foreach string path in paths.keys() {
         json|error pathItem = paths.get(path);
         if pathItem is map<json> {
             map<json> pathItemMap = <map<json>>pathItem;
-            
+
             foreach string method in httpMethods {
                 if pathItemMap.hasKey(method) {
                     json|error operation = pathItemMap.get(method);
@@ -1378,31 +1381,31 @@ function collectExistingOperationIds(map<json> paths, string[] existingOperation
 }
 
 // Helper function to collect missing operationId requests
-function collectMissingOperationIdRequests(map<json> paths, OperationIdRequest[] requests, 
+function collectMissingOperationIdRequests(map<json> paths, OperationIdRequest[] requests,
         map<string> locationMap, string apiContext) {
     string[] httpMethods = ["get", "post", "put", "delete", "patch", "head", "options", "trace"];
-    
+
     foreach string path in paths.keys() {
         json|error pathItem = paths.get(path);
         if pathItem is map<json> {
             map<json> pathItemMap = <map<json>>pathItem;
-            
+
             foreach string method in httpMethods {
                 if pathItemMap.hasKey(method) {
                     json|error operation = pathItemMap.get(method);
                     if operation is map<json> {
                         map<json> operationMap = <map<json>>operation;
-                        
+
                         // Check if operationId is missing
                         if !operationMap.hasKey("operationId") {
                             string requestId = generateOperationRequestId(path, method);
-                            
+
                             // Extract operation details
-                            string? summary = operationMap.get("summary") is string ? 
-                                    <string>operationMap.get("summary") : ();
-                            string? description = operationMap.get("description") is string ? 
-                                    <string>operationMap.get("description") : ();
-                            
+                            string? summary = operationMap.get("summary") is string ?
+                                <string>operationMap.get("summary") : ();
+                            string? description = operationMap.get("description") is string ?
+                                <string>operationMap.get("description") : ();
+
                             string[]? tags = ();
                             if operationMap.hasKey("tags") {
                                 json|error tagsResult = operationMap.get("tags");
@@ -1416,7 +1419,7 @@ function collectMissingOperationIdRequests(map<json> paths, OperationIdRequest[]
                                     tags = tagStrings;
                                 }
                             }
-                            
+
                             requests.push({
                                 id: requestId,
                                 path: path,
@@ -1425,7 +1428,7 @@ function collectMissingOperationIdRequests(map<json> paths, OperationIdRequest[]
                                 description: description,
                                 tags: tags
                             });
-                            
+
                             locationMap[requestId] = string `${path}.${method}`;
                         }
                     }
@@ -1447,14 +1450,14 @@ function updateOperationIdInSpec(map<json> paths, string location, string operat
     if locationParts.length() != 2 {
         return error("Invalid location format: " + location);
     }
-    
+
     string path = locationParts[0];
     string method = locationParts[1];
-    
+
     json|error pathItem = paths.get(path);
     if pathItem is map<json> {
         map<json> pathItemMap = <map<json>>pathItem;
-        
+
         if pathItemMap.hasKey(method) {
             json|error operation = pathItemMap.get(method);
             if operation is map<json> {
@@ -1464,9 +1467,10 @@ function updateOperationIdInSpec(map<json> paths, string location, string operat
             }
         }
     }
-    
+
     return error("Could not find operation at location: " + location);
 }
+
 function containsSchemaReference(json data, string refPattern) returns boolean {
     if (data is map<json>) {
         foreach string key in data.keys() {

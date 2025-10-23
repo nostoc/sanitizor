@@ -103,7 +103,7 @@ function analyzeBallerinaToml(string connectorPath, ConnectorMetadata metadata) 
                     metadata.version = strings:trim(regexp:replaceAll(re `"`, parts[1], ""));
                 }
             }
-            
+
         }
     }
 }

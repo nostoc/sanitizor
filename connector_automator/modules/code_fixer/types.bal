@@ -31,7 +31,6 @@ public type FixResponse record {|
 
 public type BallerinaFixerError error;
 
-
 public type CommandExecutorError distinct error;
 
 # Compilation error from a `bal build` output

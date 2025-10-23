@@ -7,7 +7,7 @@ import ballerinax/ai.anthropic;
 ai:ModelProvider? anthropicModel = ();
 configurable string apiKey = ?;
 
-const string TEMPLATES_PATH = "modules/templates";
+const string TEMPLATES_PATH = "/home/hansika/dev/connector_automation/connector_automator/modules/doc_generator/templates";
 
 public function initDocumentationGenerator() returns error? {
 
@@ -349,7 +349,7 @@ function createTemplateData(ConnectorMetadata metadata) returns TemplateData {
     return {
         CONNECTOR_NAME: metadata.connectorName,
         VERSION: metadata.version
-        
+
     };
 }
 
