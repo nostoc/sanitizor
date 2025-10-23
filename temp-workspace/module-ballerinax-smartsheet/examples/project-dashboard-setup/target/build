@@ -1,0 +1,49 @@
+{
+  "last_build_time": 1761201225757,
+  "last_update_time": 1761201225757,
+  "distribution_version": "2201.13.0-20250927-204700-7b3ef131",
+  "last_modified_time": {
+    "project_dashboard_setup": 1761201215761
+  },
+  "last_build_options": {
+    "compilationOptions": {
+      "observabilityIncluded": true,
+      "dumpBir": false,
+      "cloud": "",
+      "dumpGraph": false,
+      "dumpRawGraphs": false
+    }
+  },
+  "src_meta_info": [
+    {
+      "file": "/home/hansika/dev/connector_automation/temp-workspace/module-ballerinax-smartsheet/examples/project-dashboard-setup/main.bal",
+      "hash": "d0cd7c25d608e8e2cb9c0bbad45adb3874806b6d251b9f89f747ef71f6c3b71d",
+      "size": 3363,
+      "lastModifiedTime": 1761201215761
+    },
+    {
+      "file": "/home/hansika/dev/connector_automation/temp-workspace/module-ballerinax-smartsheet/examples/project-dashboard-setup/Ballerina.toml",
+      "hash": "1263e99eb3459a9d7ae277918f26f3cea4203451680d75abffbb44bbfccecee8",
+      "size": 152,
+      "lastModifiedTime": 1761201126463
+    }
+  ],
+  "target_exec_meta_info": {
+    "file": "/home/hansika/dev/connector_automation/temp-workspace/module-ballerinax-smartsheet/examples/project-dashboard-setup/target/backup/bin/project_dashboard_setup.jar",
+    "hash": "40e859d5cd2edfbbca8e3a2fb5b1c737cf01237ad08e31f3aba1e5af35a121cb",
+    "size": 53267717,
+    "lastModifiedTime": 1761201226800
+  },
+  "settings_meta_info": {
+    "file": "/home/hansika/.ballerina/Settings.toml",
+    "hash": "c00b1faa65edc98c15e492e2c764f083cb7e6c184bec9cd249652d725d7521ea",
+    "size": 1211,
+    "lastModifiedTime": 1760937254276
+  },
+  "ballerina_toml_meta_info": {
+    "file": "/home/hansika/dev/connector_automation/temp-workspace/module-ballerinax-smartsheet/examples/project-dashboard-setup/Ballerina.toml",
+    "hash": "1263e99eb3459a9d7ae277918f26f3cea4203451680d75abffbb44bbfccecee8",
+    "size": 152,
+    "lastModifiedTime": 1761201126463
+  }
+}

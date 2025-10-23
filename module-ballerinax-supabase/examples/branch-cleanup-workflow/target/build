@@ -1,0 +1,49 @@
+{
+  "last_build_time": 1761206520435,
+  "last_update_time": 1761206520435,
+  "distribution_version": "2201.13.0-20250927-204700-7b3ef131",
+  "last_modified_time": {
+    "branch_cleanup_workflow": 1761206509397
+  },
+  "last_build_options": {
+    "compilationOptions": {
+      "observabilityIncluded": true,
+      "dumpBir": false,
+      "cloud": "",
+      "dumpGraph": false,
+      "dumpRawGraphs": false
+    }
+  },
+  "src_meta_info": [
+    {
+      "file": "/home/hansika/dev/connector_automation/module-ballerinax-supabase/examples/branch-cleanup-workflow/main.bal",
+      "hash": "0da41c87bd00351f849576a9294dd730758c4bd5f6188187007f4f71c88c497f",
+      "size": 1708,
+      "lastModifiedTime": 1761206509397
+    },
+    {
+      "file": "/home/hansika/dev/connector_automation/module-ballerinax-supabase/examples/branch-cleanup-workflow/Ballerina.toml",
+      "hash": "910f3c5a4895398b60c8b502d7eca47e45014eeafa6f7be2f36fdfa29d182bb4",
+      "size": 152,
+      "lastModifiedTime": 1761206480010
+    }
+  ],
+  "target_exec_meta_info": {
+    "file": "/home/hansika/dev/connector_automation/module-ballerinax-supabase/examples/branch-cleanup-workflow/target/backup/bin/branch_cleanup_workflow.jar",
+    "hash": "dbecb8a43ba4444c9893deced8ca4aeaa483ccbe94a21a1414dec41b31a87be2",
+    "size": 45159496,
+    "lastModifiedTime": 1761206521468
+  },
+  "settings_meta_info": {
+    "file": "/home/hansika/.ballerina/Settings.toml",
+    "hash": "c00b1faa65edc98c15e492e2c764f083cb7e6c184bec9cd249652d725d7521ea",
+    "size": 1211,
+    "lastModifiedTime": 1760937254276
+  },
+  "ballerina_toml_meta_info": {
+    "file": "/home/hansika/dev/connector_automation/module-ballerinax-supabase/examples/branch-cleanup-workflow/Ballerina.toml",
+    "hash": "910f3c5a4895398b60c8b502d7eca47e45014eeafa6f7be2f36fdfa29d182bb4",
+    "size": 152,
+    "lastModifiedTime": 1761206480010
+  }
+}
