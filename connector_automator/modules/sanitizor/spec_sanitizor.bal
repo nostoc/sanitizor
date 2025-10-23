@@ -1392,44 +1392,59 @@ function collectMissingOperationIdRequests(map<json> paths, OperationIdRequest[]
 
             foreach string method in httpMethods {
                 if pathItemMap.hasKey(method) {
-                    json|error operation = pathItemMap.get(method);
-                    if operation is map<json> {
-                        map<json> operationMap = <map<json>>operation;
+                    json|error operationResult = pathItemMap.get(method);
+                    if operationResult is map<json> {
+                        map<json> operation = <map<json>>operationResult;
 
                         // Check if operationId is missing
-                        if !operationMap.hasKey("operationId") {
+                        if !operation.hasKey("operationId") {
                             string requestId = generateOperationRequestId(path, method);
+                            string location = string `${path}.${method}`;
 
-                            // Extract operation details
-                            string? summary = operationMap.get("summary") is string ?
-                                <string>operationMap.get("summary") : ();
-                            string? description = operationMap.get("description") is string ?
-                                <string>operationMap.get("description") : ();
-
-                            string[]? tags = ();
-                            if operationMap.hasKey("tags") {
-                                json|error tagsResult = operationMap.get("tags");
-                                if tagsResult is json[] {
-                                    string[] tagStrings = [];
-                                    foreach json tag in tagsResult {
-                                        if tag is string {
-                                            tagStrings.push(<string>tag);
-                                        }
-                                    }
-                                    tags = tagStrings;
+                            // Safely extract optional fields
+                            string? summary = ();
+                            if operation.hasKey("summary") {
+                                json summaryJson = operation.get("summary");
+                                if summaryJson is string {
+                                    summary = summaryJson;
                                 }
                             }
 
-                            requests.push({
+                            string? description = ();
+                            if operation.hasKey("description") {
+                                json descriptionJson = operation.get("description");
+                                if descriptionJson is string {
+                                    description = descriptionJson;
+                                }
+                            }
+
+                            string[]? tags = ();
+                            if operation.hasKey("tags") {
+                                json tagsJson = operation.get("tags");
+                                if tagsJson is json[] {
+                                    string[] tagStrings = [];
+                                    foreach json tag in tagsJson {
+                                        if tag is string {
+                                            tagStrings.push(tag);
+                                        }
+                                    }
+                                    if tagStrings.length() > 0 {
+                                        tags = tagStrings;
+                                    }
+                                }
+                            }
+
+                            OperationIdRequest request = {
                                 id: requestId,
                                 path: path,
                                 method: method,
                                 summary: summary,
                                 description: description,
                                 tags: tags
-                            });
+                            };
 
-                            locationMap[requestId] = string `${path}.${method}`;
+                            requests.push(request);
+                            locationMap[requestId] = location;
                         }
                     }
                 }
@@ -1437,7 +1452,6 @@ function collectMissingOperationIdRequests(map<json> paths, OperationIdRequest[]
         }
     }
 }
-
 // Helper function to generate unique request IDs for operationId requests
 function generateOperationRequestId(string path, string method) returns string {
     string cleanPath = regex:replaceAll(path, "[^a-zA-Z0-9]", "_");

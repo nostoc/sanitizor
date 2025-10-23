@@ -1,5 +1,4 @@
 import ballerina/ai;
-import ballerina/io;
 import ballerina/log;
 import ballerinax/ai.anthropic;
 
@@ -24,10 +23,10 @@ public function initExampleGenerator() returns error? {
 }
 
 public function generateUseCaseAndFunctions(ConnectorDetails details, string[] usedFunctions) returns json|error {
-    io:println("\n -------Function SIgnatures ----------");
-    io:println(details.functionSignatures);
-    io:println("\n ---------- Types ------");
-    io:println(details.typeNames);
+    //io:println("\n -------Function SIgnatures ----------");
+   // io:println(details.functionSignatures);
+   // io:println("\n ---------- Types ------");
+    //io:println(details.typeNames);
     string prompt = getUsecasePrompt(details, usedFunctions);
     ai:ModelProvider? model = anthropicModel;
     if model is () {
@@ -35,7 +34,7 @@ public function generateUseCaseAndFunctions(ConnectorDetails details, string[] u
     }
     ai:ChatMessage[] messages = [{role: "user", content: prompt}];
     ai:ChatAssistantMessage|error response = model->chat(messages);
-    io:println("Usecase generation response: ", response);
+   // io:println("Usecase generation response: ", response);
 
     if response is error {
         return error("Failed to generate use case", response);

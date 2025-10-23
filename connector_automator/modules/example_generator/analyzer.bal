@@ -4,6 +4,7 @@ import ballerina/file;
 import ballerina/io;
 import ballerina/lang.'string as strings;
 import ballerina/lang.regexp;
+import ballerina/os;
 
 // Helper function to check if array contains a value
 function arrayContains(string[] arr, string value) returns boolean {
@@ -136,7 +137,7 @@ public function numberOfExamples(int apiCount) returns int {
     }
 }
 
-public function writeExampleToFile(string connectorPath, string exampleName, string useCase, string exampleCode) returns error? {
+public function writeExampleToFile(string connectorPath, string exampleName, string useCase, string exampleCode, string connectorName) returns error? {
     // Create examples directory if it doesn't exist
     string examplesDir = connectorPath + "/examples";
     check file:createDir(examplesDir, file:RECURSIVE);
@@ -157,7 +158,7 @@ public function writeExampleToFile(string connectorPath, string exampleName, str
 
     // Write Ballerina.toml file
     string ballerinaTomlPath = exampleDir + "/Ballerina.toml";
-    string ballerinaTomlContent = generateBallerinaToml(exampleName);
+    string ballerinaTomlContent = generateBallerinaToml(exampleName, connectorName);
     check io:fileWriteString(ballerinaTomlPath, ballerinaTomlContent);
 }
 
@@ -174,16 +175,23 @@ function sanitizePackageName(string exampleName) returns string {
     return sanitized;
 }
 
-function generateBallerinaToml(string exampleName) returns string {
+function generateBallerinaToml(string exampleName, string connectorName) returns string {
     string packageName = sanitizePackageName(exampleName);
+
     return string `[package]
-org = "ballerina"
+org = "wso2"
 name = "${packageName}"
 version = "0.1.0"
 distribution = "2201.10.0"
 
 [build-options]
 observabilityIncluded = true
+
+[[dependency]]
+org = "ballerinax"
+name = "${connectorName}"
+version = "0.1.0"
+repository = "local"
 `;
 }
 
@@ -272,8 +280,8 @@ public function extractTargetedContext(ConnectorDetails details, string[] functi
     }
 
     // io:println("Final targeted context size: ", context.length(), " chars");
-    int originalSize = clientContent.length() + typesContent.length();
-    int reductionPercent = (originalSize - context.length()) * 100 / originalSize;
+    // int originalSize = clientContent.length() + typesContent.length();
+    // int reductionPercent = (originalSize - context.length()) * 100 / originalSize;
     // io:println("Size reduction: ", reductionPercent, "%");
 
     return context;
@@ -505,4 +513,64 @@ function extractCompactTypeDefinition(string typesContent, string typeName) retu
     }
 
     return typeDef;
+}
+
+function packAndPushConnector(string connectorPath) returns error? {
+    string ballerinaDir = connectorPath + "/ballerina";
+    
+    // Check if ballerina directory exists
+    boolean|error ballerinaExists = file:test(ballerinaDir, file:EXISTS);
+    if ballerinaExists is error || !ballerinaExists {
+        return error("Ballerina directory not found at: " + ballerinaDir);
+    }
+
+    // Execute bal pack with working directory specified
+    io:println("Running 'bal pack' in connector directory...");
+    string packCommand = "bal pack";
+    string redirectedPackCommand = string `cd "${ballerinaDir}" && ${packCommand}`;
+
+    os:Command packCmd = {
+        value: "sh",
+        arguments: ["-c", redirectedPackCommand]
+    };
+
+    os:Process|error packProcess = os:exec(packCmd);
+    if packProcess is error {
+        return error("Failed to execute 'bal pack' command", packProcess);
+    }
+
+    int|error packExitCode = packProcess.waitForExit();
+    if packExitCode is error {
+        return error("Failed to wait for 'bal pack' process", packExitCode);
+    }
+
+    if packExitCode != 0 {
+        return error("'bal pack' command failed with exit code: " + packExitCode.toString());
+    }
+
+    // Execute bal push --repository=local with working directory specified
+    io:println("Running 'bal push --repository=local' in connector directory...");
+    string pushCommand = "bal push --repository=local";
+    string redirectedPushCommand = string `cd "${ballerinaDir}" && ${pushCommand}`;
+
+    os:Command pushCmd = {
+        value: "sh",
+        arguments: ["-c", redirectedPushCommand]
+    };
+
+    os:Process|error pushProcess = os:exec(pushCmd);
+    if pushProcess is error {
+        return error("Failed to execute 'bal push --repository=local' command", pushProcess);
+    }
+
+    int|error pushExitCode = pushProcess.waitForExit();
+    if pushExitCode is error {
+        return error("Failed to wait for 'bal push' process", pushExitCode);
+    }
+
+    if pushExitCode != 0 {
+        return error("'bal push --repository=local' command failed with exit code: " + pushExitCode.toString());
+    }
+
+    return;
 }

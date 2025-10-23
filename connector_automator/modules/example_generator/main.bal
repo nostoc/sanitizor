@@ -1,5 +1,6 @@
 import ballerina/io;
 import ballerina/log;
+import ballerina/lang.runtime;
 
 public function main(string... args) returns error? {
     if args.length() < 1 {
@@ -24,7 +25,18 @@ public function main(string... args) returns error? {
         return error("AI generator initialization failed: " + initResult.message());
     }
 
-    // 2. Determine the number of examples
+    // 2. Pack and push connector to local repository BEFORE generating examples
+    io:println("Packing and pushing connector to local repository...");
+    error? packResult = packAndPushConnector(connectorPath);
+    if packResult is error {
+        io:println("Failed to pack and push connector: ", packResult.message());
+        io:println("This is required for examples to resolve the connector dependency.");
+        return packResult;
+    }
+    io:println("✓ Connector successfully packed and pushed to local repository");
+
+
+    // 3. Determine the number of examples
 
     int numExamples = numberOfExamples(details.apiCount);
     io:println("Number of Examples to generate: ", numberOfExamples.toString());
@@ -32,7 +44,7 @@ public function main(string... args) returns error? {
     // array to keep track of functions used in generated examples. 
     string[] usedFunctionaNames = [];
 
-    // 3. Loop to generate each example
+    // 4. Loop to generate each example
     foreach int i in 1 ... numExamples {
         io:println("Generating use case ", i.toString(), "...");
         io:println("Generating example name for use case ", i.toString(), "...");
@@ -95,12 +107,14 @@ public function main(string... args) returns error? {
 
         // Write the generated example to file
         //io:println("Writing example ", i.toString(), " to file...");
-        error? writeResult = writeExampleToFile(connectorPath, exampleName, useCase, generatedCode);
+        error? writeResult = writeExampleToFile(connectorPath, exampleName, useCase, generatedCode, details.connectorName);
         if writeResult is error {
             // io:println("Failed to write example to file: ", writeResult.message());
             continue;
         }
         //io:println("Successfully wrote example ", i.toString(), " to file system.");
+
+        runtime:sleep(10);
 
         // Fix compilation errors in the generated example
         string exampleDir = connectorPath + "/examples/" + exampleName;

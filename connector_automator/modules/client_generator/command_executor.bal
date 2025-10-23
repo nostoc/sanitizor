@@ -223,7 +223,13 @@ public function executeBalClientGenerate(string inputPath, string outputPath, Op
     
     // Add optional flags based on configuration
     if toolOptions.license is string {
-        command += string ` --license ${toolOptions.license}`;
+        // Check if license path is relative, make it relative to output directory
+        string licensePath = toolOptions.license;
+        if !licensePath.startsWith("/") {
+            // If it's a relative path, make it relative to the output directory
+            licensePath = string `${outputPath}/${licensePath}`;
+        }
+        command += string ` --license ${licensePath}`;
     }
     
     if toolOptions.tags is string[] {
