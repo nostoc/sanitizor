@@ -1,0 +1,49 @@
+{
+  "last_build_time": 1761193778873,
+  "last_update_time": 1761193778873,
+  "distribution_version": "2201.13.0-20250927-204700-7b3ef131",
+  "last_modified_time": {
+    "proof_approval_workflow": 1761193766436
+  },
+  "last_build_options": {
+    "compilationOptions": {
+      "observabilityIncluded": true,
+      "dumpBir": false,
+      "cloud": "",
+      "dumpGraph": false,
+      "dumpRawGraphs": false
+    }
+  },
+  "src_meta_info": [
+    {
+      "file": "/home/hansika/dev/sanitizor/temp-workspace/module-ballerinax-smartsheet/examples/proof-approval-workflow/main.bal",
+      "hash": "616106cf504511131a7daa3e26ef4406099d90655892ce9745739393ea84d2c4",
+      "size": 2363,
+      "lastModifiedTime": 1761193766436
+    },
+    {
+      "file": "/home/hansika/dev/sanitizor/temp-workspace/module-ballerinax-smartsheet/examples/proof-approval-workflow/Ballerina.toml",
+      "hash": "d68c68f4fa17b790e12cc42b652b6afd9eeea5dad14b77a24891027c3ecfd43b",
+      "size": 152,
+      "lastModifiedTime": 1761193748623
+    }
+  ],
+  "target_exec_meta_info": {
+    "file": "/home/hansika/dev/sanitizor/temp-workspace/module-ballerinax-smartsheet/examples/proof-approval-workflow/target/backup/bin/proof_approval_workflow.jar",
+    "hash": "fa34641ab5a747ddcd978410b8c2260992217c3d9c954182e0bfe630c7070144",
+    "size": 45159490,
+    "lastModifiedTime": 1761193779769
+  },
+  "settings_meta_info": {
+    "file": "/home/hansika/.ballerina/Settings.toml",
+    "hash": "c00b1faa65edc98c15e492e2c764f083cb7e6c184bec9cd249652d725d7521ea",
+    "size": 1211,
+    "lastModifiedTime": 1760937254276
+  },
+  "ballerina_toml_meta_info": {
+    "file": "/home/hansika/dev/sanitizor/temp-workspace/module-ballerinax-smartsheet/examples/proof-approval-workflow/Ballerina.toml",
+    "hash": "d68c68f4fa17b790e12cc42b652b6afd9eeea5dad14b77a24891027c3ecfd43b",
+    "size": 152,
+    "lastModifiedTime": 1761193748623
+  }
+}

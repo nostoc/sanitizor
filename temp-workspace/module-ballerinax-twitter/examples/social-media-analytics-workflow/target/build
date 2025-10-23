@@ -1,0 +1,49 @@
+{
+  "last_build_time": 1761194379278,
+  "last_update_time": 1761194379278,
+  "distribution_version": "2201.13.0-20250927-204700-7b3ef131",
+  "last_modified_time": {
+    "social_media_analytics_workflow": 1761194370028
+  },
+  "last_build_options": {
+    "compilationOptions": {
+      "observabilityIncluded": true,
+      "dumpBir": false,
+      "cloud": "",
+      "dumpGraph": false,
+      "dumpRawGraphs": false
+    }
+  },
+  "src_meta_info": [
+    {
+      "file": "/home/hansika/dev/sanitizor/temp-workspace/module-ballerinax-twitter/examples/social-media-analytics-workflow/main.bal",
+      "hash": "f3ab651aa15a66c18529df09646e4923d8d2d3205e7d94e6449e2d1e2c42bb46",
+      "size": 3108,
+      "lastModifiedTime": 1761194370028
+    },
+    {
+      "file": "/home/hansika/dev/sanitizor/temp-workspace/module-ballerinax-twitter/examples/social-media-analytics-workflow/Ballerina.toml",
+      "hash": "b4e80a8cc637e32224d2d8010c05069b7557c97fd42f97e2e392a260cad51608",
+      "size": 160,
+      "lastModifiedTime": 1761194296610
+    }
+  ],
+  "target_exec_meta_info": {
+    "file": "/home/hansika/dev/sanitizor/temp-workspace/module-ballerinax-twitter/examples/social-media-analytics-workflow/target/backup/bin/social_media_analytics_workflow.jar",
+    "hash": "d105f418070c5091f6e20a06e361fa49d25c7437f83b12bd393a99ae2bc54f1e",
+    "size": 48289803,
+    "lastModifiedTime": 1761194380214
+  },
+  "settings_meta_info": {
+    "file": "/home/hansika/.ballerina/Settings.toml",
+    "hash": "c00b1faa65edc98c15e492e2c764f083cb7e6c184bec9cd249652d725d7521ea",
+    "size": 1211,
+    "lastModifiedTime": 1760937254276
+  },
+  "ballerina_toml_meta_info": {
+    "file": "/home/hansika/dev/sanitizor/temp-workspace/module-ballerinax-twitter/examples/social-media-analytics-workflow/Ballerina.toml",
+    "hash": "b4e80a8cc637e32224d2d8010c05069b7557c97fd42f97e2e392a260cad51608",
+    "size": 160,
+    "lastModifiedTime": 1761194296610
+  }
+}

@@ -1,0 +1,54 @@
+import ballerina/io;
+import ballerinax/twitter;
+
+configurable string bearerToken = ?;
+
+public function main() returns error? {
+    twitter:Client twitterClient = check new ({
+        auth: {
+            token: bearerToken
+        }
+    });
+
+    // Step 1: Create a compliance job to monitor tweets
+    twitter:CreateComplianceJobRequest complianceJobRequest = {
+        'type: "tweets",
+        name: "brand-monitoring-compliance-job"
+    };
+
+    twitter:CreateComplianceJobResponse complianceJobResponse = check twitterClient->/compliance/jobs.post(complianceJobRequest);
+    io:println("Compliance job created:");
+    io:println(complianceJobResponse);
+
+    // Extract job ID from response
+    string? jobId = complianceJobResponse?.data?.id;
+    if jobId is () {
+        return error("Failed to create compliance job - no job ID returned");
+    }
+
+    // Step 2: Retrieve compliance job status
+    twitter:Get2ComplianceJobsIdResponse jobStatusResponse = check twitterClient->/compliance/jobs/[jobId].get();
+    io:println("Compliance job status:");
+    io:println(jobStatusResponse);
+
+    // Step 3: Search for recent tweets matching monitoring criteria
+    twitter:TweetsRecentSearchQueries searchQueries = {
+        query: "brand OR company OR product -is:retweet lang:en",
+        "tweet.fields": ["id", "text", "created_at", "public_metrics", "author_id"]
+    };
+
+    twitter:Get2TweetsSearchRecentResponse searchResponse = check twitterClient->/tweets/search/recent.get(queries = searchQueries);
+    io:println("Recent tweets search results:");
+    io:println(searchResponse);
+
+    if searchResponse?.data is twitter:Tweet[] {
+        twitter:Tweet[] tweets = <twitter:Tweet[]>searchResponse.data;
+        io:println("Found " + tweets.length().toString() + " tweets for compliance monitoring");
+        
+        foreach twitter:Tweet tweet in tweets {
+            io:println("Tweet ID: " + (tweet?.id ?: "N/A"));
+            io:println("Text: " + (tweet?.text ?: "N/A"));
+            io:println("Created at: " + (tweet?.created_at ?: "N/A"));
+        }
+    }
+}

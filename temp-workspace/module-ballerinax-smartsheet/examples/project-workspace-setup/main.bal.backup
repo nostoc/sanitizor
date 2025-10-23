@@ -1,0 +1,69 @@
+import ballerina/io;
+import ballerinax/smartsheet;
+
+configurable string accessToken = ?;
+
+public function main() returns error? {
+    smartsheet:Client smartsheetClient = check new ({
+        auth: {
+            token: accessToken
+        }
+    });
+
+    // Step 1: Create a new workspace
+    smartsheet:WorkspacesBody workspacePayload = {
+        name: "Project Management Workspace"
+    };
+    
+    smartsheet:CreateWorkspaceHeaders workspaceHeaders = {
+        authorization: "Bearer " + accessToken,
+        contentType: "application/json"
+    };
+
+    smartsheet:WorkspaceResponse workspaceResponse = check smartsheetClient->/workspaces.post(workspacePayload, workspaceHeaders);
+    
+    string workspaceId = workspaceResponse.result?.id.toString();
+    io:println("Created workspace: " + workspaceResponse.result?.name.toString() + " with ID: " + workspaceId);
+
+    // Step 2: Create folder structure for different project phases
+    string[] folderNames = ["Planning Phase", "Development Phase", "Testing Phase", "Deployment Phase"];
+    
+    foreach string folderName in folderNames {
+        smartsheet:FolderNameOnly folderPayload = {
+            name: folderName
+        };
+        
+        smartsheet:CreateWorkspaceFolderHeaders folderHeaders = {
+            authorization: "Bearer " + accessToken,
+            contentType: "application/json"
+        };
+
+        smartsheet:CellHistoryResponse folderResponse = check smartsheetClient->/workspaces/[workspaceId]/folders.post(folderPayload, folderHeaders);
+        
+        io:println("Created folder: " + folderName + " in workspace");
+    }
+
+    // Step 3: Share workspace with team members and stakeholders
+    string[] teamEmails = ["team.member1@company.com", "team.member2@company.com", "stakeholder@external.com"];
+    
+    foreach string email in teamEmails {
+        smartsheet:WorkspaceIdSharesBody sharePayload = {
+            email: email,
+            accessLevel: "EDITOR"
+        };
+        
+        smartsheet:ShareWorkspaceHeaders shareHeaders = {
+            authorization: "Bearer " + accessToken
+        };
+        
+        smartsheet:ShareWorkspaceQueries shareQueries = {
+            sendEmail: true
+        };
+
+        smartsheet:TokenResponse shareResponse = check smartsheetClient->/workspaces/[workspaceId]/shares.post(sharePayload, shareHeaders, {queries: shareQueries});
+        
+        io:println("Shared workspace with: " + email + " with EDITOR access");
+    }
+
+    io:println("Project management workspace setup completed successfully!");
+}

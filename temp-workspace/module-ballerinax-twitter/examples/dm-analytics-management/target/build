@@ -1,0 +1,49 @@
+{
+  "last_build_time": 1761194275955,
+  "last_update_time": 1761194275955,
+  "distribution_version": "2201.13.0-20250927-204700-7b3ef131",
+  "last_modified_time": {
+    "dm_analytics_management": 1761194264965
+  },
+  "last_build_options": {
+    "compilationOptions": {
+      "observabilityIncluded": true,
+      "dumpBir": false,
+      "cloud": "",
+      "dumpGraph": false,
+      "dumpRawGraphs": false
+    }
+  },
+  "src_meta_info": [
+    {
+      "file": "/home/hansika/dev/sanitizor/temp-workspace/module-ballerinax-twitter/examples/dm-analytics-management/main.bal",
+      "hash": "5fd969ed164cd92f0edf26f80151ca74fe3c3eaa3c6eba490f18ff78ace279fa",
+      "size": 1882,
+      "lastModifiedTime": 1761194264965
+    },
+    {
+      "file": "/home/hansika/dev/sanitizor/temp-workspace/module-ballerinax-twitter/examples/dm-analytics-management/Ballerina.toml",
+      "hash": "51750c38eabcf3743e80747a3f106ddaaf0a244ac3ff641d2e14ba50852de9ab",
+      "size": 152,
+      "lastModifiedTime": 1761194216327
+    }
+  ],
+  "target_exec_meta_info": {
+    "file": "/home/hansika/dev/sanitizor/temp-workspace/module-ballerinax-twitter/examples/dm-analytics-management/target/backup/bin/dm_analytics_management.jar",
+    "hash": "144e48c4664b74ab148c10a026e6ea1cffd56f65bab1cae2cb45c71f374d85a1",
+    "size": 48266126,
+    "lastModifiedTime": 1761194277000
+  },
+  "settings_meta_info": {
+    "file": "/home/hansika/.ballerina/Settings.toml",
+    "hash": "c00b1faa65edc98c15e492e2c764f083cb7e6c184bec9cd249652d725d7521ea",
+    "size": 1211,
+    "lastModifiedTime": 1760937254276
+  },
+  "ballerina_toml_meta_info": {
+    "file": "/home/hansika/dev/sanitizor/temp-workspace/module-ballerinax-twitter/examples/dm-analytics-management/Ballerina.toml",
+    "hash": "51750c38eabcf3743e80747a3f106ddaaf0a244ac3ff641d2e14ba50852de9ab",
+    "size": 152,
+    "lastModifiedTime": 1761194216327
+  }
+}

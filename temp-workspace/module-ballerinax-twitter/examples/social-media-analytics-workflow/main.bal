@@ -1,0 +1,71 @@
+import ballerina/io;
+import ballerinax/twitter;
+
+configurable string bearerToken = ?;
+
+public function main() returns error? {
+    twitter:Client twitterClient = check new ({
+        auth: {
+            token: bearerToken
+        }
+    });
+
+    io:println("Step 1: Searching for trending spaces in a specific geographic region...");
+    
+    twitter:Get2SpacesSearchResponse spacesResponse = check twitterClient->/spaces/search(queries = {
+        query: "trending topics news",
+        "space.fields": ["id", "title", "state", "participant_count", "topic_ids", "created_at"],
+        "user.fields": ["id", "name", "username", "public_metrics"]
+    });
+    
+    io:println("Spaces search response:");
+    io:println(spacesResponse);
+    
+    if spacesResponse.data is twitter:Space[] {
+        twitter:Space[] spaces = <twitter:Space[]>spacesResponse.data;
+        
+        if spaces.length() > 0 {
+            io:println("\nStep 2: Retrieving detailed information about the most popular space...");
+            
+            twitter:Space mostPopularSpace = spaces[0];
+            string spaceId = mostPopularSpace.id;
+            
+            if spaceId != "" {
+                io:println("Analyzing space ID: " + spaceId);
+                
+                io:println("\nStep 3: Analyzing tweets shared within the space...");
+                
+                twitter:Get2SpacesIdTweetsResponse tweetsResponse = check twitterClient->/spaces/[spaceId]/tweets(queries = {
+                    "tweet.fields": ["id", "text", "author_id", "created_at", "public_metrics", "context_annotations"],
+                    "user.fields": ["id", "name", "username", "public_metrics", "verified"]
+                });
+                
+                io:println("Space tweets response:");
+                io:println(tweetsResponse);
+                
+                io:println("\nAnalytics Report Summary:");
+                io:println("========================");
+                io:println("Space Title: " + (mostPopularSpace.title ?: "N/A"));
+                io:println("Space State: " + mostPopularSpace.state.toString());
+                
+                map<anydata> spaceMap = <map<anydata>>mostPopularSpace;
+                anydata participantCount = spaceMap["participantCount"];
+                io:println("Participant Count: " + (participantCount is () ? "N/A" : participantCount.toString()));
+                
+                if tweetsResponse.meta is record {} {
+                    map<anydata> meta = <map<anydata>>tweetsResponse.meta;
+                    anydata resultCount = meta["resultCount"];
+                    io:println("Tweet Count: " + (resultCount is () ? "N/A" : resultCount.toString()));
+                }
+                
+                io:println("Audience engagement analysis completed successfully!");
+            } else {
+                io:println("No valid space ID found for detailed analysis");
+            }
+        } else {
+            io:println("No spaces found in the search results");
+        }
+    } else {
+        io:println("No space data available in the response");
+    }
+}
