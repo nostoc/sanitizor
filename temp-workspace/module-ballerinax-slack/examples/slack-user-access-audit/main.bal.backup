@@ -1,0 +1,73 @@
+import ballerina/io;
+import ballerinax/slack;
+
+configurable string token = "";
+configurable string teamId = "";
+
+public function main() returns error? {
+    slack:Client slackClient = check new ({
+        auth: {
+            token: token
+        }
+    });
+
+    // Step 1: Retrieve complete list of all workspace users
+    io:println("=== Retrieving all workspace users ===");
+    slack:UsersListResponse userListResponse = check slackClient->/users\.list(queries = {
+        team_id: teamId,
+        'limit: 100
+    });
+    io:println("Users retrieved successfully");
+    io:println(userListResponse);
+
+    // Step 2: Invalidate active sessions for suspicious users
+    io:println("\n=== Invalidating suspicious user sessions ===");
+    
+    // Example session IDs for users with suspicious activity
+    int[] suspiciousSessionIds = [123456789, 987654321, 555666777];
+    
+    foreach int sessionId in suspiciousSessionIds {
+        slack:admin_users_session_invalidate_body invalidatePayload = {
+            session_id: sessionId,
+            team_id: teamId
+        };
+        
+        slack:DefaultSuccessResponse|error invalidateResponse = slackClient->/admin\.users\.session\.invalidate.post(invalidatePayload);
+        if invalidateResponse is slack:DefaultSuccessResponse {
+            io:println(string `Session ${sessionId} invalidated successfully`);
+            io:println(invalidateResponse);
+        } else {
+            io:println(string `Failed to invalidate session ${sessionId}: ${invalidateResponse.message()}`);
+        }
+    }
+
+    // Step 3: Set expiration dates for temporary contractors and external users
+    io:println("\n=== Setting account expiration for temporary users ===");
+    
+    // Example contractor user IDs and their project completion timestamps
+    map<int> contractorExpirations = {
+        "U1234567890": 1735689600, // Dec 31, 2024
+        "U0987654321": 1733097600, // Dec 2, 2024
+        "U5555666777": 1740873600  // Feb 28, 2025
+    };
+    
+    foreach string userId in contractorExpirations.keys() {
+        int expirationTimestamp = contractorExpirations[userId] ?: 0;
+        
+        slack:admin_users_setExpiration_body expirationPayload = {
+            user_id: userId,
+            team_id: teamId,
+            expiration_ts: expirationTimestamp
+        };
+        
+        slack:DefaultSuccessResponse|error expirationResponse = slackClient->/admin\.users\.setExpiration.post(expirationPayload);
+        if expirationResponse is slack:DefaultSuccessResponse {
+            io:println(string `Expiration set for user ${userId}`);
+            io:println(expirationResponse);
+        } else {
+            io:println(string `Failed to set expiration for user ${userId}: ${expirationResponse.message()}`);
+        }
+    }
+
+    io:println("\n=== Security audit workflow completed successfully ===");
+}

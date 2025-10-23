@@ -1,1 +1,0 @@
-../cli assistant.md

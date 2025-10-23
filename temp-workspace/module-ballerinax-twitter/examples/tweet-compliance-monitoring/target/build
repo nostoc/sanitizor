@@ -1,0 +1,49 @@
+{
+  "last_build_time": 1761194070735,
+  "last_update_time": 1761194070735,
+  "distribution_version": "2201.13.0-20250927-204700-7b3ef131",
+  "last_modified_time": {
+    "tweet_compliance_monitoring": 1761194060867
+  },
+  "last_build_options": {
+    "compilationOptions": {
+      "observabilityIncluded": true,
+      "dumpBir": false,
+      "cloud": "",
+      "dumpGraph": false,
+      "dumpRawGraphs": false
+    }
+  },
+  "src_meta_info": [
+    {
+      "file": "/home/hansika/dev/sanitizor/temp-workspace/module-ballerinax-twitter/examples/tweet-compliance-monitoring/main.bal",
+      "hash": "4357d2913b5b7ff2c56420ca18b76dd67ce20db92a701b2a93e98059e4832b86",
+      "size": 2069,
+      "lastModifiedTime": 1761194060867
+    },
+    {
+      "file": "/home/hansika/dev/sanitizor/temp-workspace/module-ballerinax-twitter/examples/tweet-compliance-monitoring/Ballerina.toml",
+      "hash": "7e79440866cca39ca8f2b29d9e0fa62f6de06c016be8f4a0242fc17a79ddd4e1",
+      "size": 156,
+      "lastModifiedTime": 1761194020916
+    }
+  ],
+  "target_exec_meta_info": {
+    "file": "/home/hansika/dev/sanitizor/temp-workspace/module-ballerinax-twitter/examples/tweet-compliance-monitoring/target/backup/bin/tweet_compliance_monitoring.jar",
+    "hash": "32d56d20ead888f5a6fbdcee249466dd6fae3c2a95749860cc7845a5f6b4c011",
+    "size": 48276377,
+    "lastModifiedTime": 1761194071878
+  },
+  "settings_meta_info": {
+    "file": "/home/hansika/.ballerina/Settings.toml",
+    "hash": "c00b1faa65edc98c15e492e2c764f083cb7e6c184bec9cd249652d725d7521ea",
+    "size": 1211,
+    "lastModifiedTime": 1760937254276
+  },
+  "ballerina_toml_meta_info": {
+    "file": "/home/hansika/dev/sanitizor/temp-workspace/module-ballerinax-twitter/examples/tweet-compliance-monitoring/Ballerina.toml",
+    "hash": "7e79440866cca39ca8f2b29d9e0fa62f6de06c016be8f4a0242fc17a79ddd4e1",
+    "size": 156,
+    "lastModifiedTime": 1761194020916
+  }
+}

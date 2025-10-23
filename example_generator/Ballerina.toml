@@ -1,0 +1,13 @@
+[package]
+org = "hansika"
+name = "example_generator"
+version = "0.1.0"
+distribution = "2201.12.10"
+
+[build-options]
+observabilityIncluded = true
+
+[[dependency]]
+org = "connectorautomation"
+name = "fixer"
+version = "0.1.4"

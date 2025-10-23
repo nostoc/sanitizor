@@ -1,0 +1,65 @@
+import ballerina/io;
+import ballerinax/smartsheet;
+
+configurable string accessToken = ?;
+configurable decimal sheetId = ?;
+configurable decimal rowId = ?;
+configurable decimal columnId = ?;
+configurable decimal reportId = ?;
+
+public function main() returns error? {
+    smartsheet:Client smartsheetClient = check new ({
+        auth: {
+            token: accessToken
+        }
+    });
+
+    smartsheet:AutomationrulesListHeaders automationHeaders = {
+        authorization: "Bearer " + accessToken
+    };
+
+    smartsheet:AutomationrulesListQueries automationQueries = {
+        includeAll: true
+    };
+
+    io:println("Retrieving automation rules for sheet...");
+    smartsheet:AutomationRuleListResponse automationRules = check smartsheetClient->/sheets/[sheetId]/automationrules.get(automationHeaders, {queries: automationQueries});
+    io:println("Retrieved automation rules: ", automationRules);
+
+    smartsheet:CellHistoryGetHeaders cellHistoryHeaders = {
+        authorization: "Bearer " + accessToken
+    };
+
+    smartsheet:CellHistoryGetQueries cellHistoryQueries = {
+        include: "columnType",
+        level: 2
+    };
+
+    io:println("Fetching cell history for compliance review...");
+    smartsheet:RowAttachmentListResponse cellHistory = check smartsheetClient->/sheets/[sheetId]/rows/[rowId]/columns/[columnId]/history.get(cellHistoryHeaders, {queries: cellHistoryQueries});
+    io:println("Retrieved cell history: ", cellHistory);
+
+    smartsheet:SheetEmailRecipient[] recipients = [
+        {
+            email: "stakeholder@company.com"
+        }
+    ];
+
+    smartsheet:SheetEmail emailPayload = {
+        sendTo: recipients,
+        ccMe: true,
+        subject: "Audit Trail Report - Critical Project Sheet",
+        message: "Please find attached the comprehensive audit trail report for regulatory compliance documentation."
+    };
+
+    smartsheet:SendReportViaEmailHeaders emailHeaders = {
+        authorization: "Bearer " + accessToken,
+        contentType: "application/json"
+    };
+
+    io:println("Sending audit report email to stakeholders...");
+    smartsheet:Result emailResult = check smartsheetClient->/reports/[reportId]/emails.post(emailPayload, emailHeaders);
+    io:println("Email sent successfully: ", emailResult);
+
+    io:println("Audit trail process completed successfully.");
+}
