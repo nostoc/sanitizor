@@ -1,5 +1,3 @@
-import doc_generator.ai_generator;
-
 import ballerina/io;
 import ballerina/os;
 
@@ -49,19 +47,19 @@ public function main(string... args) returns error? {
             check generateAllReadmes(connectorPath, autoYes, quietMode);
         }
         "generate-ballerina" => {
-            check generateBallerinaReadme(connectorPath, autoYes, quietMode);
+            check genBallerinaReadme(connectorPath, autoYes, quietMode);
         }
         "generate-tests" => {
-            check generateTestsReadme(connectorPath, autoYes, quietMode);
+            check genTestsReadme(connectorPath, autoYes, quietMode);
         }
         "generate-examples" => {
-            check generateExamplesReadme(connectorPath, autoYes, quietMode);
+            check genExamplesReadme(connectorPath, autoYes, quietMode);
         }
         "generate-individual-examples" => {
-            check generateIndividualExampleReadmes(connectorPath, autoYes, quietMode);
+            check genIndividualExampleReadmes(connectorPath, autoYes, quietMode);
         }
         "generate-main" => {
-            check generateMainReadme(connectorPath, autoYes, quietMode);
+            check genMainReadme(connectorPath, autoYes, quietMode);
         }
         _ => {
             io:println("Error: Unknown command '" + command + "'");
@@ -136,7 +134,7 @@ function generateAllReadmes(string connectorPath, boolean autoYes = false, boole
 
     check validateApiKey();
 
-    error? initResult = ai_generator:initDocumentationGenerator();
+    error? initResult = initDocumentationGenerator();
     if initResult is error {
         if !quietMode {
             io:println("Error initializing AI generator: " + initResult.message());
@@ -151,7 +149,7 @@ function generateAllReadmes(string connectorPath, boolean autoYes = false, boole
         }
     }
 
-    error? result = ai_generator:generateAllDocumentation(connectorPath);
+    error? result = generateAllDocumentation(connectorPath);
     if result is error {
         if !quietMode {
             io:println("Error generating documentation: " + result.message());
@@ -176,7 +174,7 @@ function generateAllReadmes(string connectorPath, boolean autoYes = false, boole
     }
 }
 
-function generateBallerinaReadme(string connectorPath, boolean autoYes = false, boolean quietMode = false) returns error? {
+function genBallerinaReadme(string connectorPath, boolean autoYes = false, boolean quietMode = false) returns error? {
     io:println("=== Ballerina Module README Generation ===");
     io:println(string `Connector path: ${connectorPath}`);
     io:println("This will generate the core Ballerina module README file with:");
@@ -192,7 +190,7 @@ function generateBallerinaReadme(string connectorPath, boolean autoYes = false, 
 
     check validateApiKey();
 
-    error? initResult = ai_generator:initDocumentationGenerator();
+    error? initResult = initDocumentationGenerator();
     if initResult is error {
         if !quietMode {
             io:println("Error initializing AI generator: " + initResult.message());
@@ -205,7 +203,7 @@ function generateBallerinaReadme(string connectorPath, boolean autoYes = false, 
         io:println("Generating Ballerina module README...");
     }
 
-    error? result = ai_generator:generateBallerinaReadme(connectorPath);
+    error? result = generateBallerinaReadme(connectorPath);
     if result is error {
         if !quietMode {
             io:println("Error generating Ballerina README: " + result.message());
@@ -223,7 +221,7 @@ function generateBallerinaReadme(string connectorPath, boolean autoYes = false, 
     }
 }
 
-function generateTestsReadme(string connectorPath, boolean autoYes = false, boolean quietMode = false) returns error? {
+function genTestsReadme(string connectorPath, boolean autoYes = false, boolean quietMode = false) returns error? {
     io:println("=== Tests README Generation ===");
     io:println(string `Connector path: ${connectorPath}`);
     io:println("This will generate the Tests README file with:");
@@ -239,7 +237,7 @@ function generateTestsReadme(string connectorPath, boolean autoYes = false, bool
 
     check validateApiKey();
 
-    error? initResult = ai_generator:initDocumentationGenerator();
+    error? initResult = initDocumentationGenerator();
     if initResult is error {
         if !quietMode {
             io:println("Error initializing AI generator: " + initResult.message());
@@ -252,7 +250,7 @@ function generateTestsReadme(string connectorPath, boolean autoYes = false, bool
         io:println("Generating Tests README...");
     }
 
-    error? result = ai_generator:generateTestsReadme(connectorPath);
+    error? result = generateTestsReadme(connectorPath);
     if result is error {
         if !quietMode {
             io:println("Error generating Tests README: " + result.message());
@@ -270,7 +268,7 @@ function generateTestsReadme(string connectorPath, boolean autoYes = false, bool
     }
 }
 
-function generateIndividualExampleReadmes(string connectorPath, boolean autoYes = false, boolean quietMode = false) returns error? {
+function genIndividualExampleReadmes(string connectorPath, boolean autoYes = false, boolean quietMode = false) returns error? {
     io:println("=== Individual Example READMEs Generation ===");
     io:println(string `Connector path: ${connectorPath}`);
     io:println("This will generate individual README files for each example with:");
@@ -286,7 +284,7 @@ function generateIndividualExampleReadmes(string connectorPath, boolean autoYes 
 
     check validateApiKey();
 
-    error? initResult = ai_generator:initDocumentationGenerator();
+    error? initResult = initDocumentationGenerator();
     if initResult is error {
         if !quietMode {
             io:println("Error initializing AI generator: " + initResult.message());
@@ -299,7 +297,7 @@ function generateIndividualExampleReadmes(string connectorPath, boolean autoYes 
         io:println("Generating Individual Example READMEs...");
     }
 
-    error? result = ai_generator:generateIndividualExampleReadmes(connectorPath);
+    error? result = generateIndividualExampleReadmes(connectorPath);
     if result is error {
         if !quietMode {
             io:println("Error generating Individual Example READMEs: " + result.message());
@@ -318,7 +316,7 @@ function generateIndividualExampleReadmes(string connectorPath, boolean autoYes 
     }
 }
 
-function generateExamplesReadme(string connectorPath, boolean autoYes = false, boolean quietMode = false) returns error? {
+function genExamplesReadme(string connectorPath, boolean autoYes = false, boolean quietMode = false) returns error? {
     io:println("=== Main Examples README Generation ===");
     io:println(string `Connector path: ${connectorPath}`);
     io:println("This will generate the main Examples README file with:");
@@ -334,7 +332,7 @@ function generateExamplesReadme(string connectorPath, boolean autoYes = false, b
 
     check validateApiKey();
 
-    error? initResult = ai_generator:initDocumentationGenerator();
+    error? initResult = initDocumentationGenerator();
     if initResult is error {
         if !quietMode {
             io:println("Error initializing AI generator: " + initResult.message());
@@ -347,7 +345,7 @@ function generateExamplesReadme(string connectorPath, boolean autoYes = false, b
         io:println("Generating Examples README...");
     }
 
-    error? result = ai_generator:generateExamplesReadme(connectorPath);
+    error? result = generateExamplesReadme(connectorPath);
     if result is error {
         if !quietMode {
             io:println("Error generating Examples README: " + result.message());
@@ -365,7 +363,7 @@ function generateExamplesReadme(string connectorPath, boolean autoYes = false, b
     }
 }
 
-function generateMainReadme(string connectorPath, boolean autoYes = false, boolean quietMode = false) returns error? {
+function genMainReadme(string connectorPath, boolean autoYes = false, boolean quietMode = false) returns error? {
     io:println("=== Root Module README Generation ===");
     io:println(string `Connector path: ${connectorPath}`);
     io:println("This will generate the root README file with:");
@@ -381,7 +379,7 @@ function generateMainReadme(string connectorPath, boolean autoYes = false, boole
 
     check validateApiKey();
 
-    error? initResult = ai_generator:initDocumentationGenerator();
+    error? initResult = initDocumentationGenerator();
     if initResult is error {
         if !quietMode {
             io:println("Error initializing AI generator: " + initResult.message());
@@ -394,7 +392,7 @@ function generateMainReadme(string connectorPath, boolean autoYes = false, boole
         io:println("Generating Main README...");
     }
 
-    error? result = ai_generator:generateMainReadme(connectorPath);
+    error? result = generateMainReadme(connectorPath);
     if result is error {
         if !quietMode {
             io:println("Error generating Main README: " + result.message());

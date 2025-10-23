@@ -1,6 +1,3 @@
-import sanitizor.command_executor;
-import sanitizor.spec_sanitizor;
-
 import ballerina/io;
 import ballerina/log;
 import ballerina/regex;
@@ -62,8 +59,8 @@ public function main(string... args) returns error? {
     }
 
     // Initialize LLM service
-    spec_sanitizor:LLMServiceError? llmInitResult = spec_sanitizor:initLLMService(quietMode);
-    if llmInitResult is spec_sanitizor:LLMServiceError {
+    LLMServiceError? llmInitResult = initLLMService(quietMode);
+    if llmInitResult is LLMServiceError {
         if !quietMode {
             log:printError("Failed to initialize LLM service", 'error = llmInitResult);
         }
@@ -83,8 +80,8 @@ public function main(string... args) returns error? {
     // Step 1: Execute OpenAPI flatten
     io:println("\n=== Step 1: Flattening OpenAPI Specification ===");
     string flattenedSpecPath = outputDir + "/docs/spec";
-    command_executor:CommandResult flattenResult = command_executor:executeBalFlatten(inputSpecPath, flattenedSpecPath);
-    if !command_executor:isCommandSuccessfull(flattenResult) {
+    CommandResult flattenResult = executeBalFlatten(inputSpecPath, flattenedSpecPath);
+    if !isCommandSuccessfull(flattenResult) {
         if !quietMode {
             log:printError("OpenAPI flatten failed", result = flattenResult);
         }
@@ -108,8 +105,8 @@ public function main(string... args) returns error? {
     io:println("\n=== Step 2: Aligning OpenAPI Specification ===");
     string alignedSpecPath = outputDir + "/docs/spec";
     string flattenedSpec = flattenedSpecPath + "/flattened_openapi.json";
-    command_executor:CommandResult alignResult = command_executor:executeBalAlign(flattenedSpec, alignedSpecPath);
-    if !command_executor:isCommandSuccessfull(alignResult) {
+    CommandResult alignResult = executeBalAlign(flattenedSpec, alignedSpecPath);
+    if !isCommandSuccessfull(alignResult) {
         if !quietMode {
             log:printError("OpenAPI align failed", result = alignResult);
         }
@@ -140,12 +137,12 @@ public function main(string... args) returns error? {
         io:println("⚠ Skipping operationId generation. Missing operationIds will remain.");
     } else {
         io:println("Processing operationId generation with AI...");
-        int|spec_sanitizor:LLMServiceError operationIdResult = spec_sanitizor:addMissingOperationIdsBatchWithRetry(
+        int|LLMServiceError operationIdResult = addMissingOperationIdsBatchWithRetry(
                 alignedSpec,
                 15, // batchSize
                 quietMode // quietMode
         );
-        if operationIdResult is spec_sanitizor:LLMServiceError {
+        if operationIdResult is LLMServiceError {
             if !quietMode {
                 log:printError("Failed to add missing operationIds (batch)", 'error = operationIdResult);
             }
@@ -182,12 +179,12 @@ public function main(string... args) returns error? {
         io:println("⚠ Skipping schema renaming. Generic schema names will be preserved.");
     } else {
         io:println("Processing schema renaming with AI...");
-        int|spec_sanitizor:LLMServiceError schemaRenameResult = spec_sanitizor:renameInlineResponseSchemasBatchWithRetry(
+        int|LLMServiceError schemaRenameResult = renameInlineResponseSchemasBatchWithRetry(
                 alignedSpec,
                 8, // batchSize
                 quietMode // quietMode
         );
-        if schemaRenameResult is spec_sanitizor:LLMServiceError {
+        if schemaRenameResult is LLMServiceError {
             if !quietMode {
                 log:printError("Failed to rename InlineResponse schemas (batch)", 'error = schemaRenameResult);
             }
@@ -224,12 +221,12 @@ public function main(string... args) returns error? {
         io:println("⚠ Skipping documentation enhancement. Missing descriptions will remain.");
     } else {
         io:println("Processing documentation enhancement with AI...");
-        int|spec_sanitizor:LLMServiceError descriptionsResult = spec_sanitizor:addMissingDescriptionsBatchWithRetry(
+        int|LLMServiceError descriptionsResult = addMissingDescriptionsBatchWithRetry(
                 alignedSpec,
                 20, // batchSize
                 quietMode // quietMode
         );
-        if descriptionsResult is spec_sanitizor:LLMServiceError {
+        if descriptionsResult is LLMServiceError {
             if !quietMode {
                 log:printError("Failed to add missing descriptions (batch)", 'error = descriptionsResult);
             }
@@ -268,8 +265,8 @@ public function main(string... args) returns error? {
         return;
     }
 
-    command_executor:CommandResult generateResult = command_executor:executeBalClientGenerate(alignedSpec, clientOutputPath);
-    if !command_executor:isCommandSuccessfull(generateResult) {
+    CommandResult generateResult = executeBalClientGenerate(alignedSpec, clientOutputPath);
+    if !isCommandSuccessfull(generateResult) {
         if !quietMode {
             log:printError("Client generation failed", result = generateResult);
         }
@@ -309,7 +306,7 @@ function getUserConfirmation(string message, boolean autoYes = false) returns bo
 }
 
 // Helper function to show operation summary
-function showOperationSummary(string operationName, command_executor:CommandResult result) {
+function showOperationSummary(string operationName, CommandResult result) {
     io:println(string `Execution time: ${result.executionTime} seconds`);
     if result.stdout.length() > 0 {
         io:println("Output summary:");
