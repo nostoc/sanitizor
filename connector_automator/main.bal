@@ -1,3 +1,4 @@
+import connector_automator.client_generator;
 import connector_automator.code_fixer;
 import connector_automator.doc_generator;
 import connector_automator.example_generator;
@@ -11,7 +12,7 @@ public function main(string... args) returns error? {
     string|error apiKey = os:getEnv("ANTHROPIC_API_KEY");
     if apiKey is error {
         io:println("⚠ Warning: ANTHROPIC_API_KEY environment variable not set.");
-        io:println("Some AI-powered features may not work properly.");
+        io:println("AI-powered features will not work.");
         io:println("");
     }
 
@@ -31,6 +32,9 @@ function handleCommandLineMode(string[] args) returns error? {
     match command {
         "sanitize" => {
             return sanitizor:main(...remainingArgs);
+        }
+        "generate-client" => {
+            return client_generator:main(...remainingArgs);
         }
         "generate-examples" => {
             return example_generator:main(...remainingArgs);
@@ -75,33 +79,39 @@ function handleInteractiveMode() returns error? {
                 }
             }
             "2" => {
-                error? result = handleExampleGeneration();
+                error? result = handleClientGeneration();
                 if result is error {
                     io:println("Operation failed: " + result.message());
                 }
             }
             "3" => {
-                error? result = handleDocGeneration();
+                error? result = handleExampleGeneration();
                 if result is error {
                     io:println("Operation failed: " + result.message());
                 }
             }
             "4" => {
-                error? result = handleCodeFixer();
+                error? result = handleDocGeneration();
                 if result is error {
                     io:println("Operation failed: " + result.message());
                 }
             }
             "5" => {
-                error? result = handleFullPipeline();
+                error? result = handleCodeFixer();
                 if result is error {
                     io:println("Operation failed: " + result.message());
                 }
             }
             "6" => {
-                printUsage();
+                error? result = handleFullPipeline();
+                if result is error {
+                    io:println("Operation failed: " + result.message());
+                }
             }
             "7" => {
+                printUsage();
+            }
+            "8" => {
                 io:println("Thank you for using Connector Automation CLI!");
                 return;
             }
@@ -132,31 +142,36 @@ function showMainMenu() {
     io:println("1. 🔧 Sanitize OpenAPI Specification");
     io:println("   • Flatten and align OpenAPI spec");
     io:println("   • Add missing operationIds and descriptions");
-    io:println("   • Generate Ballerina client code");
+    io:println("   • AI-powered schema improvements");
     io:println("");
-    io:println("2. 📝 Generate Examples");
+    io:println("2. 🏗️ Generate Ballerina Client");
+    io:println("   • Generate client from sanitized OpenAPI spec");
+    io:println("   • Create proper project structure");
+    io:println("   • Validate generated code");
+    io:println("");
+    io:println("3. 📝 Generate Examples");
     io:println("   • Create usage examples for connector");
     io:println("   • AI-powered example generation");
     io:println("   • Fix compilation errors automatically");
     io:println("");
-    io:println("3. 📚 Generate Documentation");
+    io:println("4. 📚 Generate Documentation");
     io:println("   • Create README files");
     io:println("   • Documentation for modules and examples");
     io:println("   • AI-powered content generation");
     io:println("");
-    io:println("4. 🛠️ Fix Code Errors");
+    io:println("5. 🛠️ Fix Code Errors");
     io:println("   • Analyze compilation errors");
     io:println("   • AI-powered error fixing");
     io:println("   • Iterative error resolution");
     io:println("");
-    io:println("5. 🚀 Full Pipeline");
+    io:println("6. 🚀 Full Pipeline");
     io:println("   • Complete automation workflow");
     io:println("   • All operations in sequence");
     io:println("   • End-to-end processing");
     io:println("");
-    io:println("6. ❓ Help & Usage Information");
+    io:println("7. ❓ Help & Usage Information");
     io:println("");
-    io:println("7. 🚪 Exit");
+    io:println("8. 🚪 Exit");
     io:println(sep);
 }
 
@@ -191,6 +206,38 @@ function handleSanitizeOperation() returns error? {
     }
 
     return sanitizor:main(...args);
+}
+
+function handleClientGeneration() returns error? {
+    io:println("\n=== Ballerina Client Generation ===");
+    io:println("This operation will:");
+    io:println("• Generate Ballerina client from OpenAPI specification");
+    io:println("• Create proper project structure with dependencies");
+    io:println("• Validate generated code structure");
+    io:println("");
+
+    string|io:Error specPath = getUserInput("Enter path to OpenAPI specification file: ");
+    if specPath is io:Error {
+        return error("Failed to read specification path");
+    }
+
+    string|io:Error outputDir = getUserInput("Enter output directory path: ");
+    if outputDir is io:Error {
+        return error("Failed to read output directory path");
+    }
+
+    boolean autoYes = getUserConfirmation("Auto-confirm all prompts during execution?");
+    boolean quietMode = getUserConfirmation("Enable quiet mode (reduced logging)?");
+
+    string[] args = [specPath.trim(), outputDir.trim()];
+    if autoYes {
+        args.push("yes");
+    }
+    if quietMode {
+        args.push("quiet");
+    }
+
+    return client_generator:main(...args);
 }
 
 function handleExampleGeneration() returns error? {
@@ -378,9 +425,20 @@ function runFullPipeline(string... args) returns error? {
         return sanitizeResult;
     }
 
-    // Step 2: Fix any compilation errors in generated client
-    io:println("\n=== Step 2: Fixing Compilation Errors ===");
+    // Step 2: Generate Ballerina client
+    io:println("\n=== Step 2: Generating Ballerina Client ===");
+    string sanitizedSpec = outputDir + "/docs/spec/aligned_ballerina_openapi.json";
     string clientPath = outputDir + "/ballerina";
+    string[] clientArgs = [sanitizedSpec, clientPath];
+    clientArgs.push(...pipelineOptions);
+    error? clientResult = client_generator:main(...clientArgs);
+    if clientResult is error {
+        io:println("Warning: Client generation failed: " + clientResult.message());
+        io:println("Continuing with pipeline...");
+    }
+
+    // Step 3: Fix any compilation errors in generated client
+    io:println("\n=== Step 3: Fixing Compilation Errors ===");
     string[] fixArgs = [clientPath];
     fixArgs.push(...pipelineOptions);
     error? fixResult = code_fixer:main(...fixArgs);
@@ -389,8 +447,8 @@ function runFullPipeline(string... args) returns error? {
         io:println("Continuing with pipeline...");
     }
 
-    // Step 3: Generate examples
-    io:println("\n=== Step 3: Generating Examples ===");
+    // Step 4: Generate examples
+    io:println("\n=== Step 4: Generating Examples ===");
     string[] exampleArgs = [clientPath];
     error? exampleResult = example_generator:main(...exampleArgs);
     if exampleResult is error {
@@ -398,8 +456,8 @@ function runFullPipeline(string... args) returns error? {
         io:println("Continuing with pipeline...");
     }
 
-    // Step 4: Generate documentation
-    io:println("\n=== Step 4: Generating Documentation ===");
+    // Step 5: Generate documentation
+    io:println("\n=== Step 5: Generating Documentation ===");
     string[] docArgs = ["generate-all", clientPath];
     docArgs.push(...pipelineOptions);
     error? docResult = doc_generator:main(...docArgs);
@@ -419,7 +477,10 @@ function printUsage() {
     io:println("");
     io:println("Commands:");
     io:println("  sanitize <openapi-spec> <output-dir> [options]");
-    io:println("    Sanitize OpenAPI specification and generate Ballerina client");
+    io:println("    Sanitize OpenAPI specification with AI enhancements");
+    io:println("");
+    io:println("  generate-client <openapi-spec> <output-dir> [options]");
+    io:println("    Generate Ballerina client from OpenAPI specification");
     io:println("");
     io:println("  generate-examples <connector-path>");
     io:println("    Generate example code for the connector");
@@ -443,6 +504,7 @@ function printUsage() {
     io:println("");
     io:println("Examples:");
     io:println("  bal run -- sanitize ./openapi.yaml ./output");
+    io:println("  bal run -- generate-client ./aligned_spec.json ./client");
     io:println("  bal run -- generate-examples ./output/ballerina");
     io:println("  bal run -- generate-docs generate-all ./output/ballerina");
     io:println("  bal run -- fix-code ./output/ballerina");

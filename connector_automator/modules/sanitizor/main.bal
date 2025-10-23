@@ -51,7 +51,6 @@ public function main(string... args) returns error? {
     io:println("3. Add missing operationIds using AI");
     io:println("4. Rename inline response schemas using AI");
     io:println("5. Add missing field descriptions using AI");
-    io:println("6. Generate Ballerina client code");
 
     if !getUserConfirmation("\nProceed with sanitization?", autoYes) {
         io:println("Operation cancelled by user.");
@@ -254,37 +253,14 @@ public function main(string... args) returns error? {
         }
     }
 
-    // Step 6: Generate Ballerina client from the final sanitized spec
-    io:println("\n=== Step 6: Generating Ballerina Client ===");
-    string clientOutputPath = outputDir + "/ballerina";
-    io:println(string `Generating Ballerina client code to: ${clientOutputPath}`);
-
-    if !getUserConfirmation("Proceed with Ballerina client generation?", autoYes) {
-        io:println("⚠ Skipping client generation.");
-        io:println("✓ OpenAPI sanitization completed successfully (without client generation)");
-        return;
-    }
-
-    CommandResult generateResult = executeBalClientGenerate(alignedSpec, clientOutputPath);
-    if !isCommandSuccessfull(generateResult) {
-        if !quietMode {
-            log:printError("Client generation failed", result = generateResult);
-        }
-        io:println("Client generation failed:");
-        io:println(generateResult.stderr);
-
-        if !getUserConfirmation("Continue to error fixing despite client generation failure?", autoYes) {
-            return error("Client generation failed: " + generateResult.stderr);
-        }
-    } else {
-        if !quietMode {
-            log:printInfo("Ballerina client generated successfully", outputPath = clientOutputPath);
-        }
-        io:println("✓ Ballerina client generated successfully");
-        if !quietMode {
-            showOperationSummary("Client Generation", generateResult);
-        }
-    }
+    io:println("\n=== OpenAPI Sanitization Completed Successfully! ===");
+    io:println(string `Sanitized OpenAPI specification: ${alignedSpec}`);
+    io:println("\nNext Steps:");
+    io:println("1. Generate Ballerina client using the client_generator module");
+    io:println("2. Or run the full pipeline to complete the entire workflow");
+    io:println("\nCommands:");
+    io:println(string `  bal run client_generator -- ${alignedSpec} ${outputDir}/ballerina`);
+    io:println(string `  bal run -- pipeline ${inputSpecPath} ${outputDir}`);
 
 }
 
