@@ -139,39 +139,39 @@ function showMainMenu() {
     io:println("\n" + sep);
     io:println("    CONNECTOR AUTOMATION CLI");
     io:println(sep);
-    io:println("1. 🔧 Sanitize OpenAPI Specification");
+    io:println("1. Sanitize OpenAPI Specification");
     io:println("   • Flatten and align OpenAPI spec");
     io:println("   • Add missing operationIds and descriptions");
     io:println("   • AI-powered schema improvements");
     io:println("");
-    io:println("2. 🏗️ Generate Ballerina Client");
+    io:println("2. Generate Ballerina Client");
     io:println("   • Generate client from sanitized OpenAPI spec");
     io:println("   • Create proper project structure");
     io:println("   • Validate generated code");
     io:println("");
-    io:println("3. 📝 Generate Examples");
+    io:println("3. Generate Examples");
     io:println("   • Create usage examples for connector");
     io:println("   • AI-powered example generation");
     io:println("   • Fix compilation errors automatically");
     io:println("");
-    io:println("4. 📚 Generate Documentation");
+    io:println("4. Generate Documentation");
     io:println("   • Create README files");
     io:println("   • Documentation for modules and examples");
     io:println("   • AI-powered content generation");
     io:println("");
-    io:println("5. 🛠️ Fix Code Errors");
+    io:println("5. Fix Code Errors");
     io:println("   • Analyze compilation errors");
     io:println("   • AI-powered error fixing");
     io:println("   • Iterative error resolution");
     io:println("");
-    io:println("6. 🚀 Full Pipeline");
+    io:println("6. Full Pipeline");
     io:println("   • Complete automation workflow");
     io:println("   • All operations in sequence");
     io:println("   • End-to-end processing");
     io:println("");
-    io:println("7. ❓ Help & Usage Information");
+    io:println("7. Help & Usage Information");
     io:println("");
-    io:println("8. 🚪 Exit");
+    io:println("8. Exit");
     io:println(sep);
 }
 
@@ -181,7 +181,6 @@ function handleSanitizeOperation() returns error? {
     io:println("• Flatten your OpenAPI specification");
     io:println("• Align it with Ballerina conventions");
     io:println("• Add missing operationIds using AI");
-    io:println("• Generate Ballerina client code");
     io:println("");
 
     string|io:Error inputSpec = getUserInput("Enter path to OpenAPI specification file: ");
@@ -226,15 +225,50 @@ function handleClientGeneration() returns error? {
         return error("Failed to read output directory path");
     }
 
+    // Ask for optional configurations
     boolean autoYes = getUserConfirmation("Auto-confirm all prompts during execution?");
     boolean quietMode = getUserConfirmation("Enable quiet mode (reduced logging)?");
+    
+    // Ask for client method type
+    io:println("\nClient Method Type:");
+    io:println("1. Resource methods (default, recommended)");
+    io:println("2. Remote methods");
+    string|io:Error methodChoice = getUserInput("Select client method type (1-2, default=1): ");
+    string clientMethodArg = "resource-methods";
+    if methodChoice is string && methodChoice.trim() == "2" {
+        clientMethodArg = "remote-methods";
+    }
 
+    // Ask for optional configurations
+    boolean wantAdvanced = getUserConfirmation("Configure advanced options (license, tags, operations)?");
+    
     string[] args = [specPath.trim(), outputDir.trim()];
     if autoYes {
         args.push("yes");
     }
     if quietMode {
         args.push("quiet");
+    }
+    args.push(clientMethodArg);
+
+    if wantAdvanced {
+        // License file
+        string|io:Error licenseInput = getUserInput("Enter license file path (press Enter to skip): ");
+        if licenseInput is string && licenseInput.trim().length() > 0 {
+            args.push(string `license=${licenseInput.trim()}`);
+        }
+
+        // Tags
+        string|io:Error tagsInput = getUserInput("Enter tags to filter (comma-separated, press Enter to skip): ");
+        if tagsInput is string && tagsInput.trim().length() > 0 {
+            args.push(string `tags=${tagsInput.trim()}`);
+        }
+
+        // Operations
+        string|io:Error operationsInput = getUserInput("Enter specific operations (comma-separated, press Enter to skip): ");
+        if operationsInput is string && operationsInput.trim().length() > 0 {
+            args.push(string `operations=${operationsInput.trim()}`);
+        }
     }
 
     return client_generator:main(...args);
@@ -388,7 +422,6 @@ function getUserConfirmation(string message) returns boolean {
     return trimmedInput == "y" || trimmedInput == "yes";
 }
 
-// ...existing code for runFullPipeline and printUsage functions...
 function runFullPipeline(string... args) returns error? {
     if args.length() < 2 {
         io:println("Error: Full pipeline requires OpenAPI spec path and output directory");

@@ -10601,7 +10601,6 @@
             },
             "SupavisorConfigResponse": {
                 "required": [
-                    "connectionString",
                     "connection_string",
                     "database_type",
                     "db_host",
@@ -10625,10 +10624,7 @@
                         "x-ballerina-name": "databaseType",
                         "description": "Type of database connection: PRIMARY or READ_REPLICA"
                     },
-                    "connectionString": {
-                        "type": "string",
-                        "description": "Use connection_string instead"
-                    },
+                    
                     "identifier": {
                         "type": "string",
                         "description": "Unique identifier for the database configuration"

@@ -1,8 +1,6 @@
 import ballerina/io;
 import ballerina/log;
-
-// Import from sanitizor module for command execution functions
-import connector_automator.sanitizor;
+import ballerina/regex;
 
 public function main(string... args) returns error? {
     if args.length() < 2 {
@@ -13,45 +11,93 @@ public function main(string... args) returns error? {
     string inputSpecPath = args[0]; // Path to OpenAPI spec (aligned)
     string outputDir = args[1]; // Output directory for client
 
-    // Check for auto flag for automated mode and quiet mode for log control
-    boolean autoYes = false;
-    boolean quietMode = false;
-    foreach string arg in args {
-        if arg == "yes" {
-            autoYes = true;
-        } else if arg == "quiet" {
-            quietMode = true;
-        }
+    ClientGeneratorConfig config = parseCommandLineArgs(args.slice(2));
+
+    if !config.quietMode {
+        log:printInfo("Starting Ballerina client generation", 
+            inputSpec = inputSpecPath, 
+            outputDir = outputDir,
+            config = config
+        );
     }
 
-    if autoYes {
-        if !quietMode {
-            io:println("Running in automated mode - all prompts will be auto-confirmed");
-        }
-    }
-
-    if quietMode {
-        if !autoYes {
-            io:println("Running in quiet mode - reduced logging output");
-        }
-        io:println("Quiet mode enabled - minimal logging output");
-    }
-
-    if !quietMode {
-        log:printInfo("Starting Ballerina client generation", inputSpec = inputSpecPath, outputDir = outputDir);
-    }
-
-    return generateBallerinaClient(inputSpecPath, outputDir, autoYes, quietMode);
+    return generateBallerinaClient(inputSpecPath, outputDir, config);
 }
+
+# Parse command line arguments into configuration
+#
+# + args - Command line arguments after input and output paths
+# + return - Parsed configuration
+function parseCommandLineArgs(string[] args) returns ClientGeneratorConfig {
+    ClientGeneratorConfig config = {};
+    OpenAPIToolOptions toolOptions = {};
+    boolean hasToolOptions = false;
+
+    foreach string arg in args {
+        match arg {
+            "yes" => {
+                config.autoYes = true;
+            }
+            "quiet" => {
+                config.quietMode = true;
+            }
+            "remote-methods" => {
+                toolOptions.clientMethod = "remote";
+                hasToolOptions = true;
+            }
+            "resource-methods" => {
+                toolOptions.clientMethod = "resource";
+                hasToolOptions = true;
+            }
+            _ => {
+                // Handle key=value pairs
+               if arg.includes("=") {
+                    string[] parts = regex:split(arg, "=");
+                    if parts.length() == 2 {
+                        string key = parts[0].trim();
+                        string value = parts[1].trim();
+                        
+                        match key {
+                            "license" => {
+                                toolOptions.license = value;
+                                hasToolOptions = true;
+                            }
+                            "tags" => {
+                                toolOptions.tags = regex:split(value, ",").map(tag => tag.trim());
+                                hasToolOptions = true;
+                            }
+                            "operations" => {
+                                toolOptions.operations = regex:split(value, ",").map(op => op.trim());
+                                hasToolOptions = true;
+                            }
+                            "client-method" => {
+                                if value == "resource" || value == "remote" {
+                                    toolOptions.clientMethod = <"resource"|"remote">value;
+                                    hasToolOptions = true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    if hasToolOptions {
+        config.toolOptions = toolOptions;
+    }
+
+    return config;
+}
+
 
 # Generate Ballerina client from OpenAPI specification
 #
 # + specPath - Path to the OpenAPI specification file
 # + outputDir - Output directory for generated client
-# + autoYes - Auto-confirm all prompts
-# + quietMode - Reduce logging output
+# + config - Configuration for client generation
 # + return - Error if generation fails, () if successful
-public function generateBallerinaClient(string specPath, string outputDir, boolean autoYes = false, boolean quietMode = false) returns error? {
+public function generateBallerinaClient(string specPath, string outputDir, ClientGeneratorConfig config) returns error? {
     io:println("\n=== Ballerina Client Generation ===");
     io:println(string `Input OpenAPI spec: ${specPath}`);
     io:println(string `Output directory: ${outputDir}`);
@@ -59,19 +105,35 @@ public function generateBallerinaClient(string specPath, string outputDir, boole
     io:println("• Generate Ballerina client code from OpenAPI specification");
     io:println("• Create project structure with proper dependencies");
     io:println("• Validate generated code structure");
+
+    // Show configuration if tool options are provided
+    if config.toolOptions is OpenAPIToolOptions {
+        OpenAPIToolOptions options = <OpenAPIToolOptions>config.toolOptions;
+        io:println("\nConfiguration Options:");
+        io:println(string `• Client method type: ${options.clientMethod}`);
+        if options.license is string {
+            io:println(string `• License file: ${options.license}`);
+        }
+        if options.tags is string[] {
+            io:println(string `• Filtered tags: ${string:'join(", ", ...options.tags ?: [])}`);
+        }
+        if options.operations is string[] {
+            io:println(string `• Specific operations: ${string:'join(", ", ...options.operations ?: [])}`);
+        }
+    }
     io:println("");
 
-    if !getUserConfirmation("Proceed with Ballerina client generation?", autoYes) {
+    if !getUserConfirmation("Proceed with Ballerina client generation?", config.autoYes) {
         io:println("⚠ Skipping client generation.");
         return;
     }
 
     io:println("Generating Ballerina client code...");
     
-    CommandResult generateResult = executeBalClientGenerate(specPath, outputDir);
+    CommandResult generateResult = executeBalClientGenerate(specPath, outputDir, config.toolOptions);
     
     if !isCommandSuccessfull(generateResult) {
-        if !quietMode {
+        if !config.quietMode {
             log:printError("Client generation failed", result = generateResult);
         }
         io:println("Client generation failed:");
@@ -86,7 +148,7 @@ public function generateBallerinaClient(string specPath, string outputDir, boole
 
         return error("Client generation failed: " + generateResult.stderr);
     } else {
-        if !quietMode {
+        if !config.quietMode {
             log:printInfo("Ballerina client generated successfully", outputPath = outputDir);
         }
         io:println("Ballerina client generated successfully");
@@ -105,6 +167,7 @@ public function generateBallerinaClient(string specPath, string outputDir, boole
     return ();
 }
 
+
 // Helper function to get user confirmation
 function getUserConfirmation(string message, boolean autoYes = false) returns boolean {
     if autoYes {
@@ -121,24 +184,42 @@ function getUserConfirmation(string message, boolean autoYes = false) returns bo
     string trimmedInput = userInput.trim().toLowerAscii();
     return trimmedInput == "y" || trimmedInput == "Y" || trimmedInput == "yes";
 }
-
 function printUsage() {
     io:println("Ballerina Client Generator");
     io:println("");
     io:println("Usage: bal run client_generator -- <openapi-spec> <output-directory> [options]");
-    io:println("  <openapi-spec>: Path to the OpenAPI specification file");
-    io:println("  <output-directory>: Directory where generated client will be stored");
-    io:println("  yes: Automatically answer 'yes' to all prompts (for CI/CD)");
-    io:println("  quiet: Reduce logging output (minimal logs for CI/CD)");
+    io:println("");
+    io:println("Required Arguments:");
+    io:println("  <openapi-spec>     Path to the OpenAPI specification file");
+    io:println("  <output-directory> Directory where generated client will be stored");
+    io:println("");
+    io:println("General Options:");
+    io:println("  yes                Automatically answer 'yes' to all prompts (for CI/CD)");
+    io:println("  quiet              Reduce logging output (minimal logs for CI/CD)");
+    io:println("");
+    io:println("OpenAPI Tool Options:");
+    io:println("  remote-methods     Use remote methods (default: resource methods)");
+    io:println("  resource-methods   Use resource methods (default)");
+    io:println("");
+    io:println("Key-Value Options:");
+    io:println("  license=<path>     License file path for copyright header");
+    io:println("  tags=<tag1,tag2>   Comma-separated tags to filter operations");
+    io:println("  operations=<op1,op2> Comma-separated operations to generate");
+    io:println("  client-method=<resource|remote> Client method type");
+    io:println("");
+    io:println("Configuration File Options:");
+    io:println("  You can also use Config.toml to set default options:");
+    io:println("  [client_generator.options]");
+    io:println("  license = \"./license.txt\"");
+    io:println("  tags = [\"users\", \"orders\"]");
+    io:println("  clientMethod = \"resource\"");
     io:println("");
     io:println("Examples:");
-    io:println("  bal run client_generator -- ./aligned_openapi.json ./client");
-    io:println("  bal run client_generator -- ./spec.yaml ./output/ballerina yes");
-    io:println("  bal run client_generator -- ./spec.json ./client yes quiet");
+    io:println("  bal run client_generator -- ./spec.json ./client");
+    io:println("  bal run client_generator -- ./spec.yaml ./client yes quiet");
+    io:println("  bal run client_generator -- ./spec.json ./client license=./license.txt tags=users,orders");
+    io:println("  bal run client_generator -- ./spec.json ./client remote-methods");
     io:println("");
-    io:println("Features:");
-    io:println("  • Generates complete Ballerina client from OpenAPI specification");
-    io:println("  • Creates proper project structure with dependencies");
-    io:println("  • Provides detailed error reporting and next steps");
-    io:println("  • Supports both interactive and automated execution modes");
+    io:println("Configuration via CLI:");
+    io:println("  bal run client_generator -- ./spec.json ./client -Cclient_generator.options.license=./license.txt -Cclient_generator.options.clientMethod=remote");
 }

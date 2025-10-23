@@ -5,43 +5,6 @@ import ballerina/os;
 import ballerina/regex;
 import ballerina/time;
 
-public type CommandExecutorError distinct error;
-
-# Compilation error from a `bal build` output
-
-public type CompilationError record {|
-    # name of the file where error occured
-    string fileName;
-    # Line number of the error
-    int line;
-    # Column number of the error
-    int column;
-    # Error message description
-    string message;
-    # Type of error (ERROR, WARNING)
-    string errorType;
-    # file path
-    string filePath?;
-|};
-
-# result of executing a `bal` command
-public type CommandResult record {|
-    # The command that was executed
-    string command;
-    # Whether the command executed successfully
-    boolean success;
-    # Exit code returned by the command
-    int exitCode;
-    # Standard output from the command
-    string stdout;
-    # Standard error output from the command
-    string stderr;
-    # Parsed compilation errors from the output
-    CompilationError[] compilationErrors;
-    # Execution time 
-    decimal executionTime;
-|};
-
 # Execute shell commands and capture results
 #
 # + command - Command to execute
@@ -245,14 +208,35 @@ public function isCommandSuccessfull(CommandResult result) returns boolean {
     return result.success && result.exitCode == 0 && result.compilationErrors.length() == 0;
 }
 
-
 # Execute bal openapi client generation command
 #
 # + inputPath - Path to aligned openAPI spec file
 # + outputPath - Path to output directory for generated ballerina client
+# + customOptions - Optional custom options to override defaults
 # + return - `CommandResult` with execution details
-public function executeBalClientGenerate(string inputPath, string outputPath) returns CommandResult {
+public function executeBalClientGenerate(string inputPath, string outputPath, OpenAPIToolOptions? customOptions = ()) returns CommandResult {
+    // Use custom options if provided, otherwise use configurable options
+    OpenAPIToolOptions toolOptions = customOptions ?: options;
+    
+    // Build the base command
     string command = string `bal openapi -i ${inputPath} --mode client -o ${outputPath}`;
+    
+    // Add optional flags based on configuration
+    if toolOptions.license is string {
+        command += string ` --license ${toolOptions.license}`;
+    }
+    
+    if toolOptions.tags is string[] {
+        string tagsList = string:'join(",", ...toolOptions.tags ?: []);
+        command += string ` --tags ${tagsList}`;
+    }
+    
+    if toolOptions.operations is string[] {
+        string operationsList = string:'join(",", ...toolOptions.operations ?: []);
+        command += string ` --operations ${operationsList}`;
+    }
+    
+    command += string ` --client-methods ${toolOptions.clientMethod}`;
+    
     return executeCommand(command, getDirectoryPath(outputPath));
 }
-
