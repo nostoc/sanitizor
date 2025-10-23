@@ -1,14 +1,14 @@
 # Examples
 
-The `supabase` connector provides practical examples illustrating usage in various scenarios. Explore these [examples](https://github.com/ballerina-platform/module-ballerinax-supabase/tree/main/examples), covering use cases like security monitoring setup, database migration workflow, and database upgrade workflow.
+The `supabase` connector provides practical examples illustrating usage in various scenarios. Explore these [examples](https://github.com/ballerina-platform/module-ballerinax-supabase/tree/main/examples), covering use cases like feature branch workflow, postgres maintenance workflow, and supabase security monitoring.
 
-1. [Security monitoring setup](https://github.com/ballerina-platform/module-ballerinax-supabase/tree/main/examples/security-monitoring-setup) - Configure and implement security monitoring for Supabase database operations and access patterns.
+1. [Feature branch workflow](https://github.com/ballerina-platform/module-ballerinax-supabase/tree/main/examples/feature-branch-workflow) - Implement automated workflows for managing feature branches in Supabase projects.
 
-2. [Database migration workflow](https://github.com/ballerina-platform/module-ballerinax-supabase/tree/main/examples/database-migration-workflow) - Automate database schema migrations and data transfers between Supabase environments.
+2. [Postgres maintenance workflow](https://github.com/ballerina-platform/module-ballerinax-supabase/tree/main/examples/postgres-maintenance-workflow) - Automate PostgreSQL database maintenance tasks and operations in Supabase.
 
-3. [Database upgrade workflow](https://github.com/ballerina-platform/module-ballerinax-supabase/tree/main/examples/database-upgrade-workflow) - Manage database version upgrades and schema changes in Supabase projects.
+3. [Supabase security monitoring](https://github.com/ballerina-platform/module-ballerinax-supabase/tree/main/examples/supabase-security-monitoring) - Monitor and track security events and access patterns in Supabase applications.
 
-4. [Branch cleanup workflow](https://github.com/ballerina-platform/module-ballerinax-supabase/tree/main/examples/branch-cleanup-workflow) - Automatically clean up database branches and temporary resources in Supabase development environments.
+4. [Production monitoring setup](https://github.com/ballerina-platform/module-ballerinax-supabase/tree/main/examples/production-monitoring-setup) - Configure comprehensive monitoring and alerting for production Supabase environments.
 
 ## Prerequisites
 

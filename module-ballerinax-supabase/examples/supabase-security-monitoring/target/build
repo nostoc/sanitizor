@@ -1,0 +1,49 @@
+{
+  "last_build_time": 1761237650178,
+  "last_update_time": 1761237650178,
+  "distribution_version": "2201.13.0-20250927-204700-7b3ef131",
+  "last_modified_time": {
+    "supabase_security_monitoring": 1761237637187
+  },
+  "last_build_options": {
+    "compilationOptions": {
+      "observabilityIncluded": true,
+      "dumpBir": false,
+      "cloud": "",
+      "dumpGraph": false,
+      "dumpRawGraphs": false
+    }
+  },
+  "src_meta_info": [
+    {
+      "file": "/home/hansika/dev/connector_automation/module-ballerinax-supabase/examples/supabase-security-monitoring/main.bal",
+      "hash": "ef7d9c1e127b66be2af6fa9eaeaa7526ce3684ad7e375aac52bd9677e5809915",
+      "size": 2334,
+      "lastModifiedTime": 1761237637187
+    },
+    {
+      "file": "/home/hansika/dev/connector_automation/module-ballerinax-supabase/examples/supabase-security-monitoring/Ballerina.toml",
+      "hash": "422e2ba676bd0867b5fd419cccba30f744b55d919607af25dccc834c5fd64f06",
+      "size": 244,
+      "lastModifiedTime": 1761237558649
+    }
+  ],
+  "target_exec_meta_info": {
+    "file": "/home/hansika/dev/connector_automation/module-ballerinax-supabase/examples/supabase-security-monitoring/target/backup/bin/supabase_security_monitoring.jar",
+    "hash": "3e153d3e000463c4287395255d34970f2e6ebe438db1df082d5169a3abea4d74",
+    "size": 52568637,
+    "lastModifiedTime": 1761237651167
+  },
+  "settings_meta_info": {
+    "file": "/home/hansika/.ballerina/Settings.toml",
+    "hash": "c00b1faa65edc98c15e492e2c764f083cb7e6c184bec9cd249652d725d7521ea",
+    "size": 1211,
+    "lastModifiedTime": 1760937254276
+  },
+  "ballerina_toml_meta_info": {
+    "file": "/home/hansika/dev/connector_automation/module-ballerinax-supabase/examples/supabase-security-monitoring/Ballerina.toml",
+    "hash": "422e2ba676bd0867b5fd419cccba30f744b55d919607af25dccc834c5fd64f06",
+    "size": 244,
+    "lastModifiedTime": 1761237558649
+  }
+}

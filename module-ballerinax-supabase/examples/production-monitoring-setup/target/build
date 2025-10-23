@@ -1,0 +1,49 @@
+{
+  "last_build_time": 1761237464490,
+  "last_update_time": 1761237464490,
+  "distribution_version": "2201.13.0-20250927-204700-7b3ef131",
+  "last_modified_time": {
+    "production_monitoring_setup": 1761237451549
+  },
+  "last_build_options": {
+    "compilationOptions": {
+      "observabilityIncluded": true,
+      "dumpBir": false,
+      "cloud": "",
+      "dumpGraph": false,
+      "dumpRawGraphs": false
+    }
+  },
+  "src_meta_info": [
+    {
+      "file": "/home/hansika/dev/connector_automation/module-ballerinax-supabase/examples/production-monitoring-setup/main.bal",
+      "hash": "06fe7ca0e32444ac9dcbc4c0d6993e5e56cf866906f28f0804b5e816cb07b189",
+      "size": 1870,
+      "lastModifiedTime": 1761237451549
+    },
+    {
+      "file": "/home/hansika/dev/connector_automation/module-ballerinax-supabase/examples/production-monitoring-setup/Ballerina.toml",
+      "hash": "09e13beeef72ac553fb44ee82d7e65f7fc3d101fb0a8f0bbc9b4da641df9a9d4",
+      "size": 243,
+      "lastModifiedTime": 1761237372163
+    }
+  ],
+  "target_exec_meta_info": {
+    "file": "/home/hansika/dev/connector_automation/module-ballerinax-supabase/examples/production-monitoring-setup/target/backup/bin/production_monitoring_setup.jar",
+    "hash": "8d7ffc82581f8beef94dd1cdf941eeed7c64833a86f5329462b86b9354eb83a1",
+    "size": 52554888,
+    "lastModifiedTime": 1761237465598
+  },
+  "settings_meta_info": {
+    "file": "/home/hansika/.ballerina/Settings.toml",
+    "hash": "c00b1faa65edc98c15e492e2c764f083cb7e6c184bec9cd249652d725d7521ea",
+    "size": 1211,
+    "lastModifiedTime": 1760937254276
+  },
+  "ballerina_toml_meta_info": {
+    "file": "/home/hansika/dev/connector_automation/module-ballerinax-supabase/examples/production-monitoring-setup/Ballerina.toml",
+    "hash": "09e13beeef72ac553fb44ee82d7e65f7fc3d101fb0a8f0bbc9b4da641df9a9d4",
+    "size": 243,
+    "lastModifiedTime": 1761237372163
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "last_build_time": 1761237355149,
+  "last_update_time": 1761237355149,
+  "distribution_version": "2201.13.0-20250927-204700-7b3ef131",
+  "last_modified_time": {
+    "postgres_maintenance_workflow": 1761237342198
+  },
+  "last_build_options": {
+    "compilationOptions": {
+      "observabilityIncluded": true,
+      "dumpBir": false,
+      "cloud": "",
+      "dumpGraph": false,
+      "dumpRawGraphs": false
+    }
+  },
+  "src_meta_info": [
+    {
+      "file": "/home/hansika/dev/connector_automation/module-ballerinax-supabase/examples/postgres-maintenance-workflow/main.bal",
+      "hash": "6b7914237f69d6d3c8a2b29274c1e65577507b75c81123d62ef4cec3a8501864",
+      "size": 3329,
+      "lastModifiedTime": 1761237342198
+    },
+    {
+      "file": "/home/hansika/dev/connector_automation/module-ballerinax-supabase/examples/postgres-maintenance-workflow/Ballerina.toml",
+      "hash": "e6974b5b9c763c032779323e2cfd9fecf0175e3a95b5bb68f9b317d52d5eff82",
+      "size": 245,
+      "lastModifiedTime": 1761237250184
+    }
+  ],
+  "target_exec_meta_info": {
+    "file": "/home/hansika/dev/connector_automation/module-ballerinax-supabase/examples/postgres-maintenance-workflow/target/backup/bin/postgres_maintenance_workflow.jar",
+    "hash": "5ffcf0451bb2691d0a477f9311e0571efbc0a7fffea75057df69ac9b05eede8e",
+    "size": 52590908,
+    "lastModifiedTime": 1761237356079
+  },
+  "settings_meta_info": {
+    "file": "/home/hansika/.ballerina/Settings.toml",
+    "hash": "c00b1faa65edc98c15e492e2c764f083cb7e6c184bec9cd249652d725d7521ea",
+    "size": 1211,
+    "lastModifiedTime": 1760937254276
+  },
+  "ballerina_toml_meta_info": {
+    "file": "/home/hansika/dev/connector_automation/module-ballerinax-supabase/examples/postgres-maintenance-workflow/Ballerina.toml",
+    "hash": "e6974b5b9c763c032779323e2cfd9fecf0175e3a95b5bb68f9b317d52d5eff82",
+    "size": 245,
+    "lastModifiedTime": 1761237250184
+  }
+}

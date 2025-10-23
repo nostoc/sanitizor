@@ -1,0 +1,65 @@
+import ballerina/io;
+import ballerinax/supabase;
+
+configurable string supabaseUrl = ?;
+configurable string supabaseKey = ?;
+configurable string projectRef = ?;
+
+public function main() returns error? {
+    
+    supabase:ConnectionConfig config = {
+        auth: {
+            token: supabaseKey
+        }
+    };
+    supabase:Client supabaseClient = check new (config, serviceUrl = supabaseUrl);
+    
+    io:println("=== Security Advisor Recommendations ===");
+    
+    supabase:V1GetSecurityAdvisorsQueries securityQueries = {
+        lintType: "sql"
+    };
+    
+    supabase:V1ProjectAdvisorsResponse securityRecommendations = check supabaseClient->/v1/projects/[projectRef]/advisors/security(queries = securityQueries);
+    io:println("Security Advisor Response:");
+    io:println(securityRecommendations);
+    
+    io:println("\n=== Project Health Status ===");
+    
+    supabase:V1GetServicesHealthQueries healthQueries = {
+        services: ["auth", "db", "db_postgres_user", "pooler", "realtime", "rest", "storage", "pg_bouncer"],
+        timeoutMs: 30000
+    };
+    
+    supabase:V1ServiceHealthResponse[] healthStatus = check supabaseClient->/v1/projects/[projectRef]/health(queries = healthQueries);
+    io:println("Health Status for All Services:");
+    
+    foreach supabase:V1ServiceHealthResponse svc in healthStatus {
+        io:println(string `Service: ${svc.name}, Healthy: ${svc.healthy}, Status: ${svc.status}`);
+        if svc.'error != () {
+            io:println(string `  Error: ${svc.'error.toString()}`);
+        }
+        if svc.info != () {
+            io:println(string `  Info: ${svc.info.toString()}`);
+        }
+    }
+    
+    io:println("\n=== Security Analysis Summary ===");
+    
+    int unhealthyServices = 0;
+    foreach supabase:V1ServiceHealthResponse svc in healthStatus {
+        if !svc.healthy {
+            unhealthyServices += 1;
+            io:println(string `WARNING: Service ${svc.name} is unhealthy`);
+        }
+    }
+    
+    if unhealthyServices == 0 {
+        io:println("All services are healthy - baseline metrics established");
+    } else {
+        io:println(string `${unhealthyServices} services require attention`);
+    }
+    
+    io:println("Security monitoring setup completed");
+    io:println("Next steps: Configure network restrictions based on security recommendations");
+}

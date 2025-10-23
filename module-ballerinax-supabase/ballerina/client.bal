@@ -214,15 +214,6 @@ public isolated client class Client {
         return self.clientEp->get(resourcePath, headers);
     }
 
-    # Count the number of action runs
-    #
-    # + ref - Project ref
-    # + headers - Headers to be sent with the request 
-    resource isolated function head v1/projects/[string ref]/actions(map<string|string[]> headers = {}) returns error? {
-        string resourcePath = string `/v1/projects/${getEncodedUri(ref)}/actions`;
-        return self.clientEp->head(resourcePath, headers);
-    }
-
     # Get the status of an action run
     #
     # + ref - Project ref

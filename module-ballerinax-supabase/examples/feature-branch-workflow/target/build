@@ -1,0 +1,49 @@
+{
+  "last_build_time": 1761237540598,
+  "last_update_time": 1761237540598,
+  "distribution_version": "2201.13.0-20250927-204700-7b3ef131",
+  "last_modified_time": {
+    "feature_branch_workflow": 1761237528960
+  },
+  "last_build_options": {
+    "compilationOptions": {
+      "observabilityIncluded": true,
+      "dumpBir": false,
+      "cloud": "",
+      "dumpGraph": false,
+      "dumpRawGraphs": false
+    }
+  },
+  "src_meta_info": [
+    {
+      "file": "/home/hansika/dev/connector_automation/module-ballerinax-supabase/examples/feature-branch-workflow/main.bal",
+      "hash": "6ed9c940cf6e46acf9f5f5e05af5639d8bfe73969811d512ec5bc3c63fc4cd48",
+      "size": 1396,
+      "lastModifiedTime": 1761237528960
+    },
+    {
+      "file": "/home/hansika/dev/connector_automation/module-ballerinax-supabase/examples/feature-branch-workflow/Ballerina.toml",
+      "hash": "5465b0b7d1dacc73800e238ce92e04ae8cd5de63fce6f42ae62f2c59a8f7cb47",
+      "size": 239,
+      "lastModifiedTime": 1761237480969
+    }
+  ],
+  "target_exec_meta_info": {
+    "file": "/home/hansika/dev/connector_automation/module-ballerinax-supabase/examples/feature-branch-workflow/target/backup/bin/feature_branch_workflow.jar",
+    "hash": "449cde50c67c5baabea5f7a129239e8cf293b0d5b994f5915288f029a3738871",
+    "size": 45134895,
+    "lastModifiedTime": 1761237541370
+  },
+  "settings_meta_info": {
+    "file": "/home/hansika/.ballerina/Settings.toml",
+    "hash": "c00b1faa65edc98c15e492e2c764f083cb7e6c184bec9cd249652d725d7521ea",
+    "size": 1211,
+    "lastModifiedTime": 1760937254276
+  },
+  "ballerina_toml_meta_info": {
+    "file": "/home/hansika/dev/connector_automation/module-ballerinax-supabase/examples/feature-branch-workflow/Ballerina.toml",
+    "hash": "5465b0b7d1dacc73800e238ce92e04ae8cd5de63fce6f42ae62f2c59a8f7cb47",
+    "size": 239,
+    "lastModifiedTime": 1761237480969
+  }
+}

@@ -986,58 +986,6 @@
         "security" : [ {
           "bearer" : [ ]
         } ]
-      },
-      "head" : {
-        "tags" : [ "Environments" ],
-        "summary" : "Count the number of action runs",
-        "description" : "Returns the total number of action runs of the specified project.",
-        "operationId" : "v1-count-action-runs",
-        "parameters" : [ {
-          "name" : "ref",
-          "in" : "path",
-          "description" : "Project ref",
-          "required" : true,
-          "style" : "simple",
-          "explode" : false,
-          "schema" : {
-            "maxLength" : 20,
-            "minLength" : 20,
-            "pattern" : "^[a-z]+$",
-            "type" : "string"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "",
-            "headers" : {
-              "X-Total-Count" : {
-                "description" : "total count value",
-                "style" : "simple",
-                "explode" : false,
-                "schema" : {
-                  "minimum" : 0,
-                  "type" : "integer",
-                  "format" : "int64"
-                }
-              }
-            }
-          },
-          "401" : {
-            "description" : "Unauthorized"
-          },
-          "403" : {
-            "description" : "Forbidden action"
-          },
-          "429" : {
-            "description" : "Rate limit exceeded"
-          },
-          "500" : {
-            "description" : "Failed to count action runs"
-          }
-        },
-        "security" : [ {
-          "bearer" : [ ]
-        } ]
       }
     },
     "/v1/projects/{ref}/actions/{run_id}" : {
@@ -8931,10 +8879,6 @@
           },
           "connection_string" : {
             "type" : "string"
-          },
-          "connectionString" : {
-            "type" : "string",
-            "description" : "Use connection_string instead"
           },
           "default_pool_size" : {
             "type" : "integer",
