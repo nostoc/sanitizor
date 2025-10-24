@@ -39,7 +39,7 @@ public function main(string... args) returns error? {
     // 3. Determine the number of examples
 
     int numExamples = numberOfExamples(details.apiCount);
-    io:println("Number of Examples to generate: ", numberOfExamples.toString());
+    // io:println("Number of Examples to generate: ", numberOfExamples.toString());
 
     // array to keep track of functions used in generated examples. 
     string[] usedFunctionaNames = [];

@@ -235,7 +235,7 @@ public function applyFix(string projectPath, string filePath, string fixedCode, 
 }
 
 // Main function to fix all errors in a project
-public function fixAllErrors(string projectPath, boolean quietMode = false, boolean autoYes = false) returns FixResult|error {
+public function fixAllErrors(string projectPath, boolean quietMode = true, boolean autoYes = false) returns FixResult|error {
     if !quietMode {
         log:printInfo("Starting error fixing process", projectPath = projectPath);
     }
