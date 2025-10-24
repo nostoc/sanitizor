@@ -16,8 +16,8 @@ ${useCase}
 - **Your ONLY source for function and type names is the "Relevant Code Definitions" section.** Every function call in your code must exactly match a signature from this section.
 - The code must be ready to compile and run.
 - Include necessary imports (e.g., ${backTick}ballerina/io${backTick}, ${backTick}ballerinax/${details.connectorName}${backTick}). 
-- Initialize the client using configurable variables for credentials.
-- When using the types of the ${details.connectorName}, import them using ${backTick}${details.connectorName}:relevantTypeName${backTick}. DOn't defin the types again in the example code.
+- **Initialize the client using the exact init function signature provided in the "Client Initialization" section.** Use configurable variables for credentials and follow the ConnectionConfig structure exactly.
+- When using the types of the ${details.connectorName}, import them using ${backTick}${details.connectorName}:relevantTypeName${backTick}. Don't define the types again in the example code.
 - Implement the use case logic inside a ${backTick}public function main() returns error?${backTick}.
 - Print the results of each step to the console using ${backTick}io:println()${backTick}.
 - Do NOT include any explanations, markdown, or code fences. Only return raw Ballerina code.

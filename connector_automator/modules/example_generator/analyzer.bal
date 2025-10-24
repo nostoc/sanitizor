@@ -131,9 +131,9 @@ public function numberOfExamples(int apiCount) returns int {
     } else if apiCount <= 30 {
         return 2;
     } else if apiCount <= 60 {
-        return 2;
+        return 3;
     } else {
-        return 2;
+        return 4;
     }
 }
 
@@ -243,10 +243,24 @@ public function extractTargetedContext(ConnectorDetails details, string[] functi
     // io:println("Original types.bal size: ", typesContent.length(), " chars");
     // io:println("Function names to match: ", functionNames.toString());
 
-    string context = "// FUNCTION SIGNATURES\n\n";
+    string context = "// CLIENT INITIALIZATION\n\n";
     string[] allDependentTypes = [];
 
+    // always extract the init function and ConnectionConfig
+
+    string? initSignature = findInitFunctionSignature(clientContent);
+    if initSignature is string {
+        context += initSignature + "\n\n";
+
+        // extract ConnectionConfig and related types
+        string[] initTypes = findTypesInSignatures(initSignature);
+        allDependentTypes.push(...initTypes);
+    }
+
+    context += "\n//FUNCTION SIGNATURES\n\n";
+
     // Extract only function signatures (not implementations) by matching the LLM-provided names
+
     int matchedFunctions = 0;
     foreach string funcName in functionNames {
         string? matchedSignature = findMatchingFunctionSignature(clientContent, funcName);
@@ -286,6 +300,31 @@ public function extractTargetedContext(ConnectorDetails details, string[] functi
 
     return context;
 }
+
+function findInitFunctionSignature(string clientContent) returns string? {
+    regexp:RegExp initPattern = re `public\sisolated\sfunction\sinit\s*\([^{]*\)\sreturns\s[^{]+`;
+    regexp:Span[] matches = initPattern.findAll(clientContent);
+
+    if matches.length() > 0 {
+        regexp:Span span = matches[0];
+        string signature = clientContent.substring(span.startIndex, span.endIndex).trim();
+
+        string cleanSignature = regexp:replaceAll(re `\s+`, signature, " ");
+
+        string docComment = extractFunctionDocumentation(clientContent, span.startIndex);
+
+        if docComment != "" {
+            return docComment + "\n" + cleanSignature + ";";
+        } else {
+            return cleanSignature + ";";
+        }
+    }
+
+    return();
+
+}
+
+
 
 function findNestedTypes(string[] typesToSearch, string typesContent, string[] foundTypes) {
     string[] newTypesFound = [];
