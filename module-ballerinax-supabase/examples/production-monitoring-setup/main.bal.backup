@@ -1,0 +1,50 @@
+import ballerina/io;
+import ballerinax/supabase;
+
+configurable string supabaseUrl = ?;
+configurable string supabaseKey = ?;
+configurable string projectRef = ?;
+
+public function main() returns error? {
+    supabase:ConnectionConfig config = {
+        serviceUrl: supabaseUrl,
+        auth: {
+            token: supabaseKey
+        }
+    };
+    
+    supabase:Client supabaseClient = check new (config, serviceUrl = su);
+
+    io:println("=== Comprehensive Supabase Project Monitoring ===\n");
+
+    io:println("1. Retrieving health status of all services...");
+    supabase:V1GetServicesHealthQueries healthQueries = {
+        services: ["auth", "db", "db_postgres_user", "pooler", "realtime", "rest", "storage", "pg_bouncer"]
+    };
+    
+    supabase:V1ServiceHealthResponse[] healthResponses = check supabaseClient->/v1/projects/[projectRef]/health(queries = healthQueries);
+    
+    io:println("Service Health Status:");
+    foreach supabase:V1ServiceHealthResponse healthResponse in healthResponses {
+        string healthStatus = healthResponse.healthy ? "HEALTHY" : "UNHEALTHY";
+        io:println(string `  - ${healthResponse.name}: ${healthStatus} (${healthResponse.status})`);
+        string? errorMsg = healthResponse.'error;
+        if errorMsg is string {
+            io:println(string `    Error: ${errorMsg}`);
+        }
+    }
+    io:println("");
+
+    io:println("2. Checking performance advisors for optimization opportunities...");
+    supabase:V1ProjectAdvisorsResponse advisorsResponse = check supabaseClient->/v1/projects/[projectRef]/advisors/performance();
+    
+    io:println("Performance Advisors Results:");
+    io:println(string `  Total advisors found: ${advisorsResponse.toString()}`);
+    io:println("");
+
+    io:println("=== Monitoring Setup Complete ===");
+    io:println("Baseline established for:");
+    io:println("- Service health status");
+    io:println("- Performance optimization recommendations");
+    io:println("Ready to implement alerting and scaling policies based on collected data.");
+}

@@ -1,0 +1,54 @@
+import ballerina/io;
+import ballerinax/supabase;
+
+configurable string supabaseUrl = ?;
+configurable string supabaseKey = ?;
+configurable string projectRef = ?;
+
+public function main() returns error? {
+    supabase:ConnectionConfig config = {
+        auth: {
+            token: supabaseKey
+        }
+    };
+    
+    supabase:Client supabaseClient = check new (config, supabaseUrl);
+
+    io:println("Step 1: Retrieving current PostgreSQL configuration...");
+    supabase:PostgresConfigResponse currentConfig = check supabaseClient->/v1/projects/[projectRef]/config/database/postgres;
+    io:println("Current Configuration Retrieved:");
+    io:println("Max Connections: ", currentConfig.maxConnections);
+    io:println("Max Parallel Workers: ", currentConfig.maxParallelWorkers);
+    io:println("Shared Buffers: ", currentConfig.sharedBuffers);
+    io:println("Session Replication Role: ", currentConfig.sessionReplicationRole);
+
+    io:println("\nStep 2: Updating PostgreSQL configuration for optimization...");
+    supabase:UpdatePostgresConfigBody updateConfig = {
+        maxParallelWorkers: 8,
+        sharedBuffers: "256MB",
+        sessionReplicationRole: "origin"
+    };
+
+    supabase:PostgresConfigResponse updatedConfig = check supabaseClient->/v1/projects/[projectRef]/config/database/postgres.put(updateConfig);
+    io:println("Configuration Updated Successfully:");
+    io:println("Max Parallel Workers: ", updatedConfig.maxParallelWorkers);
+    io:println("Shared Buffers: ", updatedConfig.sharedBuffers);
+    io:println("Session Replication Role: ", updatedConfig.sessionReplicationRole);
+
+    io:println("\nStep 3: Creating new branch for testing configuration changes...");
+    supabase:CreateBranchBody branchConfig = {
+        branchName: "config-optimization-test",
+        desiredInstanceSize: "medium",
+        postgresEngine: "15",
+        releaseChannel: "ga"
+    };
+
+    supabase:BranchResponse newBranch = check supabaseClient->/v1/projects/[projectRef]/branches.post(branchConfig);
+    io:println("New Branch Created Successfully:");
+    io:println("Branch Name: ", newBranch.projectRef);
+    io:println("Created At: ", newBranch.createdAt);
+    io:println("Is Default: ", newBranch.isDefault);
+    io:println("Updated At: ", newBranch.updatedAt);
+
+    io:println("\nDatabase maintenance automation completed successfully!");
+}
