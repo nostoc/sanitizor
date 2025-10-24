@@ -1,6 +1,6 @@
 import ballerina/io;
-import ballerina/log;
 import ballerina/lang.runtime;
+import ballerina/log;
 
 public function main(string... args) returns error? {
     if args.length() < 1 {
@@ -34,7 +34,6 @@ public function main(string... args) returns error? {
         return packResult;
     }
     io:println("✓ Connector successfully packed and pushed to local repository");
-
 
     // 3. Determine the number of examples
 

@@ -217,10 +217,10 @@ public function isCommandSuccessfull(CommandResult result) returns boolean {
 public function executeBalClientGenerate(string inputPath, string outputPath, OpenAPIToolOptions? customOptions = ()) returns CommandResult {
     // Use custom options if provided, otherwise use configurable options
     OpenAPIToolOptions toolOptions = customOptions ?: options;
-    
+
     // Build the base command
     string command = string `bal openapi -i ${inputPath} --mode client -o ${outputPath}`;
-    
+
     // Add optional flags based on configuration
     if toolOptions.license is string {
         // Check if license path is relative, make it relative to output directory
@@ -231,18 +231,18 @@ public function executeBalClientGenerate(string inputPath, string outputPath, Op
         }
         command += string ` --license ${licensePath}`;
     }
-    
+
     if toolOptions.tags is string[] {
         string tagsList = string:'join(",", ...toolOptions.tags ?: []);
         command += string ` --tags ${tagsList}`;
     }
-    
+
     if toolOptions.operations is string[] {
         string operationsList = string:'join(",", ...toolOptions.operations ?: []);
         command += string ` --operations ${operationsList}`;
     }
-    
+
     command += string ` --client-methods ${toolOptions.clientMethod}`;
-    
+
     return executeCommand(command, getDirectoryPath(outputPath));
 }

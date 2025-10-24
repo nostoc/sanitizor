@@ -517,7 +517,7 @@ function extractCompactTypeDefinition(string typesContent, string typeName) retu
 
 function packAndPushConnector(string connectorPath) returns error? {
     string ballerinaDir = connectorPath + "/ballerina";
-    
+
     // Check if ballerina directory exists
     boolean|error ballerinaExists = file:test(ballerinaDir, file:EXISTS);
     if ballerinaExists is error || !ballerinaExists {

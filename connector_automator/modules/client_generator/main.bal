@@ -14,10 +14,10 @@ public function main(string... args) returns error? {
     ClientGeneratorConfig config = parseCommandLineArgs(args.slice(2));
 
     if !config.quietMode {
-        log:printInfo("Starting Ballerina client generation", 
-            inputSpec = inputSpecPath, 
-            outputDir = outputDir,
-            config = config
+        log:printInfo("Starting Ballerina client generation",
+                inputSpec = inputSpecPath,
+                outputDir = outputDir,
+                config = config
         );
     }
 
@@ -51,12 +51,12 @@ function parseCommandLineArgs(string[] args) returns ClientGeneratorConfig {
             }
             _ => {
                 // Handle key=value pairs
-               if arg.includes("=") {
+                if arg.includes("=") {
                     string[] parts = regex:split(arg, "=");
                     if parts.length() == 2 {
                         string key = parts[0].trim();
                         string value = parts[1].trim();
-                        
+
                         match key {
                             "license" => {
                                 toolOptions.license = value;
@@ -89,7 +89,6 @@ function parseCommandLineArgs(string[] args) returns ClientGeneratorConfig {
 
     return config;
 }
-
 
 # Generate Ballerina client from OpenAPI specification
 #
@@ -129,16 +128,16 @@ public function generateBallerinaClient(string specPath, string outputDir, Clien
     }
 
     io:println("Generating Ballerina client code...");
-    
+
     CommandResult generateResult = executeBalClientGenerate(specPath, outputDir, config.toolOptions);
-    
+
     if !isCommandSuccessfull(generateResult) {
         if !config.quietMode {
             log:printError("Client generation failed", result = generateResult);
         }
         io:println("Client generation failed:");
         io:println(generateResult.stderr);
-        
+
         if generateResult.compilationErrors.length() > 0 {
             io:println("\nCompilation errors found:");
             foreach CompilationError err in generateResult.compilationErrors {
@@ -152,10 +151,9 @@ public function generateBallerinaClient(string specPath, string outputDir, Clien
             log:printInfo("Ballerina client generated successfully", outputPath = outputDir);
         }
         io:println("Ballerina client generated successfully");
-        
-              
+
         io:println(string `Generated files are available in: ${outputDir}`);
-        
+
         // Show next steps
         io:println("\nNext Steps:");
         io:println("• Review the generated client code");
@@ -166,7 +164,6 @@ public function generateBallerinaClient(string specPath, string outputDir, Clien
 
     return ();
 }
-
 
 // Helper function to get user confirmation
 function getUserConfirmation(string message, boolean autoYes = false) returns boolean {
@@ -184,6 +181,7 @@ function getUserConfirmation(string message, boolean autoYes = false) returns bo
     string trimmedInput = userInput.trim().toLowerAscii();
     return trimmedInput == "y" || trimmedInput == "Y" || trimmedInput == "yes";
 }
+
 function printUsage() {
     io:println("Ballerina Client Generator");
     io:println("");

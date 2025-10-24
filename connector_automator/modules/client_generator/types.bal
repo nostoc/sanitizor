@@ -49,6 +49,7 @@ public type OpenAPIToolOptions record {|
 
 # Default OpenAPI tool options - can be overridden via configuration
 configurable OpenAPIToolOptions options = {};
+
 # Configuration for client generation
 #
 # + autoYes - field description  

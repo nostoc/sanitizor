@@ -228,7 +228,7 @@ function handleClientGeneration() returns error? {
     // Ask for optional configurations
     boolean autoYes = getUserConfirmation("Auto-confirm all prompts during execution?");
     boolean quietMode = getUserConfirmation("Enable quiet mode (reduced logging)?");
-    
+
     // Ask for client method type
     io:println("\nClient Method Type:");
     io:println("1. Resource methods (default, recommended)");
@@ -241,7 +241,7 @@ function handleClientGeneration() returns error? {
 
     // Ask for optional configurations
     boolean wantAdvanced = getUserConfirmation("Configure advanced options (license, tags, operations)?");
-    
+
     string[] args = [specPath.trim(), outputDir.trim()];
     if autoYes {
         args.push("yes");

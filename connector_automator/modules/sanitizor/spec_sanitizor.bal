@@ -1452,6 +1452,7 @@ function collectMissingOperationIdRequests(map<json> paths, OperationIdRequest[]
         }
     }
 }
+
 // Helper function to generate unique request IDs for operationId requests
 function generateOperationRequestId(string path, string method) returns string {
     string cleanPath = regex:replaceAll(path, "[^a-zA-Z0-9]", "_");
