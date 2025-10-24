@@ -9,28 +9,26 @@
 
 ## Overview
 
-[Supabase](https://supabase.com/) is an open-source Firebase alternative that provides a complete backend-as-a-service platform with real-time databases, authentication, instant APIs, edge functions, and storage solutions for modern applications.
+[Supabase](https://supabase.com/) is an open-source Firebase alternative that provides a complete backend-as-a-service platform with PostgreSQL database, authentication, real-time subscriptions, edge functions, and storage capabilities for building modern applications.
 
 The `ballerinax/supabase` package offers APIs to connect and interact with [Supabase API](https://supabase.com/docs/reference/api) endpoints, specifically based on a recent version of the API.
 ## Setup guide
 
-To use the Supabase connector, you must have access to the Supabase API through a [Supabase project](`https://supabase.com/docs`) and obtain API keys. If you do not have a Supabase account, you can sign up for one [here](`https://supabase.com/`).
+To use the Supabase connector, you must have access to the Supabase API through a [Supabase project](https://supabase.com/docs) and obtain an API key. If you do not have a Supabase account, you can sign up for one [here](https://supabase.com).
 
 ### Step 1: Create a Supabase Account
 
-1. Navigate to the [Supabase website](`https://supabase.com/`) and sign up for an account or log in if you already have one.
+1. Navigate to the [Supabase website](https://supabase.com) and sign up for an account or log in if you already have one.
 
 2. Create a new project or select an existing project. API access is available on all Supabase plans, including the free tier.
 
-### Step 2: Generate API Keys
+### Step 2: Generate an API Key
 
 1. Log in to your Supabase account and navigate to your project dashboard.
 
-2. In the left sidebar, go to Settings and then select API.
+2. In the left sidebar, click on Settings, then select API from the settings menu.
 
-3. In the API settings page, you will find your project's API keys including the `anon` public key and `service_role` secret key.
-
-4. Copy the appropriate API key based on your use case - use the `anon` key for client-side operations or the `service_role` key for server-side operations with full access.
+3. In the API settings page, you will find your project API keys including the `anon public` key and `service_role` key under the Project API keys section.
 
 > **Tip:** You must copy and store this key somewhere safe. It won't be visible again in your account settings for security reasons.
 ## Quickstart
@@ -72,8 +70,8 @@ Now, utilize the available connector operations.
 ```ballerina
 public function main() returns error? {
     supabase:V1CreateProjectBody newProject = {
-        organizationId: "my-organization",
         name: "My New Project",
+        organizationId: "your-org-id",
         dbPass: "secure_password_123"
     };
 
@@ -88,12 +86,12 @@ bal run
 ```
 ## Examples
 
-The `supabase` connector provides practical examples illustrating usage in various scenarios. Explore these [examples](https://github.com/ballerina-platform/module-ballerinax-supabase/tree/main/examples), covering the following use cases:
+The `Supabase` connector provides practical examples illustrating usage in various scenarios. Explore these [examples](https://github.com/ballerina-platform/module-ballerinax-supabase/tree/main/examples), covering the following use cases:
 
-1. [Feature branch workflow](https://github.com/ballerina-platform/module-ballerinax-supabase/tree/main/examples/feature-branch-workflow) - Demonstrates how to manage feature branch deployments and database migrations in Supabase.
-2. [Postgres maintenance workflow](https://github.com/ballerina-platform/module-ballerinax-supabase/tree/main/examples/postgres-maintenance-workflow) - Illustrates automated PostgreSQL database maintenance tasks and operations.
-3. [Supabase security monitoring](https://github.com/ballerina-platform/module-ballerinax-supabase/tree/main/examples/supabase-security-monitoring) - Shows how to implement security monitoring and alerting for Supabase applications.
-4. [Production monitoring setup](https://github.com/ballerina-platform/module-ballerinax-supabase/tree/main/examples/production-monitoring-setup) - Demonstrates setting up comprehensive monitoring for production Supabase environments.
+1. [Database backup recovery](https://github.com/ballerina-platform/module-ballerinax-supabase/tree/main/examples/database-backup-recovery) - Demonstrates how to implement database backup and recovery operations using Ballerina connector for Supabase.
+2. [Database migration workflow](https://github.com/ballerina-platform/module-ballerinax-supabase/tree/main/examples/database-migration-workflow) - Illustrates automated database migration processes and schema updates.
+3. [Project health optimization](https://github.com/ballerina-platform/module-ballerinax-supabase/tree/main/examples/project-health-optimization) - Shows how to monitor and optimize project performance metrics.
+4. [Security audit workflow](https://github.com/ballerina-platform/module-ballerinax-supabase/tree/main/examples/security-audit-workflow) - Demonstrates implementing security auditing and compliance checks.
 ## Build from the source
 
 ### Setting up the prerequisites
