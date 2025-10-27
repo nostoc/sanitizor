@@ -1,8 +1,8 @@
+import ballerina/file;
 import ballerina/io;
 import ballerina/log;
 import ballerina/regex;
 import ballerina/yaml;
-import ballerina/file;
 
 public function main(string... args) returns error? {
     io:println("Starting OpenAPI Sanitizor...");
@@ -102,18 +102,17 @@ public function main(string... args) returns error? {
         }
     }
 
-
     // Step 2: Execute OpenAPI align on flattened spec
     io:println("\n=== Step 2: Aligning OpenAPI Specification ===");
     string alignedSpecPath = outputDir + "/docs/spec";
-    
+
     // Determine flattened spec path based on input format
     string flattenedSpec;
     if isYamlFormat(inputSpecPath) {
         // If input was YAML, flattened spec will also be YAML
         string yamlFlattenedSpec = flattenedSpecPath + "/flattened_openapi.yaml";
         string ymlFlattenedSpec = flattenedSpecPath + "/flattened_openapi.yml";
-        
+
         // Check which extension the flattened spec actually has
         boolean|file:Error yamlExists = file:test(yamlFlattenedSpec, file:EXISTS);
         if yamlExists is boolean && yamlExists {
@@ -131,7 +130,7 @@ public function main(string... args) returns error? {
         // If input was JSON, flattened spec will be JSON
         flattenedSpec = flattenedSpecPath + "/flattened_openapi.json";
     }
-    
+
     CommandResult alignResult = executeBalAlign(flattenedSpec, alignedSpecPath);
     if !isCommandSuccessfull(alignResult) {
         if !quietMode {
@@ -164,7 +163,7 @@ public function main(string... args) returns error? {
             }
             io:println("YAML to JSON conversion failed:");
             io:println(conversionResult.message());
-            
+
             if !getUserConfirmation("Continue despite conversion failure?", autoYes) {
                 return error("YAML to JSON conversion failed: " + conversionResult.message());
             }
@@ -382,7 +381,7 @@ function convertAlignedYamlToJson(string alignedSpecPath, boolean quietMode = fa
     // The aligned spec will be in YAML format if input was YAML
     string yamlAlignedSpec = alignedSpecPath + "/aligned_ballerina_openapi.yaml";
     string jsonAlignedSpec = alignedSpecPath + "/aligned_ballerina_openapi.json";
-    
+
     // Check if YAML aligned spec exists
     boolean|file:Error yamlExists = file:test(yamlAlignedSpec, file:EXISTS);
     if yamlExists is file:Error || !yamlExists {
@@ -393,39 +392,39 @@ function convertAlignedYamlToJson(string alignedSpecPath, boolean quietMode = fa
             if !quietMode {
                 log:printWarn("No YAML aligned spec found to convert", yamlPath = yamlAlignedSpec, ymlPath = ymlAlignedSpec);
             }
-            return; // No YAML file to convert, this is fine
+            return; // No YAML file to convert
         }
         yamlAlignedSpec = ymlAlignedSpec;
     }
-    
+
     if !quietMode {
         log:printInfo("Converting YAML aligned spec to JSON", yamlPath = yamlAlignedSpec, jsonPath = jsonAlignedSpec);
     }
-    
+
     // Read YAML content
     string|io:Error yamlContent = io:fileReadString(yamlAlignedSpec);
     if yamlContent is io:Error {
         return error("Failed to read YAML aligned spec file: " + yamlContent.message());
     }
-    
+
     // Parse YAML to JSON
     json|yaml:Error jsonData = yaml:readString(yamlContent);
     if jsonData is yaml:Error {
         return error("Failed to parse YAML content: " + jsonData.message());
     }
-    
+
     // Write JSON content
     io:Error? writeResult = io:fileWriteJson(jsonAlignedSpec, jsonData);
     if writeResult is io:Error {
         return error("Failed to write JSON aligned spec file: " + writeResult.message());
     }
-    
+
     if !quietMode {
-        log:printInfo("Successfully converted YAML aligned spec to JSON", 
-                     yamlPath = yamlAlignedSpec, 
-                     jsonPath = jsonAlignedSpec);
+        log:printInfo("Successfully converted YAML aligned spec to JSON",
+                yamlPath = yamlAlignedSpec,
+                jsonPath = jsonAlignedSpec);
     }
-    
+
     return;
 }
 

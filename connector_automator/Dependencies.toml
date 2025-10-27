@@ -414,6 +414,16 @@ dependencies = [
 	{org = "ballerina", name = "lang.regexp"},
 	{org = "ballerina", name = "log"}
 ]
+modules = [
+	{org = "ballerina", packageName = "yaml", moduleName = "yaml"},
+	{org = "ballerina", packageName = "yaml", moduleName = "yaml.common"},
+	{org = "ballerina", packageName = "yaml", moduleName = "yaml.composer"},
+	{org = "ballerina", packageName = "yaml", moduleName = "yaml.emitter"},
+	{org = "ballerina", packageName = "yaml", moduleName = "yaml.lexer"},
+	{org = "ballerina", packageName = "yaml", moduleName = "yaml.parser"},
+	{org = "ballerina", packageName = "yaml", moduleName = "yaml.schema"},
+	{org = "ballerina", packageName = "yaml", moduleName = "yaml.serializer"}
+]
 
 [[package]]
 org = "ballerinai"
@@ -459,6 +469,7 @@ dependencies = [
 	{org = "ballerina", name = "regex"},
 	{org = "ballerina", name = "test"},
 	{org = "ballerina", name = "time"},
+	{org = "ballerina", name = "yaml"},
 	{org = "ballerinai", name = "observe"},
 	{org = "ballerinax", name = "ai.anthropic"}
 ]
