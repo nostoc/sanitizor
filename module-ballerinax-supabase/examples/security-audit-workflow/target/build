@@ -1,0 +1,49 @@
+{
+  "last_build_time": 1761291419272,
+  "last_update_time": 1761291419272,
+  "distribution_version": "2201.13.0-20250927-204700-7b3ef131",
+  "last_modified_time": {
+    "security_audit_workflow": 1761291398805
+  },
+  "last_build_options": {
+    "compilationOptions": {
+      "observabilityIncluded": true,
+      "dumpBir": false,
+      "cloud": "",
+      "dumpGraph": false,
+      "dumpRawGraphs": false
+    }
+  },
+  "src_meta_info": [
+    {
+      "file": "/home/hansika/dev/connector_automation/module-ballerinax-supabase/examples/security-audit-workflow/main.bal",
+      "hash": "9415ca0dfdec556fdda8e4accd9adde5b2f8707b2c0f9930fc9b1518eac8dbfc",
+      "size": 1247,
+      "lastModifiedTime": 1761291398804
+    },
+    {
+      "file": "/home/hansika/dev/connector_automation/module-ballerinax-supabase/examples/security-audit-workflow/Ballerina.toml",
+      "hash": "3ba66d4cf4abd556cfc8f23c9ae224adfacedc98eb59d7e55fc2f2b3a36c47de",
+      "size": 239,
+      "lastModifiedTime": 1761291398805
+    }
+  ],
+  "target_exec_meta_info": {
+    "file": "/home/hansika/dev/connector_automation/module-ballerinax-supabase/examples/security-audit-workflow/target/backup/bin/security_audit_workflow.jar",
+    "hash": "94dc676c0f4ac57632fc209afe5b35f52dcd2a28c016c501d36fd9e9cdb266a6",
+    "size": 52539519,
+    "lastModifiedTime": 1761291420268
+  },
+  "settings_meta_info": {
+    "file": "/home/hansika/.ballerina/Settings.toml",
+    "hash": "c00b1faa65edc98c15e492e2c764f083cb7e6c184bec9cd249652d725d7521ea",
+    "size": 1211,
+    "lastModifiedTime": 1760937254276
+  },
+  "ballerina_toml_meta_info": {
+    "file": "/home/hansika/dev/connector_automation/module-ballerinax-supabase/examples/security-audit-workflow/Ballerina.toml",
+    "hash": "3ba66d4cf4abd556cfc8f23c9ae224adfacedc98eb59d7e55fc2f2b3a36c47de",
+    "size": 239,
+    "lastModifiedTime": 1761291398805
+  }
+}

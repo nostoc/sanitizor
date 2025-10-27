@@ -1,0 +1,225 @@
+// FUNCTION SIGNATURES
+
+resource isolated function get spaces/search(map<string|string[]> headers = {}, *SearchSpacesQueries queries) returns Get2SpacesSearchResponse|error;
+
+resource isolated function get spaces/[string id]/tweets(map<string|string[]> headers = {}, *SpaceTweetsQueries queries) returns Get2SpacesIdTweetsResponse|error;
+
+
+// TYPE DEFINITIONS
+
+public type SearchSpacesQueries record {
+    # A comma separated list of Space fields to display
+    @http:Query {name: "space.fields"}
+    ("created_at"|"creator_id"|"ended_at"|"host_ids"|"id"|"invited_user_ids"|"is_ticketed"|"lang"|"participant_count"|"scheduled_start"|"speaker_ids"|"started_at"|"state"|"subscriber_count"|"title"|"topic_ids"|"updated_at")[] spaceFields?;
+    # A comma separated list of User fields to display
+    @http:Query {name: "user.fields"}
+    ("connection_status"|"created_at"|"description"|"entities"|"id"|"location"|"most_recent_tweet_id"|"name"|"pinned_tweet_id"|"profile_image_url"|"protected"|"public_metrics"|"receives_your_dm"|"subscription_type"|"url"|"username"|"verified"|"verified_type"|"withheld")[] userFields?;
+    # The search query
+    @constraint:String {maxLength: 2048, minLength: 1}
+    string query;
+    # The number of results to return
+    @http:Query {name: "max_results"}
+    // ... (additional fields omitted for brevity)
+    @constraint:Array {minLength: 1}
+
+public type Get2SpacesSearchResponseMeta record {
+    @jsondata:Name {value: "result_count"}
+    ResultCount resultCount?;
+}
+
+public type SpaceTweetsQueries record {
+    # A comma separated list of Poll fields to display
+    @http:Query {name: "poll.fields"}
+    ("duration_minutes"|"end_datetime"|"id"|"options"|"voting_status")[] pollFields?;
+    # A comma separated list of User fields to display
+    @http:Query {name: "user.fields"}
+    ("connection_status"|"created_at"|"description"|"entities"|"id"|"location"|"most_recent_tweet_id"|"name"|"pinned_tweet_id"|"profile_image_url"|"protected"|"public_metrics"|"receives_your_dm"|"subscription_type"|"url"|"username"|"verified"|"verified_type"|"withheld")[] userFields?;
+    # A comma separated list of Tweet fields to display
+    @http:Query {name: "tweet.fields"}
+    ("attachments"|"author_id"|"card_uri"|"context_annotations"|"conversation_id"|"created_at"|"edit_controls"|"edit_history_tweet_ids"|"entities"|"geo"|"id"|"in_reply_to_user_id"|"lang"|"non_public_metrics"|"note_tweet"|"organic_metrics"|"possibly_sensitive"|"promoted_metrics"|"public_metrics"|"referenced_tweets"|"reply_settings"|"scopes"|"source"|"text"|"username"|"withheld")[] tweetFields?;
+    # A comma separated list of Media fields to display
+    @http:Query {name: "media.fields"}
+    // ... (additional fields omitted for brevity)
+    @constraint:Array {minLength: 1}
+
+public type Get2SpacesIdTweetsResponseMeta record {
+    @jsondata:Name {value: "previous_token"}
+    PreviousToken previousToken?;
+    @jsondata:Name {value: "next_token"}
+    NextToken nextToken?;
+    @jsondata:Name {value: "result_count"}
+    ResultCount resultCount?;
+}
+
+public type Get2SpacesSearchResponseMeta record {
+    @jsondata:Name {value: "result_count"}
+    ResultCount resultCount?;
+}
+
+public type ResultCount int:Signed32;
+
+public type UserSuspendComplianceSchema record {
+    @jsondata:Name {value: "user_suspend"}
+    UserComplianceSchema userSuspend;
+}
+
+public type CountryCode string;
+
+# The topic of a Space, as selected by its creator
+public type Topic record {
+    # The name of the given topic
+    string name;
+    # The description of the given topic
+    string description?;
+    # Unique identifier of this Topic
+    TopicId id;
+}
+
+public type Get2SpacesIdTweetsResponseMeta record {
+    @jsondata:Name {value: "previous_token"}
+    PreviousToken previousToken?;
+    @jsondata:Name {value: "next_token"}
+    NextToken nextToken?;
+    @jsondata:Name {value: "result_count"}
+    ResultCount resultCount?;
+}
+
+public type PreviousToken string;
+
+# Creation time of the compliance job
+public type CreatedAt string;
+
+# Represents the Queries record for the operation: listsIdTweets
+public type ListsIdTweetsQueries record {
+    # A comma separated list of Poll fields to display
+    @http:Query {name: "poll.fields"}
+    ("duration_minutes"|"end_datetime"|"id"|"options"|"voting_status")[] pollFields?;
+    # A comma separated list of User fields to display
+    @http:Query {name: "user.fields"}
+    // ... (additional fields omitted for brevity)
+    @constraint:Array {minLength: 1}
+
+public type NextToken string;
+
+# A summary of the results of the addition of user-specified stream filtering rules
+public type RulesRequestSummaryOneOf1 record {
+    # Number of valid user-specified stream filtering rules
+    int:Signed32 valid;
+    # Number of user-specified stream filtering rules that were not created
+    @jsondata:Name {value: "not_created"}
+    int:Signed32 notCreated;
+    # Number of user-specified stream filtering rules that were created
+    int:Signed32 created;
+    # Number of invalid user-specified stream filtering rules
+    int:Signed32 invalid;
+}
+
+public type UserSuspendComplianceSchema record {
+    @jsondata:Name {value: "user_suspend"}
+    UserComplianceSchema userSuspend;
+}
+
+public type UserComplianceSchema record {
+    # Event time
+    @jsondata:Name {value: "event_at"}
+    string eventAt;
+    UserComplianceSchemaUser user;
+}
+
+public type CountryCode string;
+
+# The topic of a Space, as selected by its creator
+public type Topic record {
+    # The name of the given topic
+    string name;
+    # The description of the given topic
+    string description?;
+    # Unique identifier of this Topic
+    TopicId id;
+}
+
+public type Space record {
+    # The topics of a Space, as selected by its creator
+    SpaceTopics[] topics?;
+    # A date time stamp for when a Space is scheduled to begin
+    @jsondata:Name {value: "scheduled_start"}
+    string scheduledStart?;
+    # Creation time of the Space
+    @jsondata:Name {value: "created_at"}
+    string createdAt?;
+    # Denotes if the Space is a ticketed Space
+    @jsondata:Name {value: "is_ticketed"}
+    boolean isTicketed?;
+    // ... (additional fields omitted for brevity)
+    @jsondata:Name {value: "ended_at"}
+
+public type TopicId string;
+
+# A two-letter ISO 3166-1 alpha-2 country code
+@constraint:String {pattern: re `^[A-Z]{2}$`}
+
+public type TopicId string;
+
+# A two-letter ISO 3166-1 alpha-2 country code
+@constraint:String {pattern: re `^[A-Z]{2}$`}
+
+public type CreatedAt string;
+
+# Represents the Queries record for the operation: listsIdTweets
+public type ListsIdTweetsQueries record {
+    # A comma separated list of Poll fields to display
+    @http:Query {name: "poll.fields"}
+    ("duration_minutes"|"end_datetime"|"id"|"options"|"voting_status")[] pollFields?;
+    # A comma separated list of User fields to display
+    @http:Query {name: "user.fields"}
+    ("connection_status"|"created_at"|"description"|"entities"|"id"|"location"|"most_recent_tweet_id"|"name"|"pinned_tweet_id"|"profile_image_url"|"protected"|"public_metrics"|"receives_your_dm"|"subscription_type"|"url"|"username"|"verified"|"verified_type"|"withheld")[] userFields?;
+    # This parameter is used to get the next 'page' of results
+    @http:Query {name: "pagination_token"}
+    // ... (additional fields omitted for brevity)
+    @constraint:Array {minLength: 1}
+
+public type PollOptionLabel string;
+
+public type AddOrDeleteRulesRequest AddRulesRequest|DeleteRulesRequest;
+
+public type RulesLookupResponse record {
+    Rule[] data?;
+    RulesResponseMetadata meta;
+}
+
+public type UserScrubGeoObjectSchema record {
+    # Event time
+    @jsondata:Name {value: "event_at"}
+    string eventAt;
+    UserScrubGeoObjectSchemaUser user;
+    @jsondata:Name {value: "up_to_tweet_id"}
+    TweetId upToTweetId;
+}
+
+public type RulesRequestSummaryOneOf1 record {
+    # Number of valid user-specified stream filtering rules
+    int:Signed32 valid;
+    # Number of user-specified stream filtering rules that were not created
+    @jsondata:Name {value: "not_created"}
+    int:Signed32 notCreated;
+    # Number of user-specified stream filtering rules that were created
+    int:Signed32 created;
+    # Number of invalid user-specified stream filtering rules
+    int:Signed32 invalid;
+}
+
+public type CreatedAt string;
+
+# Represents the Queries record for the operation: listsIdTweets
+public type ListsIdTweetsQueries record {
+    # A comma separated list of Poll fields to display
+    @http:Query {name: "poll.fields"}
+    ("duration_minutes"|"end_datetime"|"id"|"options"|"voting_status")[] pollFields?;
+    # A comma separated list of User fields to display
+    @http:Query {name: "user.fields"}
+    ("connection_status"|"created_at"|"description"|"entities"|"id"|"location"|"most_recent_tweet_id"|"name"|"pinned_tweet_id"|"profile_image_url"|"protected"|"public_metrics"|"receives_your_dm"|"subscription_type"|"url"|"username"|"verified"|"verified_type"|"withheld")[] userFields?;
+    # This parameter is used to get the next 'page' of results
+    @http:Query {name: "pagination_token"}
+    // ... (additional fields omitted for brevity)
+    @constraint:Array {minLength: 1}
+

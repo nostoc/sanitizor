@@ -1,0 +1,49 @@
+{
+  "last_build_time": 1761291256037,
+  "last_update_time": 1761291256037,
+  "distribution_version": "2201.13.0-20250927-204700-7b3ef131",
+  "last_modified_time": {
+    "database_migration_workflow": 1761291233347
+  },
+  "last_build_options": {
+    "compilationOptions": {
+      "observabilityIncluded": true,
+      "dumpBir": false,
+      "cloud": "",
+      "dumpGraph": false,
+      "dumpRawGraphs": false
+    }
+  },
+  "src_meta_info": [
+    {
+      "file": "/home/hansika/dev/connector_automation/module-ballerinax-supabase/examples/database-migration-workflow/main.bal",
+      "hash": "53dcbe3c4bec6e97a76d1d81f4797e1c60d8667d029fdb1ba947b9779730baa0",
+      "size": 3911,
+      "lastModifiedTime": 1761291233345
+    },
+    {
+      "file": "/home/hansika/dev/connector_automation/module-ballerinax-supabase/examples/database-migration-workflow/Ballerina.toml",
+      "hash": "7a95ed8e0828216594bd02e0f08c6077aa2cd7ffcbf5f4c5c5b0f673a9a96e98",
+      "size": 243,
+      "lastModifiedTime": 1761291233347
+    }
+  ],
+  "target_exec_meta_info": {
+    "file": "/home/hansika/dev/connector_automation/module-ballerinax-supabase/examples/database-migration-workflow/target/backup/bin/database_migration_workflow.jar",
+    "hash": "b7e88e99e467cb28cd201f80c2d32cc48fdfd34a2eeb56b2ca85c7b05b51656d",
+    "size": 52597244,
+    "lastModifiedTime": 1761291256999
+  },
+  "settings_meta_info": {
+    "file": "/home/hansika/.ballerina/Settings.toml",
+    "hash": "c00b1faa65edc98c15e492e2c764f083cb7e6c184bec9cd249652d725d7521ea",
+    "size": 1211,
+    "lastModifiedTime": 1760937254276
+  },
+  "ballerina_toml_meta_info": {
+    "file": "/home/hansika/dev/connector_automation/module-ballerinax-supabase/examples/database-migration-workflow/Ballerina.toml",
+    "hash": "7a95ed8e0828216594bd02e0f08c6077aa2cd7ffcbf5f4c5c5b0f673a9a96e98",
+    "size": 243,
+    "lastModifiedTime": 1761291233347
+  }
+}

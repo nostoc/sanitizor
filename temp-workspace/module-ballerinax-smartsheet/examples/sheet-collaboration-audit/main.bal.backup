@@ -1,0 +1,100 @@
+import ballerina/io;
+import ballerinax/smartsheet;
+
+configurable string accessToken = ?;
+
+public function main() returns error? {
+    smartsheet:Client smartsheetClient = check new ({
+        auth: {
+            token: accessToken
+        }
+    });
+
+    // Step 1: Retrieve all sheets to identify high-priority projects
+    io:println("=== Step 1: Retrieving all sheets ===");
+    
+    smartsheet:ListSheetsHeaders sheetsHeaders = {
+        authorization: "Bearer " + accessToken
+    };
+    
+    smartsheet:ListSheetsQueries sheetsQueries = {
+        include: "sheetVersion",
+        pageSize: 100,
+        includeAll: true
+    };
+    
+    smartsheet:AlternateEmailListResponse sheetsResponse = check smartsheetClient->/sheets(sheetsHeaders, {queries: sheetsQueries});
+    
+    io:println("Retrieved sheets:");
+    if (sheetsResponse.data is smartsheet:SchemasSheet[]) {
+        smartsheet:SchemasSheet[] sheets = <smartsheet:SchemasSheet[]>sheetsResponse.data;
+        foreach smartsheet:SchemasSheet sheet in sheets {
+            io:println(string `Sheet ID: ${sheet.id ?: 0}, Name: ${sheet.name ?: "Unknown"}, Access Level: ${sheet.accessLevel ?: "Unknown"}`);
+        }
+        
+        if (sheets.length() > 0) {
+            // Step 2: Examine automation rules for the first sheet
+            smartsheet:SchemasSheet firstSheet = sheets[0];
+            decimal sheetId = firstSheet.id ?: 0;
+            
+            io:println(string `\n=== Step 2: Examining automation rules for sheet ID: ${sheetId} ===`);
+            
+            smartsheet:AutomationrulesListHeaders automationHeaders = {
+                authorization: "Bearer " + accessToken
+            };
+            
+            smartsheet:AutomationrulesListQueries automationQueries = {
+                pageSize: 100,
+                includeAll: true
+            };
+            
+            smartsheet:AutomationRuleListResponse automationResponse = check smartsheetClient->/sheets/[sheetId]/automationrules(automationHeaders, {queries: automationQueries});
+            
+            io:println("Automation rules retrieved:");
+            if (automationResponse.data is smartsheet:AutomationRule[]) {
+                smartsheet:AutomationRule[] rules = <smartsheet:AutomationRule[]>automationResponse.data;
+                foreach smartsheet:AutomationRule rule in rules {
+                    io:println(string `Rule found - examining workflow triggers`);
+                }
+                io:println(string `Total automation rules found: ${rules.length()}`);
+            }
+            
+            // Step 3: Review cell history for key columns (using sample row and column IDs)
+            io:println(string `\n=== Step 3: Reviewing cell history for sheet ID: ${sheetId} ===`);
+            
+            decimal sampleRowId = 1;
+            decimal sampleColumnId = 1;
+            
+            smartsheet:CellHistoryGetHeaders cellHistoryHeaders = {
+                authorization: "Bearer " + accessToken
+            };
+            
+            smartsheet:CellHistoryGetQueries cellHistoryQueries = {
+                include: "columnType",
+                level: 1,
+                pageSize: 100
+            };
+            
+            smartsheet:RowAttachmentListResponse|error cellHistoryResponse = smartsheetClient->/sheets/[sheetId]/rows/[sampleRowId]/columns/[sampleColumnId]/history(cellHistoryHeaders, {queries: cellHistoryQueries});
+            
+            if (cellHistoryResponse is smartsheet:RowAttachmentListResponse) {
+                io:println("Cell history retrieved:");
+                if (cellHistoryResponse.data is smartsheet:CellHistory[]) {
+                    smartsheet:CellHistory[] history = <smartsheet:CellHistory[]>cellHistoryResponse.data;
+                    foreach smartsheet:CellHistory cellHistory in history {
+                        io:println("Cell modification found - tracking data changes for compliance");
+                    }
+                    io:println(string `Total cell history entries: ${history.length()}`);
+                }
+            } else {
+                io:println("Note: Cell history may not be available for the sample row/column or may require valid row/column IDs from the actual sheet");
+            }
+        }
+    }
+    
+    io:println("\n=== Audit Complete ===");
+    io:println("Project manager can now review:");
+    io:println("1. All sheets for high-priority project identification");
+    io:println("2. Automation rules for workflow trigger understanding");
+    io:println("3. Cell history for data modification tracking and compliance");
+}

@@ -1,0 +1,49 @@
+{
+  "last_build_time": 1761291346430,
+  "last_update_time": 1761291346430,
+  "distribution_version": "2201.13.0-20250927-204700-7b3ef131",
+  "last_modified_time": {
+    "project_health_optimization": 1761291336445
+  },
+  "last_build_options": {
+    "compilationOptions": {
+      "observabilityIncluded": true,
+      "dumpBir": false,
+      "cloud": "",
+      "dumpGraph": false,
+      "dumpRawGraphs": false
+    }
+  },
+  "src_meta_info": [
+    {
+      "file": "/home/hansika/dev/connector_automation/module-ballerinax-supabase/examples/project-health-optimization/main.bal",
+      "hash": "12e8b9ea3cbd286bbf5a7d5317a6ff874ace76f2478284c540222fd71452ddda",
+      "size": 2745,
+      "lastModifiedTime": 1761291336445
+    },
+    {
+      "file": "/home/hansika/dev/connector_automation/module-ballerinax-supabase/examples/project-health-optimization/Ballerina.toml",
+      "hash": "d941b6e412cd0c5506327f392a5bd95154d194101c3e5fc91dab8f0f6dda4b6b",
+      "size": 243,
+      "lastModifiedTime": 1761291275717
+    }
+  ],
+  "target_exec_meta_info": {
+    "file": "/home/hansika/dev/connector_automation/module-ballerinax-supabase/examples/project-health-optimization/target/backup/bin/project_health_optimization.jar",
+    "hash": "2cf14064f819370e4422e2e0751451cf20296665b5118f80234ca127f44b7434",
+    "size": 52579062,
+    "lastModifiedTime": 1761291347383
+  },
+  "settings_meta_info": {
+    "file": "/home/hansika/.ballerina/Settings.toml",
+    "hash": "c00b1faa65edc98c15e492e2c764f083cb7e6c184bec9cd249652d725d7521ea",
+    "size": 1211,
+    "lastModifiedTime": 1760937254276
+  },
+  "ballerina_toml_meta_info": {
+    "file": "/home/hansika/dev/connector_automation/module-ballerinax-supabase/examples/project-health-optimization/Ballerina.toml",
+    "hash": "d941b6e412cd0c5506327f392a5bd95154d194101c3e5fc91dab8f0f6dda4b6b",
+    "size": 243,
+    "lastModifiedTime": 1761291275717
+  }
+}

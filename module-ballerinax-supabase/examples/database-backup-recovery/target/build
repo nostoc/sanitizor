@@ -1,0 +1,49 @@
+{
+  "last_build_time": 1761291383762,
+  "last_update_time": 1761291383762,
+  "distribution_version": "2201.13.0-20250927-204700-7b3ef131",
+  "last_modified_time": {
+    "database_backup_recovery": 1761291363887
+  },
+  "last_build_options": {
+    "compilationOptions": {
+      "observabilityIncluded": true,
+      "dumpBir": false,
+      "cloud": "",
+      "dumpGraph": false,
+      "dumpRawGraphs": false
+    }
+  },
+  "src_meta_info": [
+    {
+      "file": "/home/hansika/dev/connector_automation/module-ballerinax-supabase/examples/database-backup-recovery/main.bal",
+      "hash": "030674ed82a58f488ed9a95575578b27d275ce6620c1c650026fae394ecda563",
+      "size": 1842,
+      "lastModifiedTime": 1761291363886
+    },
+    {
+      "file": "/home/hansika/dev/connector_automation/module-ballerinax-supabase/examples/database-backup-recovery/Ballerina.toml",
+      "hash": "2d1ca3c9a08aa7f66383481995222b1b6f896c5766eef53c03b47e2b02e527fa",
+      "size": 240,
+      "lastModifiedTime": 1761291363887
+    }
+  ],
+  "target_exec_meta_info": {
+    "file": "/home/hansika/dev/connector_automation/module-ballerinax-supabase/examples/database-backup-recovery/target/backup/bin/database_backup_recovery.jar",
+    "hash": "73ea33f0649b03f41584d86ed62c0eb2f448cb7de73034dc6e1980e7a265da28",
+    "size": 52548792,
+    "lastModifiedTime": 1761291384680
+  },
+  "settings_meta_info": {
+    "file": "/home/hansika/.ballerina/Settings.toml",
+    "hash": "c00b1faa65edc98c15e492e2c764f083cb7e6c184bec9cd249652d725d7521ea",
+    "size": 1211,
+    "lastModifiedTime": 1760937254276
+  },
+  "ballerina_toml_meta_info": {
+    "file": "/home/hansika/dev/connector_automation/module-ballerinax-supabase/examples/database-backup-recovery/Ballerina.toml",
+    "hash": "2d1ca3c9a08aa7f66383481995222b1b6f896c5766eef53c03b47e2b02e527fa",
+    "size": 240,
+    "lastModifiedTime": 1761291363887
+  }
+}
