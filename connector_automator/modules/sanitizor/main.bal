@@ -1,6 +1,8 @@
+import ballerina/file;
 import ballerina/io;
 import ballerina/log;
 import ballerina/regex;
+import ballerina/yaml;
 
 public function main(string... args) returns error? {
     io:println("Starting OpenAPI Sanitizor...");
@@ -103,7 +105,32 @@ public function main(string... args) returns error? {
     // Step 2: Execute OpenAPI align on flattened spec
     io:println("\n=== Step 2: Aligning OpenAPI Specification ===");
     string alignedSpecPath = outputDir + "/docs/spec";
-    string flattenedSpec = flattenedSpecPath + "/flattened_openapi.json";
+
+    // Determine flattened spec path based on input format
+    string flattenedSpec;
+    if isYamlFormat(inputSpecPath) {
+        // If input was YAML, flattened spec will also be YAML
+        string yamlFlattenedSpec = flattenedSpecPath + "/flattened_openapi.yaml";
+        string ymlFlattenedSpec = flattenedSpecPath + "/flattened_openapi.yml";
+
+        // Check which extension the flattened spec actually has
+        boolean|file:Error yamlExists = file:test(yamlFlattenedSpec, file:EXISTS);
+        if yamlExists is boolean && yamlExists {
+            flattenedSpec = yamlFlattenedSpec;
+        } else {
+            boolean|file:Error ymlExists = file:test(ymlFlattenedSpec, file:EXISTS);
+            if ymlExists is boolean && ymlExists {
+                flattenedSpec = ymlFlattenedSpec;
+            } else {
+                // Fallback to .yaml extension (most common)
+                flattenedSpec = yamlFlattenedSpec;
+            }
+        }
+    } else {
+        // If input was JSON, flattened spec will be JSON
+        flattenedSpec = flattenedSpecPath + "/flattened_openapi.json";
+    }
+
     CommandResult alignResult = executeBalAlign(flattenedSpec, alignedSpecPath);
     if !isCommandSuccessfull(alignResult) {
         if !quietMode {
@@ -125,7 +152,30 @@ public function main(string... args) returns error? {
         }
     }
 
-    // Step 3: Apply operationId fix on aligned spec (BATCH VERSION)
+    // Check if input spec was YAML/YML and convert aligned spec to JSON if needed
+    //string alignedSpec = alignedSpecPath + "/aligned_ballerina_openapi.json";
+    if isYamlFormat(inputSpecPath) {
+        io:println("\n=== Converting YAML Aligned Spec to JSON ===");
+        error? conversionResult = convertAlignedYamlToJson(alignedSpecPath, quietMode);
+        if conversionResult is error {
+            if !quietMode {
+                log:printError("Failed to convert aligned YAML spec to JSON", 'error = conversionResult);
+            }
+            io:println("YAML to JSON conversion failed:");
+            io:println(conversionResult.message());
+
+            if !getUserConfirmation("Continue despite conversion failure?", autoYes) {
+                return error("YAML to JSON conversion failed: " + conversionResult.message());
+            }
+        } else {
+            if !quietMode {
+                log:printInfo("Aligned YAML spec converted to JSON successfully");
+            }
+            io:println("✓ Aligned YAML spec converted to JSON");
+        }
+    }
+
+    // Step 3: Apply operationId fix on aligned spec 
     string alignedSpec = alignedSpecPath + "/aligned_ballerina_openapi.json";
 
     io:println("\n=== Step 3: AI-Powered OperationId Generation ===");
@@ -319,4 +369,67 @@ function printUsage() {
     io:println("  • Progress feedback and operation summaries");
     io:println("  • Use 'yes' argument to skip all prompts for automated execution");
     io:println("  • Use 'quiet' argument to reduce logging output for CI/CD");
+}
+
+// Helper function to check if the input file is in YAML format
+function isYamlFormat(string filePath) returns boolean {
+    string lowerPath = filePath.toLowerAscii();
+    return lowerPath.endsWith(".yaml") || lowerPath.endsWith(".yml");
+}
+
+function convertAlignedYamlToJson(string alignedSpecPath, boolean quietMode = false) returns error? {
+    // The aligned spec will be in YAML format if input was YAML
+    string yamlAlignedSpec = alignedSpecPath + "/aligned_ballerina_openapi.yaml";
+    string jsonAlignedSpec = alignedSpecPath + "/aligned_ballerina_openapi.json";
+
+    // Check if YAML aligned spec exists
+    boolean|file:Error yamlExists = file:test(yamlAlignedSpec, file:EXISTS);
+    if yamlExists is file:Error || !yamlExists {
+        // Try .yml extension as well
+        string ymlAlignedSpec = alignedSpecPath + "/aligned_ballerina_openapi.yml";
+        boolean|file:Error ymlExists = file:test(ymlAlignedSpec, file:EXISTS);
+        if ymlExists is file:Error || !ymlExists {
+            if !quietMode {
+                log:printWarn("No YAML aligned spec found to convert", yamlPath = yamlAlignedSpec, ymlPath = ymlAlignedSpec);
+            }
+            return; // No YAML file to convert
+        }
+        yamlAlignedSpec = ymlAlignedSpec;
+    }
+
+    if !quietMode {
+        log:printInfo("Converting YAML aligned spec to JSON", yamlPath = yamlAlignedSpec, jsonPath = jsonAlignedSpec);
+    }
+
+    // Read YAML content
+    string|io:Error yamlContent = io:fileReadString(yamlAlignedSpec);
+    if yamlContent is io:Error {
+        return error("Failed to read YAML aligned spec file: " + yamlContent.message());
+    }
+
+    // Parse YAML to JSON
+    json|yaml:Error jsonData = yaml:readString(yamlContent);
+    if jsonData is yaml:Error {
+        return error("Failed to parse YAML content: " + jsonData.message());
+    }
+
+    // Write JSON content
+    io:Error? writeResult = io:fileWriteJson(jsonAlignedSpec, jsonData);
+    if writeResult is io:Error {
+        return error("Failed to write JSON aligned spec file: " + writeResult.message());
+    }
+
+    if !quietMode {
+        log:printInfo("Successfully converted YAML aligned spec to JSON",
+                yamlPath = yamlAlignedSpec,
+                jsonPath = jsonAlignedSpec);
+    }
+
+    return;
+}
+
+// Helper function to check if file exists
+function fileExists(string filePath) returns boolean {
+    boolean|file:Error exists = file:test(filePath, file:EXISTS);
+    return exists is boolean ? exists : false;
 }

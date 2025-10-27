@@ -320,11 +320,9 @@ function findInitFunctionSignature(string clientContent) returns string? {
         }
     }
 
-    return();
+    return ();
 
 }
-
-
 
 function findNestedTypes(string[] typesToSearch, string typesContent, string[] foundTypes) {
     string[] newTypesFound = [];
