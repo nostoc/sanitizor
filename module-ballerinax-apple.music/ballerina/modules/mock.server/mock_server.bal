@@ -3,11 +3,9 @@
 
 import ballerina/http;
 
-listener http:Listener httpListener = new (9090);
+listener http:Listener ep0 = new (443, config = {host: "api.music.apple.com"});
 
-service /api on httpListener {
-    
-
+service /v1 on ep0 {
     # Get Multiple Catalog Albums
     #
     # + storefront - An iTunes Store territory, specified by an ISO 3166 alpha-2 country code. The possible values are the id attributes of Storefront objects
@@ -22,41 +20,6 @@ service /api on httpListener {
     # http:Unauthorized (Unauthorized)
     # http:InternalServerError (Internal Server Error)
     resource function get catalog/[string storefront]/albums(string[]? ids, string[]? extend, string[]? filter, string[]? include, string? l, string[]? restrict) returns AlbumsResponse|ErrorsResponseUnauthorized|ErrorsResponseInternalServerError {
-        return {
-            data: [
-                {
-                    id: "1234567890",
-                    'type: "albums",
-                    href: "/v1/catalog/us/albums/1234567890",
-                    attributes: {
-                        name: "Sample Album",
-                        artistName: "Sample Artist",
-                        genreNames: ["Pop", "Rock"],
-                        releaseDate: "2023-01-01",
-                        trackCount: 12,
-                        isComplete: true,
-                        isSingle: false,
-                        isCompilation: false,
-                        isMasteredForItunes: true,
-                        copyright: "℗ 2023 Sample Records",
-                        url: "https://music.apple.com/album/sample-album/1234567890",
-                        artwork: {
-                            width: 1000,
-                            height: 1000,
-                            url: "https://is1-ssl.mzstatic.com/image/thumb/sample.jpg"
-                        },
-                        playParams: {
-                            id: "1234567890",
-                            kind: "album"
-                        },
-                        editorialNotes: {
-                            standard: "A fantastic album by Sample Artist.",
-                            short: "Great album"
-                        }
-                    }
-                }
-            ]
-        };
     }
 
     # Get a Catalog Album
@@ -71,38 +34,7 @@ service /api on httpListener {
     # http:Ok (OK)
     # http:Unauthorized (Unauthorized)
     # http:InternalServerError (Internal Server Error)
-    resource function get catalog/[string storefront]/albums/[string id]((
-"appears-on"|"other-versions"|"related-albums"|"related-videos")[]? views, string[]? extend, string[]? include, string? l) returns AlbumsResponse|ErrorsResponseUnauthorized|ErrorsResponseInternalServerError {
-        return {
-            data: [
-                {
-                    id: id,
-                    'type: "albums",
-                    href: string `/v1/catalog/${storefront}/albums/${id}`,
-                    attributes: {
-                        name: "Single Album",
-                        artistName: "Single Artist",
-                        genreNames: ["Electronic"],
-                        releaseDate: "2023-06-15",
-                        trackCount: 10,
-                        isComplete: true,
-                        isSingle: false,
-                        isCompilation: false,
-                        isMasteredForItunes: false,
-                        url: string `https://music.apple.com/album/single-album/${id}`,
-                        artwork: {
-                            width: 800,
-                            height: 800,
-                            url: "https://is1-ssl.mzstatic.com/image/thumb/single.jpg"
-                        },
-                        playParams: {
-                            id: id,
-                            kind: "album"
-                        }
-                    }
-                }
-            ]
-        };
+    resource function get catalog/[string storefront]/albums/[string id](("appears-on"|"other-versions"|"related-albums"|"related-videos")[]? views, string[]? extend, string[]? include, string? l) returns AlbumsResponse|ErrorsResponseUnauthorized|ErrorsResponseInternalServerError {
     }
 
     # Get a Catalog Album's Relationship Directly by Name
@@ -119,23 +51,6 @@ service /api on httpListener {
     # http:Unauthorized (Unauthorized)
     # http:InternalServerError (Internal Server Error)
     resource function get catalog/[string storefront]/albums/[string id]/["artists"|"genres"|"library"|"record-labels"|"tracks" relationship](string[]? extend, string[]? include, string? l, int 'limit = 5) returns ArtistsResponse|ErrorsResponseUnauthorized|ErrorsResponseInternalServerError {
-        return {
-            data: [
-                {
-                    id: "artist123",
-                    'type: "artists",
-                    href: string `/v1/catalog/${storefront}/artists/artist123`,
-                    attributes: {
-                        name: "Related Artist",
-                        genreNames: ["Pop", "Electronic"],
-                        url: "https://music.apple.com/artist/related-artist/artist123",
-                        editorialNotes: {
-                            standard: "A talented artist with multiple hits."
-                        }
-                    }
-                }
-            ]
-        };
     }
 
     # Get a Catalog Album's Relationship View Directly by Name
@@ -153,412 +68,280 @@ service /api on httpListener {
     # http:Unauthorized (Unauthorized)
     # http:InternalServerError (Internal Server Error)
     resource function get catalog/[string storefront]/albums/[string id]/view/["appears-on"|"other-versions"|"related-albums"|"related-videos" view](string[]? extend, string[]? include, string? l, ("attributes"|"topResults")[]? with, int 'limit = 5) returns MusicVideosResponse|ErrorsResponseUnauthorized|ErrorsResponseInternalServerError {
-        return {
-            data: [
-                {
-                    id: "",
-                    href: "",
-                    'type: "music-videos"
-
-                }
-            ]
-        };
     }
 
-    // # Get Multiple Catalog Artists
-    // #
-    // # + storefront - An iTunes Store territory, specified by an ISO 3166 alpha-2 country code. The possible values are the id attributes of Storefront objects
-    // # + ids - The unique identifiers for the artists
-    // # + extend - A list of attribute extensions to apply to resources in the response
-    // # + filter - A filter to apply to the request
-    // # + include - Additional relationships to include in the fetch
-    // # + l - The localization to use, specified by a language tag. The possible values are in the `supportedLanguageTags` array belonging to the `Storefront` object specified by `storefront`. Otherwise, the default is `defaultLanguageTag` in `Storefront`
-    // # + restrict - A set of restrictions (for example, to restrict explicit content)
-    // # + return - returns can be any of following types 
-    // # http:Ok (OK)
-    // # http:Unauthorized (Unauthorized)
-    // # http:InternalServerError (Internal Server Error)
-    // resource function get catalog/[string storefront]/artists(string[]? ids, string[]? extend, string[]? filter, string[]? include, string? l, string[]? restrict) returns ArtistsResponse|ErrorsResponseUnauthorized|ErrorsResponseInternalServerError {
-    // }
+    # Get Multiple Catalog Artists
+    #
+    # + storefront - An iTunes Store territory, specified by an ISO 3166 alpha-2 country code. The possible values are the id attributes of Storefront objects
+    # + ids - The unique identifiers for the artists
+    # + extend - A list of attribute extensions to apply to resources in the response
+    # + filter - A filter to apply to the request
+    # + include - Additional relationships to include in the fetch
+    # + l - The localization to use, specified by a language tag. The possible values are in the `supportedLanguageTags` array belonging to the `Storefront` object specified by `storefront`. Otherwise, the default is `defaultLanguageTag` in `Storefront`
+    # + restrict - A set of restrictions (for example, to restrict explicit content)
+    # + return - returns can be any of following types 
+    # http:Ok (OK)
+    # http:Unauthorized (Unauthorized)
+    # http:InternalServerError (Internal Server Error)
+    resource function get catalog/[string storefront]/artists(string[]? ids, string[]? extend, string[]? filter, string[]? include, string? l, string[]? restrict) returns ArtistsResponse|ErrorsResponseUnauthorized|ErrorsResponseInternalServerError {
+    }
 
-    // # Get a Catalog Artist
-    // #
-    // # + storefront - An iTunes Store territory, specified by an ISO 3166 alpha-2 country code. The possible values are the id attributes of Storefront objects
-    // # + id - The unique identifier for the artist
-    // # + views - The views to activate for the artists resource
-    // # + extend - A list of attribute extensions to apply to resources in the response
-    // # + include - Additional relationships to include in the fetch
-    // # + l - The localization to use, specified by a language tag. The possible values are in the `supportedLanguageTags` array belonging to the `Storefront` object specified by `storefront`. Otherwise, the default is `defaultLanguageTag` in `Storefront`
-    // # + return - returns can be any of following types 
-    // # http:Ok (OK)
-    // # http:Unauthorized (Unauthorized)
-    // # http:InternalServerError (Internal Server Error)
-    // resource function get catalog/[string storefront]/artists/[string id](("appears-on-albums"|"compilation-albums"|"featured-albums"|"featured-playlists"|"full-albums"|"latest-release"|"live-albums"|"similar-artists"|"singles"|"top-music-videos"|"top-songs")[]? views, string[]? extend, string[]? include, string? l) returns ArtistsResponse|ErrorsResponseUnauthorized|ErrorsResponseInternalServerError {
-    // }
+    # Get a Catalog Artist
+    #
+    # + storefront - An iTunes Store territory, specified by an ISO 3166 alpha-2 country code. The possible values are the id attributes of Storefront objects
+    # + id - The unique identifier for the artist
+    # + views - The views to activate for the artists resource
+    # + extend - A list of attribute extensions to apply to resources in the response
+    # + include - Additional relationships to include in the fetch
+    # + l - The localization to use, specified by a language tag. The possible values are in the `supportedLanguageTags` array belonging to the `Storefront` object specified by `storefront`. Otherwise, the default is `defaultLanguageTag` in `Storefront`
+    # + return - returns can be any of following types 
+    # http:Ok (OK)
+    # http:Unauthorized (Unauthorized)
+    # http:InternalServerError (Internal Server Error)
+    resource function get catalog/[string storefront]/artists/[string id](("appears-on-albums"|"compilation-albums"|"featured-albums"|"featured-playlists"|"full-albums"|"latest-release"|"live-albums"|"similar-artists"|"singles"|"top-music-videos"|"top-songs")[]? views, string[]? extend, string[]? include, string? l) returns ArtistsResponse|ErrorsResponseUnauthorized|ErrorsResponseInternalServerError {
+    }
 
-    // # Get a Catalog Artist's Relationship Directly by Name
-    // #
-    // # + storefront - An iTunes Store territory, specified by an ISO 3166 alpha-2 country code. The possible values are the id attributes of Storefront objects
-    // # + id - The unique identifier for the artist
-    // # + relationship - The name of the relationship you want to fetch for this resource
-    // # + extend - A list of attribute extensions to apply to resources in the response
-    // # + include - Additional relationships to include in the fetch
-    // # + l - The localization to use, specified by a language tag. The possible values are in the `supportedLanguageTags` array belonging to the `Storefront` object specified by `storefront`. Otherwise, the default is `defaultLanguageTag` in `Storefront`
-    // # + 'limit - The number of objects or number of objects in the specified relationship returned
-    // # + return - returns can be any of following types 
-    // # http:Ok (OK)
-    // # http:Unauthorized (Unauthorized)
-    // # http:InternalServerError (Internal Server Error)
-    // resource function get catalog/[string storefront]/artists/[string id]/["albums"|"genres"|"music-videos"|"playlists"|"station" relationship](string[]? extend, string[]? include, string? l, int 'limit = 5) returns AlbumsResponse|ErrorsResponseUnauthorized|ErrorsResponseInternalServerError {
-    // }
-};
+    # Get a Catalog Artist's Relationship Directly by Name
+    #
+    # + storefront - An iTunes Store territory, specified by an ISO 3166 alpha-2 country code. The possible values are the id attributes of Storefront objects
+    # + id - The unique identifier for the artist
+    # + relationship - The name of the relationship you want to fetch for this resource
+    # + extend - A list of attribute extensions to apply to resources in the response
+    # + include - Additional relationships to include in the fetch
+    # + l - The localization to use, specified by a language tag. The possible values are in the `supportedLanguageTags` array belonging to the `Storefront` object specified by `storefront`. Otherwise, the default is `defaultLanguageTag` in `Storefront`
+    # + 'limit - The number of objects or number of objects in the specified relationship returned
+    # + return - returns can be any of following types 
+    # http:Ok (OK)
+    # http:Unauthorized (Unauthorized)
+    # http:InternalServerError (Internal Server Error)
+    resource function get catalog/[string storefront]/artists/[string id]/["albums"|"genres"|"music-videos"|"playlists"|"station" relationship](string[]? extend, string[]? include, string? l, int 'limit = 5) returns AlbumsResponse|ErrorsResponseUnauthorized|ErrorsResponseInternalServerError {
+    }
 
+    # Get a Catalog Artist's Relationship View Directly by Name
+    #
+    # + storefront - An iTunes Store territory, specified by an ISO 3166 alpha-2 country code. The possible values are the id attributes of Storefront objects
+    # + id - The unique identifier for the artist
+    # + view - The name of the resource view to fetch
+    # + extend - A list of attribute extensions to apply to resources in the response
+    # + include - Additional relationships to include in the fetch
+    # + l - The localization to use, specified by a language tag. The possible values are in the `supportedLanguageTags` array belonging to the `Storefront` object specified by `storefront`. Otherwise, the default is `defaultLanguageTag` in `Storefront`
+    # + 'limit - The number of objects or number of objects in the specified relationship returned
+    # + with - A list of modifications to apply to the request
+    # + return - returns can be any of following types 
+    # http:Ok (OK)
+    # http:Unauthorized (Unauthorized)
+    # http:InternalServerError (Internal Server Error)
+    resource function get catalog/[string storefront]/artists/[string id]/view/["appears-on-albums"|"compilation-albums"|"featured-albums"|"featured-playlists"|"full-albums"|"latest-release"|"live-albums"|"similar-artists"|"singles"|"top-music-videos"|"top-songs" view](string[]? extend, string[]? include, string? l, ("attributes"|"topResults")[]? with, int 'limit = 5) returns AlbumsResponse|ErrorsResponseUnauthorized|ErrorsResponseInternalServerError {
+    }
 
+    # Search for Catalog Resources
+    #
+    # + storefront - An iTunes Store territory, specified by an ISO 3166 alpha-2 country code. The possible values are the id attributes of Storefront objects
+    # + l - The localization to use, specified by a language tag. The possible values are in the `supportedLanguageTags` array belonging to the `Storefront` object specified by `storefront`. Otherwise, the default is `defaultLanguageTag` in `Storefront`
+    # + 'limit - The number of objects or number of objects in the specified relationship returned
+    # + offset - The next page or group of objects to fetch
+    # + term - The entered text for the search with `+` characters between each word, to replace spaces (for example `term=james+br`)
+    # + types - The list of the types of resources to include in the results
+    # + with - A list of modifications to apply to the request
+    # + return - returns can be any of following types 
+    # http:Ok (OK)
+    # http:Unauthorized (Unauthorized)
+    # http:InternalServerError (Internal Server Error)
+    resource function get catalog/[string storefront]/search(string? l, string? offset, string term, ("activities"|"albums"|"apple-curators"|"artists"|"curators"|"music-videos"|"playlists"|"record-labels"|"songs"|"stations")[]? types, ("attributes"|"topResults")[]? with, int 'limit = 5) returns SearchResponse|ErrorsResponseUnauthorized|ErrorsResponseInternalServerError {
+    }
 
-// // AUTO-GENERATED FILE.
-// // This file is auto-generated by the Ballerina OpenAPI tool.
+    # Get Multiple Catalog Songs by ID
+    #
+    # + storefront - An iTunes Store territory, specified by an ISO 3166 alpha-2 country code. The possible values are the id attributes of Storefront objects
+    # + ids - The unique identifiers for the songs
+    # + extend - A list of attribute extensions to apply to resources in the response
+    # + filter - A filter to apply to the request
+    # + include - Additional relationships to include in the fetch
+    # + l - The localization to use, specified by a language tag. The possible values are in the `supportedLanguageTags` array belonging to the `Storefront` object specified by `storefront`. Otherwise, the default is `defaultLanguageTag` in `Storefront`
+    # + restrict - A set of restrictions (for example, to restrict explicit content)
+    # + return - returns can be any of following types 
+    # http:Ok (OK)
+    # http:Unauthorized (Unauthorized)
+    # http:InternalServerError (Internal Server Error)
+    resource function get catalog/[string storefront]/songs(string[]? ids, string[]? extend, string[]? filter, string[]? include, string? l, string[]? restrict) returns SongsResponse|ErrorsResponseUnauthorized|ErrorsResponseInternalServerError {
+    }
 
-// import ballerina/http;
+    # Get a Catalog Song
+    #
+    # + storefront - An iTunes Store territory, specified by an ISO 3166 alpha-2 country code. The possible values are the id attributes of Storefront objects
+    # + id - The unique identifier for the song
+    # + extend - A list of attribute extensions to apply to resources in the response
+    # + include - Additional relationships to include in the fetch
+    # + l - The localization to use, specified by a language tag. The possible values are in the `supportedLanguageTags` array belonging to the `Storefront` object specified by `storefront`. Otherwise, the default is `defaultLanguageTag` in `Storefront`
+    # + return - returns can be any of following types 
+    # http:Ok (OK)
+    # http:Unauthorized (Unauthorized)
+    # http:InternalServerError (Internal Server Error)
+    resource function get catalog/[string storefront]/songs/[string id](string[]? extend, string[]? include, string? l) returns SongsResponse|ErrorsResponseUnauthorized|ErrorsResponseInternalServerError {
+    }
 
-// listener http:Listener ep0 = new (443, config = {host: "api.music.apple.com"});
+    # Get a Catalog Song's Relationship Directly by Name
+    #
+    # + storefront - An iTunes Store territory, specified by an ISO 3166 alpha-2 country code. The possible values are the id attributes of Storefront objects
+    # + id - The unique identifier for the song
+    # + relationship - The name of the relationship you want to fetch for this resource
+    # + extend - A list of attribute extensions to apply to resources in the response
+    # + include - Additional relationships to include in the fetch
+    # + l - The localization to use, specified by a language tag. The possible values are in the `supportedLanguageTags` array belonging to the `Storefront` object specified by `storefront`. Otherwise, the default is `defaultLanguageTag` in `Storefront`
+    # + 'limit - The number of objects or number of objects in the specified relationship returned
+    # + return - returns can be any of following types 
+    # http:Ok (OK)
+    # http:Unauthorized (Unauthorized)
+    # http:InternalServerError (Internal Server Error)
+    resource function get catalog/[string storefront]/songs/[string id]/["albums"|"artists"|"composers"|"genres"|"library"|"music-videos"|"station" relationship](string[]? extend, string[]? include, string? l, int 'limit = 5) returns SongsResponse|ErrorsResponseUnauthorized|ErrorsResponseInternalServerError {
+    }
 
-// service /v1 on ep0 {
-//     # Get Multiple Catalog Albums
-//     #
-//     # + storefront - An iTunes Store territory, specified by an ISO 3166 alpha-2 country code. The possible values are the id attributes of Storefront objects
-//     # + ids - The unique identifiers for the albums
-//     # + extend - A list of attribute extensions to apply to resources in the response
-//     # + filter - A filter to apply to the request
-//     # + include - Additional relationships to include in the fetch
-//     # + l - The localization to use, specified by a language tag. The possible values are in the `supportedLanguageTags` array belonging to the `Storefront` object specified by `storefront`. Otherwise, the default is `defaultLanguageTag` in `Storefront`
-//     # + restrict - A set of restrictions (for example, to restrict explicit content)
-//     # + return - returns can be any of following types 
-//     # http:Ok (OK)
-//     # http:Unauthorized (Unauthorized)
-//     # http:InternalServerError (Internal Server Error)
-//     resource function get catalog/[string storefront]/albums(string[]? ids, string[]? extend, string[]? filter, string[]? include, string? l, string[]? restrict) returns AlbumsResponse|ErrorsResponseUnauthorized|ErrorsResponseInternalServerError {
-//     }
+    # Get All Library Albums
+    #
+    # + ids - The unique identifiers for the albums
+    # + extend - A list of attribute extensions to apply to resources in the response
+    # + include - Additional relationships to include in the fetch
+    # + l - The localization to use, specified by a language tag. The possible values are in the `supportedLanguageTags` array belonging to the `Storefront` object specified by `storefront`. Otherwise, the default is `defaultLanguageTag` in `Storefront`
+    # + 'limit - The number of objects or number of objects in the specified relationship returned
+    # + offset - The next page or group of objects to fetch
+    # + return - returns can be any of following types 
+    # http:Ok (OK)
+    # http:Unauthorized (Unauthorized)
+    # http:Forbidden (Forbidden)
+    # http:InternalServerError (Internal Server Error)
+    resource function get me/library/albums(string[]? ids, string[]? extend, string[]? include, string? l, string? offset, int 'limit = 5) returns LibraryAlbumsResponse|ErrorsResponseUnauthorized|ErrorsResponseForbidden|ErrorsResponseInternalServerError {
+    }
 
-//     # Get a Catalog Album
-//     #
-//     # + storefront - An iTunes Store territory, specified by an ISO 3166 alpha-2 country code. The possible values are the id attributes of Storefront objects
-//     # + id - The unique identifier for the album
-//     # + views - The views to activate for the albums resource
-//     # + extend - A list of attribute extensions to apply to resources in the response
-//     # + include - Additional relationships to include in the fetch
-//     # + l - The localization to use, specified by a language tag. The possible values are in the `supportedLanguageTags` array belonging to the `Storefront` object specified by `storefront`. Otherwise, the default is `defaultLanguageTag` in `Storefront`
-//     # + return - returns can be any of following types 
-//     # http:Ok (OK)
-//     # http:Unauthorized (Unauthorized)
-//     # http:InternalServerError (Internal Server Error)
-//     resource function get catalog/[string storefront]/albums/[string id](("appears-on"|"other-versions"|"related-albums"|"related-videos")[]? views, string[]? extend, string[]? include, string? l) returns AlbumsResponse|ErrorsResponseUnauthorized|ErrorsResponseInternalServerError {
-//     }
+    # Get a Library Album
+    #
+    # + id - The unique identifier for the album
+    # + extend - A list of attribute extensions to apply to resources in the response
+    # + include - Additional relationships to include in the fetch
+    # + l - The localization to use, specified by a language tag. The possible values are in the `supportedLanguageTags` array belonging to the `Storefront` object specified by `storefront`. Otherwise, the default is `defaultLanguageTag` in `Storefront`
+    # + return - returns can be any of following types 
+    # http:Ok (OK)
+    # http:Unauthorized (Unauthorized)
+    # http:Forbidden (Forbidden)
+    # http:InternalServerError (Internal Server Error)
+    resource function get me/library/albums/[string id](string[]? extend, string[]? include, string? l) returns LibraryAlbumsResponse|ErrorsResponseUnauthorized|ErrorsResponseForbidden|ErrorsResponseInternalServerError {
+    }
 
-//     # Get a Catalog Album's Relationship Directly by Name
-//     #
-//     # + storefront - An iTunes Store territory, specified by an ISO 3166 alpha-2 country code. The possible values are the id attributes of Storefront objects
-//     # + id - The unique identifier for the album
-//     # + relationship - The name of the relationship you want to fetch for this resource
-//     # + extend - A list of attribute extensions to apply to resources in the response
-//     # + include - Additional relationships to include in the fetch
-//     # + l - The localization to use, specified by a language tag. The possible values are in the `supportedLanguageTags` array belonging to the `Storefront` object specified by `storefront`. Otherwise, the default is `defaultLanguageTag` in `Storefront`
-//     # + 'limit - The number of objects or number of objects in the specified relationship returned
-//     # + return - returns can be any of following types 
-//     # http:Ok (OK)
-//     # http:Unauthorized (Unauthorized)
-//     # http:InternalServerError (Internal Server Error)
-//     resource function get catalog/[string storefront]/albums/[string id]/["artists"|"genres"|"library"|"record-labels"|"tracks" relationship](string[]? extend, string[]? include, string? l, int 'limit = 5) returns ArtistsResponse|ErrorsResponseUnauthorized|ErrorsResponseInternalServerError {
-//     }
+    # Get a Library Album's Relationship Directly by Name
+    #
+    # + id - The unique identifier for the album
+    # + relationship - The name of the relationship you want to fetch for this resource
+    # + extend - A list of attribute extensions to apply to resources in the response
+    # + include - Additional relationships to include in the fetch
+    # + l - The localization to use, specified by a language tag. The possible values are in the `supportedLanguageTags` array belonging to the `Storefront` object specified by `storefront`. Otherwise, the default is `defaultLanguageTag` in `Storefront`
+    # + 'limit - The number of objects or number of objects in the specified relationship returned
+    # + return - returns can be any of following types 
+    # http:Ok (OK)
+    # http:Unauthorized (Unauthorized)
+    # http:Forbidden (Forbidden)
+    # http:InternalServerError (Internal Server Error)
+    resource function get me/library/albums/[string id]/["artists"|"genres"|"library"|"record-labels"|"tracks" relationship](string[]? extend, string[]? include, string? l, int 'limit = 5) returns LibraryArtistsResponse|ErrorsResponseUnauthorized|ErrorsResponseForbidden|ErrorsResponseInternalServerError {
+    }
 
-//     # Get a Catalog Album's Relationship View Directly by Name
-//     #
-//     # + storefront - An iTunes Store territory, specified by an ISO 3166 alpha-2 country code. The possible values are the id attributes of Storefront objects
-//     # + id - The unique identifier for the album
-//     # + view - The name of the resource view to fetch
-//     # + extend - A list of attribute extensions to apply to resources in the response
-//     # + include - Additional relationships to include in the fetch
-//     # + l - The localization to use, specified by a language tag. The possible values are in the `supportedLanguageTags` array belonging to the `Storefront` object specified by `storefront`. Otherwise, the default is `defaultLanguageTag` in `Storefront`
-//     # + 'limit - The number of objects or number of objects in the specified relationship returned
-//     # + with - A list of modifications to apply to the request
-//     # + return - returns can be any of following types 
-//     # http:Ok (OK)
-//     # http:Unauthorized (Unauthorized)
-//     # http:InternalServerError (Internal Server Error)
-//     resource function get catalog/[string storefront]/albums/[string id]/view/["appears-on"|"other-versions"|"related-albums"|"related-videos" view](string[]? extend, string[]? include, string? l, ("attributes"|"topResults")[]? with, int 'limit = 5) returns MusicVideosResponse|ErrorsResponseUnauthorized|ErrorsResponseInternalServerError {
-//     }
+    # Get All Library Artists
+    #
+    # + ids - The unique identifiers for the artists
+    # + extend - A list of attribute extensions to apply to resources in the response
+    # + include - Additional relationships to include in the fetch
+    # + l - The localization to use, specified by a language tag. The possible values are in the `supportedLanguageTags` array belonging to the `Storefront` object specified by `storefront`. Otherwise, the default is `defaultLanguageTag` in `Storefront`
+    # + 'limit - The number of objects or number of objects in the specified relationship returned
+    # + offset - The next page or group of objects to fetch
+    # + return - returns can be any of following types 
+    # http:Ok (OK)
+    # http:Unauthorized (Unauthorized)
+    # http:Forbidden (Forbidden)
+    # http:InternalServerError (Internal Server Error)
+    resource function get me/library/artists(string[]? ids, string[]? extend, string[]? include, string? l, string? offset, int 'limit = 5) returns LibraryArtistsResponse|ErrorsResponseUnauthorized|ErrorsResponseForbidden|ErrorsResponseInternalServerError {
+    }
 
-//     # Get Multiple Catalog Artists
-//     #
-//     # + storefront - An iTunes Store territory, specified by an ISO 3166 alpha-2 country code. The possible values are the id attributes of Storefront objects
-//     # + ids - The unique identifiers for the artists
-//     # + extend - A list of attribute extensions to apply to resources in the response
-//     # + filter - A filter to apply to the request
-//     # + include - Additional relationships to include in the fetch
-//     # + l - The localization to use, specified by a language tag. The possible values are in the `supportedLanguageTags` array belonging to the `Storefront` object specified by `storefront`. Otherwise, the default is `defaultLanguageTag` in `Storefront`
-//     # + restrict - A set of restrictions (for example, to restrict explicit content)
-//     # + return - returns can be any of following types 
-//     # http:Ok (OK)
-//     # http:Unauthorized (Unauthorized)
-//     # http:InternalServerError (Internal Server Error)
-//     resource function get catalog/[string storefront]/artists(string[]? ids, string[]? extend, string[]? filter, string[]? include, string? l, string[]? restrict) returns ArtistsResponse|ErrorsResponseUnauthorized|ErrorsResponseInternalServerError {
-//     }
+    # Get a Library Artist
+    #
+    # + id - The unique identifier for the artist
+    # + extend - A list of attribute extensions to apply to resources in the response
+    # + include - Additional relationships to include in the fetch
+    # + l - The localization to use, specified by a language tag. The possible values are in the `supportedLanguageTags` array belonging to the `Storefront` object specified by `storefront`. Otherwise, the default is `defaultLanguageTag` in `Storefront`
+    # + return - returns can be any of following types 
+    # http:Ok (OK)
+    # http:Unauthorized (Unauthorized)
+    # http:Forbidden (Forbidden)
+    # http:InternalServerError (Internal Server Error)
+    resource function get me/library/artists/[string id](string[]? extend, string[]? include, string? l) returns LibraryArtistsResponse|ErrorsResponseUnauthorized|ErrorsResponseForbidden|ErrorsResponseInternalServerError {
+    }
 
-//     # Get a Catalog Artist
-//     #
-//     # + storefront - An iTunes Store territory, specified by an ISO 3166 alpha-2 country code. The possible values are the id attributes of Storefront objects
-//     # + id - The unique identifier for the artist
-//     # + views - The views to activate for the artists resource
-//     # + extend - A list of attribute extensions to apply to resources in the response
-//     # + include - Additional relationships to include in the fetch
-//     # + l - The localization to use, specified by a language tag. The possible values are in the `supportedLanguageTags` array belonging to the `Storefront` object specified by `storefront`. Otherwise, the default is `defaultLanguageTag` in `Storefront`
-//     # + return - returns can be any of following types 
-//     # http:Ok (OK)
-//     # http:Unauthorized (Unauthorized)
-//     # http:InternalServerError (Internal Server Error)
-//     resource function get catalog/[string storefront]/artists/[string id](("appears-on-albums"|"compilation-albums"|"featured-albums"|"featured-playlists"|"full-albums"|"latest-release"|"live-albums"|"similar-artists"|"singles"|"top-music-videos"|"top-songs")[]? views, string[]? extend, string[]? include, string? l) returns ArtistsResponse|ErrorsResponseUnauthorized|ErrorsResponseInternalServerError {
-//     }
+    # Get a Library Artist's Relationship Directly by Name
+    #
+    # + id - The unique identifier for the artist
+    # + relationship - The name of the relationship you want to fetch for this resource
+    # + extend - A list of attribute extensions to apply to resources in the response
+    # + include - Additional relationships to include in the fetch
+    # + l - The localization to use, specified by a language tag. The possible values are in the `supportedLanguageTags` array belonging to the `Storefront` object specified by `storefront`. Otherwise, the default is `defaultLanguageTag` in `Storefront`
+    # + 'limit - The number of objects or number of objects in the specified relationship returned
+    # + return - returns can be any of following types 
+    # http:Ok (OK)
+    # http:Unauthorized (Unauthorized)
+    # http:Forbidden (Forbidden)
+    # http:InternalServerError (Internal Server Error)
+    resource function get me/library/artists/[string id]/["albums"|"genres"|"music-videos"|"playlists"|"station" relationship](string[]? extend, string[]? include, string? l, int 'limit = 5) returns LibraryAlbumsResponse|ErrorsResponseUnauthorized|ErrorsResponseForbidden|ErrorsResponseInternalServerError {
+    }
 
-//     # Get a Catalog Artist's Relationship Directly by Name
-//     #
-//     # + storefront - An iTunes Store territory, specified by an ISO 3166 alpha-2 country code. The possible values are the id attributes of Storefront objects
-//     # + id - The unique identifier for the artist
-//     # + relationship - The name of the relationship you want to fetch for this resource
-//     # + extend - A list of attribute extensions to apply to resources in the response
-//     # + include - Additional relationships to include in the fetch
-//     # + l - The localization to use, specified by a language tag. The possible values are in the `supportedLanguageTags` array belonging to the `Storefront` object specified by `storefront`. Otherwise, the default is `defaultLanguageTag` in `Storefront`
-//     # + 'limit - The number of objects or number of objects in the specified relationship returned
-//     # + return - returns can be any of following types 
-//     # http:Ok (OK)
-//     # http:Unauthorized (Unauthorized)
-//     # http:InternalServerError (Internal Server Error)
-//     resource function get catalog/[string storefront]/artists/[string id]/["albums"|"genres"|"music-videos"|"playlists"|"station" relationship](string[]? extend, string[]? include, string? l, int 'limit = 5) returns AlbumsResponse|ErrorsResponseUnauthorized|ErrorsResponseInternalServerError {
-//     }
+    # Get All Library Songs
+    #
+    # + ids - The unique identifiers for the songs
+    # + extend - A list of attribute extensions to apply to resources in the response
+    # + include - Additional relationships to include in the fetch
+    # + l - The localization to use, specified by a language tag. The possible values are in the `supportedLanguageTags` array belonging to the `Storefront` object specified by `storefront`. Otherwise, the default is `defaultLanguageTag` in `Storefront`
+    # + 'limit - The number of objects or number of objects in the specified relationship returned
+    # + offset - The next page or group of objects to fetch
+    # + return - returns can be any of following types 
+    # http:Ok (OK)
+    # http:Unauthorized (Unauthorized)
+    # http:Forbidden (Forbidden)
+    # http:InternalServerError (Internal Server Error)
+    resource function get me/library/songs(string[]? ids, string[]? extend, string[]? include, string? l, string? offset, int 'limit = 5) returns LibrarySongsResponse|ErrorsResponseUnauthorized|ErrorsResponseForbidden|ErrorsResponseInternalServerError {
+    }
 
-//     # Get a Catalog Artist's Relationship View Directly by Name
-//     #
-//     # + storefront - An iTunes Store territory, specified by an ISO 3166 alpha-2 country code. The possible values are the id attributes of Storefront objects
-//     # + id - The unique identifier for the artist
-//     # + view - The name of the resource view to fetch
-//     # + extend - A list of attribute extensions to apply to resources in the response
-//     # + include - Additional relationships to include in the fetch
-//     # + l - The localization to use, specified by a language tag. The possible values are in the `supportedLanguageTags` array belonging to the `Storefront` object specified by `storefront`. Otherwise, the default is `defaultLanguageTag` in `Storefront`
-//     # + 'limit - The number of objects or number of objects in the specified relationship returned
-//     # + with - A list of modifications to apply to the request
-//     # + return - returns can be any of following types 
-//     # http:Ok (OK)
-//     # http:Unauthorized (Unauthorized)
-//     # http:InternalServerError (Internal Server Error)
-//     resource function get catalog/[string storefront]/artists/[string id]/view/["appears-on-albums"|"compilation-albums"|"featured-albums"|"featured-playlists"|"full-albums"|"latest-release"|"live-albums"|"similar-artists"|"singles"|"top-music-videos"|"top-songs" view](string[]? extend, string[]? include, string? l, ("attributes"|"topResults")[]? with, int 'limit = 5) returns AlbumsResponse|ErrorsResponseUnauthorized|ErrorsResponseInternalServerError {
-//     }
+    # Get a Library Song
+    #
+    # + id - The unique identifier for the song
+    # + extend - A list of attribute extensions to apply to resources in the response
+    # + include - Additional relationships to include in the fetch
+    # + l - The localization to use, specified by a language tag. The possible values are in the `supportedLanguageTags` array belonging to the `Storefront` object specified by `storefront`. Otherwise, the default is `defaultLanguageTag` in `Storefront`
+    # + return - returns can be any of following types 
+    # http:Ok (OK)
+    # http:Unauthorized (Unauthorized)
+    # http:Forbidden (Forbidden)
+    # http:InternalServerError (Internal Server Error)
+    resource function get me/library/songs/[string id](string[]? extend, string[]? include, string? l) returns LibrarySongsResponse|ErrorsResponseUnauthorized|ErrorsResponseForbidden|ErrorsResponseInternalServerError {
+    }
 
-//     # Search for Catalog Resources
-//     #
-//     # + storefront - An iTunes Store territory, specified by an ISO 3166 alpha-2 country code. The possible values are the id attributes of Storefront objects
-//     # + l - The localization to use, specified by a language tag. The possible values are in the `supportedLanguageTags` array belonging to the `Storefront` object specified by `storefront`. Otherwise, the default is `defaultLanguageTag` in `Storefront`
-//     # + 'limit - The number of objects or number of objects in the specified relationship returned
-//     # + offset - The next page or group of objects to fetch
-//     # + term - The entered text for the search with `+` characters between each word, to replace spaces (for example `term=james+br`)
-//     # + types - The list of the types of resources to include in the results
-//     # + with - A list of modifications to apply to the request
-//     # + return - returns can be any of following types 
-//     # http:Ok (OK)
-//     # http:Unauthorized (Unauthorized)
-//     # http:InternalServerError (Internal Server Error)
-//     resource function get catalog/[string storefront]/search(string? l, string? offset, string term, ("activities"|"albums"|"apple-curators"|"artists"|"curators"|"music-videos"|"playlists"|"record-labels"|"songs"|"stations")[]? types, ("attributes"|"topResults")[]? with, int 'limit = 5) returns SearchResponse|ErrorsResponseUnauthorized|ErrorsResponseInternalServerError {
-//     }
+    # Get a Library Song's Relationship Directly by Name
+    #
+    # + id - The unique identifier for the song
+    # + relationship - The name of the relationship you want to fetch for this resource
+    # + extend - A list of attribute extensions to apply to resources in the response
+    # + include - Additional relationships to include in the fetch
+    # + l - The localization to use, specified by a language tag. The possible values are in the `supportedLanguageTags` array belonging to the `Storefront` object specified by `storefront`. Otherwise, the default is `defaultLanguageTag` in `Storefront`
+    # + 'limit - The number of objects or number of objects in the specified relationship returned
+    # + return - returns can be any of following types 
+    # http:Ok (OK)
+    # http:Unauthorized (Unauthorized)
+    # http:Forbidden (Forbidden)
+    # http:InternalServerError (Internal Server Error)
+    resource function get me/library/songs/[string id]/["albums"|"artists"|"composers"|"genres"|"library"|"music-videos"|"station" relationship](string[]? extend, string[]? include, string? l, int 'limit = 5) returns LibrarySongsResponse|ErrorsResponseUnauthorized|ErrorsResponseForbidden|ErrorsResponseInternalServerError {
+    }
 
-//     # Get Multiple Catalog Songs by ID
-//     #
-//     # + storefront - An iTunes Store territory, specified by an ISO 3166 alpha-2 country code. The possible values are the id attributes of Storefront objects
-//     # + ids - The unique identifiers for the songs
-//     # + extend - A list of attribute extensions to apply to resources in the response
-//     # + filter - A filter to apply to the request
-//     # + include - Additional relationships to include in the fetch
-//     # + l - The localization to use, specified by a language tag. The possible values are in the `supportedLanguageTags` array belonging to the `Storefront` object specified by `storefront`. Otherwise, the default is `defaultLanguageTag` in `Storefront`
-//     # + restrict - A set of restrictions (for example, to restrict explicit content)
-//     # + return - returns can be any of following types 
-//     # http:Ok (OK)
-//     # http:Unauthorized (Unauthorized)
-//     # http:InternalServerError (Internal Server Error)
-//     resource function get catalog/[string storefront]/songs(string[]? ids, string[]? extend, string[]? filter, string[]? include, string? l, string[]? restrict) returns SongsResponse|ErrorsResponseUnauthorized|ErrorsResponseInternalServerError {
-//     }
-
-//     # Get a Catalog Song
-//     #
-//     # + storefront - An iTunes Store territory, specified by an ISO 3166 alpha-2 country code. The possible values are the id attributes of Storefront objects
-//     # + id - The unique identifier for the song
-//     # + extend - A list of attribute extensions to apply to resources in the response
-//     # + include - Additional relationships to include in the fetch
-//     # + l - The localization to use, specified by a language tag. The possible values are in the `supportedLanguageTags` array belonging to the `Storefront` object specified by `storefront`. Otherwise, the default is `defaultLanguageTag` in `Storefront`
-//     # + return - returns can be any of following types 
-//     # http:Ok (OK)
-//     # http:Unauthorized (Unauthorized)
-//     # http:InternalServerError (Internal Server Error)
-//     resource function get catalog/[string storefront]/songs/[string id](string[]? extend, string[]? include, string? l) returns SongsResponse|ErrorsResponseUnauthorized|ErrorsResponseInternalServerError {
-//     }
-
-//     # Get a Catalog Song's Relationship Directly by Name
-//     #
-//     # + storefront - An iTunes Store territory, specified by an ISO 3166 alpha-2 country code. The possible values are the id attributes of Storefront objects
-//     # + id - The unique identifier for the song
-//     # + relationship - The name of the relationship you want to fetch for this resource
-//     # + extend - A list of attribute extensions to apply to resources in the response
-//     # + include - Additional relationships to include in the fetch
-//     # + l - The localization to use, specified by a language tag. The possible values are in the `supportedLanguageTags` array belonging to the `Storefront` object specified by `storefront`. Otherwise, the default is `defaultLanguageTag` in `Storefront`
-//     # + 'limit - The number of objects or number of objects in the specified relationship returned
-//     # + return - returns can be any of following types 
-//     # http:Ok (OK)
-//     # http:Unauthorized (Unauthorized)
-//     # http:InternalServerError (Internal Server Error)
-//     resource function get catalog/[string storefront]/songs/[string id]/["albums"|"artists"|"composers"|"genres"|"library"|"music-videos"|"station" relationship](string[]? extend, string[]? include, string? l, int 'limit = 5) returns SongsResponse|ErrorsResponseUnauthorized|ErrorsResponseInternalServerError {
-//     }
-
-//     # Get All Library Albums
-//     #
-//     # + ids - The unique identifiers for the albums
-//     # + extend - A list of attribute extensions to apply to resources in the response
-//     # + include - Additional relationships to include in the fetch
-//     # + l - The localization to use, specified by a language tag. The possible values are in the `supportedLanguageTags` array belonging to the `Storefront` object specified by `storefront`. Otherwise, the default is `defaultLanguageTag` in `Storefront`
-//     # + 'limit - The number of objects or number of objects in the specified relationship returned
-//     # + offset - The next page or group of objects to fetch
-//     # + return - returns can be any of following types 
-//     # http:Ok (OK)
-//     # http:Unauthorized (Unauthorized)
-//     # http:Forbidden (Forbidden)
-//     # http:InternalServerError (Internal Server Error)
-//     resource function get me/library/albums(string[]? ids, string[]? extend, string[]? include, string? l, string? offset, int 'limit = 5) returns LibraryAlbumsResponse|ErrorsResponseUnauthorized|ErrorsResponseForbidden|ErrorsResponseInternalServerError {
-//     }
-
-//     # Get a Library Album
-//     #
-//     # + id - The unique identifier for the album
-//     # + extend - A list of attribute extensions to apply to resources in the response
-//     # + include - Additional relationships to include in the fetch
-//     # + l - The localization to use, specified by a language tag. The possible values are in the `supportedLanguageTags` array belonging to the `Storefront` object specified by `storefront`. Otherwise, the default is `defaultLanguageTag` in `Storefront`
-//     # + return - returns can be any of following types 
-//     # http:Ok (OK)
-//     # http:Unauthorized (Unauthorized)
-//     # http:Forbidden (Forbidden)
-//     # http:InternalServerError (Internal Server Error)
-//     resource function get me/library/albums/[string id](string[]? extend, string[]? include, string? l) returns LibraryAlbumsResponse|ErrorsResponseUnauthorized|ErrorsResponseForbidden|ErrorsResponseInternalServerError {
-//     }
-
-//     # Get a Library Album's Relationship Directly by Name
-//     #
-//     # + id - The unique identifier for the album
-//     # + relationship - The name of the relationship you want to fetch for this resource
-//     # + extend - A list of attribute extensions to apply to resources in the response
-//     # + include - Additional relationships to include in the fetch
-//     # + l - The localization to use, specified by a language tag. The possible values are in the `supportedLanguageTags` array belonging to the `Storefront` object specified by `storefront`. Otherwise, the default is `defaultLanguageTag` in `Storefront`
-//     # + 'limit - The number of objects or number of objects in the specified relationship returned
-//     # + return - returns can be any of following types 
-//     # http:Ok (OK)
-//     # http:Unauthorized (Unauthorized)
-//     # http:Forbidden (Forbidden)
-//     # http:InternalServerError (Internal Server Error)
-//     resource function get me/library/albums/[string id]/["artists"|"genres"|"library"|"record-labels"|"tracks" relationship](string[]? extend, string[]? include, string? l, int 'limit = 5) returns LibraryArtistsResponse|ErrorsResponseUnauthorized|ErrorsResponseForbidden|ErrorsResponseInternalServerError {
-//     }
-
-//     # Get All Library Artists
-//     #
-//     # + ids - The unique identifiers for the artists
-//     # + extend - A list of attribute extensions to apply to resources in the response
-//     # + include - Additional relationships to include in the fetch
-//     # + l - The localization to use, specified by a language tag. The possible values are in the `supportedLanguageTags` array belonging to the `Storefront` object specified by `storefront`. Otherwise, the default is `defaultLanguageTag` in `Storefront`
-//     # + 'limit - The number of objects or number of objects in the specified relationship returned
-//     # + offset - The next page or group of objects to fetch
-//     # + return - returns can be any of following types 
-//     # http:Ok (OK)
-//     # http:Unauthorized (Unauthorized)
-//     # http:Forbidden (Forbidden)
-//     # http:InternalServerError (Internal Server Error)
-//     resource function get me/library/artists(string[]? ids, string[]? extend, string[]? include, string? l, string? offset, int 'limit = 5) returns LibraryArtistsResponse|ErrorsResponseUnauthorized|ErrorsResponseForbidden|ErrorsResponseInternalServerError {
-//     }
-
-//     # Get a Library Artist
-//     #
-//     # + id - The unique identifier for the artist
-//     # + extend - A list of attribute extensions to apply to resources in the response
-//     # + include - Additional relationships to include in the fetch
-//     # + l - The localization to use, specified by a language tag. The possible values are in the `supportedLanguageTags` array belonging to the `Storefront` object specified by `storefront`. Otherwise, the default is `defaultLanguageTag` in `Storefront`
-//     # + return - returns can be any of following types 
-//     # http:Ok (OK)
-//     # http:Unauthorized (Unauthorized)
-//     # http:Forbidden (Forbidden)
-//     # http:InternalServerError (Internal Server Error)
-//     resource function get me/library/artists/[string id](string[]? extend, string[]? include, string? l) returns LibraryArtistsResponse|ErrorsResponseUnauthorized|ErrorsResponseForbidden|ErrorsResponseInternalServerError {
-//     }
-
-//     # Get a Library Artist's Relationship Directly by Name
-//     #
-//     # + id - The unique identifier for the artist
-//     # + relationship - The name of the relationship you want to fetch for this resource
-//     # + extend - A list of attribute extensions to apply to resources in the response
-//     # + include - Additional relationships to include in the fetch
-//     # + l - The localization to use, specified by a language tag. The possible values are in the `supportedLanguageTags` array belonging to the `Storefront` object specified by `storefront`. Otherwise, the default is `defaultLanguageTag` in `Storefront`
-//     # + 'limit - The number of objects or number of objects in the specified relationship returned
-//     # + return - returns can be any of following types 
-//     # http:Ok (OK)
-//     # http:Unauthorized (Unauthorized)
-//     # http:Forbidden (Forbidden)
-//     # http:InternalServerError (Internal Server Error)
-//     resource function get me/library/artists/[string id]/["albums"|"genres"|"music-videos"|"playlists"|"station" relationship](string[]? extend, string[]? include, string? l, int 'limit = 5) returns LibraryAlbumsResponse|ErrorsResponseUnauthorized|ErrorsResponseForbidden|ErrorsResponseInternalServerError {
-//     }
-
-//     # Get All Library Songs
-//     #
-//     # + ids - The unique identifiers for the songs
-//     # + extend - A list of attribute extensions to apply to resources in the response
-//     # + include - Additional relationships to include in the fetch
-//     # + l - The localization to use, specified by a language tag. The possible values are in the `supportedLanguageTags` array belonging to the `Storefront` object specified by `storefront`. Otherwise, the default is `defaultLanguageTag` in `Storefront`
-//     # + 'limit - The number of objects or number of objects in the specified relationship returned
-//     # + offset - The next page or group of objects to fetch
-//     # + return - returns can be any of following types 
-//     # http:Ok (OK)
-//     # http:Unauthorized (Unauthorized)
-//     # http:Forbidden (Forbidden)
-//     # http:InternalServerError (Internal Server Error)
-//     resource function get me/library/songs(string[]? ids, string[]? extend, string[]? include, string? l, string? offset, int 'limit = 5) returns LibrarySongsResponse|ErrorsResponseUnauthorized|ErrorsResponseForbidden|ErrorsResponseInternalServerError {
-//     }
-
-//     # Get a Library Song
-//     #
-//     # + id - The unique identifier for the song
-//     # + extend - A list of attribute extensions to apply to resources in the response
-//     # + include - Additional relationships to include in the fetch
-//     # + l - The localization to use, specified by a language tag. The possible values are in the `supportedLanguageTags` array belonging to the `Storefront` object specified by `storefront`. Otherwise, the default is `defaultLanguageTag` in `Storefront`
-//     # + return - returns can be any of following types 
-//     # http:Ok (OK)
-//     # http:Unauthorized (Unauthorized)
-//     # http:Forbidden (Forbidden)
-//     # http:InternalServerError (Internal Server Error)
-//     resource function get me/library/songs/[string id](string[]? extend, string[]? include, string? l) returns LibrarySongsResponse|ErrorsResponseUnauthorized|ErrorsResponseForbidden|ErrorsResponseInternalServerError {
-//     }
-
-//     # Get a Library Song's Relationship Directly by Name
-//     #
-//     # + id - The unique identifier for the song
-//     # + relationship - The name of the relationship you want to fetch for this resource
-//     # + extend - A list of attribute extensions to apply to resources in the response
-//     # + include - Additional relationships to include in the fetch
-//     # + l - The localization to use, specified by a language tag. The possible values are in the `supportedLanguageTags` array belonging to the `Storefront` object specified by `storefront`. Otherwise, the default is `defaultLanguageTag` in `Storefront`
-//     # + 'limit - The number of objects or number of objects in the specified relationship returned
-//     # + return - returns can be any of following types 
-//     # http:Ok (OK)
-//     # http:Unauthorized (Unauthorized)
-//     # http:Forbidden (Forbidden)
-//     # http:InternalServerError (Internal Server Error)
-//     resource function get me/library/songs/[string id]/["albums"|"artists"|"composers"|"genres"|"library"|"music-videos"|"station" relationship](string[]? extend, string[]? include, string? l, int 'limit = 5) returns LibrarySongsResponse|ErrorsResponseUnauthorized|ErrorsResponseForbidden|ErrorsResponseInternalServerError {
-//     }
-
-//     # Add a Resource to a Library
-//     #
-//     # + ids - The unique catalog identifiers for the resources. To indicate the type of resource to be added, ids must be followed by one of the allowed values. Add multiple types in the same request
-//     # + return - returns can be any of following types 
-//     # http:Accepted (Accepted)
-//     # http:Unauthorized (Unauthorized)
-//     # http:Forbidden (Forbidden)
-//     # http:InternalServerError (Internal Server Error)
-//     resource function post me/library(string[] ids) returns http:Accepted|ErrorsResponseUnauthorized|ErrorsResponseForbidden|ErrorsResponseInternalServerError {
-//     }
-// }
+    # Add a Resource to a Library
+    #
+    # + ids - The unique catalog identifiers for the resources. To indicate the type of resource to be added, ids must be followed by one of the allowed values. Add multiple types in the same request
+    # + return - returns can be any of following types 
+    # http:Accepted (Accepted)
+    # http:Unauthorized (Unauthorized)
+    # http:Forbidden (Forbidden)
+    # http:InternalServerError (Internal Server Error)
+    resource function post me/library(string[] ids) returns http:Accepted|ErrorsResponseUnauthorized|ErrorsResponseForbidden|ErrorsResponseInternalServerError {
+    }
+}

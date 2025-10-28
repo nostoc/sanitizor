@@ -229,7 +229,6 @@ function callAI(string prompt) returns string|error {
     } else {
         return error("AI response content is empty.");
     }
-
 }
 
 function ensureDirectoryExists(string dirPath) returns error? {

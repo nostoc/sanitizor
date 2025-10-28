@@ -7,7 +7,7 @@ function setupMockServerModule(string connectorPath) returns error? {
     string ballerinaDir = connectorPath + "/ballerina";
     // cd into ballerina dir and add mock.server module using bal add cmd
 
-    string command =  string `bal add mock.server`;
+    string command = string `bal add mock.server`;
 
     sanitizor:CommandResult addResult = sanitizor:executeCommand(command, ballerinaDir);
     if !addResult.success {
@@ -25,12 +25,10 @@ function setupMockServerModule(string connectorPath) returns error? {
     // delete auto generated mock.server.bal file
     string mockServerFile = ballerinaDir + "/modules/mock.server/mock.server.bal";
 
-     if check file:test(mockServerFile, file:EXISTS) {
+    if check file:test(mockServerFile, file:EXISTS) {
         check file:remove(mockServerFile, file:RECURSIVE);
         io:println("Removed auto generated mock.server.bal file");
     }
-
-
 
     return;
 
@@ -42,7 +40,7 @@ function generateMockServer(string connectorPath, string specPath) returns error
 
     // generate mock service template using openapi tool
     string command = string `bal openapi -i ${specPath} -o ${mockServerDir}`;
-    sanitizor:CommandResult result = sanitizor:executeCommand(command,ballerinaDir);
+    sanitizor:CommandResult result = sanitizor:executeCommand(command, ballerinaDir);
     if !result.success {
         return error("Failed to generate mock server using ballerina openAPI tool" + result.stderr);
     }
@@ -51,20 +49,18 @@ function generateMockServer(string connectorPath, string specPath) returns error
 
     string mockServerPathOld = mockServerDir + "/aligned_ballerina_openapi_service.bal";
     string mockServerPathNew = mockServerDir + "/mock_server.bal";
-    io:println("Renaming mock server file");
     if check file:test(mockServerPathOld, file:EXISTS) {
         check file:rename(mockServerPathOld, mockServerPathNew);
+        io:println("Renamed mock server file");
     }
 
     // delete client.bal
 
     string clientPath = mockServerDir + "/client.bal";
-     if check file:test(clientPath, file:EXISTS) {
+    if check file:test(clientPath, file:EXISTS) {
         check file:remove(clientPath, file:RECURSIVE);
         io:println("Removed client.bal");
     }
-
-
 
     return;
 }
