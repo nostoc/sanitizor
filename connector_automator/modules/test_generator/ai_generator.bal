@@ -45,7 +45,7 @@ function callAI(string prompt) returns string|error {
     string? content = response.content;
     if content is string {
         io:println(content);
-        return content;        
+        return content;
     } else {
         return error("AI response content is empty.");
     }
@@ -54,14 +54,14 @@ function callAI(string prompt) returns string|error {
 function generateTestFile(string connectorPath) returns error? {
     // Simplified analysis - only get package name and mock server content
     ConnectorAnalysis analysis = check analyzeConnectorForTests(connectorPath);
-    
+
     // Generate test content using AI
     string testContent = check generateTestsWithAI(analysis);
-    
+
     // Write test file
     string testFilePath = connectorPath + "/ballerina/tests/test.bal";
     check io:fileWriteString(testFilePath, testContent);
-    
+
     io:println("✓ Test file generated successfully");
     return;
 }

@@ -11,16 +11,15 @@ function analyzeConnectorForTests(string connectorPath) returns ConnectorAnalysi
     // Read Ballerina.toml to get package name
     string tomlContent = check io:fileReadString(connectorPath + "/ballerina/Ballerina.toml");
     string packageName = extractPackageName(tomlContent);
-    
+
     // Read mock server content
     string mockServerContent = check io:fileReadString(connectorPath + "/ballerina/modules/mock.server/mock_server.bal");
-    
+
     return {
         packageName,
         mockServerContent
     };
 }
-
 
 function extractPackageName(string tomlContent) returns string {
     string connectorName = "";

@@ -2,8 +2,6 @@ import ballerina/io;
 
 public function main(string... args) returns error? {
 
-
-
     string connectorPath = args[0];
     string specPath = args[1];
 
@@ -21,7 +19,7 @@ public function main(string... args) returns error? {
 
     // step 3: complete mock server template
     io:println("starting to complete the template...");
-    check completeMockServer(mockServerPath,typesPath);
+    check completeMockServer(mockServerPath, typesPath);
 
     // Step 3: Generate comprehensive tests
     check generateTestFile(connectorPath);

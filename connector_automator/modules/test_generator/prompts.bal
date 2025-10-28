@@ -1,5 +1,6 @@
-string backtick ="`";
+string backtick = "`";
 string tripleBacktick = "```";
+
 function createMockServerPrompt(string mockServerTemplate, string types) returns string {
     return string `
 You are an expert Ballerina developer. Your task is to complete the provided mock server implementation by filling in all the resource function bodies with realistic dummy data.
@@ -40,7 +41,6 @@ ${tripleBacktick}
 Now, generate the complete ${backtick}mock_server.bal${backtick} file. Before returning the response, make sure by double checking that the dummy data you entered mathces the type declarations in the ${backtick}types.bal${backtick}.
 `;
 }
-
 
 function createTestGenerationPrompt(ConnectorAnalysis analysis) returns string {
     return string `
