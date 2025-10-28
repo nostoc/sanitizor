@@ -1,7 +1,6 @@
-
-
 import ballerina/http;
 import ballerina/test;
+import apple.music.mock.server as _;
 
 // HTTP client configuration for testing
 final http:Client clientEp = check new ("http://localhost:9090/api");
