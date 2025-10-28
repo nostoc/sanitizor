@@ -3,7 +3,8 @@
 
 import ballerina/http;
 
-listener http:Listener ep0 = new (443, config = {host: "api.music.apple.com"});
+listener http:Listener ep0 = new (9090);
+
 
 service /v1 on ep0 {
     # Get Multiple Catalog Albums
@@ -20,96 +21,39 @@ service /v1 on ep0 {
     # http:Unauthorized (Unauthorized)
     # http:InternalServerError (Internal Server Error)
     resource function get catalog/[string storefront]/albums(string[]? ids, string[]? extend, string[]? filter, string[]? include, string? l, string[]? restrict) returns AlbumsResponse|ErrorsResponseUnauthorized|ErrorsResponseInternalServerError {
-        // Simulate authentication check
-        if storefront == "unauthorized" {
-            return <ErrorsResponseUnauthorized>{
-                body: {
-                    data: [{
-                        id: "auth-error-001",
-                        title: "Unauthorized",
-                        detail: "Invalid or missing authentication token",
-                        status: "401",
-                        code: "UNAUTHORIZED"
-                    }]
-                }
-            };
-        }
-
-        Albums[] albumsData = [
-            {
-                id: "1440857781",
-                'type: "albums",
-                href: "/v1/catalog/" + storefront + "/albums/1440857781",
-                attributes: {
-                    name: "Abbey Road (Remastered)",
-                    artistName: "The Beatles",
-                    artwork: {
-                        width: 3000,
-                        height: 3000,
-                        url: "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/ab/cd/ef/abcdef12-3456-7890-abcd-ef1234567890/cover.jpg/{w}x{h}bb.jpg",
-                        bgColor: "1a1a1a",
-                        textColor1: "ffffff",
-                        textColor2: "d4d4d4",
-                        textColor3: "b8b8b8",
-                        textColor4: "9c9c9c"
-                    },
-                    genreNames: ["Rock", "Pop"],
-                    releaseDate: "1969-09-26",
-                    trackCount: 17,
-                    copyright: "℗ 2019 Calderstone Productions Limited (a division of Universal Music Group)",
-                    recordLabel: "Apple Records",
-                    upc: "602577915063",
-                    url: "https://music.apple.com/us/album/abbey-road-remastered/1440857781",
-                    isComplete: true,
-                    isSingle: false,
-                    isCompilation: false,
-                    isMasteredForItunes: true,
-                    contentRating: "clean",
-                    playParams: {
-                        id: "1440857781",
-                        kind: "album"
-                    },
-                    editorialNotes: {
-                        standard: "The Beatles' final recorded album, featuring iconic tracks like 'Come Together' and 'Here Comes the Sun'.",
-                        short: "The Beatles' swan song masterpiece."
-                    }
-                }
-            },
-            {
-                id: "1193701079",
-                'type: "albums",
-                href: "/v1/catalog/" + storefront + "/albums/1193701079",
-                attributes: {
-                    name: "Thriller",
-                    artistName: "Michael Jackson",
-                    artwork: {
-                        width: 3000,
-                        height: 3000,
-                        url: "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/12/34/56/12345678-90ab-cdef-1234-567890abcdef/cover.jpg/{w}x{h}bb.jpg"
-                    },
-                    genreNames: ["Pop", "R&B/Soul"],
-                    releaseDate: "1982-11-30",
-                    trackCount: 9,
-                    copyright: "℗ 1982 MJJ Productions Inc.",
-                    recordLabel: "Epic",
-                    url: "https://music.apple.com/us/album/thriller/1193701079",
-                    isComplete: true,
-                    isSingle: false,
-                    isCompilation: false,
-                    isMasteredForItunes: true,
-                    playParams: {
-                        id: "1193701079",
-                        kind: "album"
-                    }
-                }
-            }
-        ];
-
         return {
-            data: albumsData,
-            meta: {
-                storefront: storefront
-            }
+            "data": [
+                {
+                    "id": "1234567890",
+                    "type": "albums",
+                    "href": "/v1/catalog/us/albums/1234567890",
+                    "attributes": {
+                        "artistName": "The Beatles",
+                        "name": "Abbey Road",
+                        "copyright": "© 1969 Apple Records",
+                        "genreNames": ["Rock"],
+                        "releaseDate": "1969-09-26",
+                        "isMasteredForItunes": true,
+                        "upc": "602527973685",
+                        "artwork": {
+                            "width": 3000,
+                            "height": 3000,
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/album.jpg"
+                        },
+                        "playParams": {
+                            "id": "1234567890",
+                            "kind": "album"
+                        },
+                        "url": "https://music.apple.com/us/album/abbey-road/1234567890",
+                        "recordLabel": "Apple Records",
+                        "isCompilation": false,
+                        "trackCount": 17,
+                        "isSingle": false,
+                        "contentRating": "clean",
+                        "isComplete": true
+                    }
+                }
+            ]
         };
     }
 
@@ -126,45 +70,37 @@ service /v1 on ep0 {
     # http:Unauthorized (Unauthorized)
     # http:InternalServerError (Internal Server Error)
     resource function get catalog/[string storefront]/albums/[string id](("appears-on"|"other-versions"|"related-albums"|"related-videos")[]? views, string[]? extend, string[]? include, string? l) returns AlbumsResponse|ErrorsResponseUnauthorized|ErrorsResponseInternalServerError {
-        Albums albumData = {
-            id: id,
-            'type: "albums",
-            href: "/v1/catalog/" + storefront + "/albums/" + id,
-            attributes: {
-                name: "1989 (Taylor's Version)",
-                artistName: "Taylor Swift",
-                artwork: {
-                    width: 3000,
-                    height: 3000,
-                    url: "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/ts/89/tv/ts1989tv-cover.jpg/{w}x{h}bb.jpg",
-                    bgColor: "87ceeb",
-                    textColor1: "000080",
-                    textColor2: "4169e1"
-                },
-                genreNames: ["Pop", "Country"],
-                releaseDate: "2023-10-27",
-                trackCount: 22,
-                copyright: "℗ 2023 Taylor Swift",
-                recordLabel: "Taylor Swift",
-                url: "https://music.apple.com/us/album/1989-taylors-version/" + id,
-                isComplete: true,
-                isSingle: false,
-                isCompilation: false,
-                isMasteredForItunes: true,
-                contentRating: "clean",
-                playParams: {
-                    id: id,
-                    kind: "album"
-                },
-                editorialNotes: {
-                    standard: "Taylor Swift's re-recorded version of her pop masterpiece, featuring beloved hits and vault tracks.",
-                    short: "The pop icon reclaims her art."
-                }
-            }
-        };
-
         return {
-            data: [albumData]
+            "data": [
+                {
+                    "id": id,
+                    "type": "albums",
+                    "href": "/v1/catalog/" + storefront + "/albums/" + id,
+                    "attributes": {
+                        "artistName": "Taylor Swift",
+                        "name": "1989",
+                        "copyright": "© 2014 Big Machine Records",
+                        "genreNames": ["Pop"],
+                        "releaseDate": "2014-10-27",
+                        "isMasteredForItunes": true,
+                        "artwork": {
+                            "width": 3000,
+                            "height": 3000,
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/album.jpg"
+                        },
+                        "playParams": {
+                            "id": id,
+                            "kind": "album"
+                        },
+                        "url": "https://music.apple.com/" + storefront + "/album/1989/" + id,
+                        "recordLabel": "Big Machine Records",
+                        "isCompilation": false,
+                        "trackCount": 13,
+                        "isSingle": false,
+                        "isComplete": true
+                    }
+                }
+            ]
         };
     }
 
@@ -182,30 +118,19 @@ service /v1 on ep0 {
     # http:Unauthorized (Unauthorized)
     # http:InternalServerError (Internal Server Error)
     resource function get catalog/[string storefront]/albums/[string id]/["artists"|"genres"|"library"|"record-labels"|"tracks" relationship](string[]? extend, string[]? include, string? l, int 'limit = 5) returns ArtistsResponse|ErrorsResponseUnauthorized|ErrorsResponseInternalServerError {
-        if relationship == "artists" {
-            Artists[] artistsData = [{
-                id: "159260351",
-                'type: "artists",
-                href: "/v1/catalog/" + storefront + "/artists/159260351",
-                attributes: {
-                    name: "Taylor Swift",
-                    genreNames: ["Pop", "Country"],
-                    url: "https://music.apple.com/us/artist/taylor-swift/159260351",
-                    editorialNotes: {
-                        standard: "Global superstar known for her storytelling and genre evolution.",
-                        short: "Pop and country icon."
+        return {
+            "data": [
+                {
+                    "id": "987654321",
+                    "type": "artists",
+                    "href": "/v1/catalog/" + storefront + "/artists/987654321",
+                    "attributes": {
+                        "name": "Ed Sheeran",
+                        "genreNames": ["Pop", "Folk"],
+                        "url": "https://music.apple.com/" + storefront + "/artist/ed-sheeran/987654321"
                     }
                 }
-            }];
-
-            return {
-                data: artistsData
-            };
-        }
-
-        // Default empty response for other relationships
-        return {
-            data: []
+            ]
         };
     }
 
@@ -224,37 +149,36 @@ service /v1 on ep0 {
     # http:Unauthorized (Unauthorized)
     # http:InternalServerError (Internal Server Error)
     resource function get catalog/[string storefront]/albums/[string id]/view/["appears-on"|"other-versions"|"related-albums"|"related-videos" view](string[]? extend, string[]? include, string? l, ("attributes"|"topResults")[]? with, int 'limit = 5) returns MusicVideosResponse|ErrorsResponseUnauthorized|ErrorsResponseInternalServerError {
-        MusicVideos[] musicVideosData = [{
-            id: "1234567890",
-            'type: "music-videos",
-            href: "/v1/catalog/" + storefront + "/music-videos/1234567890",
-            attributes: {
-                name: "Shake It Off",
-                artistName: "Taylor Swift",
-                artwork: {
-                    width: 1920,
-                    height: 1080,
-                    url: "https://is1-ssl.mzstatic.com/image/thumb/Video/mv-shake-it-off.jpg/{w}x{h}bb.jpg"
-                },
-                genreNames: ["Pop"],
-                durationInMillis: 242000,
-                releaseDate: "2014-08-18",
-                url: "https://music.apple.com/us/music-video/shake-it-off/1234567890",
-                has4K: true,
-                hasHDR: true,
-                contentRating: "clean",
-                playParams: {
-                    id: "1234567890",
-                    kind: "musicVideo"
-                },
-                previews: [{
-                    url: "https://video-ssl.itunes.apple.com/itunes-assets/Video/preview.m4v"
-                }]
-            }
-        }];
-
         return {
-            data: musicVideosData
+            "data": [
+                {
+                    "id": "mv123456",
+                    "type": "music-videos",
+                    "href": "/v1/catalog/" + storefront + "/music-videos/mv123456",
+                    "attributes": {
+                        "artistName": "Dua Lipa",
+                        "name": "Levitating",
+                        "albumName": "Future Nostalgia",
+                        "genreNames": ["Pop"],
+                        "trackNumber": 4,
+                        "durationInMillis": 203000,
+                        "releaseDate": "2020-03-27",
+                        "artwork": {
+                            "width": 1920,
+                            "height": 1080,
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Video/v4/mv.jpg"
+                        },
+                        "playParams": {
+                            "id": "mv123456",
+                            "kind": "musicVideo"
+                        },
+                        "url": "https://music.apple.com/" + storefront + "/music-video/levitating/mv123456",
+                        "has4K": true,
+                        "hasHDR": false,
+                        "previews": []
+                    }
+                }
+            ]
         };
     }
 
@@ -272,39 +196,29 @@ service /v1 on ep0 {
     # http:Unauthorized (Unauthorized)
     # http:InternalServerError (Internal Server Error)
     resource function get catalog/[string storefront]/artists(string[]? ids, string[]? extend, string[]? filter, string[]? include, string? l, string[]? restrict) returns ArtistsResponse|ErrorsResponseUnauthorized|ErrorsResponseInternalServerError {
-        Artists[] artistsData = [
-            {
-                id: "159260351",
-                'type: "artists",
-                href: "/v1/catalog/" + storefront + "/artists/159260351",
-                attributes: {
-                    name: "Taylor Swift",
-                    genreNames: ["Pop", "Country"],
-                    url: "https://music.apple.com/us/artist/taylor-swift/159260351",
-                    editorialNotes: {
-                        standard: "One of the most successful artists of all time, known for her narrative songwriting and genre versatility.",
-                        short: "Grammy-winning singer-songwriter."
-                    }
-                }
-            },
-            {
-                id: "136975",
-                'type: "artists",
-                href: "/v1/catalog/" + storefront + "/artists/136975",
-                attributes: {
-                    name: "The Beatles",
-                    genreNames: ["Rock", "Pop"],
-                    url: "https://music.apple.com/us/artist/the-beatles/136975",
-                    editorialNotes: {
-                        standard: "The most influential band in popular music history, revolutionizing rock and pop music.",
-                        short: "Legendary British rock band."
-                    }
-                }
-            }
-        ];
-
         return {
-            data: artistsData
+            "data": [
+                {
+                    "id": "artist123",
+                    "type": "artists",
+                    "href": "/v1/catalog/" + storefront + "/artists/artist123",
+                    "attributes": {
+                        "name": "Adele",
+                        "genreNames": ["Pop", "Soul"],
+                        "url": "https://music.apple.com/" + storefront + "/artist/adele/artist123"
+                    }
+                },
+                {
+                    "id": "artist456",
+                    "type": "artists",
+                    "href": "/v1/catalog/" + storefront + "/artists/artist456",
+                    "attributes": {
+                        "name": "Bruno Mars",
+                        "genreNames": ["Pop", "R&B"],
+                        "url": "https://music.apple.com/" + storefront + "/artist/bruno-mars/artist456"
+                    }
+                }
+            ]
         };
     }
 
@@ -321,23 +235,19 @@ service /v1 on ep0 {
     # http:Unauthorized (Unauthorized)
     # http:InternalServerError (Internal Server Error)
     resource function get catalog/[string storefront]/artists/[string id](("appears-on-albums"|"compilation-albums"|"featured-albums"|"featured-playlists"|"full-albums"|"latest-release"|"live-albums"|"similar-artists"|"singles"|"top-music-videos"|"top-songs")[]? views, string[]? extend, string[]? include, string? l) returns ArtistsResponse|ErrorsResponseUnauthorized|ErrorsResponseInternalServerError {
-        Artists artistData = {
-            id: id,
-            'type: "artists",
-            href: "/v1/catalog/" + storefront + "/artists/" + id,
-            attributes: {
-                name: "Adele",
-                genreNames: ["Pop", "Soul"],
-                url: "https://music.apple.com/us/artist/adele/" + id,
-                editorialNotes: {
-                    standard: "British singer-songwriter known for her powerful vocals and emotional ballads.",
-                    short: "Soul-stirring vocalist and songwriter."
-                }
-            }
-        };
-
         return {
-            data: [artistData]
+            "data": [
+                {
+                    "id": id,
+                    "type": "artists",
+                    "href": "/v1/catalog/" + storefront + "/artists/" + id,
+                    "attributes": {
+                        "name": "Billie Eilish",
+                        "genreNames": ["Alternative", "Pop"],
+                        "url": "https://music.apple.com/" + storefront + "/artist/billie-eilish/" + id
+                    }
+                }
+            ]
         };
     }
 
@@ -355,39 +265,35 @@ service /v1 on ep0 {
     # http:Unauthorized (Unauthorized)
     # http:InternalServerError (Internal Server Error)
     resource function get catalog/[string storefront]/artists/[string id]/["albums"|"genres"|"music-videos"|"playlists"|"station" relationship](string[]? extend, string[]? include, string? l, int 'limit = 5) returns AlbumsResponse|ErrorsResponseUnauthorized|ErrorsResponseInternalServerError {
-        if relationship == "albums" {
-            Albums[] albumsData = [{
-                id: "1440857781",
-                'type: "albums",
-                href: "/v1/catalog/" + storefront + "/albums/1440857781",
-                attributes: {
-                    name: "25",
-                    artistName: "Adele",
-                    artwork: {
-                        width: 3000,
-                        height: 3000,
-                        url: "https://is1-ssl.mzstatic.com/image/thumb/Music/adele-25.jpg/{w}x{h}bb.jpg"
-                    },
-                    genreNames: ["Pop", "Soul"],
-                    releaseDate: "2015-11-20",
-                    trackCount: 11,
-                    isComplete: true,
-                    isSingle: false,
-                    isCompilation: false,
-                    playParams: {
-                        id: "1440857781",
-                        kind: "album"
-                    }
-                ,isMasteredForItunes: false, url: ""}
-            }];
-
-            return {
-                data: albumsData
-            };
-        }
-
         return {
-            data: []
+            "data": [
+                {
+                    "id": "album789",
+                    "type": "albums",
+                    "href": "/v1/catalog/" + storefront + "/albums/album789",
+                    "attributes": {
+                        "artistName": "The Weeknd",
+                        "name": "After Hours",
+                        "genreNames": ["R&B/Soul"],
+                        "releaseDate": "2020-03-20",
+                        "isMasteredForItunes": true,
+                        "artwork": {
+                            "width": 3000,
+                            "height": 3000,
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/album.jpg"
+                        },
+                        "playParams": {
+                            "id": "album789",
+                            "kind": "album"
+                        },
+                        "url": "https://music.apple.com/" + storefront + "/album/after-hours/album789",
+                        "isCompilation": false,
+                        "trackCount": 14,
+                        "isSingle": false,
+                        "isComplete": true
+                    }
+                }
+            ]
         };
     }
 
@@ -406,33 +312,35 @@ service /v1 on ep0 {
     # http:Unauthorized (Unauthorized)
     # http:InternalServerError (Internal Server Error)
     resource function get catalog/[string storefront]/artists/[string id]/view/["appears-on-albums"|"compilation-albums"|"featured-albums"|"featured-playlists"|"full-albums"|"latest-release"|"live-albums"|"similar-artists"|"singles"|"top-music-videos"|"top-songs" view](string[]? extend, string[]? include, string? l, ("attributes"|"topResults")[]? with, int 'limit = 5) returns AlbumsResponse|ErrorsResponseUnauthorized|ErrorsResponseInternalServerError {
-        Albums[] albumsData = [{
-            id: "987654321",
-            'type: "albums",
-            href: "/v1/catalog/" + storefront + "/albums/987654321",
-            attributes: {
-                name: "30",
-                artistName: "Adele",
-                artwork: {
-                    width: 3000,
-                    height: 3000,
-                    url: "https://is1-ssl.mzstatic.com/image/thumb/Music/adele-30.jpg/{w}x{h}bb.jpg"
-                },
-                genreNames: ["Pop", "Soul"],
-                releaseDate: "2021-11-19",
-                trackCount: 12,
-                isComplete: true,
-                isSingle: false,
-                isCompilation: false,
-                playParams: {
-                    id: "987654321",
-                    kind: "album"
-                }
-            ,isMasteredForItunes: false, url: ""}
-        }];
-
         return {
-            data: albumsData
+            "data": [
+                {
+                    "id": "topalbum001",
+                    "type": "albums",
+                    "href": "/v1/catalog/" + storefront + "/albums/topalbum001",
+                    "attributes": {
+                        "artistName": "Drake",
+                        "name": "Certified Lover Boy",
+                        "genreNames": ["Hip-Hop/Rap"],
+                        "releaseDate": "2021-09-03",
+                        "isMasteredForItunes": true,
+                        "artwork": {
+                            "width": 3000,
+                            "height": 3000,
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/album.jpg"
+                        },
+                        "playParams": {
+                            "id": "topalbum001",
+                            "kind": "album"
+                        },
+                        "url": "https://music.apple.com/" + storefront + "/album/certified-lover-boy/topalbum001",
+                        "isCompilation": false,
+                        "trackCount": 21,
+                        "isSingle": false,
+                        "isComplete": true
+                    }
+                }
+            ]
         };
     }
 
@@ -450,49 +358,51 @@ service /v1 on ep0 {
     # http:Unauthorized (Unauthorized)
     # http:InternalServerError (Internal Server Error)
     resource function get catalog/[string storefront]/search(string? l, string? offset, string term, ("activities"|"albums"|"apple-curators"|"artists"|"curators"|"music-videos"|"playlists"|"record-labels"|"songs"|"stations")[]? types, ("attributes"|"topResults")[]? with, int 'limit = 5) returns SearchResponse|ErrorsResponseUnauthorized|ErrorsResponseInternalServerError {
-        Albums[] albumResults = [{
-            id: "1440857781",
-            'type: "albums",
-            href: "/v1/catalog/" + storefront + "/albums/1440857781",
-            attributes: {
-                name: "Abbey Road (Remastered)",
-                artistName: "The Beatles",
-                artwork: {
-                    width: 3000,
-                    height: 3000,
-                    url: "https://is1-ssl.mzstatic.com/image/thumb/Music/beatles-abbey-road.jpg/{w}x{h}bb.jpg"
-                },
-                genreNames: ["Rock", "Pop"],
-                releaseDate: "1969-09-26",
-                trackCount: 17,
-                isComplete: true,
-                isSingle: false,
-                isCompilation: false,
-                playParams: {
-                    id: "1440857781",
-                    kind: "album"
-                }
-            ,isMasteredForItunes: false, url: ""}
-        }];
-
-        Artists[] artistResults = [{
-            id: "136975",
-            'type: "artists",
-            href: "/v1/catalog/" + storefront + "/artists/136975",
-            attributes: {
-                name: "The Beatles",
-                genreNames: ["Rock", "Pop"],
-                url: "https://music.apple.com/us/artist/the-beatles/136975"
-            }
-        }];
-
         return {
-            results: {
-                albums: {
-                    data: albumResults
+            "results": {
+                "albums": {
+                    "data": [
+                        {
+                            "id": "search001",
+                            "type": "albums",
+                            "href": "/v1/catalog/" + storefront + "/albums/search001",
+                            "attributes": {
+                                "artistName": "Olivia Rodrigo",
+                                "name": "SOUR",
+                                "genreNames": ["Pop"],
+                                "releaseDate": "2021-05-21",
+                                "isMasteredForItunes": true,
+                                "artwork": {
+                                    "width": 3000,
+                                    "height": 3000,
+                                    "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/album.jpg"
+                                },
+                                "playParams": {
+                                    "id": "search001",
+                                    "kind": "album"
+                                },
+                                "url": "https://music.apple.com/" + storefront + "/album/sour/search001",
+                                "isCompilation": false,
+                                "trackCount": 11,
+                                "isSingle": false,
+                                "isComplete": true
+                            }
+                        }
+                    ]
                 },
-                artists: {
-                    data: artistResults
+                "artists": {
+                    "data": [
+                        {
+                            "id": "searchartist001",
+                            "type": "artists",
+                            "href": "/v1/catalog/" + storefront + "/artists/searchartist001",
+                            "attributes": {
+                                "name": "Harry Styles",
+                                "genreNames": ["Pop"],
+                                "url": "https://music.apple.com/" + storefront + "/artist/harry-styles/searchartist001"
+                            }
+                        }
+                    ]
                 }
             }
         };
@@ -512,70 +422,36 @@ service /v1 on ep0 {
     # http:Unauthorized (Unauthorized)
     # http:InternalServerError (Internal Server Error)
     resource function get catalog/[string storefront]/songs(string[]? ids, string[]? extend, string[]? filter, string[]? include, string? l, string[]? restrict) returns SongsResponse|ErrorsResponseUnauthorized|ErrorsResponseInternalServerError {
-        Songs[] songsData = [
-            {
-                id: "1440857915",
-                'type: "songs",
-                href: "/v1/catalog/" + storefront + "/songs/1440857915",
-                attributes: {
-                    name: "Come Together (Remastered 2019)",
-                    artistName: "The Beatles",
-                    albumName: "Abbey Road (Remastered)",
-                    artwork: {
-                        width: 3000,
-                        height: 3000,
-                        url: "https://is1-ssl.mzstatic.com/image/thumb/Music/beatles-abbey-road.jpg/{w}x{h}bb.jpg"
-                    },
-                    genreNames: ["Rock"],
-                    durationInMillis: 259000,
-                    releaseDate: "1969-09-26",
-                    trackNumber: 1,
-                    discNumber: 1,
-                    hasLyrics: true,
-                    url: "https://music.apple.com/us/album/come-together-remastered-2019/1440857781?i=1440857915",
-                    contentRating: "clean",
-                    playParams: {
-                        id: "1440857915",
-                        kind: "song"
-                    },
-                    previews: [{
-                        url: "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview/come-together-preview.m4a"
-                    }]
-                }
-            },
-            {
-                id: "1193701194",
-                'type: "songs",
-                href: "/v1/catalog/" + storefront + "/songs/1193701194",
-                attributes: {
-                    name: "Billie Jean",
-                    artistName: "Michael Jackson",
-                    albumName: "Thriller",
-                    artwork: {
-                        width: 3000,
-                        height: 3000,
-                        url: "https://is1-ssl.mzstatic.com/image/thumb/Music/mj-thriller.jpg/{w}x{h}bb.jpg"
-                    },
-                    genreNames: ["Pop", "R&B/Soul"],
-                    durationInMillis: 294000,
-                    releaseDate: "1982-11-30",
-                    trackNumber: 6,
-                    discNumber: 1,
-                    hasLyrics: true,
-                    url: "https://music.apple.com/us/album/billie-jean/1193701079?i=1193701194",
-                    playParams: {
-                        id: "1193701194",
-                        kind: "song"
-                    },
-                    previews: [{
-                        url: "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview/billie-jean-preview.m4a"
-                    }]
-                }
-            }
-        ];
-
         return {
-            data: songsData
+            "data": [
+                {
+                    "id": "song123",
+                    "type": "songs",
+                    "href": "/v1/catalog/" + storefront + "/songs/song123",
+                    "attributes": {
+                        "albumName": "Folklore",
+                        "artistName": "Taylor Swift",
+                        "name": "cardigan",
+                        "genreNames": ["Alternative"],
+                        "trackNumber": 2,
+                        "durationInMillis": 239000,
+                        "releaseDate": "2020-07-24",
+                        "artwork": {
+                            "width": 3000,
+                            "height": 3000,
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/song.jpg"
+                        },
+                        "playParams": {
+                            "id": "song123",
+                            "kind": "song"
+                        },
+                        "url": "https://music.apple.com/" + storefront + "/song/cardigan/song123",
+                        "discNumber": 1,
+                        "hasLyrics": true,
+                        "previews": []
+                    }
+                }
+            ]
         };
     }
 
@@ -591,39 +467,36 @@ service /v1 on ep0 {
     # http:Unauthorized (Unauthorized)
     # http:InternalServerError (Internal Server Error)
     resource function get catalog/[string storefront]/songs/[string id](string[]? extend, string[]? include, string? l) returns SongsResponse|ErrorsResponseUnauthorized|ErrorsResponseInternalServerError {
-        Songs songData = {
-            id: id,
-            'type: "songs",
-            href: "/v1/catalog/" + storefront + "/songs/" + id,
-            attributes: {
-                name: "Shake It Off",
-                artistName: "Taylor Swift",
-                albumName: "1989 (Taylor's Version)",
-                artwork: {
-                    width: 3000,
-                    height: 3000,
-                    url: "https://is1-ssl.mzstatic.com/image/thumb/Music/ts-1989-tv.jpg/{w}x{h}bb.jpg"
-                },
-                genreNames: ["Pop"],
-                durationInMillis: 219000,
-                releaseDate: "2023-10-27",
-                trackNumber: 6,
-                discNumber: 1,
-                hasLyrics: true,
-                url: "https://music.apple.com/us/album/shake-it-off-taylors-version/1708283932?i=" + id,
-                contentRating: "clean",
-                playParams: {
-                    id: id,
-                    kind: "song"
-                },
-                previews: [{
-                    url: "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview/shake-it-off-preview.m4a"
-                }]
-            }
-        };
-
         return {
-            data: [songData]
+            "data": [
+                {
+                    "id": id,
+                    "type": "songs",
+                    "href": "/v1/catalog/" + storefront + "/songs/" + id,
+                    "attributes": {
+                        "albumName": "Blinding Lights",
+                        "artistName": "The Weeknd",
+                        "name": "Blinding Lights",
+                        "genreNames": ["R&B/Soul"],
+                        "trackNumber": 1,
+                        "durationInMillis": 200040,
+                        "releaseDate": "2019-11-29",
+                        "artwork": {
+                            "width": 3000,
+                            "height": 3000,
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/song.jpg"
+                        },
+                        "playParams": {
+                            "id": id,
+                            "kind": "song"
+                        },
+                        "url": "https://music.apple.com/" + storefront + "/song/blinding-lights/" + id,
+                        "discNumber": 1,
+                        "hasLyrics": true,
+                        "previews": []
+                    }
+                }
+            ]
         };
     }
 
@@ -641,9 +514,36 @@ service /v1 on ep0 {
     # http:Unauthorized (Unauthorized)
     # http:InternalServerError (Internal Server Error)
     resource function get catalog/[string storefront]/songs/[string id]/["albums"|"artists"|"composers"|"genres"|"library"|"music-videos"|"station" relationship](string[]? extend, string[]? include, string? l, int 'limit = 5) returns SongsResponse|ErrorsResponseUnauthorized|ErrorsResponseInternalServerError {
-        // Return empty response for relationships
         return {
-            data: []
+            "data": [
+                {
+                    "id": "related123",
+                    "type": "songs",
+                    "href": "/v1/catalog/" + storefront + "/songs/related123",
+                    "attributes": {
+                        "albumName": "Positions",
+                        "artistName": "Ariana Grande",
+                        "name": "positions",
+                        "genreNames": ["Pop"],
+                        "trackNumber": 1,
+                        "durationInMillis": 172000,
+                        "releaseDate": "2020-10-30",
+                        "artwork": {
+                            "width": 3000,
+                            "height": 3000,
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/song.jpg"
+                        },
+                        "playParams": {
+                            "id": "related123",
+                            "kind": "song"
+                        },
+                        "url": "https://music.apple.com/" + storefront + "/song/positions/related123",
+                        "discNumber": 1,
+                        "hasLyrics": true,
+                        "previews": []
+                    }
+                }
+            ]
         };
     }
 
@@ -661,57 +561,31 @@ service /v1 on ep0 {
     # http:Forbidden (Forbidden)
     # http:InternalServerError (Internal Server Error)
     resource function get me/library/albums(string[]? ids, string[]? extend, string[]? include, string? l, string? offset, int 'limit = 5) returns LibraryAlbumsResponse|ErrorsResponseUnauthorized|ErrorsResponseForbidden|ErrorsResponseInternalServerError {
-        LibraryAlbums[] libraryAlbumsData = [
-            {
-                id: "lib-1440857781",
-                'type: "library-albums",
-                href: "/v1/me/library/albums/lib-1440857781",
-                attributes: {
-                    name: "Abbey Road (Remastered)",
-                    artistName: "The Beatles",
-                    artwork: {
-                        width: 3000,
-                        height: 3000,
-                        url: "https://is1-ssl.mzstatic.com/image/thumb/Music/beatles-abbey-road.jpg/{w}x{h}bb.jpg"
-                    },
-                    genreNames: ["Rock", "Pop"],
-                    releaseDate: "1969-09-26",
-                    trackCount: 17,
-                    dateAdded: "2023-01-15",
-                    contentRating: "clean",
-                    playParams: {
-                        id: "lib-1440857781",
-                        kind: "album"
-                    }
-                }
-            },
-            {
-                id: "lib-1708283932",
-                'type: "library-albums",
-                href: "/v1/me/library/albums/lib-1708283932",
-                attributes: {
-                    name: "1989 (Taylor's Version)",
-                    artistName: "Taylor Swift",
-                    artwork: {
-                        width: 3000,
-                        height: 3000,
-                        url: "https://is1-ssl.mzstatic.com/image/thumb/Music/ts-1989-tv.jpg/{w}x{h}bb.jpg"
-                    },
-                    genreNames: ["Pop"],
-                    releaseDate: "2023-10-27",
-                    trackCount: 22,
-                    dateAdded: "2023-10-27",
-                    contentRating: "clean",
-                    playParams: {
-                        id: "lib-1708283932",
-                        kind: "album"
-                    }
-                }
-            }
-        ];
-
         return {
-            data: libraryAlbumsData
+            "data": [
+                {
+                    "id": "lib001",
+                    "type": "library-albums",
+                    "href": "/v1/me/library/albums/lib001",
+                    "attributes": {
+                        "trackCount": 12,
+                        "genreNames": ["Pop"],
+                        "releaseDate": "2022-10-21",
+                        "name": "Midnights",
+                        "artistName": "Taylor Swift",
+                        "artwork": {
+                            "width": 3000,
+                            "height": 3000,
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/library-album.jpg"
+                        },
+                        "dateAdded": "2022-10-22",
+                        "playParams": {
+                            "id": "lib001",
+                            "kind": "album"
+                        }
+                    }
+                }
+            ]
         };
     }
 
@@ -727,32 +601,31 @@ service /v1 on ep0 {
     # http:Forbidden (Forbidden)
     # http:InternalServerError (Internal Server Error)
     resource function get me/library/albums/[string id](string[]? extend, string[]? include, string? l) returns LibraryAlbumsResponse|ErrorsResponseUnauthorized|ErrorsResponseForbidden|ErrorsResponseInternalServerError {
-        LibraryAlbums libraryAlbumData = {
-            id: id,
-            'type: "library-albums",
-            href: "/v1/me/library/albums/" + id,
-            attributes: {
-                name: "Folklore",
-                artistName: "Taylor Swift",
-                artwork: {
-                    width: 3000,
-                    height: 3000,
-                    url: "https://is1-ssl.mzstatic.com/image/thumb/Music/ts-folklore.jpg/{w}x{h}bb.jpg"
-                },
-                genreNames: ["Alternative", "Indie Folk"],
-                releaseDate: "2020-07-24",
-                trackCount: 16,
-                dateAdded: "2020-07-24",
-                contentRating: "clean",
-                playParams: {
-                    id: id,
-                    kind: "album"
-                }
-            }
-        };
-
         return {
-            data: [libraryAlbumData]
+            "data": [
+                {
+                    "id": id,
+                    "type": "library-albums",
+                    "href": "/v1/me/library/albums/" + id,
+                    "attributes": {
+                        "trackCount": 16,
+                        "genreNames": ["Hip-Hop/Rap"],
+                        "releaseDate": "2023-07-28",
+                        "name": "Pink Friday 2",
+                        "artistName": "Nicki Minaj",
+                        "artwork": {
+                            "width": 3000,
+                            "height": 3000,
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/library-album.jpg"
+                        },
+                        "dateAdded": "2023-07-29",
+                        "playParams": {
+                            "id": id,
+                            "kind": "album"
+                        }
+                    }
+                }
+            ]
         };
     }
 
@@ -770,23 +643,17 @@ service /v1 on ep0 {
     # http:Forbidden (Forbidden)
     # http:InternalServerError (Internal Server Error)
     resource function get me/library/albums/[string id]/["artists"|"genres"|"library"|"record-labels"|"tracks" relationship](string[]? extend, string[]? include, string? l, int 'limit = 5) returns LibraryArtistsResponse|ErrorsResponseUnauthorized|ErrorsResponseForbidden|ErrorsResponseInternalServerError {
-        if relationship == "artists" {
-            LibraryArtists[] libraryArtistsData = [{
-                id: "lib-159260351",
-                'type: "library-artists",
-                href: "/v1/me/library/artists/lib-159260351",
-                attributes: {
-                    name: "Taylor Swift"
-                }
-            }];
-
-            return {
-                data: libraryArtistsData
-            };
-        }
-
         return {
-            data: []
+            "data": [
+                {
+                    "id": "libartist001",
+                    "type": "library-artists",
+                    "href": "/v1/me/library/artists/libartist001",
+                    "attributes": {
+                        "name": "Lorde"
+                    }
+                }
+            ]
         };
     }
 
@@ -804,27 +671,25 @@ service /v1 on ep0 {
     # http:Forbidden (Forbidden)
     # http:InternalServerError (Internal Server Error)
     resource function get me/library/artists(string[]? ids, string[]? extend, string[]? include, string? l, string? offset, int 'limit = 5) returns LibraryArtistsResponse|ErrorsResponseUnauthorized|ErrorsResponseForbidden|ErrorsResponseInternalServerError {
-        LibraryArtists[] libraryArtistsData = [
-            {
-                id: "lib-159260351",
-                'type: "library-artists",
-                href: "/v1/me/library/artists/lib-159260351",
-                attributes: {
-                    name: "Taylor Swift"
-                }
-            },
-            {
-                id: "lib-136975",
-                'type: "library-artists",
-                href: "/v1/me/library/artists/lib-136975",
-                attributes: {
-                    name: "The Beatles"
-                }
-            }
-        ];
-
         return {
-            data: libraryArtistsData
+            "data": [
+                {
+                    "id": "libartist002",
+                    "type": "library-artists",
+                    "href": "/v1/me/library/artists/libartist002",
+                    "attributes": {
+                        "name": "Doja Cat"
+                    }
+                },
+                {
+                    "id": "libartist003",
+                    "type": "library-artists",
+                    "href": "/v1/me/library/artists/libartist003",
+                    "attributes": {
+                        "name": "SZA"
+                    }
+                }
+            ]
         };
     }
 
@@ -840,17 +705,17 @@ service /v1 on ep0 {
     # http:Forbidden (Forbidden)
     # http:InternalServerError (Internal Server Error)
     resource function get me/library/artists/[string id](string[]? extend, string[]? include, string? l) returns LibraryArtistsResponse|ErrorsResponseUnauthorized|ErrorsResponseForbidden|ErrorsResponseInternalServerError {
-        LibraryArtists libraryArtistData = {
-            id: id,
-            'type: "library-artists",
-            href: "/v1/me/library/artists/" + id,
-            attributes: {
-                name: "Ed Sheeran"
-            }
-        };
-
         return {
-            data: [libraryArtistData]
+            "data": [
+                {
+                    "id": id,
+                    "type": "library-artists",
+                    "href": "/v1/me/library/artists/" + id,
+                    "attributes": {
+                        "name": "Beyoncé"
+                    }
+                }
+            ]
         };
     }
 
@@ -868,37 +733,31 @@ service /v1 on ep0 {
     # http:Forbidden (Forbidden)
     # http:InternalServerError (Internal Server Error)
     resource function get me/library/artists/[string id]/["albums"|"genres"|"music-videos"|"playlists"|"station" relationship](string[]? extend, string[]? include, string? l, int 'limit = 5) returns LibraryAlbumsResponse|ErrorsResponseUnauthorized|ErrorsResponseForbidden|ErrorsResponseInternalServerError {
-        if relationship == "albums" {
-            LibraryAlbums[] libraryAlbumsData = [{
-                id: "lib-divide-album",
-                'type: "library-albums",
-                href: "/v1/me/library/albums/lib-divide-album",
-                attributes: {
-                    name: "÷ (Divide)",
-                    artistName: "Ed Sheeran",
-                    artwork: {
-                        width: 3000,
-                        height: 3000,
-                        url: "https://is1-ssl.mzstatic.com/image/thumb/Music/ed-sheeran-divide.jpg/{w}x{h}bb.jpg"
-                    },
-                    genreNames: ["Pop"],
-                    releaseDate: "2017-03-03",
-                    trackCount: 16,
-                    dateAdded: "2017-03-03",
-                    playParams: {
-                        id: "lib-divide-album",
-                        kind: "album"
+        return {
+            "data": [
+                {
+                    "id": "libalbum002",
+                    "type": "library-albums",
+                    "href": "/v1/me/library/albums/libalbum002",
+                    "attributes": {
+                        "trackCount": 10,
+                        "genreNames": ["R&B/Soul"],
+                        "releaseDate": "2022-07-29",
+                        "name": "Renaissance",
+                        "artistName": "Beyoncé",
+                        "artwork": {
+                            "width": 3000,
+                            "height": 3000,
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/library-album.jpg"
+                        },
+                        "dateAdded": "2022-07-30",
+                        "playParams": {
+                            "id": "libalbum002",
+                            "kind": "album"
+                        }
                     }
                 }
-            }];
-
-            return {
-                data: libraryAlbumsData
-            };
-        }
-
-        return {
-            data: []
+            ]
         };
     }
 
@@ -916,63 +775,34 @@ service /v1 on ep0 {
     # http:Forbidden (Forbidden)
     # http:InternalServerError (Internal Server Error)
     resource function get me/library/songs(string[]? ids, string[]? extend, string[]? include, string? l, string? offset, int 'limit = 5) returns LibrarySongsResponse|ErrorsResponseUnauthorized|ErrorsResponseForbidden|ErrorsResponseInternalServerError {
-        LibrarySongs[] librarySongsData = [
-            {
-                id: "lib-shape-of-you",
-                'type: "library-songs",
-                href: "/v1/me/library/songs/lib-shape-of-you",
-                attributes: {
-                    name: "Shape of You",
-                    artistName: "Ed Sheeran",
-                    albumName: "÷ (Divide)",
-                    artwork: {
-                        width: 3000,
-                        height: 3000,
-                        url: "https://is1-ssl.mzstatic.com/image/thumb/Music/ed-sheeran-divide.jpg/{w}x{h}bb.jpg"
-                    },
-                    genreNames: ["Pop"],
-                    durationInMillis: 233000,
-                    releaseDate: "2017-01-06",
-                    trackNumber: 4,
-                    discNumber: 1,
-                    hasLyrics: true,
-                    contentRating: "clean",
-                    playParams: {
-                        id: "lib-shape-of-you",
-                        kind: "song"
-                    }
-                }
-            },
-            {
-                id: "lib-perfect",
-                'type: "library-songs",
-                href: "/v1/me/library/songs/lib-perfect",
-                attributes: {
-                    name: "Perfect",
-                    artistName: "Ed Sheeran",
-                    albumName: "÷ (Divide)",
-                    artwork: {
-                        width: 3000,
-                        height: 3000,
-                        url: "https://is1-ssl.mzstatic.com/image/thumb/Music/ed-sheeran-divide.jpg/{w}x{h}bb.jpg"
-                    },
-                    genreNames: ["Pop"],
-                    durationInMillis: 263000,
-                    releaseDate: "2017-03-03",
-                    trackNumber: 5,
-                    discNumber: 1,
-                    hasLyrics: true,
-                    contentRating: "clean",
-                    playParams: {
-                        id: "lib-perfect",
-                        kind: "song"
-                    }
-                }
-            }
-        ];
-
         return {
-            data: librarySongsData
+            "data": [
+                {
+                    "id": "libsong001",
+                    "type": "library-songs",
+                    "href": "/v1/me/library/songs/libsong001",
+                    "attributes": {
+                        "albumName": "Un Verano Sin Ti",
+                        "discNumber": 1,
+                        "genreNames": ["Latin"],
+                        "hasLyrics": true,
+                        "trackNumber": 3,
+                        "durationInMillis": 195000,
+                        "releaseDate": "2022-05-06",
+                        "name": "Me Porto Bonito",
+                        "artistName": "Bad Bunny",
+                        "artwork": {
+                            "width": 3000,
+                            "height": 3000,
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/library-song.jpg"
+                        },
+                        "playParams": {
+                            "id": "libsong001",
+                            "kind": "song"
+                        }
+                    }
+                }
+            ]
         };
     }
 
@@ -988,35 +818,34 @@ service /v1 on ep0 {
     # http:Forbidden (Forbidden)
     # http:InternalServerError (Internal Server Error)
     resource function get me/library/songs/[string id](string[]? extend, string[]? include, string? l) returns LibrarySongsResponse|ErrorsResponseUnauthorized|ErrorsResponseForbidden|ErrorsResponseInternalServerError {
-        LibrarySongs librarySongData = {
-            id: id,
-            'type: "library-songs",
-            href: "/v1/me/library/songs/" + id,
-            attributes: {
-                name: "Thinking Out Loud",
-                artistName: "Ed Sheeran",
-                albumName: "x (Multiply)",
-                artwork: {
-                    width: 3000,
-                    height: 3000,
-                    url: "https://is1-ssl.mzstatic.com/image/thumb/Music/ed-sheeran-multiply.jpg/{w}x{h}bb.jpg"
-                },
-                genreNames: ["Pop", "Folk"],
-                durationInMillis: 281000,
-                releaseDate: "2014-06-23",
-                trackNumber: 9,
-                discNumber: 1,
-                hasLyrics: true,
-                contentRating: "clean",
-                playParams: {
-                    id: id,
-                    kind: "song"
-                }
-            }
-        };
-
         return {
-            data: [librarySongData]
+            "data": [
+                {
+                    "id": id,
+                    "type": "library-songs",
+                    "href": "/v1/me/library/songs/" + id,
+                    "attributes": {
+                        "albumName": "As It Was",
+                        "discNumber": 1,
+                        "genreNames": ["Pop"],
+                        "hasLyrics": true,
+                        "trackNumber": 1,
+                        "durationInMillis": 167000,
+                        "releaseDate": "2022-04-01",
+                        "name": "As It Was",
+                        "artistName": "Harry Styles",
+                        "artwork": {
+                            "width": 3000,
+                            "height": 3000,
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/library-song.jpg"
+                        },
+                        "playParams": {
+                            "id": id,
+                            "kind": "song"
+                        }
+                    }
+                }
+            ]
         };
     }
 
@@ -1034,9 +863,34 @@ service /v1 on ep0 {
     # http:Forbidden (Forbidden)
     # http:InternalServerError (Internal Server Error)
     resource function get me/library/songs/[string id]/["albums"|"artists"|"composers"|"genres"|"library"|"music-videos"|"station" relationship](string[]? extend, string[]? include, string? l, int 'limit = 5) returns LibrarySongsResponse|ErrorsResponseUnauthorized|ErrorsResponseForbidden|ErrorsResponseInternalServerError {
-        // Return empty response for relationships
         return {
-            data: []
+            "data": [
+                {
+                    "id": "libsongrel001",
+                    "type": "library-songs",
+                    "href": "/v1/me/library/songs/libsongrel001",
+                    "attributes": {
+                        "albumName": "Happier Than Ever",
+                        "discNumber": 1,
+                        "genreNames": ["Alternative"],
+                        "hasLyrics": true,
+                        "trackNumber": 2,
+                        "durationInMillis": 198000,
+                        "releaseDate": "2021-07-30",
+                        "name": "Happier Than Ever",
+                        "artistName": "Billie Eilish",
+                        "artwork": {
+                            "width": 3000,
+                            "height": 3000,
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/library-song.jpg"
+                        },
+                        "playParams": {
+                            "id": "libsongrel001",
+                            "kind": "song"
+                        }
+                    }
+                }
+            ]
         };
     }
 
@@ -1049,7 +903,6 @@ service /v1 on ep0 {
     # http:Forbidden (Forbidden)
     # http:InternalServerError (Internal Server Error)
     resource function post me/library(string[] ids) returns http:Accepted|ErrorsResponseUnauthorized|ErrorsResponseForbidden|ErrorsResponseInternalServerError {
-        // Simulate successful addition to library
         return http:ACCEPTED;
     }
 }
