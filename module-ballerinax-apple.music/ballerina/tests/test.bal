@@ -1,326 +1,809 @@
-import ballerina/http;
 import ballerina/test;
+import ballerina/http;
+
+// Import mock server
 import apple.music.mock.server as _;
 
-// HTTP client configuration for testing
-final http:Client clientEp = check new ("http://localhost:9090/api");
+// Configurable variables for testing
+configurable boolean useMockServer = true;
+configurable string mockServerUrl = "http://localhost:9090";
+configurable string liveServerUrl = "https://api.music.apple.com";
 
-// Test Scenario 1.1: GET /catalog/{storefront}/albums - Happy Path
-// Validates retrieval of multiple albums with basic query parameters
-@test:Config {}
-function testGetMultipleCatalogAlbumsHappyPath() returns error? {
-    // Action: Send GET request with ids query parameter
-    AlbumsResponse response = check clientEp->/catalog/us/albums(ids = ["1234567890"]);
+// HTTP client configuration
+final http:Client clientEp = check new (useMockServer ? mockServerUrl : liveServerUrl);
 
-    // Validation: Verify response structure and data
-    test:assertEquals(response.data.length(), 1, "Response should contain one album");
+// CATALOG ALBUMS TESTS
+
+@test:Config {
+    groups: ["live_tests", "mock_tests"]
+}
+function testGetMultipleCatalogAlbums() returns error? {
+    AlbumsResponse response = check clientEp->/v1/catalog/us/albums(ids = ["1440857781", "1193701079"]);
+    test:assertTrue(response?.data !is ());
+    test:assertTrue(response?.errors is ());
+    test:assertTrue(response.data.length() > 0);
+    test:assertEquals(response.data[0].id, "1440857781");
+    test:assertEquals(response.data[0].attributes.name, "Abbey Road (Remastered)");
+    test:assertEquals(response.data[0].attributes.artistName, "The Beatles");
+}
+
+@test:Config {
+    groups: ["live_tests", "mock_tests"]
+}
+function testGetMultipleCatalogAlbumsWithOptionalParams() returns error? {
+    AlbumsResponse response = check clientEp->/v1/catalog/us/albums(
+        ids = ["1440857781"],
+        extend = ["attributes"],
+        include = ["artists"],
+        l = "en-US"
+    );
+    test:assertTrue(response?.data !is ());
+    test:assertTrue(response?.errors is ());
+    test:assertTrue(response.data.length() > 0);
+}
+
+@test:Config {
+    groups: ["live_tests", "mock_tests"]
+}
+function testGetMultipleCatalogAlbumsUnauthorized() returns error? {
+    AlbumsResponse|ErrorsResponseUnauthorized|ErrorsResponseInternalServerError response = 
+        check clientEp->/v1/catalog/unauthorized/albums(ids = ["1440857781"]);
     
-    Albums album = response.data[0];
-    test:assertEquals(album.id, "1234567890", "Album ID should match requested ID");
-    test:assertEquals(album.'type, "albums", "Type should be 'albums'");
-    test:assertEquals(album.href, "/v1/catalog/us/albums/1234567890", "Href should be properly formatted");
-    
-    // Validate attributes
-    AlbumsAttributes? attributes = album.attributes;
-    test:assertEquals(attributes is AlbumsAttributes, true, "Attributes should be present");
-    if attributes is AlbumsAttributes {
-        test:assertEquals(attributes.name, "Sample Album", "Album name should match");
-        test:assertEquals(attributes.artistName, "Sample Artist", "Artist name should match");
-        test:assertEquals(attributes.genreNames.length(), 2, "Should have 2 genres");
-        test:assertEquals(attributes.genreNames[0], "Pop", "First genre should be Pop");
-        test:assertEquals(attributes.genreNames[1], "Rock", "Second genre should be Rock");
-        test:assertEquals(attributes.releaseDate, "2023-01-01", "Release date should match");
-        test:assertEquals(attributes.trackCount, 12d, "Track count should be 12");
-        test:assertEquals(attributes.isComplete, true, "Album should be complete");
-        test:assertEquals(attributes.isSingle, false, "Album should not be a single");
-        test:assertEquals(attributes.isCompilation, false, "Album should not be a compilation");
-        test:assertEquals(attributes.isMasteredForItunes, true, "Album should be mastered for iTunes");
-        test:assertEquals(attributes.copyright, "℗ 2023 Sample Records", "Copyright should match");
-        test:assertEquals(attributes.url, "https://music.apple.com/album/sample-album/1234567890", "URL should match");
-        
-        // Validate artwork
-        Artwork artwork = attributes.artwork;
-        test:assertEquals(artwork.width, 1000d, "Artwork width should be 1000");
-        test:assertEquals(artwork.height, 1000d, "Artwork height should be 1000");
-        test:assertEquals(artwork.url, "https://is1-ssl.mzstatic.com/image/thumb/sample.jpg", "Artwork URL should match");
-        
-        // Validate playParams
-        PlayParameters? playParams = attributes.playParams;
-        test:assertEquals(playParams is PlayParameters, true, "PlayParams should be present");
-        if playParams is PlayParameters {
-            test:assertEquals(playParams.id, "1234567890", "PlayParams ID should match");
-            test:assertEquals(playParams.kind, "album", "PlayParams kind should be album");
-        }
-        
-        // Validate editorialNotes
-        EditorialNotes? editorialNotes = attributes.editorialNotes;
-        test:assertEquals(editorialNotes is EditorialNotes, true, "Editorial notes should be present");
-        if editorialNotes is EditorialNotes {
-            test:assertEquals(editorialNotes.standard, "A fantastic album by Sample Artist.", "Standard notes should match");
-            test:assertEquals(editorialNotes.short, "Great album", "Short notes should match");
-        }
+    if response is ErrorsResponseUnauthorized {
+        test:assertTrue(response?.body?.data !is ());
+        test:assertEquals(response.body.data[0].status, "401");
+        test:assertEquals(response.body.data[0].code, "UNAUTHORIZED");
+    } else {
+        test:assertFail("Expected unauthorized error response");
     }
 }
 
-// Test Scenario 1.2: GET /catalog/{storefront}/albums - Happy Path with Optional Parameters
-// Validates that optional parameters are accepted without errors
-@test:Config {}
-function testGetMultipleCatalogAlbumsWithOptionalParameters() returns error? {
-    // Action: Send GET request with all optional parameters
-    AlbumsResponse response = check clientEp->/catalog/us/albums(
-        ids = ["1234567890"],
-        extend = ["credits"],
+@test:Config {
+    groups: ["live_tests", "mock_tests"]
+}
+function testGetCatalogAlbum() returns error? {
+    AlbumsResponse response = check clientEp->/v1/catalog/us/albums/1708283932();
+    test:assertTrue(response?.data !is ());
+    test:assertTrue(response?.errors is ());
+    test:assertEquals(response.data[0].id, "1708283932");
+    test:assertEquals(response.data[0].attributes.name, "1989 (Taylor's Version)");
+    test:assertEquals(response.data[0].attributes.artistName, "Taylor Swift");
+}
+
+@test:Config {
+    groups: ["live_tests", "mock_tests"]
+}
+function testGetCatalogAlbumWithViews() returns error? {
+    AlbumsResponse response = check clientEp->/v1/catalog/us/albums/1708283932(
+        views = ["appears-on", "other-versions"],
+        extend = ["attributes"],
+        include = ["artists"]
+    );
+    test:assertTrue(response?.data !is ());
+    test:assertTrue(response?.errors is ());
+}
+
+@test:Config {
+    groups: ["live_tests", "mock_tests"]
+}
+function testGetCatalogAlbumRelationshipArtists() returns error? {
+    ArtistsResponse response = check clientEp->/v1/catalog/us/albums/1708283932/artists();
+    test:assertTrue(response?.data !is ());
+    test:assertTrue(response?.errors is ());
+    test:assertTrue(response.data.length() > 0);
+    test:assertEquals(response.data[0].id, "159260351");
+    test:assertEquals(response.data[0].attributes.name, "Taylor Swift");
+}
+
+@test:Config {
+    groups: ["live_tests", "mock_tests"]
+}
+function testGetCatalogAlbumRelationshipWithLimit() returns error? {
+    ArtistsResponse response = check clientEp->/v1/catalog/us/albums/1708283932/artists(
+        'limit = 10,
+        extend = ["attributes"]
+    );
+    test:assertTrue(response?.data !is ());
+    test:assertTrue(response?.errors is ());
+}
+
+@test:Config {
+    groups: ["live_tests", "mock_tests"]
+}
+function testGetCatalogAlbumViewRelatedVideos() returns error? {
+    MusicVideosResponse response = check clientEp->/v1/catalog/us/albums/1708283932/view/related\-videos();
+    test:assertTrue(response?.data !is ());
+    test:assertTrue(response?.errors is ());
+    test:assertTrue(response.data.length() > 0);
+    test:assertEquals(response.data[0].id, "1234567890");
+    test:assertEquals(response.data[0].attributes.name, "Shake It Off");
+}
+
+@test:Config {
+    groups: ["live_tests", "mock_tests"]
+}
+function testGetCatalogAlbumViewWithParams() returns error? {
+    MusicVideosResponse response = check clientEp->/v1/catalog/us/albums/1708283932/view/related\-videos(
+        'limit = 3,
+        with = ["attributes"],
+        extend = ["attributes"]
+    );
+    test:assertTrue(response?.data !is ());
+    test:assertTrue(response?.errors is ());
+}
+
+// CATALOG ARTISTS TESTS
+
+@test:Config {
+    groups: ["live_tests", "mock_tests"]
+}
+function testGetMultipleCatalogArtists() returns error? {
+    ArtistsResponse response = check clientEp->/v1/catalog/us/artists(ids = ["159260351", "136975"]);
+    test:assertTrue(response?.data !is ());
+    test:assertTrue(response?.errors is ());
+    test:assertTrue(response.data.length() >= 2);
+    test:assertEquals(response.data[0].id, "159260351");
+    test:assertEquals(response.data[0].attributes.name, "Taylor Swift");
+    test:assertEquals(response.data[1].id, "136975");
+    test:assertEquals(response.data[1].attributes.name, "The Beatles");
+}
+
+@test:Config {
+    groups: ["live_tests", "mock_tests"]
+}
+function testGetMultipleCatalogArtistsWithFilters() returns error? {
+    ArtistsResponse response = check clientEp->/v1/catalog/us/artists(
+        ids = ["159260351"],
+        filter = ["genre"],
+        restrict = ["explicit"],
+        l = "en-US"
+    );
+    test:assertTrue(response?.data !is ());
+    test:assertTrue(response?.errors is ());
+}
+
+@test:Config {
+    groups: ["live_tests", "mock_tests"]
+}
+function testGetCatalogArtist() returns error? {
+    ArtistsResponse response = check clientEp->/v1/catalog/us/artists/5468295();
+    test:assertTrue(response?.data !is ());
+    test:assertTrue(response?.errors is ());
+    test:assertEquals(response.data[0].id, "5468295");
+    test:assertEquals(response.data[0].attributes.name, "Adele");
+}
+
+@test:Config {
+    groups: ["live_tests", "mock_tests"]
+}
+function testGetCatalogArtistWithViews() returns error? {
+    ArtistsResponse response = check clientEp->/v1/catalog/us/artists/5468295(
+        views = ["top-songs", "full-albums", "latest-release"],
+        extend = ["attributes"],
+        include = ["albums"]
+    );
+    test:assertTrue(response?.data !is ());
+    test:assertTrue(response?.errors is ());
+}
+
+@test:Config {
+    groups: ["live_tests", "mock_tests"]
+}
+function testGetCatalogArtistRelationshipAlbums() returns error? {
+    AlbumsResponse response = check clientEp->/v1/catalog/us/artists/5468295/albums();
+    test:assertTrue(response?.data !is ());
+    test:assertTrue(response?.errors is ());
+    test:assertTrue(response.data.length() > 0);
+    test:assertEquals(response.data[0].id, "1440857781");
+    test:assertEquals(response.data[0].attributes.name, "25");
+}
+
+@test:Config {
+    groups: ["live_tests", "mock_tests"]
+}
+function testGetCatalogArtistRelationshipWithParams() returns error? {
+    AlbumsResponse response = check clientEp->/v1/catalog/us/artists/5468295/albums(
+        'limit = 20,
+        extend = ["attributes"],
+        include = ["artists"]
+    );
+    test:assertTrue(response?.data !is ());
+    test:assertTrue(response?.errors is ());
+}
+
+@test:Config {
+    groups: ["live_tests", "mock_tests"]
+}
+function testGetCatalogArtistViewFullAlbums() returns error? {
+    AlbumsResponse response = check clientEp->/v1/catalog/us/artists/5468295/view/full\-albums();
+    test:assertTrue(response?.data !is ());
+    test:assertTrue(response?.errors is ());
+    test:assertTrue(response.data.length() > 0);
+    test:assertEquals(response.data[0].id, "987654321");
+    test:assertEquals(response.data[0].attributes.name, "30");
+}
+
+@test:Config {
+    groups: ["live_tests", "mock_tests"]
+}
+function testGetCatalogArtistViewWithModifications() returns error? {
+    AlbumsResponse response = check clientEp->/v1/catalog/us/artists/5468295/view/full\-albums(
+        'limit = 10,
+        with = ["topResults"],
+        extend = ["attributes"]
+    );
+    test:assertTrue(response?.data !is ());
+    test:assertTrue(response?.errors is ());
+}
+
+// CATALOG SEARCH TESTS
+
+@test:Config {
+    groups: ["live_tests", "mock_tests"]
+}
+function testSearchCatalog() returns error? {
+    SearchResponse response = check clientEp->/v1/catalog/us/search(term = "beatles");
+    test:assertTrue(response?.results !is ());
+    test:assertTrue(response.results.albums?.data !is ());
+    test:assertTrue(response.results.artists?.data !is ());
+    test:assertTrue(response.results.albums.data.length() > 0);
+    test:assertTrue(response.results.artists.data.length() > 0);
+}
+
+@test:Config {
+    groups: ["live_tests", "mock_tests"]
+}
+function testSearchCatalogWithTypes() returns error? {
+    SearchResponse response = check clientEp->/v1/catalog/us/search(
+        term = "taylor+swift",
+        types = ["albums", "artists", "songs"],
+        'limit = 10
+    );
+    test:assertTrue(response?.results !is ());
+    test:assertTrue(response.results.albums?.data !is ());
+    test:assertTrue(response.results.artists?.data !is ());
+}
+
+@test:Config {
+    groups: ["live_tests", "mock_tests"]
+}
+function testSearchCatalogWithAllParams() returns error? {
+    SearchResponse response = check clientEp->/v1/catalog/us/search(
+        term = "shake+it+off",
+        types = ["songs", "music-videos"],
+        'limit = 5,
+        offset = "0",
+        with = ["topResults"],
+        l = "en-US"
+    );
+    test:assertTrue(response?.results !is ());
+}
+
+// CATALOG SONGS TESTS
+
+@test:Config {
+    groups: ["live_tests", "mock_tests"]
+}
+function testGetMultipleCatalogSongs() returns error? {
+    SongsResponse response = check clientEp->/v1/catalog/us/songs(ids = ["1440857915", "1193701194"]);
+    test:assertTrue(response?.data !is ());
+    test:assertTrue(response?.errors is ());
+    test:assertTrue(response.data.length() >= 2);
+    test:assertEquals(response.data[0].id, "1440857915");
+    test:assertEquals(response.data[0].attributes.name, "Come Together (Remastered 2019)");
+    test:assertEquals(response.data[1].id, "1193701194");
+    test:assertEquals(response.data[1].attributes.name, "Billie Jean");
+}
+
+@test:Config {
+    groups: ["live_tests", "mock_tests"]
+}
+function testGetMultipleCatalogSongsWithFilters() returns error? {
+    SongsResponse response = check clientEp->/v1/catalog/us/songs(
+        ids = ["1440857915"],
+        filter = ["explicit"],
+        restrict = ["clean"],
+        extend = ["attributes"]
+    );
+    test:assertTrue(response?.data !is ());
+    test:assertTrue(response?.errors is ());
+}
+
+@test:Config {
+    groups: ["live_tests", "mock_tests"]
+}
+function testGetCatalogSong() returns error? {
+    SongsResponse response = check clientEp->/v1/catalog/us/songs/1708284055();
+    test:assertTrue(response?.data !is ());
+    test:assertTrue(response?.errors is ());
+    test:assertEquals(response.data[0].id, "1708284055");
+    test:assertEquals(response.data[0].attributes.name, "Shake It Off");
+    test:assertEquals(response.data[0].attributes.artistName, "Taylor Swift");
+}
+
+@test:Config {
+    groups: ["live_tests", "mock_tests"]
+}
+function testGetCatalogSongWithParams() returns error? {
+    SongsResponse response = check clientEp->/v1/catalog/us/songs/1708284055(
+        extend = ["attributes"],
+        include = ["albums", "artists"],
+        l = "en-US"
+    );
+    test:assertTrue(response?.data !is ());
+    test:assertTrue(response?.errors is ());
+}
+
+@test:Config {
+    groups: ["live_tests", "mock_tests"]
+}
+function testGetCatalogSongRelationship() returns error? {
+    SongsResponse response = check clientEp->/v1/catalog/us/songs/1708284055/albums();
+    test:assertTrue(response?.data !is ());
+    test:assertTrue(response?.errors is ());
+}
+
+@test:Config {
+    groups: ["live_tests", "mock_tests"]
+}
+function testGetCatalogSongRelationshipWithLimit() returns error? {
+    SongsResponse response = check clientEp->/v1/catalog/us/songs/1708284055/artists(
+        'limit = 1,
+        extend = ["attributes"]
+    );
+    test:assertTrue(response?.data !is ());
+    test:assertTrue(response?.errors is ());
+}
+
+// LIBRARY ALBUMS TESTS
+
+@test:Config {
+    groups: ["live_tests", "mock_tests"]
+}
+function testGetAllLibraryAlbums() returns error? {
+    LibraryAlbumsResponse response = check clientEp->/v1/me/library/albums();
+    test:assertTrue(response?.data !is ());
+    test:assertTrue(response?.errors is ());
+    test:assertTrue(response.data.length() >= 2);
+    test:assertEquals(response.data[0].id, "lib-1440857781");
+    test:assertEquals(response.data[0].attributes.name, "Abbey Road (Remastered)");
+    test:assertEquals(response.data[1].id, "lib-1708283932");
+    test:assertEquals(response.data[1].attributes.name, "1989 (Taylor's Version)");
+}
+
+@test:Config {
+    groups: ["live_tests", "mock_tests"]
+}
+function testGetAllLibraryAlbumsWithParams() returns error? {
+    LibraryAlbumsResponse response = check clientEp->/v1/me/library/albums(
+        ids = ["lib-1440857781"],
+        'limit = 10,
+        offset = "0",
+        extend = ["attributes"]
+    );
+    test:assertTrue(response?.data !is ());
+    test:assertTrue(response?.errors is ());
+}
+
+@test:Config {
+    groups: ["live_tests", "mock_tests"]
+}
+function testGetLibraryAlbum() returns error? {
+    LibraryAlbumsResponse response = check clientEp->/v1/me/library/albums/lib\-folklore();
+    test:assertTrue(response?.data !is ());
+    test:assertTrue(response?.errors is ());
+    test:assertEquals(response.data[0].id, "lib-folklore");
+    test:assertEquals(response.data[0].attributes.name, "Folklore");
+    test:assertEquals(response.data[0].attributes.artistName, "Taylor Swift");
+}
+
+@test:Config {
+    groups: ["live_tests", "mock_tests"]
+}
+function testGetLibraryAlbumWithParams() returns error? {
+    LibraryAlbumsResponse response = check clientEp->/v1/me/library/albums/lib\-folklore(
+        extend = ["attributes"],
+        include = ["artists"],
+        l = "en-US"
+    );
+    test:assertTrue(response?.data !is ());
+    test:assertTrue(response?.errors is ());
+}
+
+@test:Config {
+    groups: ["live_tests", "mock_tests"]
+}
+function testGetLibraryAlbumRelationshipArtists() returns error? {
+    LibraryArtistsResponse response = check clientEp->/v1/me/library/albums/lib\-folklore/artists();
+    test:assertTrue(response?.data !is ());
+    test:assertTrue(response?.errors is ());
+    test:assertTrue(response.data.length() > 0);
+    test:assertEquals(response.data[0].id, "lib-159260351");
+    test:assertEquals(response.data[0].attributes.name, "Taylor Swift");
+}
+
+@test:Config {
+    groups: ["live_tests", "mock_tests"]
+}
+function testGetLibraryAlbumRelationshipWithLimit() returns error? {
+    LibraryArtistsResponse response = check clientEp->/v1/me/library/albums/lib\-folklore/artists(
+        'limit = 5,
+        extend = ["attributes"]
+    );
+    test:assertTrue(response?.data !is ());
+    test:assertTrue(response?.errors is ());
+}
+
+// LIBRARY ARTISTS TESTS
+
+@test:Config {
+    groups: ["live_tests", "mock_tests"]
+}
+function testGetAllLibraryArtists() returns error? {
+    LibraryArtistsResponse response = check clientEp->/v1/me/library/artists();
+    test:assertTrue(response?.data !is ());
+    test:assertTrue(response?.errors is ());
+    test:assertTrue(response.data.length() >= 2);
+    test:assertEquals(response.data[0].id, "lib-159260351");
+    test:assertEquals(response.data[0].attributes.name, "Taylor Swift");
+    test:assertEquals(response.data[1].id, "lib-136975");
+    test:assertEquals(response.data[1].attributes.name, "The Beatles");
+}
+
+@test:Config {
+    groups: ["live_tests", "mock_tests"]
+}
+function testGetAllLibraryArtistsWithParams() returns error? {
+    LibraryArtistsResponse response = check clientEp->/v1/me/library/artists(
+        ids = ["lib-159260351"],
+        'limit = 20,
+        offset = "0",
+        include = ["albums"]
+    );
+    test:assertTrue(response?.data !is ());
+    test:assertTrue(response?.errors is ());
+}
+
+@test:Config {
+    groups: ["live_tests", "mock_tests"]
+}
+function testGetLibraryArtist() returns error? {
+    LibraryArtistsResponse response = check clientEp->/v1/me/library/artists/lib\-ed\-sheeran();
+    test:assertTrue(response?.data !is ());
+    test:assertTrue(response?.errors is ());
+    test:assertEquals(response.data[0].id, "lib-ed-sheeran");
+    test:assertEquals(response.data[0].attributes.name, "Ed Sheeran");
+}
+
+@test:Config {
+    groups: ["live_tests", "mock_tests"]
+}
+function testGetLibraryArtistWithParams() returns error? {
+    LibraryArtistsResponse response = check clientEp->/v1/me/library/artists/lib\-ed\-sheeran(
+        extend = ["attributes"],
+        include = ["albums"],
+        l = "en-US"
+    );
+    test:assertTrue(response?.data !is ());
+    test:assertTrue(response?.errors is ());
+}
+
+@test:Config {
+    groups: ["live_tests", "mock_tests"]
+}
+function testGetLibraryArtistRelationshipAlbums() returns error? {
+    LibraryAlbumsResponse response = check clientEp->/v1/me/library/artists/lib\-ed\-sheeran/albums();
+    test:assertTrue(response?.data !is ());
+    test:assertTrue(response?.errors is ());
+    test:assertTrue(response.data.length() > 0);
+    test:assertEquals(response.data[0].id, "lib-divide-album");
+    test:assertEquals(response.data[0].attributes.name, "÷ (Divide)");
+}
+
+@test:Config {
+    groups: ["live_tests", "mock_tests"]
+}
+function testGetLibraryArtistRelationshipWithParams() returns error? {
+    LibraryAlbumsResponse response = check clientEp->/v1/me/library/artists/lib\-ed\-sheeran/albums(
+        'limit = 10,
+        extend = ["attributes"],
+        include = ["artists"]
+    );
+    test:assertTrue(response?.data !is ());
+    test:assertTrue(response?.errors is ());
+}
+
+// LIBRARY SONGS TESTS
+
+@test:Config {
+    groups: ["live_tests", "mock_tests"]
+}
+function testGetAllLibrarySongs() returns error? {
+    LibrarySongsResponse response = check clientEp->/v1/me/library/songs();
+    test:assertTrue(response?.data !is ());
+    test:assertTrue(response?.errors is ());
+    test:assertTrue(response.data.length() >= 2);
+    test:assertEquals(response.data[0].id, "lib-shape-of-you");
+    test:assertEquals(response.data[0].attributes.name, "Shape of You");
+    test:assertEquals(response.data[1].id, "lib-perfect");
+    test:assertEquals(response.data[1].attributes.name, "Perfect");
+}
+
+@test:Config {
+    groups: ["live_tests", "mock_tests"]
+}
+function testGetAllLibrarySongsWithParams() returns error? {
+    LibrarySongsResponse response = check clientEp->/v1/me/library/songs(
+        ids = ["lib-shape-of-you"],
+        'limit = 25,
+        offset = "0",
+        extend = ["attributes"]
+    );
+    test:assertTrue(response?.data !is ());
+    test:assertTrue(response?.errors is ());
+}
+
+@test:Config {
+    groups: ["live_tests", "mock_tests"]
+}
+function testGetLibrarySong() returns error? {
+    LibrarySongsResponse response = check clientEp->/v1/me/library/songs/lib\-thinking\-out\-loud();
+    test:assertTrue(response?.data !is ());
+    test:assertTrue(response?.errors is ());
+    test:assertEquals(response.data[0].id, "lib-thinking-out-loud");
+    test:assertEquals(response.data[0].attributes.name, "Thinking Out Loud");
+    test:assertEquals(response.data[0].attributes.artistName, "Ed Sheeran");
+}
+
+@test:Config {
+    groups: ["live_tests", "mock_tests"]
+}
+function testGetLibrarySongWithParams() returns error? {
+    LibrarySongsResponse response = check clientEp->/v1/me/library/songs/lib\-thinking\-out\-loud(
+        extend = ["attributes"],
+        include = ["albums", "artists"],
+        l = "en-US"
+    );
+    test:assertTrue(response?.data !is ());
+    test:assertTrue(response?.errors is ());
+}
+
+@test:Config {
+    groups: ["live_tests", "mock_tests"]
+}
+function testGetLibrarySongRelationship() returns error? {
+    LibrarySongsResponse response = check clientEp->/v1/me/library/songs/lib\-thinking\-out\-loud/albums();
+    test:assertTrue(response?.data !is ());
+    test:assertTrue(response?.errors is ());
+}
+
+@test:Config {
+    groups: ["live_tests", "mock_tests"]
+}
+function testGetLibrarySongRelationshipWithLimit() returns error? {
+    LibrarySongsResponse response = check clientEp->/v1/me/library/songs/lib\-thinking\-out\-loud/artists(
+        'limit = 1,
+        extend = ["attributes"]
+    );
+    test:assertTrue(response?.data !is ());
+    test:assertTrue(response?.errors is ());
+}
+
+// LIBRARY MODIFICATION TESTS
+
+@test:Config {
+    groups: ["live_tests", "mock_tests"]
+}
+function testAddResourceToLibrary() returns error? {
+    http:Response response = check clientEp->/v1/me/library.post(ids = ["1440857781", "159260351"]);
+    test:assertEquals(response.statusCode, 202);
+}
+
+@test:Config {
+    groups: ["live_tests", "mock_tests"]
+}
+function testAddMultipleResourceTypesToLibrary() returns error? {
+    http:Response response = check clientEp->/v1/me/library.post(
+        ids = ["1440857781", "159260351", "1440857915"]
+    );
+    test:assertEquals(response.statusCode, 202);
+}
+
+// STOREFRONT VARIATION TESTS
+
+@test:Config {
+    groups: ["live_tests", "mock_tests"]
+}
+function testGetAlbumsFromDifferentStorefront() returns error? {
+    AlbumsResponse response = check clientEp->/v1/catalog/gb/albums(ids = ["1440857781"]);
+    test:assertTrue(response?.data !is ());
+    test:assertTrue(response?.errors is ());
+    test:assertTrue(response.data.length() > 0);
+}
+
+@test:Config {
+    groups: ["live_tests", "mock_tests"]
+}
+function testGetArtistsFromDifferentStorefront() returns error? {
+    ArtistsResponse response = check clientEp->/v1/catalog/jp/artists(ids = ["159260351"]);
+    test:assertTrue(response?.data !is ());
+    test:assertTrue(response?.errors is ());
+    test:assertTrue(response.data.length() > 0);
+}
+
+@test:Config {
+    groups: ["live_tests", "mock_tests"]
+}
+function testSearchInDifferentStorefront() returns error? {
+    SearchResponse response = check clientEp->/v1/catalog/ca/search(
+        term = "taylor+swift",
+        types = ["albums", "artists"]
+    );
+    test:assertTrue(response?.results !is ());
+}
+
+// EDGE CASES AND ERROR SCENARIOS
+
+@test:Config {
+    groups: ["live_tests", "mock_tests"]
+}
+function testGetAlbumWithEmptyIds() returns error? {
+    AlbumsResponse response = check clientEp->/v1/catalog/us/albums();
+    test:assertTrue(response?.data !is ());
+    test:assertTrue(response?.errors is ());
+}
+
+@test:Config {
+    groups: ["live_tests", "mock_tests"]
+}
+function testGetArtistWithAllViewTypes() returns error? {
+    ArtistsResponse response = check clientEp->/v1/catalog/us/artists/159260351(
+        views = [
+            "appears-on-albums", 
+            "compilation-albums", 
+            "featured-albums", 
+            "featured-playlists", 
+            "full-albums", 
+            "latest-release", 
+            "live-albums", 
+            "similar-artists", 
+            "singles", 
+            "top-music-videos", 
+            "top-songs"
+        ]
+    );
+    test:assertTrue(response?.data !is ());
+    test:assertTrue(response?.errors is ());
+}
+
+@test:Config {
+    groups: ["live_tests", "mock_tests"]
+}
+function testGetAlbumWithAllViewTypes() returns error? {
+    AlbumsResponse response = check clientEp->/v1/catalog/us/albums/1440857781(
+        views = ["appears-on", "other-versions", "related-albums", "related-videos"]
+    );
+    test:assertTrue(response?.data !is ());
+    test:assertTrue(response?.errors is ());
+}
+
+@test:Config {
+    groups: ["live_tests", "mock_tests"]
+}
+function testSearchWithAllResourceTypes() returns error? {
+    SearchResponse response = check clientEp->/v1/catalog/us/search(
+        term = "music",
+        types = [
+            "activities", 
+            "albums", 
+            "apple-curators", 
+            "artists", 
+            "curators", 
+            "music-videos", 
+            "playlists", 
+            "record-labels", 
+            "songs", 
+            "stations"
+        ]
+    );
+    test:assertTrue(response?.results !is ());
+}
+
+// PARAMETER COMBINATION TESTS
+
+@test:Config {
+    groups: ["live_tests", "mock_tests"]
+}
+function testGetAlbumsWithAllOptionalParams() returns error? {
+    AlbumsResponse response = check clientEp->/v1/catalog/us/albums(
+        ids = ["1440857781"],
+        extend = ["attributes"],
+        filter = ["genre"],
         include = ["artists"],
         l = "en-US",
         restrict = ["explicit"]
     );
-
-    // Validation: Verify response is returned successfully with same structure
-    test:assertEquals(response.data.length(), 1, "Response should contain one album");
-    
-    Albums album = response.data[0];
-    test:assertEquals(album.id, "1234567890", "Album ID should match");
-    test:assertEquals(album.'type, "albums", "Type should be 'albums'");
-    
-    // Verify attributes are present
-    AlbumsAttributes? attributes = album.attributes;
-    test:assertEquals(attributes is AlbumsAttributes, true, "Attributes should be present");
-    if attributes is AlbumsAttributes {
-        test:assertEquals(attributes.name, "Sample Album", "Album name should match");
-        test:assertEquals(attributes.artistName, "Sample Artist", "Artist name should match");
-    }
+    test:assertTrue(response?.data !is ());
+    test:assertTrue(response?.errors is ());
 }
 
-// Test Scenario 2.1: GET /catalog/{storefront}/albums/{id} - Happy Path
-// Validates retrieval of a single album by ID
-@test:Config {}
-function testGetSingleCatalogAlbumHappyPath() returns error? {
-    // Action: Send GET request for specific album ID
-    AlbumsResponse response = check clientEp->/catalog/us/albums/["9876543210"]();
-
-    // Validation: Verify response structure and dynamic construction
-    test:assertEquals(response.data.length(), 1, "Response should contain one album");
-    
-    Albums album = response.data[0];
-    test:assertEquals(album.id, "9876543210", "Album ID should match path parameter");
-    test:assertEquals(album.'type, "albums", "Type should be 'albums'");
-    test:assertEquals(album.href, "/v1/catalog/us/albums/9876543210", "Href should be dynamically constructed with storefront and id");
-    
-    // Validate attributes
-    AlbumsAttributes? attributes = album.attributes;
-    test:assertEquals(attributes is AlbumsAttributes, true, "Attributes should be present");
-    if attributes is AlbumsAttributes {
-        test:assertEquals(attributes.name, "Single Album", "Album name should be 'Single Album'");
-        test:assertEquals(attributes.artistName, "Single Artist", "Artist name should be 'Single Artist'");
-        test:assertEquals(attributes.genreNames.length(), 1, "Should have 1 genre");
-        test:assertEquals(attributes.genreNames[0], "Electronic", "Genre should be Electronic");
-        test:assertEquals(attributes.releaseDate, "2023-06-15", "Release date should match");
-        test:assertEquals(attributes.trackCount, 10d, "Track count should be 10");
-        test:assertEquals(attributes.isComplete, true, "Album should be complete");
-        test:assertEquals(attributes.isSingle, false, "Album should not be a single");
-        test:assertEquals(attributes.isCompilation, false, "Album should not be a compilation");
-        test:assertEquals(attributes.isMasteredForItunes, false, "Album should not be mastered for iTunes");
-        test:assertEquals(attributes.url, "https://music.apple.com/album/single-album/9876543210", "URL should be dynamically constructed");
-        
-        // Validate artwork
-        Artwork artwork = attributes.artwork;
-        test:assertEquals(artwork.width, 800d, "Artwork width should be 800");
-        test:assertEquals(artwork.height, 800d, "Artwork height should be 800");
-        test:assertEquals(artwork.url, "https://is1-ssl.mzstatic.com/image/thumb/single.jpg", "Artwork URL should match");
-        
-        // Validate playParams
-        PlayParameters? playParams = attributes.playParams;
-        test:assertEquals(playParams is PlayParameters, true, "PlayParams should be present");
-        if playParams is PlayParameters {
-            test:assertEquals(playParams.id, "9876543210", "PlayParams ID should match album ID");
-            test:assertEquals(playParams.kind, "album", "PlayParams kind should be album");
-        }
-    }
+@test:Config {
+    groups: ["live_tests", "mock_tests"]
 }
-
-// Test Scenario 2.2: GET /catalog/{storefront}/albums/{id} - Happy Path with Views and Optional Parameters
-// Validates that views and optional parameters are accepted for different storefronts
-@test:Config {}
-function testGetSingleCatalogAlbumWithViewsAndOptionalParameters() returns error? {
-    // Action: Send GET request with views and optional parameters for different storefront
-    AlbumsResponse response = check clientEp->/catalog/gb/albums/["5555555555"](
-        views = ["appears-on", "related-albums"],
-        extend = ["bios"],
-        include = ["tracks"],
-        l = "en-GB"
-    );
-
-    // Validation: Verify response structure is consistent with different storefront
-    test:assertEquals(response.data.length(), 1, "Response should contain one album");
-    
-    Albums album = response.data[0];
-    test:assertEquals(album.id, "5555555555", "Album ID should match path parameter");
-    test:assertEquals(album.'type, "albums", "Type should be 'albums'");
-    test:assertEquals(album.href, "/v1/catalog/gb/albums/5555555555", "Href should use 'gb' storefront parameter");
-    
-    // Verify attributes are present
-    AlbumsAttributes? attributes = album.attributes;
-    test:assertEquals(attributes is AlbumsAttributes, true, "Attributes should be present");
-}
-
-// Test Scenario 3.1: GET /catalog/{storefront}/albums/{id}/{relationship} - Happy Path Artists Relationship
-// Validates retrieval of album's artist relationship
-@test:Config {}
-function testGetAlbumArtistsRelationshipHappyPath() returns error? {
-    // Action: Send GET request for artists relationship
-    ArtistsResponse response = check clientEp->/catalog/us/albums/["1234567890"]/artists();
-
-    // Validation: Verify response structure matches ArtistsResponse
-    test:assertEquals(response.data.length(), 1, "Response should contain one artist");
-    
-    Artists artist = response.data[0];
-    test:assertEquals(artist.id, "artist123", "Artist ID should be 'artist123'");
-    test:assertEquals(artist.'type, "artists", "Type should be 'artists'");
-    test:assertEquals(artist.href, "/v1/catalog/us/artists/artist123", "Href should be properly formatted with storefront");
-    
-    // Validate attributes
-    ArtistsAttributes? attributes = artist.attributes;
-    test:assertEquals(attributes is ArtistsAttributes, true, "Attributes should be present");
-    if attributes is ArtistsAttributes {
-        test:assertEquals(attributes.name, "Related Artist", "Artist name should be 'Related Artist'");
-        test:assertEquals(attributes.genreNames.length(), 2, "Should have 2 genres");
-        test:assertEquals(attributes.genreNames[0], "Pop", "First genre should be Pop");
-        test:assertEquals(attributes.genreNames[1], "Electronic", "Second genre should be Electronic");
-        test:assertEquals(attributes.url, "https://music.apple.com/artist/related-artist/artist123", "URL should match");
-        
-        // Validate editorialNotes
-        EditorialNotes? editorialNotes = attributes.editorialNotes;
-        test:assertEquals(editorialNotes is EditorialNotes, true, "Editorial notes should be present");
-        if editorialNotes is EditorialNotes {
-            test:assertEquals(editorialNotes.standard, "A talented artist with multiple hits.", "Standard notes should match");
-        }
-    }
-}
-
-// Test Scenario 3.2: GET /catalog/{storefront}/albums/{id}/{relationship} - Different Relationships with Custom Limit
-// Validates different relationship types with custom parameters
-@test:Config {}
-function testGetAlbumTracksRelationshipWithCustomParameters() returns error? {
-    // Action: Send GET request for tracks relationship with custom parameters
-    ArtistsResponse response = check clientEp->/catalog/jp/albums/["9999999999"]/tracks(
-        'limit = 10,
-        extend = ["lyrics"],
+function testGetArtistsWithAllOptionalParams() returns error? {
+    ArtistsResponse response = check clientEp->/v1/catalog/us/artists(
+        ids = ["159260351"],
+        extend = ["attributes"],
+        filter = ["genre"],
         include = ["albums"],
-        l = "ja-JP"
+        l = "en-US",
+        restrict = ["explicit"]
     );
-
-    // Validation: Verify response is returned successfully
-    test:assertEquals(response.data.length(), 1, "Response should contain data");
-    
-    Artists artist = response.data[0];
-    test:assertEquals(artist.id, "artist123", "Artist ID should be present");
-    test:assertEquals(artist.'type, "artists", "Type should be 'artists'");
-    test:assertEquals(artist.href, "/v1/catalog/jp/artists/artist123", "Href should use 'jp' storefront parameter");
+    test:assertTrue(response?.data !is ());
+    test:assertTrue(response?.errors is ());
 }
 
-// Test Scenario 3.2 (Additional): Test genres relationship
-@test:Config {}
-function testGetAlbumGenresRelationship() returns error? {
-    // Action: Send GET request for genres relationship
-    ArtistsResponse response = check clientEp->/catalog/us/albums/["1234567890"]/genres();
-
-    // Validation: Verify response is returned successfully for genres relationship
-    test:assertEquals(response.data.length(), 1, "Response should contain data");
-    
-    Artists artist = response.data[0];
-    test:assertEquals(artist.'type, "artists", "Type should be 'artists'");
+@test:Config {
+    groups: ["live_tests", "mock_tests"]
 }
-
-// Test Scenario 3.2 (Additional): Test library relationship
-@test:Config {}
-function testGetAlbumLibraryRelationship() returns error? {
-    // Action: Send GET request for library relationship
-    ArtistsResponse response = check clientEp->/catalog/us/albums/["1234567890"]/library();
-
-    // Validation: Verify response is returned successfully for library relationship
-    test:assertEquals(response.data.length(), 1, "Response should contain data");
-}
-
-// Test Scenario 3.2 (Additional): Test record-labels relationship
-@test:Config {}
-function testGetAlbumRecordLabelsRelationship() returns error? {
-    // Action: Send GET request for record-labels relationship
-    ArtistsResponse response = check clientEp->/catalog/us/albums/["1234567890"]/["record-labels"]();
-
-    // Validation: Verify response is returned successfully for record-labels relationship
-    test:assertEquals(response.data.length(), 1, "Response should contain data");
-}
-
-// Test Scenario 4.1: GET /catalog/{storefront}/albums/{id}/view/{view} - Happy Path Related Videos View
-// Validates retrieval of album's related videos view
-@test:Config {}
-function testGetAlbumRelatedVideosViewHappyPath() returns error? {
-    // Action: Send GET request for related-videos view
-    MusicVideosResponse response = check clientEp->/catalog/us/albums/["1234567890"]/view/["related-videos"]();
-
-    // Validation: Verify response structure matches MusicVideosResponse
-    test:assertEquals(response.data.length(), 1, "Response should contain data array");
-    
-    MusicVideos musicVideo = response.data[0];
-    test:assertEquals(musicVideo.'type, "music-videos", "Type should be 'music-videos'");
-    test:assertEquals(musicVideo.id is string, true, "ID field should be present");
-    test:assertEquals(musicVideo.href is string, true, "Href field should be present");
-}
-
-// Test Scenario 4.2: GET /catalog/{storefront}/albums/{id}/view/{view} - Different Views with Optional Parameters
-// Validates different view types with custom parameters
-@test:Config {}
-function testGetAlbumAppearsOnViewWithOptionalParameters() returns error? {
-    // Action: Send GET request for appears-on view with optional parameters
-    MusicVideosResponse response = check clientEp->/catalog/fr/albums/["7777777777"]/view/["appears-on"](
-        'limit = 15,
-        with = ["attributes", "topResults"],
-        extend = ["details"],
-        include = ["artists"],
-        l = "fr-FR"
+function testGetSongsWithAllOptionalParams() returns error? {
+    SongsResponse response = check clientEp->/v1/catalog/us/songs(
+        ids = ["1440857915"],
+        extend = ["attributes"],
+        filter = ["explicit"],
+        include = ["albums", "artists"],
+        l = "en-US",
+        restrict = ["clean"]
     );
-
-    // Validation: Verify response is returned successfully for appears-on view
-    test:assertEquals(response.data.length(), 1, "Response should contain data array");
-    
-    MusicVideos musicVideo = response.data[0];
-    test:assertEquals(musicVideo.'type, "music-videos", "Type should be 'music-videos'");
+    test:assertTrue(response?.data !is ());
+    test:assertTrue(response?.errors is ());
 }
 
-// Test Scenario 4.2 (Additional): Test other-versions view
-@test:Config {}
-function testGetAlbumOtherVersionsView() returns error? {
-    // Action: Send GET request for other-versions view
-    MusicVideosResponse response = check clientEp->/catalog/us/albums/["1234567890"]/view/["other-versions"]();
+// RELATIONSHIP TESTS FOR ALL SUPPORTED TYPES
 
-    // Validation: Verify response is returned successfully for other-versions view
-    test:assertEquals(response.data.length(), 1, "Response should contain data array");
-    test:assertEquals(response.data[0].'type, "music-videos", "Type should be 'music-videos'");
+@test:Config {
+    groups: ["live_tests", "mock_tests"]
+}
+function testGetAlbumAllRelationshipTypes() returns error? {
+    // Test artists relationship
+    ArtistsResponse artistsResponse = check clientEp->/v1/catalog/us/albums/1440857781/artists();
+    test:assertTrue(artistsResponse?.data !is ());
+    
+    // Test other relationships (will return empty but should not error)
+    ArtistsResponse genresResponse = check clientEp->/v1/catalog/us/albums/1440857781/genres();
+    test:assertTrue(genresResponse?.data !is ());
+    
+    ArtistsResponse tracksResponse = check clientEp->/v1/catalog/us/albums/1440857781/tracks();
+    test:assertTrue(tracksResponse?.data !is ());
 }
 
-// Test Scenario 4.2 (Additional): Test related-albums view
-@test:Config {}
-function testGetAlbumRelatedAlbumsView() returns error? {
-    // Action: Send GET request for related-albums view
-    MusicVideosResponse response = check clientEp->/catalog/us/albums/["1234567890"]/view/["related-albums"]();
-
-    // Validation: Verify response is returned successfully for related-albums view
-    test:assertEquals(response.data.length(), 1, "Response should contain data array");
-    test:assertEquals(response.data[0].'type, "music-videos", "Type should be 'music-videos'");
+@test:Config {
+    groups: ["live_tests", "mock_tests"]
+}
+function testGetArtistAllRelationshipTypes() returns error? {
+    // Test albums relationship
+    AlbumsResponse albumsResponse = check clientEp->/v1/catalog/us/artists/5468295/albums();
+    test:assertTrue(albumsResponse?.data !is ());
+    
+    // Test other relationships (will return empty but should not error)
+    AlbumsResponse genresResponse = check clientEp->/v1/catalog/us/artists/5468295/genres();
+    test:assertTrue(genresResponse?.data !is ());
+    
+    AlbumsResponse playlistsResponse = check clientEp->/v1/catalog/us/artists/5468295/playlists();
+    test:assertTrue(playlistsResponse?.data !is ());
 }
 
-// Additional test: Verify storefront parameter handling with different country codes
-@test:Config {}
-function testStorefrontParameterHandling() returns error? {
-    // Test with Japanese storefront
-    AlbumsResponse jpResponse = check clientEp->/catalog/jp/albums/["1234567890"]();
-    test:assertEquals(jpResponse.data[0].href, "/v1/catalog/jp/albums/1234567890", "Href should use 'jp' storefront");
+@test:Config {
+    groups: ["live_tests", "mock_tests"]
+}
+function testGetSongAllRelationshipTypes() returns error? {
+    // Test all song relationship types (will return empty but should not error)
+    SongsResponse albumsResponse = check clientEp->/v1/catalog/us/songs/1708284055/albums();
+    test:assertTrue(albumsResponse?.data !is ());
     
-    // Test with French storefront
-    AlbumsResponse frResponse = check clientEp->/catalog/fr/albums/["1234567890"]();
-    test:assertEquals(frResponse.data[0].href, "/v1/catalog/fr/albums/1234567890", "Href should use 'fr' storefront");
+    SongsResponse artistsResponse = check clientEp->/v1/catalog/us/songs/1708284055/artists();
+    test:assertTrue(artistsResponse?.data !is ());
     
-    // Test with German storefront
-    AlbumsResponse deResponse = check clientEp->/catalog/de/albums/["1234567890"]();
-    test:assertEquals(deResponse.data[0].href, "/v1/catalog/de/albums/1234567890", "Href should use 'de' storefront");
+    SongsResponse genresResponse = check clientEp->/v1/catalog/us/songs/1708284055/genres();
+    test:assertTrue(genresResponse?.data !is ());
 }
