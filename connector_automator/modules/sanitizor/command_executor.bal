@@ -47,7 +47,7 @@ public type CommandResult record {|
 # + command - Command to execute
 # + workingDir - working directory for command execution
 # + return - `CommandResult` with all execution details
-function executeCommand(string command, string workingDir) returns CommandResult {
+public function executeCommand(string command, string workingDir) returns CommandResult {
     time:Utc startTime = time:utcNow();
 
     log:printInfo("Executing", command = command, workingDirectory = workingDir);
