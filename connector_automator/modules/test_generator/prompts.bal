@@ -1,14 +1,28 @@
+
+
 string backtick = "`";
 string tripleBacktick = "```";
 
 function createMockServerPrompt(string mockServerTemplate, string types) returns string {
     return string `
-    You are an expert Ballerina developer. Your task is to complete the provided mock server implementation by filling in all the resource function bodies with realistic dummy data.
-    You must follow the exact format of the example provided.
+    You are an expert Ballerina developer specializing in creating flawless mock API servers. Your goal is to complete a given Ballerina service template by filling in the resource functions with realistic, type-correct mock data.
+
+    **Phase 1: Reflection (Internal Monologue)**
+
+    Before generating any code, take a moment to reflect on the requirements for a perfect response.
+    1.  **Output Purity:** The final output must be a single, complete, raw Ballerina source code file. It absolutely cannot contain any conversational text, explanations, apologies, or markdown formatting like ${tripleBacktick}ballerina. It must start with the first line of code and end with the last.
+    2.  **Structural Integrity:** I must adhere strictly to the provided template. My job is to *fill in the blanks* (the function bodies), not to refactor or add new elements.
+    3.  **Server Initialization:** This is a common point of failure. The user wants the service attached directly to an ${backtick}http:Listener${backtick} on port 9090. A critical mistake to avoid is generating a separate ${backtick}public function init()${backtick}. The listener and service declaration are sufficient to define the running server. I will not add an ${backtick}init${backtick} function.
+    4.  **Data Accuracy:** The mock data must be more than just plausible; it must be a perfect match for the Ballerina record types provided in the ${backtick}<AVAILABLE_TYPES>${backtick} context. I need to meticulously check every field, data type (string, int, boolean), and structure (arrays, nested records, optional fields) to ensure 100% type safety. The return value should be a JSON literal.
+    5.  **Completeness:** Every single resource function in the template must be implemented. No function should be left with an empty body or a placeholder comment.
+
+    **Phase 2: Execution**
+
+    Now, based on my reflection, I will generate the complete ${backtick}mock_server.bal${backtick} file. I will follow these instructions with extreme precision.
 
     **Critically Important:**
     - Your response MUST be a complete, raw Ballerina source code file.
-    - Do NOT include any explanations, apologies, or markdown formatting like ${tripleBacktick}ballerina.
+    - Do NOT include any explanations or markdown formatting.
 
     <CONTEXT>
       <MOCK_SERVER_TEMPLATE>
@@ -21,24 +35,24 @@ function createMockServerPrompt(string mockServerTemplate, string types) returns
     </CONTEXT>
 
     **Requirements:**
-    1.  **Complete all Functions:** Every resource function in the template must be implemented.
-    2.  **Realistic Data:** Use believable data for all fields (e.g., plausible names, IDs, and titles).
-    3.  **Correct Types:** Ensure the returned data strictly adheres to the function's return type signature.
-    4.  **JSON format:** The returned data should be in JSON format.
-    5.  **Copyright Header:** The generated file must start with the copyright header as in the example.
-    6.  **HTTP Listener:** The service should be attached to an HTTP listener on port 9090.
-    7.  **${backtick}init${backtick} function:** Include the ${backtick}init${backtick} function to start the mock server.
+    1.  **Copyright Header:** The generated file must start with the exact copyright header from the template.
+    2.  **HTTP Listener:** The service must be attached to a globally defined ${backtick}http:Listener ep0 = new (9090);${backtick}.
+    3.  **NO ${backtick}init${backtick} FUNCTION:** You must not include any ${backtick}init${backtick} function. The service definition attached to the listener is the complete server configuration.
+    4.  **Complete All Functions:** Implement the body for every resource function.
+    5.  **Realistic & Type-Correct JSON:** Use believable data for all fields. The returned JSON structure must strictly adhere to the function's return type signature as defined in the provided types.
+    6.  **Preserve Doc Comments:** All documentation comments (${backtick}# ...${backtick}) above the resource functions in the template must be preserved.
 
     **Example of a well-implemented resource function:**
     ${tripleBacktick}ballerina
-    resource function delete users/[UserIdMatchesAuthenticatedUser id]/bookmarks/[TweetId tweet_id]() returns BookmarkMutationResponse|http:Response {
+    # Deletes the Tweet specified by the Tweet ID.
+    resource function delete users/[string id]/bookmarks/[string tweet_id]() returns BookmarkMutationResponse|http:Response {
         return {
             "data": {"bookmarked": false}
         };
     }
     ${tripleBacktick}
 
-    Now, generate the complete ${backtick}mock_server.bal${backtick} file. Before returning the response, make sure by double checking that the dummy data you entered mathces the type declarations in the ${backtick}types.bal${backtick}.
+    Now, generate the complete and final ${backtick}mock_server.bal${backtick} file.
 `;
 }
 
