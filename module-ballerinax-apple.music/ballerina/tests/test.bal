@@ -17,7 +17,7 @@
 import apple.music.mock.server as _;
 import ballerina/test;
 
-configurable boolean isLiveServer = ?;
+configurable boolean isLiveServer = false;
 configurable string serviceUrl = isLiveServer ? "https://api.music.apple.com/v1" : "http://localhost:9090/v1";
 configurable string token = isLiveServer ? "" : "test-token";
 
@@ -31,6 +31,7 @@ final Client apple = check new Client({
 }
 isolated function testGetMultipleCatalogAlbums() returns error? {
     AlbumsResponse response = check apple->/catalog/["us"]/albums(ids = ["1234567890"]);
+    test:assertTrue(response.data.length() > 0);
 }
 
 @test:Config {
@@ -38,6 +39,8 @@ isolated function testGetMultipleCatalogAlbums() returns error? {
 }
 isolated function testGetCatalogAlbum() returns error? {
     AlbumsResponse response = check apple->/catalog/["us"]/albums/["1234567890"]();
+    test:assertTrue(response.data.length() > 0);
+
 }
 
 @test:Config {

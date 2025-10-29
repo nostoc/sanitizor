@@ -5,6 +5,9 @@ import ballerina/http;
 
 listener http:Listener ep0 = new (9090);
 
+public function init() {
+    // Mock server initialized on port 9090
+}
 
 service /v1 on ep0 {
     # Get Multiple Catalog Albums
