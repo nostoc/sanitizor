@@ -27,39 +27,39 @@ service /v1 on ep0 {
                     "type": "albums",
                     "href": "/v1/catalog/us/albums/1234567890",
                     "attributes": {
-                        "copyright": "℗ 2023 Example Records",
-                        "genreNames": ["Pop", "Alternative"],
-                        "releaseDate": "2023-06-15",
-                        "isMasteredForItunes": true,
-                        "upc": "123456789012",
+                        "artistName": "The Beatles",
+                        "artistUrl": "https://music.apple.com/us/artist/the-beatles/136975",
                         "artwork": {
                             "width": 3000,
                             "height": 3000,
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music123/v4/example.jpg/{w}x{h}bb.jpg",
-                            "bgColor": "1a1a1a",
-                            "textColor1": "ffffff",
-                            "textColor2": "cccccc",
-                            "textColor3": "999999",
-                            "textColor4": "666666"
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/ab/cd/ef/abcdef12-3456-7890-abcd-ef1234567890/{w}x{h}bb.jpg",
+                            "bgColor": "ffffff",
+                            "textColor1": "000000",
+                            "textColor2": "333333",
+                            "textColor3": "666666",
+                            "textColor4": "999999"
                         },
+                        "contentRating": "clean",
+                        "copyright": "℗ 1969 Apple Records",
+                        "editorialNotes": {
+                            "standard": "The Beatles' masterpiece album featuring iconic tracks.",
+                            "short": "A legendary album by The Beatles."
+                        },
+                        "genreNames": ["Rock", "Pop"],
+                        "isCompilation": false,
+                        "isComplete": true,
+                        "isMasteredForItunes": true,
+                        "isSingle": false,
+                        "name": "Abbey Road",
                         "playParams": {
                             "id": "1234567890",
                             "kind": "album"
                         },
-                        "url": "https://music.apple.com/us/album/example-album/1234567890",
-                        "recordLabel": "Example Records",
-                        "isCompilation": false,
-                        "trackCount": 12,
-                        "artistUrl": "https://music.apple.com/us/artist/example-artist/987654321",
-                        "isSingle": false,
-                        "name": "Example Album",
-                        "artistName": "Example Artist",
-                        "contentRating": "clean",
-                        "editorialNotes": {
-                            "standard": "A groundbreaking album that showcases the artist's evolution.",
-                            "short": "A must-listen album."
-                        },
-                        "isComplete": true
+                        "recordLabel": "Apple Records",
+                        "releaseDate": "1969-09-26",
+                        "trackCount": 17,
+                        "upc": "602537479870",
+                        "url": "https://music.apple.com/us/album/abbey-road/1234567890"
                     }
                 }
             ]
@@ -86,30 +86,39 @@ service /v1 on ep0 {
                     "type": "albums",
                     "href": "/v1/catalog/" + storefront + "/albums/" + id,
                     "attributes": {
-                        "copyright": "℗ 2023 Example Records",
-                        "genreNames": ["Rock", "Alternative"],
-                        "releaseDate": "2023-08-20",
-                        "isMasteredForItunes": true,
-                        "upc": "987654321098",
+                        "artistName": "Taylor Swift",
+                        "artistUrl": "https://music.apple.com/us/artist/taylor-swift/159260351",
                         "artwork": {
                             "width": 3000,
                             "height": 3000,
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music456/v4/example.jpg/{w}x{h}bb.jpg"
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/12/34/56/12345678-90ab-cdef-1234-567890abcdef/{w}x{h}bb.jpg",
+                            "bgColor": "d4af37",
+                            "textColor1": "000000",
+                            "textColor2": "1a1a1a",
+                            "textColor3": "333333",
+                            "textColor4": "4d4d4d"
                         },
+                        "contentRating": "clean",
+                        "copyright": "℗ 2022 Taylor Swift",
+                        "editorialNotes": {
+                            "standard": "Taylor Swift's tenth studio album showcasing her artistic evolution.",
+                            "short": "Swift's latest masterpiece."
+                        },
+                        "genreNames": ["Pop", "Alternative"],
+                        "isCompilation": false,
+                        "isComplete": true,
+                        "isMasteredForItunes": true,
+                        "isSingle": false,
+                        "name": "Midnights",
                         "playParams": {
                             "id": id,
                             "kind": "album"
                         },
-                        "url": "https://music.apple.com/" + storefront + "/album/single-album/" + id,
-                        "recordLabel": "Independent Records",
-                        "isCompilation": false,
-                        "trackCount": 10,
-                        "artistUrl": "https://music.apple.com/" + storefront + "/artist/rock-artist/555666777",
-                        "isSingle": false,
-                        "name": "Rock Album",
-                        "artistName": "Rock Artist",
-                        "contentRating": "explicit",
-                        "isComplete": true
+                        "recordLabel": "Republic Records",
+                        "releaseDate": "2022-10-21",
+                        "trackCount": 13,
+                        "upc": "602445479870",
+                        "url": "https://music.apple.com/us/album/midnights/" + id
                     }
                 }
             ]
@@ -133,13 +142,17 @@ service /v1 on ep0 {
         return {
             "data": [
                 {
-                    "id": "111222333",
+                    "id": "159260351",
                     "type": "artists",
-                    "href": "/v1/catalog/" + storefront + "/artists/111222333",
+                    "href": "/v1/catalog/" + storefront + "/artists/159260351",
                     "attributes": {
-                        "genreNames": ["Pop", "Rock"],
-                        "name": "Related Artist",
-                        "url": "https://music.apple.com/" + storefront + "/artist/related-artist/111222333"
+                        "name": "Taylor Swift",
+                        "genreNames": ["Pop", "Country", "Alternative"],
+                        "url": "https://music.apple.com/us/artist/taylor-swift/159260351",
+                        "editorialNotes": {
+                            "standard": "Grammy-winning singer-songwriter known for her narrative songwriting.",
+                            "short": "Multi-Grammy winner and global superstar."
+                        }
                     }
                 }
             ]
@@ -164,38 +177,47 @@ service /v1 on ep0 {
         return {
             "data": [
                 {
-                    "id": "444555666",
+                    "id": "1234567890",
                     "type": "music-videos",
-                    "href": "/v1/catalog/" + storefront + "/music-videos/444555666",
+                    "href": "/v1/catalog/" + storefront + "/music-videos/1234567890",
                     "attributes": {
-                        "albumName": "Related Album",
-                        "genreNames": ["Pop", "Electronic"],
-                        "trackNumber": 3,
-                        "videoSubType": "preview",
-                        "durationInMillis": 240000,
-                        "releaseDate": "2023-07-10",
-                        "isrc": "USRC17607839",
+                        "albumName": "Midnights",
+                        "artistName": "Taylor Swift",
+                        "artistUrl": "https://music.apple.com/us/artist/taylor-swift/159260351",
                         "artwork": {
                             "width": 1920,
                             "height": 1080,
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Video123/v4/example.jpg/{w}x{h}bb.jpg"
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Video125/v4/ab/cd/ef/abcdef12-3456-7890-abcd-ef1234567890/{w}x{h}bb.jpg",
+                            "bgColor": "1a1a1a",
+                            "textColor1": "ffffff",
+                            "textColor2": "e6e6e6",
+                            "textColor3": "cccccc",
+                            "textColor4": "b3b3b3"
                         },
+                        "contentRating": "clean",
+                        "durationInMillis": 240000,
+                        "editorialNotes": {
+                            "standard": "The official music video for Anti-Hero showcases Swift's creative vision.",
+                            "short": "Official music video."
+                        },
+                        "genreNames": ["Pop", "Alternative"],
+                        "has4K": true,
+                        "hasHDR": true,
+                        "isrc": "USUG12204567",
+                        "name": "Anti-Hero",
                         "playParams": {
-                            "id": "444555666",
+                            "id": "1234567890",
                             "kind": "musicVideo"
                         },
-                        "url": "https://music.apple.com/" + storefront + "/music-video/related-video/444555666",
-                        "artistUrl": "https://music.apple.com/" + storefront + "/artist/video-artist/777888999",
-                        "has4K": true,
-                        "hasHDR": false,
-                        "name": "Related Music Video",
                         "previews": [
                             {
-                                "url": "https://video-ssl.itunes.apple.com/itunes-assets/Video123/preview.m4v"
+                                "url": "https://video-ssl.itunes.apple.com/itunes-assets/Video125/v4/preview.m4v"
                             }
                         ],
-                        "artistName": "Video Artist",
-                        "contentRating": "clean"
+                        "releaseDate": "2022-10-21",
+                        "trackNumber": 3,
+                        "url": "https://music.apple.com/us/music-video/anti-hero/1234567890",
+                        "videoSubType": "preview"
                     }
                 }
             ]
@@ -219,17 +241,31 @@ service /v1 on ep0 {
         return {
             "data": [
                 {
-                    "id": "123456789",
+                    "id": "159260351",
                     "type": "artists",
-                    "href": "/v1/catalog/" + storefront + "/artists/123456789",
+                    "href": "/v1/catalog/" + storefront + "/artists/159260351",
                     "attributes": {
-                        "genreNames": ["Pop", "R&B"],
-                        "name": "Popular Artist",
+                        "name": "Taylor Swift",
+                        "genreNames": ["Pop", "Country", "Alternative"],
+                        "url": "https://music.apple.com/us/artist/taylor-swift/159260351",
                         "editorialNotes": {
-                            "standard": "A versatile artist known for chart-topping hits.",
-                            "short": "Chart-topping sensation."
-                        },
-                        "url": "https://music.apple.com/" + storefront + "/artist/popular-artist/123456789"
+                            "standard": "Grammy-winning singer-songwriter known for her narrative songwriting and genre evolution.",
+                            "short": "Multi-Grammy winner and global superstar."
+                        }
+                    }
+                },
+                {
+                    "id": "136975",
+                    "type": "artists",
+                    "href": "/v1/catalog/" + storefront + "/artists/136975",
+                    "attributes": {
+                        "name": "The Beatles",
+                        "genreNames": ["Rock", "Pop"],
+                        "url": "https://music.apple.com/us/artist/the-beatles/136975",
+                        "editorialNotes": {
+                            "standard": "The most influential band in popular music history.",
+                            "short": "Legendary British rock band."
+                        }
                     }
                 }
             ]
@@ -256,13 +292,13 @@ service /v1 on ep0 {
                     "type": "artists",
                     "href": "/v1/catalog/" + storefront + "/artists/" + id,
                     "attributes": {
-                        "genreNames": ["Indie", "Alternative"],
-                        "name": "Indie Artist",
+                        "name": "Ed Sheeran",
+                        "genreNames": ["Pop", "Folk", "Hip-Hop"],
+                        "url": "https://music.apple.com/us/artist/ed-sheeran/" + id,
                         "editorialNotes": {
-                            "standard": "An innovative indie artist pushing creative boundaries.",
-                            "short": "Boundary-pushing indie talent."
-                        },
-                        "url": "https://music.apple.com/" + storefront + "/artist/indie-artist/" + id
+                            "standard": "British singer-songwriter known for his acoustic guitar-driven pop songs and heartfelt lyrics.",
+                            "short": "Chart-topping British singer-songwriter."
+                        }
                     }
                 }
             ]
@@ -286,32 +322,43 @@ service /v1 on ep0 {
         return {
             "data": [
                 {
-                    "id": "987654321",
+                    "id": "1234567890",
                     "type": "albums",
-                    "href": "/v1/catalog/" + storefront + "/albums/987654321",
+                    "href": "/v1/catalog/" + storefront + "/albums/1234567890",
                     "attributes": {
-                        "copyright": "℗ 2023 Artist Records",
-                        "genreNames": ["Alternative", "Indie"],
-                        "releaseDate": "2023-09-01",
-                        "isMasteredForItunes": true,
+                        "artistName": "Ed Sheeran",
+                        "artistUrl": "https://music.apple.com/us/artist/ed-sheeran/" + id,
                         "artwork": {
                             "width": 3000,
                             "height": 3000,
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music789/v4/example.jpg/{w}x{h}bb.jpg"
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/12/34/56/12345678-90ab-cdef-1234-567890abcdef/{w}x{h}bb.jpg",
+                            "bgColor": "ff6b35",
+                            "textColor1": "ffffff",
+                            "textColor2": "f4f4f4",
+                            "textColor3": "e6e6e6",
+                            "textColor4": "d9d9d9"
                         },
+                        "contentRating": "clean",
+                        "copyright": "℗ 2021 Asylum Records UK",
+                        "editorialNotes": {
+                            "standard": "Ed Sheeran's fifth studio album featuring collaborations with various artists.",
+                            "short": "Sheeran's collaborative album."
+                        },
+                        "genreNames": ["Pop", "Folk"],
+                        "isCompilation": false,
+                        "isComplete": true,
+                        "isMasteredForItunes": true,
+                        "isSingle": false,
+                        "name": "= (Equals)",
                         "playParams": {
-                            "id": "987654321",
+                            "id": "1234567890",
                             "kind": "album"
                         },
-                        "url": "https://music.apple.com/" + storefront + "/album/artist-album/987654321",
-                        "recordLabel": "Indie Label",
-                        "isCompilation": false,
-                        "trackCount": 8,
-                        "artistUrl": "https://music.apple.com/" + storefront + "/artist/indie-artist/" + id,
-                        "isSingle": false,
-                        "name": "Artist Album",
-                        "artistName": "Indie Artist",
-                        "isComplete": true
+                        "recordLabel": "Asylum Records UK",
+                        "releaseDate": "2021-10-29",
+                        "trackCount": 14,
+                        "upc": "190295408718",
+                        "url": "https://music.apple.com/us/album/equals/1234567890"
                     }
                 }
             ]
@@ -336,32 +383,43 @@ service /v1 on ep0 {
         return {
             "data": [
                 {
-                    "id": "555444333",
+                    "id": "9876543210",
                     "type": "albums",
-                    "href": "/v1/catalog/" + storefront + "/albums/555444333",
+                    "href": "/v1/catalog/" + storefront + "/albums/9876543210",
                     "attributes": {
-                        "copyright": "℗ 2023 View Records",
-                        "genreNames": ["Electronic", "Dance"],
-                        "releaseDate": "2023-05-15",
-                        "isMasteredForItunes": false,
+                        "artistName": "Adele",
+                        "artistUrl": "https://music.apple.com/us/artist/adele/" + id,
                         "artwork": {
-                            "width": 1400,
-                            "height": 1400,
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music111/v4/example.jpg/{w}x{h}bb.jpg"
+                            "width": 3000,
+                            "height": 3000,
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/ab/cd/ef/abcdef12-3456-7890-abcd-ef1234567890/{w}x{h}bb.jpg",
+                            "bgColor": "2c2c2c",
+                            "textColor1": "ffffff",
+                            "textColor2": "f0f0f0",
+                            "textColor3": "d4d4d4",
+                            "textColor4": "c0c0c0"
                         },
+                        "contentRating": "clean",
+                        "copyright": "℗ 2021 Melted Stone Ltd.",
+                        "editorialNotes": {
+                            "standard": "Adele's fourth studio album showcasing her powerful vocals and emotional depth.",
+                            "short": "Adele's triumphant return."
+                        },
+                        "genreNames": ["Pop", "Soul"],
+                        "isCompilation": false,
+                        "isComplete": true,
+                        "isMasteredForItunes": true,
+                        "isSingle": false,
+                        "name": "30",
                         "playParams": {
-                            "id": "555444333",
+                            "id": "9876543210",
                             "kind": "album"
                         },
-                        "url": "https://music.apple.com/" + storefront + "/album/view-album/555444333",
-                        "recordLabel": "Electronic Music Label",
-                        "isCompilation": true,
-                        "trackCount": 15,
-                        "isSingle": false,
-                        "name": "View Album",
-                        "artistName": "Various Artists",
-                        "contentRating": "clean",
-                        "isComplete": true
+                        "recordLabel": "Columbia Records",
+                        "releaseDate": "2021-11-19",
+                        "trackCount": 12,
+                        "upc": "194398076119",
+                        "url": "https://music.apple.com/us/album/30/9876543210"
                     }
                 }
             ]
@@ -387,31 +445,39 @@ service /v1 on ep0 {
                 "albums": {
                     "data": [
                         {
-                            "id": "search123456",
+                            "id": "1234567890",
                             "type": "albums",
-                            "href": "/v1/catalog/" + storefront + "/albums/search123456",
+                            "href": "/v1/catalog/" + storefront + "/albums/1234567890",
                             "attributes": {
-                                "copyright": "℗ 2023 Search Records",
-                                "genreNames": ["Pop"],
-                                "releaseDate": "2023-04-20",
-                                "isMasteredForItunes": true,
+                                "artistName": "Taylor Swift",
+                                "artistUrl": "https://music.apple.com/us/artist/taylor-swift/159260351",
                                 "artwork": {
                                     "width": 3000,
                                     "height": 3000,
-                                    "url": "https://is1-ssl.mzstatic.com/image/thumb/MusicSearch/v4/example.jpg/{w}x{h}bb.jpg"
+                                    "url": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/12/34/56/12345678-90ab-cdef-1234-567890abcdef/{w}x{h}bb.jpg",
+                                    "bgColor": "d4af37",
+                                    "textColor1": "000000",
+                                    "textColor2": "1a1a1a",
+                                    "textColor3": "333333",
+                                    "textColor4": "4d4d4d"
                                 },
+                                "contentRating": "clean",
+                                "copyright": "℗ 2022 Taylor Swift",
+                                "genreNames": ["Pop", "Alternative"],
+                                "isCompilation": false,
+                                "isComplete": true,
+                                "isMasteredForItunes": true,
+                                "isSingle": false,
+                                "name": "Midnights",
                                 "playParams": {
-                                    "id": "search123456",
+                                    "id": "1234567890",
                                     "kind": "album"
                                 },
-                                "url": "https://music.apple.com/" + storefront + "/album/search-album/search123456",
-                                "recordLabel": "Search Label",
-                                "isCompilation": false,
-                                "trackCount": 11,
-                                "isSingle": false,
-                                "name": "Search Album",
-                                "artistName": "Search Artist",
-                                "isComplete": true
+                                "recordLabel": "Republic Records",
+                                "releaseDate": "2022-10-21",
+                                "trackCount": 13,
+                                "upc": "602445479870",
+                                "url": "https://music.apple.com/us/album/midnights/1234567890"
                             }
                         }
                     ]
@@ -419,13 +485,17 @@ service /v1 on ep0 {
                 "artists": {
                     "data": [
                         {
-                            "id": "artist789012",
+                            "id": "159260351",
                             "type": "artists",
-                            "href": "/v1/catalog/" + storefront + "/artists/artist789012",
+                            "href": "/v1/catalog/" + storefront + "/artists/159260351",
                             "attributes": {
-                                "genreNames": ["Pop", "Rock"],
-                                "name": "Search Artist",
-                                "url": "https://music.apple.com/" + storefront + "/artist/search-artist/artist789012"
+                                "name": "Taylor Swift",
+                                "genreNames": ["Pop", "Country", "Alternative"],
+                                "url": "https://music.apple.com/us/artist/taylor-swift/159260351",
+                                "editorialNotes": {
+                                    "standard": "Grammy-winning singer-songwriter known for her narrative songwriting.",
+                                    "short": "Multi-Grammy winner and global superstar."
+                                }
                             }
                         }
                     ]
@@ -451,38 +521,47 @@ service /v1 on ep0 {
         return {
             "data": [
                 {
-                    "id": "song123456789",
+                    "id": "1234567890",
                     "type": "songs",
-                    "href": "/v1/catalog/" + storefront + "/songs/song123456789",
+                    "href": "/v1/catalog/" + storefront + "/songs/1234567890",
                     "attributes": {
-                        "albumName": "Song Album",
-                        "genreNames": ["Pop", "Dance"],
-                        "trackNumber": 1,
-                        "durationInMillis": 210000,
-                        "releaseDate": "2023-06-10",
-                        "isrc": "USRC17607840",
+                        "albumName": "Midnights",
+                        "artistName": "Taylor Swift",
+                        "artistUrl": "https://music.apple.com/us/artist/taylor-swift/159260351",
                         "artwork": {
                             "width": 3000,
                             "height": 3000,
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/MusicSong/v4/example.jpg/{w}x{h}bb.jpg"
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/12/34/56/12345678-90ab-cdef-1234-567890abcdef/{w}x{h}bb.jpg",
+                            "bgColor": "d4af37",
+                            "textColor1": "000000",
+                            "textColor2": "1a1a1a",
+                            "textColor3": "333333",
+                            "textColor4": "4d4d4d"
                         },
-                        "composerName": "Song Composer",
+                        "composerName": "Taylor Swift, Jack Antonoff",
+                        "contentRating": "clean",
+                        "discNumber": 1,
+                        "durationInMillis": 200690,
+                        "editorialNotes": {
+                            "standard": "A introspective track about self-reflection and personal growth.",
+                            "short": "Swift's introspective anthem."
+                        },
+                        "genreNames": ["Pop", "Alternative"],
+                        "hasLyrics": true,
+                        "isrc": "USUG12204560",
+                        "name": "Anti-Hero",
                         "playParams": {
-                            "id": "song123456789",
+                            "id": "1234567890",
                             "kind": "song"
                         },
-                        "url": "https://music.apple.com/" + storefront + "/album/song-album/1111111111?i=song123456789",
-                        "discNumber": 1,
-                        "hasLyrics": true,
-                        "artistUrl": "https://music.apple.com/" + storefront + "/artist/song-artist/2222222222",
-                        "name": "Example Song",
                         "previews": [
                             {
-                                "url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview123/preview.m4a"
+                                "url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/12/34/56/12345678-90ab-cdef-1234-567890abcdef/mzaf_1234567890123456789.plus.aac.p.m4a"
                             }
                         ],
-                        "artistName": "Song Artist",
-                        "contentRating": "clean"
+                        "releaseDate": "2022-10-21",
+                        "trackNumber": 3,
+                        "url": "https://music.apple.com/us/song/anti-hero/1234567890"
                     }
                 }
             ]
@@ -508,32 +587,43 @@ service /v1 on ep0 {
                     "type": "songs",
                     "href": "/v1/catalog/" + storefront + "/songs/" + id,
                     "attributes": {
-                        "albumName": "Single Song Album",
-                        "genreNames": ["Alternative", "Indie"],
-                        "trackNumber": 3,
-                        "durationInMillis": 195000,
-                        "releaseDate": "2023-07-25",
-                        "isrc": "GBRC17607841",
+                        "albumName": "Shape of You",
+                        "artistName": "Ed Sheeran",
+                        "artistUrl": "https://music.apple.com/us/artist/ed-sheeran/183313439",
                         "artwork": {
                             "width": 3000,
                             "height": 3000,
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/MusicSingle/v4/example.jpg/{w}x{h}bb.jpg"
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/ab/cd/ef/abcdef12-3456-7890-abcd-ef1234567890/{w}x{h}bb.jpg",
+                            "bgColor": "ff6b35",
+                            "textColor1": "ffffff",
+                            "textColor2": "f4f4f4",
+                            "textColor3": "e6e6e6",
+                            "textColor4": "d9d9d9"
                         },
+                        "composerName": "Ed Sheeran, Steve Mac, Johnny McDaid",
+                        "contentRating": "clean",
+                        "discNumber": 1,
+                        "durationInMillis": 233712,
+                        "editorialNotes": {
+                            "standard": "Ed Sheeran's chart-topping hit about falling in love with someone's personality.",
+                            "short": "Sheeran's global smash hit."
+                        },
+                        "genreNames": ["Pop", "Dance"],
+                        "hasLyrics": true,
+                        "isrc": "GBAHT1700161",
+                        "name": "Shape of You",
                         "playParams": {
                             "id": id,
                             "kind": "song"
                         },
-                        "url": "https://music.apple.com/" + storefront + "/album/single-song-album/3333333333?i=" + id,
-                        "discNumber": 1,
-                        "hasLyrics": false,
-                        "name": "Single Song",
                         "previews": [
                             {
-                                "url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview456/preview.m4a"
+                                "url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview116/v4/ab/cd/ef/abcdef12-3456-7890-abcd-ef1234567890/mzaf_abcdef1234567890.plus.aac.p.m4a"
                             }
                         ],
-                        "artistName": "Single Artist",
-                        "contentRating": "explicit"
+                        "releaseDate": "2017-01-06",
+                        "trackNumber": 4,
+                        "url": "https://music.apple.com/us/song/shape-of-you/" + id
                     }
                 }
             ]
@@ -557,34 +647,43 @@ service /v1 on ep0 {
         return {
             "data": [
                 {
-                    "id": "related456789",
+                    "id": "9876543210",
                     "type": "songs",
-                    "href": "/v1/catalog/" + storefront + "/songs/related456789",
+                    "href": "/v1/catalog/" + storefront + "/songs/9876543210",
                     "attributes": {
-                        "albumName": "Related Album",
-                        "genreNames": ["Pop"],
-                        "trackNumber": 2,
-                        "durationInMillis": 180000,
-                        "releaseDate": "2023-08-15",
+                        "albumName": "÷ (Divide)",
+                        "artistName": "Ed Sheeran",
+                        "artistUrl": "https://music.apple.com/us/artist/ed-sheeran/183313439",
                         "artwork": {
-                            "width": 1400,
-                            "height": 1400,
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/MusicRelated/v4/example.jpg/{w}x{h}bb.jpg"
+                            "width": 3000,
+                            "height": 3000,
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/12/34/56/12345678-90ab-cdef-1234-567890abcdef/{w}x{h}bb.jpg",
+                            "bgColor": "4a90e2",
+                            "textColor1": "ffffff",
+                            "textColor2": "f0f8ff",
+                            "textColor3": "e6f3ff",
+                            "textColor4": "d9ecff"
                         },
+                        "composerName": "Ed Sheeran",
+                        "contentRating": "clean",
+                        "discNumber": 1,
+                        "durationInMillis": 263000,
+                        "genreNames": ["Pop", "Folk"],
+                        "hasLyrics": true,
+                        "isrc": "GBAHT1700162",
+                        "name": "Perfect",
                         "playParams": {
-                            "id": "related456789",
+                            "id": "9876543210",
                             "kind": "song"
                         },
-                        "url": "https://music.apple.com/" + storefront + "/album/related-album/4444444444?i=related456789",
-                        "discNumber": 1,
-                        "hasLyrics": true,
-                        "name": "Related Song",
                         "previews": [
                             {
-                                "url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview789/preview.m4a"
+                                "url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview116/v4/98/76/54/98765432-10ab-cdef-9876-543210abcdef/mzaf_9876543210123456789.plus.aac.p.m4a"
                             }
                         ],
-                        "artistName": "Related Artist"
+                        "releaseDate": "2017-03-03",
+                        "trackNumber": 9,
+                        "url": "https://music.apple.com/us/song/perfect/9876543210"
                     }
                 }
             ]
@@ -608,26 +707,31 @@ service /v1 on ep0 {
         return {
             "data": [
                 {
-                    "id": "lib123456789",
+                    "id": "l.1234567890",
                     "type": "library-albums",
-                    "href": "/v1/me/library/albums/lib123456789",
+                    "href": "/v1/me/library/albums/l.1234567890",
                     "attributes": {
-                        "trackCount": 14,
-                        "genreNames": ["Rock", "Classic Rock"],
-                        "releaseDate": "1975-11-21",
-                        "name": "Library Album",
-                        "artistName": "Library Artist",
-                        "contentRating": "clean",
+                        "artistName": "Taylor Swift",
                         "artwork": {
-                            "width": 600,
-                            "height": 600,
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/MusicLibrary/v4/example.jpg/{w}x{h}bb.jpg"
+                            "width": 3000,
+                            "height": 3000,
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/12/34/56/12345678-90ab-cdef-1234-567890abcdef/{w}x{h}bb.jpg",
+                            "bgColor": "d4af37",
+                            "textColor1": "000000",
+                            "textColor2": "1a1a1a",
+                            "textColor3": "333333",
+                            "textColor4": "4d4d4d"
                         },
-                        "dateAdded": "2023-01-15",
+                        "contentRating": "clean",
+                        "dateAdded": "2022-10-21",
+                        "genreNames": ["Pop", "Alternative"],
+                        "name": "Midnights",
                         "playParams": {
-                            "id": "lib123456789",
+                            "id": "l.1234567890",
                             "kind": "album"
-                        }
+                        },
+                        "releaseDate": "2022-10-21",
+                        "trackCount": 13
                     }
                 }
             ]
@@ -653,21 +757,27 @@ service /v1 on ep0 {
                     "type": "library-albums",
                     "href": "/v1/me/library/albums/" + id,
                     "attributes": {
-                        "trackCount": 9,
-                        "genreNames": ["Jazz", "Smooth Jazz"],
-                        "releaseDate": "1959-08-17",
-                        "name": "Single Library Album",
-                        "artistName": "Jazz Legend",
+                        "artistName": "The Beatles",
                         "artwork": {
-                            "width": 1200,
-                            "height": 1200,
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/MusicLibrarySingle/v4/example.jpg/{w}x{h}bb.jpg"
+                            "width": 3000,
+                            "height": 3000,
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/ab/cd/ef/abcdef12-3456-7890-abcd-ef1234567890/{w}x{h}bb.jpg",
+                            "bgColor": "ffffff",
+                            "textColor1": "000000",
+                            "textColor2": "333333",
+                            "textColor3": "666666",
+                            "textColor4": "999999"
                         },
-                        "dateAdded": "2023-03-20",
+                        "contentRating": "clean",
+                        "dateAdded": "2020-05-15",
+                        "genreNames": ["Rock", "Pop"],
+                        "name": "Abbey Road",
                         "playParams": {
                             "id": id,
                             "kind": "album"
-                        }
+                        },
+                        "releaseDate": "1969-09-26",
+                        "trackCount": 17
                     }
                 }
             ]
@@ -691,11 +801,11 @@ service /v1 on ep0 {
         return {
             "data": [
                 {
-                    "id": "libartist123",
+                    "id": "l.159260351",
                     "type": "library-artists",
-                    "href": "/v1/me/library/artists/libartist123",
+                    "href": "/v1/me/library/artists/l.159260351",
                     "attributes": {
-                        "name": "Library Album Artist"
+                        "name": "The Beatles"
                     }
                 }
             ]
@@ -719,11 +829,19 @@ service /v1 on ep0 {
         return {
             "data": [
                 {
-                    "id": "libartist456",
+                    "id": "l.159260351",
                     "type": "library-artists",
-                    "href": "/v1/me/library/artists/libartist456",
+                    "href": "/v1/me/library/artists/l.159260351",
                     "attributes": {
-                        "name": "My Library Artist"
+                        "name": "Taylor Swift"
+                    }
+                },
+                {
+                    "id": "l.136975",
+                    "type": "library-artists",
+                    "href": "/v1/me/library/artists/l.136975",
+                    "attributes": {
+                        "name": "The Beatles"
                     }
                 }
             ]
@@ -749,7 +867,7 @@ service /v1 on ep0 {
                     "type": "library-artists",
                     "href": "/v1/me/library/artists/" + id,
                     "attributes": {
-                        "name": "Single Library Artist"
+                        "name": "Ed Sheeran"
                     }
                 }
             ]
@@ -773,25 +891,31 @@ service /v1 on ep0 {
         return {
             "data": [
                 {
-                    "id": "libalbum789",
+                    "id": "l.1234567890",
                     "type": "library-albums",
-                    "href": "/v1/me/library/albums/libalbum789",
+                    "href": "/v1/me/library/albums/l.1234567890",
                     "attributes": {
-                        "trackCount": 12,
-                        "genreNames": ["Blues", "Electric Blues"],
-                        "releaseDate": "1968-07-12",
-                        "name": "Artist's Library Album",
-                        "artistName": "Single Library Artist",
+                        "artistName": "Ed Sheeran",
                         "artwork": {
-                            "width": 800,
-                            "height": 800,
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/MusicArtistLib/v4/example.jpg/{w}x{h}bb.jpg"
+                            "width": 3000,
+                            "height": 3000,
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/12/34/56/12345678-90ab-cdef-1234-567890abcdef/{w}x{h}bb.jpg",
+                            "bgColor": "ff6b35",
+                            "textColor1": "ffffff",
+                            "textColor2": "f4f4f4",
+                            "textColor3": "e6e6e6",
+                            "textColor4": "d9d9d9"
                         },
-                        "dateAdded": "2023-02-10",
+                        "contentRating": "clean",
+                        "dateAdded": "2021-10-29",
+                        "genreNames": ["Pop", "Folk"],
+                        "name": "= (Equals)",
                         "playParams": {
-                            "id": "libalbum789",
+                            "id": "l.1234567890",
                             "kind": "album"
-                        }
+                        },
+                        "releaseDate": "2021-10-29",
+                        "trackCount": 14
                     }
                 }
             ]
@@ -815,29 +939,34 @@ service /v1 on ep0 {
         return {
             "data": [
                 {
-                    "id": "libsong123",
+                    "id": "i.1234567890",
                     "type": "library-songs",
-                    "href": "/v1/me/library/songs/libsong123",
+                    "href": "/v1/me/library/songs/i.1234567890",
                     "attributes": {
-                        "albumName": "Library Song Album",
-                        "discNumber": 1,
-                        "genreNames": ["Country", "Modern Country"],
-                        "hasLyrics": true,
-                        "trackNumber": 4,
-                        "durationInMillis": 225000,
-                        "releaseDate": "2020-03-15",
-                        "name": "Library Song",
-                        "artistName": "Country Artist",
-                        "contentRating": "clean",
+                        "albumName": "Midnights",
+                        "artistName": "Taylor Swift",
                         "artwork": {
-                            "width": 1000,
-                            "height": 1000,
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/MusicLibSong/v4/example.jpg/{w}x{h}bb.jpg"
+                            "width": 3000,
+                            "height": 3000,
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/12/34/56/12345678-90ab-cdef-1234-567890abcdef/{w}x{h}bb.jpg",
+                            "bgColor": "d4af37",
+                            "textColor1": "000000",
+                            "textColor2": "1a1a1a",
+                            "textColor3": "333333",
+                            "textColor4": "4d4d4d"
                         },
+                        "contentRating": "clean",
+                        "discNumber": 1,
+                        "durationInMillis": 200690,
+                        "genreNames": ["Pop", "Alternative"],
+                        "hasLyrics": true,
+                        "name": "Anti-Hero",
                         "playParams": {
-                            "id": "libsong123",
+                            "id": "i.1234567890",
                             "kind": "song"
-                        }
+                        },
+                        "releaseDate": "2022-10-21",
+                        "trackNumber": 3
                     }
                 }
             ]
@@ -863,25 +992,30 @@ service /v1 on ep0 {
                     "type": "library-songs",
                     "href": "/v1/me/library/songs/" + id,
                     "attributes": {
-                        "albumName": "Single Library Song Album",
-                        "discNumber": 1,
-                        "genreNames": ["Hip-Hop/Rap"],
-                        "hasLyrics": false,
-                        "trackNumber": 7,
-                        "durationInMillis": 190000,
-                        "releaseDate": "2022-11-08",
-                        "name": "Single Library Song",
-                        "artistName": "Rap Artist",
-                        "contentRating": "explicit",
+                        "albumName": "÷ (Divide)",
+                        "artistName": "Ed Sheeran",
                         "artwork": {
-                            "width": 1500,
-                            "height": 1500,
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/MusicSingleLib/v4/example.jpg/{w}x{h}bb.jpg"
+                            "width": 3000,
+                            "height": 3000,
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/ab/cd/ef/abcdef12-3456-7890-abcd-ef1234567890/{w}x{h}bb.jpg",
+                            "bgColor": "4a90e2",
+                            "textColor1": "ffffff",
+                            "textColor2": "f0f8ff",
+                            "textColor3": "e6f3ff",
+                            "textColor4": "d9ecff"
                         },
+                        "contentRating": "clean",
+                        "discNumber": 1,
+                        "durationInMillis": 233712,
+                        "genreNames": ["Pop", "Dance"],
+                        "hasLyrics": true,
+                        "name": "Shape of You",
                         "playParams": {
                             "id": id,
                             "kind": "song"
-                        }
+                        },
+                        "releaseDate": "2017-01-06",
+                        "trackNumber": 4
                     }
                 }
             ]
@@ -905,28 +1039,34 @@ service /v1 on ep0 {
         return {
             "data": [
                 {
-                    "id": "libsongrel456",
+                    "id": "i.9876543210",
                     "type": "library-songs",
-                    "href": "/v1/me/library/songs/libsongrel456",
+                    "href": "/v1/me/library/songs/i.9876543210",
                     "attributes": {
-                        "albumName": "Related Library Album",
-                        "discNumber": 1,
-                        "genreNames": ["Folk", "Indie Folk"],
-                        "hasLyrics": true,
-                        "trackNumber": 2,
-                        "durationInMillis": 205000,
-                        "releaseDate": "2021-09-22",
-                        "name": "Related Library Song",
-                        "artistName": "Folk Artist",
+                        "albumName": "÷ (Divide)",
+                        "artistName": "Ed Sheeran",
                         "artwork": {
-                            "width": 900,
-                            "height": 900,
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/MusicLibRelated/v4/example.jpg/{w}x{h}bb.jpg"
+                            "width": 3000,
+                            "height": 3000,
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/98/76/54/98765432-10ab-cdef-9876-543210abcdef/{w}x{h}bb.jpg",
+                            "bgColor": "4a90e2",
+                            "textColor1": "ffffff",
+                            "textColor2": "f0f8ff",
+                            "textColor3": "e6f3ff",
+                            "textColor4": "d9ecff"
                         },
+                        "contentRating": "clean",
+                        "discNumber": 1,
+                        "durationInMillis": 263000,
+                        "genreNames": ["Pop", "Folk"],
+                        "hasLyrics": true,
+                        "name": "Perfect",
                         "playParams": {
-                            "id": "libsongrel456",
+                            "id": "i.9876543210",
                             "kind": "song"
-                        }
+                        },
+                        "releaseDate": "2017-03-03",
+                        "trackNumber": 9
                     }
                 }
             ]

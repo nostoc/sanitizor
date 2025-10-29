@@ -18,7 +18,7 @@ import ballerina/os;
 import ballerina/test;
 import apple.music.mock.server as _;
 
-configurable boolean isLiveServer = os:getEnv("IS_LIVE_SERVER") == "false";
+configurable boolean isLiveServer = os:getEnv("IS_LIVE_SERVER") == "true";
 configurable string authorization = isLiveServer ? os:getEnv("APPLE_MUSIC_JWT") : "test_jwt_token";
 configurable string musicUserToken = isLiveServer ? os:getEnv("APPLE_MUSIC_USER_TOKEN") : "test_user_token";
 configurable string serviceUrl = isLiveServer ? "https://api.music.apple.com/v1" : "http://localhost:9090/v1";
@@ -99,8 +99,7 @@ isolated function testGetCatalogArtistView() returns error? {
 }
 isolated function testSearchCatalogResources() returns error? {
     SearchResponse response = check appleMusicClient->/catalog/us/search(term = "taylor+swift");
-    SearchResponseResults? results = response?.results;
-    test:assertTrue(results !is (), "Expected search results to be present");
+    test:assertTrue(response?.results !is (), "Expected search results to be present");
 }
 
 @test:Config {

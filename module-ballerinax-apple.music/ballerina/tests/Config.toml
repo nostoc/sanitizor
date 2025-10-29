@@ -1,4 +1,4 @@
-
-
-# No configurable variables found in the source code
-# The service uses hardcoded values and does not require external configuration
+# Test configuration
+# Set to false to use mock server (default for testing)
+# Set to true to test against live API (requires valid credentials)
+isLiveServer = false
