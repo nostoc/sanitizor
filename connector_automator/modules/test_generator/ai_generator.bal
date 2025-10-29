@@ -26,7 +26,7 @@ function callAI(string prompt) returns string|error {
         apiKey,
         anthropic:CLAUDE_SONNET_4_20250514,
         maxTokens = 64000,
-        timeout = 300
+        timeout = 400
     );
     if modelProvider is error {
         return error("Failed to initialize model provider");
