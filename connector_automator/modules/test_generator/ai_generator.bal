@@ -35,7 +35,7 @@ function callAI(string prompt) returns string|error {
     log:printInfo("LLM service initialized successfully");
 
     ai:ChatMessage[] messages = [{role: "user", content: prompt}];
-    io:println(prompt);
+    //io:println(prompt);
     ai:ChatAssistantMessage|error response = modelProvider->chat(messages);
     //messages.push({role: "assistant", content: response is ai:ChatAssistantMessage ? response.content : ""});
     //io:println(messages);
@@ -44,7 +44,7 @@ function callAI(string prompt) returns string|error {
     }
     string? content = response.content;
     if content is string {
-        io:println(content);
+        //io:println(content);
         return content;
     } else {
         return error("AI response content is empty.");
@@ -68,5 +68,7 @@ function generateTestFile(string connectorPath) returns error? {
 
 function generateTestsWithAI(ConnectorAnalysis analysis) returns string|error {
     string prompt = createTestGenerationPrompt(analysis);
+    io:println(analysis.initMethodSignature);
+    io:println(analysis.referencedTypeDefinitions);
     return callAI(prompt);
 }

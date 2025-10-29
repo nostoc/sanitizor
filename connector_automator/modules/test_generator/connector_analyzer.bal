@@ -17,16 +17,26 @@ function analyzeConnectorForTests(string connectorPath) returns ConnectorAnalysi
     // Read mock server content
     string mockServerContent = check io:fileReadString(connectorPath + "/ballerina/modules/mock.server/mock_server.bal");
 
-    //Read client.bal to extract the init  method
+    // Read client.bal to extract the init method - FIX THIS
     string clientContent = check io:fileReadString(connectorPath + "/ballerina/client.bal");
-    string? initSignature = findInitSignature(clientContent);
-    string initMethodSignature = initSignature ?: "";
+    string initMethodSignature = extractInitMethodComplete(clientContent); // Use the fixed function
+
+    // Debug output to see what we extracted
+    io:println("=== DEBUG: Extracted Init Method ===");
+    io:println(initMethodSignature);
+    io:println("=== END DEBUG ===");
 
     // read types.bal to get type definitions
     string typesContent = check io:fileReadString(connectorPath + "/ballerina/types.bal");
 
     // extract all types referenced in the init method signatures
     string[] referencedTypes = findTypesInSignatures(initMethodSignature);
+    
+    // Debug output
+    io:println("=== DEBUG: Referenced Types ===");
+    io:println(referencedTypes.toString());
+    io:println("=== END DEBUG ===");
+    
     string[] allDependentTypes = [];
     allDependentTypes.push(...referencedTypes);
 
@@ -39,10 +49,15 @@ function analyzeConnectorForTests(string connectorPath) returns ConnectorAnalysi
         foreach string typeName in allDependentTypes {
             string typeDef = extractCompactTypeDefinition(typesContent, typeName);
             if typeDef != "" {
-                referencedTypeDefinitions += typeDef + "\n";
+                referencedTypeDefinitions += typeDef + "\n\n";
             }
         }
     }
+
+    // Debug output
+    io:println("=== DEBUG: Final Type Definitions ===");
+    io:println(referencedTypeDefinitions);
+    io:println("=== END DEBUG ===");
 
     return {
         packageName,
@@ -54,24 +69,81 @@ function analyzeConnectorForTests(string connectorPath) returns ConnectorAnalysi
 
 
 function findInitSignature(string clientContent) returns string? {
-    regexp:RegExp initPattern = re `public\sisolated\sfunction\sinit\s*\([^{]*\)\sreturns\s[^{]+`;
+    // Look for the init function more broadly
+    string[] lines = regexp:split(re `\n`, clientContent);
+    string initMethod = "";
+    boolean inInitFunction = false;
+    boolean foundStart = false;
+    int braceCount = 0;
+    
+    foreach string line in lines {
+        string trimmedLine = strings:trim(line);
+        
+        // Look for documentation comments before init
+        if strings:startsWith(trimmedLine, "#") && !foundStart {
+            initMethod += line + "\n";
+        }
+        // Look for init function start
+        else if strings:includes(trimmedLine, "function init(") {
+            inInitFunction = true;
+            foundStart = true;
+            initMethod += line + "\n";
+        }
+        else if inInitFunction {
+            initMethod += line + "\n";
+            
+            // Count braces to find end of function signature
+            if strings:includes(line, "{") {
+                braceCount += 1;
+                break; // Stop at opening brace of function body
+            }
+        }
+        else if foundStart && !inInitFunction {
+            // Reset if we didn't find the function properly
+            initMethod = "";
+            foundStart = false;
+        }
+    }
+    
+    if initMethod.length() > 0 {
+        return initMethod.trim();
+    }
+    return ();
+}
+
+function findInitSignatureRegex(string clientContent) returns string? {
+    // More flexible regex pattern
+       regexp:RegExp initPattern = re `public\sisolated\sfunction\sinit\s*\([^{]*\)\sreturns\s[^{]+`;
     regexp:Span[] matches = initPattern.findAll(clientContent);
 
     if matches.length() > 0 {
         regexp:Span span = matches[0];
         string signature = clientContent.substring(span.startIndex, span.endIndex).trim();
-        string cleanSignature = regexp:replaceAll(re `\s+`, signature, " ");
+        
+        // Extract documentation before the function
         string docComment = extractFunctionDocumentation(clientContent, span.startIndex);
-
+        
         if docComment != "" {
-            return docComment + "\n" + cleanSignature + ";";
+            return docComment + "\n" + signature + ";";
         } else {
-            return cleanSignature + ";";
+            return signature + ";";
         }
     }
     return ();
 }
 
+// Combine both approaches
+function extractInitMethodComplete(string clientContent) returns string {
+    // Try the line-by-line approach first
+    string? result = findInitSignature(clientContent);
+    
+    // Fallback to regex approach
+    if result is () {
+        result = findInitSignatureRegex(clientContent);
+    }
+    
+    return result ?: "";
+}
 function findTypesInSignatures(string signatures) returns string[] {
     regexp:RegExp typePattern = re `[A-Z][a-zA-Z0-9_]*`;
     regexp:Span[] matches = typePattern.findAll(signatures);
