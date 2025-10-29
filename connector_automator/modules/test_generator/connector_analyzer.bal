@@ -22,9 +22,9 @@ function analyzeConnectorForTests(string connectorPath) returns ConnectorAnalysi
     string initMethodSignature = extractInitMethodComplete(clientContent); // Use the fixed function
 
     // Debug output to see what we extracted
-    io:println("=== DEBUG: Extracted Init Method ===");
-    io:println(initMethodSignature);
-    io:println("=== END DEBUG ===");
+   // io:println("=== DEBUG: Extracted Init Method ===");
+    //io:println(initMethodSignature);
+    //io:println("=== END DEBUG ===");
 
     // read types.bal to get type definitions
     string typesContent = check io:fileReadString(connectorPath + "/ballerina/types.bal");
@@ -32,10 +32,10 @@ function analyzeConnectorForTests(string connectorPath) returns ConnectorAnalysi
     // extract all types referenced in the init method signatures
     string[] referencedTypes = findTypesInSignatures(initMethodSignature);
     
-    // Debug output
-    io:println("=== DEBUG: Referenced Types ===");
-    io:println(referencedTypes.toString());
-    io:println("=== END DEBUG ===");
+    // // Debug output
+    // io:println("=== DEBUG: Referenced Types ===");
+    // io:println(referencedTypes.toString());
+    // io:println("=== END DEBUG ===");
     
     string[] allDependentTypes = [];
     allDependentTypes.push(...referencedTypes);

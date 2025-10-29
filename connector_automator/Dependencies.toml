@@ -10,7 +10,7 @@ distribution-version = "2201.13.0-20250927-204700-7b3ef131"
 [[package]]
 org = "ballerina"
 name = "ai"
-version = "1.6.0"
+version = "1.6.1"
 dependencies = [
 	{org = "ballerina", name = "constraint"},
 	{org = "ballerina", name = "data.jsondata"},
