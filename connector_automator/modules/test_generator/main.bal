@@ -21,8 +21,18 @@ public function main(string... args) returns error? {
     io:println("starting to complete the template...");
     check completeMockServer(mockServerPath, typesPath);
 
-    // Step 3: Generate comprehensive tests
+    // Step 4: Generate tests
     check generateTestFile(connectorPath);
+
+     // Step 5: Create test configuration file
+    io:println("Step 5: Creating test configuration...");
+    check createTestConfig(connectorPath);
+
+     // Step 6: Fix all compilation errors related to tests
+    io:println("Step 5: Building and fixing compilation errors...");
+    check fixTestFileErrors(connectorPath);
+
+    
 
     io:println("✓ Test generation completed successfully!");
 }

@@ -2,6 +2,8 @@ import ballerina/ai;
 import ballerina/io;
 import ballerina/log;
 import ballerinax/ai.anthropic;
+import connector_automator.code_fixer;
+import ballerina/file;
 
 ai:ModelProvider? anthropicModel = ();
 configurable string apiKey = ?;
@@ -16,8 +18,6 @@ function completeMockServer(string mockServerPath, string typesPath) returns err
     string completeMockServer = check callAI(prompt);
 
     check io:fileWriteString(mockServerPath, completeMockServer);
-
-    // 
 }
 
 function callAI(string prompt) returns string|error {
@@ -68,7 +68,69 @@ function generateTestFile(string connectorPath) returns error? {
 
 function generateTestsWithAI(ConnectorAnalysis analysis) returns string|error {
     string prompt = createTestGenerationPrompt(analysis);
-    io:println(analysis.initMethodSignature);
-    io:println(analysis.referencedTypeDefinitions);
+    // io:println(analysis.initMethodSignature);
+    // io:println(analysis.referencedTypeDefinitions);
     return callAI(prompt);
+}
+
+function fixTestFileErrors(string connectorPath) returns error? {
+    io:println("Checking and fixing compilation errors in the entire project...");
+
+    string ballerinaDir = connectorPath + "/ballerina";
+
+    // Use the fixer to fix all compilation errors related to tests, (There won't be any errors in other files, because if the client is not compiled succsesfully we won't come this far in the workflow)
+    code_fixer:FixResult|code_fixer:BallerinaFixerError fixResult = code_fixer:fixAllErrors(ballerinaDir, autoYes = true, quietMode = true);
+
+    if fixResult is code_fixer:FixResult {
+        if fixResult.success {
+            io:println("✓ All files compile successfully!");
+            if fixResult.errorsFixed > 0 {
+                io:println(string `  Fixed ${fixResult.errorsFixed} compilation errors`);
+                if fixResult.appliedFixes.length() > 0 {
+                    io:println("  Applied fixes:");
+                    foreach string fix in fixResult.appliedFixes {
+                        io:println(string `    • ${fix}`);
+                    }
+                }
+            }
+        } else {
+            io:println("⚠ Project partially fixed:");
+            io:println(string `  Fixed ${fixResult.errorsFixed} errors`);
+            io:println(string `  ${fixResult.errorsRemaining} errors remain`);
+            if fixResult.appliedFixes.length() > 0 {
+                io:println("  Applied fixes:");
+                foreach string fix in fixResult.appliedFixes {
+                    io:println(string `    • ${fix}`);
+                }
+            }
+            io:println("  Some errors may require manual intervention");
+        }
+    } else {
+        io:println(string `✗ Failed to fix project: ${fixResult.message()}`);
+        return error("Failed to fix compilation errors in the project", fixResult);
+    }
+
+    return;
+}
+
+function createTestConfig(string connectorPath) returns error? {
+    string testsDir = connectorPath + "/ballerina/tests";
+    
+    // Create tests directory if it doesn't exist
+    if !(check file:test(testsDir, file:EXISTS)) {
+        check file:createDir(testsDir, file:RECURSIVE);
+        io:println("Created tests directory");
+    }
+    
+    // Create Config.toml content
+    string configContent = string `# Test configuration
+# Set to false to use mock server (default for testing)
+# Set to true to test against live API (requires valid credentials)
+isLiveServer = false`;
+    
+    string configFilePath = testsDir + "/Config.toml";
+    check io:fileWriteString(configFilePath, configContent);
+    
+    io:println("✓ Test Config.toml created successfully");
+    return;
 }
