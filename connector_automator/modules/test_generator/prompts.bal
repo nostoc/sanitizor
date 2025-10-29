@@ -1,7 +1,5 @@
-
-
-string backtick = "${backtick}";
-string tripleBacktick = "${backtick}";
+string backtick = "`";
+string tripleBacktick = "`";
 
 function createMockServerPrompt(string mockServerTemplate, string types) returns string {
     return string `
