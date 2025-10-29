@@ -28,29 +28,27 @@ service /v1 on ep0 {
                     "type": "albums",
                     "href": "/v1/catalog/us/albums/1234567890",
                     "attributes": {
-                        "artistName": "The Beatles",
                         "name": "Abbey Road",
-                        "copyright": "© 1969 Apple Records",
-                        "genreNames": ["Rock"],
+                        "artistName": "The Beatles",
+                        "genreNames": ["Rock", "Pop"],
                         "releaseDate": "1969-09-26",
+                        "trackCount": 17,
+                        "copyright": "℗ 1969 Apple Records",
+                        "recordLabel": "Apple Records",
+                        "isComplete": true,
+                        "isSingle": false,
+                        "isCompilation": false,
                         "isMasteredForItunes": true,
-                        "upc": "602527973685",
+                        "url": "https://music.apple.com/us/album/abbey-road/1234567890",
                         "artwork": {
-                            "width": 3000,
-                            "height": 3000,
+                            "width": 600,
+                            "height": 600,
                             "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/album.jpg"
                         },
                         "playParams": {
                             "id": "1234567890",
                             "kind": "album"
-                        },
-                        "url": "https://music.apple.com/us/album/abbey-road/1234567890",
-                        "recordLabel": "Apple Records",
-                        "isCompilation": false,
-                        "trackCount": 17,
-                        "isSingle": false,
-                        "contentRating": "clean",
-                        "isComplete": true
+                        }
                     }
                 }
             ]
@@ -77,27 +75,27 @@ service /v1 on ep0 {
                     "type": "albums",
                     "href": "/v1/catalog/" + storefront + "/albums/" + id,
                     "attributes": {
-                        "artistName": "Taylor Swift",
-                        "name": "1989",
-                        "copyright": "© 2014 Big Machine Records",
-                        "genreNames": ["Pop"],
-                        "releaseDate": "2014-10-27",
+                        "name": "Thriller",
+                        "artistName": "Michael Jackson",
+                        "genreNames": ["Pop", "R&B"],
+                        "releaseDate": "1982-11-30",
+                        "trackCount": 9,
+                        "copyright": "℗ 1982 Epic Records",
+                        "recordLabel": "Epic Records",
+                        "isComplete": true,
+                        "isSingle": false,
+                        "isCompilation": false,
                         "isMasteredForItunes": true,
+                        "url": "https://music.apple.com/" + storefront + "/album/thriller/" + id,
                         "artwork": {
-                            "width": 3000,
-                            "height": 3000,
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/album.jpg"
+                            "width": 600,
+                            "height": 600,
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/thriller.jpg"
                         },
                         "playParams": {
                             "id": id,
                             "kind": "album"
-                        },
-                        "url": "https://music.apple.com/" + storefront + "/album/1989/" + id,
-                        "recordLabel": "Big Machine Records",
-                        "isCompilation": false,
-                        "trackCount": 13,
-                        "isSingle": false,
-                        "isComplete": true
+                        }
                     }
                 }
             ]
@@ -125,9 +123,9 @@ service /v1 on ep0 {
                     "type": "artists",
                     "href": "/v1/catalog/" + storefront + "/artists/987654321",
                     "attributes": {
-                        "name": "Ed Sheeran",
-                        "genreNames": ["Pop", "Folk"],
-                        "url": "https://music.apple.com/" + storefront + "/artist/ed-sheeran/987654321"
+                        "name": "Michael Jackson",
+                        "genreNames": ["Pop", "R&B", "Soul"],
+                        "url": "https://music.apple.com/" + storefront + "/artist/michael-jackson/987654321"
                     }
                 }
             ]
@@ -152,29 +150,27 @@ service /v1 on ep0 {
         return {
             "data": [
                 {
-                    "id": "mv123456",
+                    "id": "mv123456789",
                     "type": "music-videos",
-                    "href": "/v1/catalog/" + storefront + "/music-videos/mv123456",
+                    "href": "/v1/catalog/" + storefront + "/music-videos/mv123456789",
                     "attributes": {
-                        "artistName": "Dua Lipa",
-                        "name": "Levitating",
-                        "albumName": "Future Nostalgia",
-                        "genreNames": ["Pop"],
-                        "trackNumber": 4,
-                        "durationInMillis": 203000,
-                        "releaseDate": "2020-03-27",
+                        "name": "Billie Jean",
+                        "artistName": "Michael Jackson",
+                        "genreNames": ["Pop", "R&B"],
+                        "releaseDate": "1983-01-02",
+                        "durationInMillis": 294000,
+                        "url": "https://music.apple.com/" + storefront + "/music-video/billie-jean/mv123456789",
+                        "has4K": true,
+                        "hasHDR": true,
                         "artwork": {
                             "width": 1920,
                             "height": 1080,
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Video/v4/mv.jpg"
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Video/v4/billie-jean.jpg"
                         },
                         "playParams": {
-                            "id": "mv123456",
+                            "id": "mv123456789",
                             "kind": "musicVideo"
                         },
-                        "url": "https://music.apple.com/" + storefront + "/music-video/levitating/mv123456",
-                        "has4K": true,
-                        "hasHDR": false,
                         "previews": []
                     }
                 }
@@ -203,19 +199,9 @@ service /v1 on ep0 {
                     "type": "artists",
                     "href": "/v1/catalog/" + storefront + "/artists/artist123",
                     "attributes": {
-                        "name": "Adele",
-                        "genreNames": ["Pop", "Soul"],
-                        "url": "https://music.apple.com/" + storefront + "/artist/adele/artist123"
-                    }
-                },
-                {
-                    "id": "artist456",
-                    "type": "artists",
-                    "href": "/v1/catalog/" + storefront + "/artists/artist456",
-                    "attributes": {
-                        "name": "Bruno Mars",
-                        "genreNames": ["Pop", "R&B"],
-                        "url": "https://music.apple.com/" + storefront + "/artist/bruno-mars/artist456"
+                        "name": "Taylor Swift",
+                        "genreNames": ["Pop", "Country", "Alternative"],
+                        "url": "https://music.apple.com/" + storefront + "/artist/taylor-swift/artist123"
                     }
                 }
             ]
@@ -242,9 +228,9 @@ service /v1 on ep0 {
                     "type": "artists",
                     "href": "/v1/catalog/" + storefront + "/artists/" + id,
                     "attributes": {
-                        "name": "Billie Eilish",
-                        "genreNames": ["Alternative", "Pop"],
-                        "url": "https://music.apple.com/" + storefront + "/artist/billie-eilish/" + id
+                        "name": "Ed Sheeran",
+                        "genreNames": ["Pop", "Folk", "Singer/Songwriter"],
+                        "url": "https://music.apple.com/" + storefront + "/artist/ed-sheeran/" + id
                     }
                 }
             ]
@@ -268,29 +254,31 @@ service /v1 on ep0 {
         return {
             "data": [
                 {
-                    "id": "album789",
+                    "id": "album456",
                     "type": "albums",
-                    "href": "/v1/catalog/" + storefront + "/albums/album789",
+                    "href": "/v1/catalog/" + storefront + "/albums/album456",
                     "attributes": {
-                        "artistName": "The Weeknd",
-                        "name": "After Hours",
-                        "genreNames": ["R&B/Soul"],
-                        "releaseDate": "2020-03-20",
+                        "name": "÷ (Divide)",
+                        "artistName": "Ed Sheeran",
+                        "genreNames": ["Pop", "Folk"],
+                        "releaseDate": "2017-03-03",
+                        "trackCount": 16,
+                        "copyright": "℗ 2017 Asylum Records UK",
+                        "recordLabel": "Asylum Records UK",
+                        "isComplete": true,
+                        "isSingle": false,
+                        "isCompilation": false,
                         "isMasteredForItunes": true,
+                        "url": "https://music.apple.com/" + storefront + "/album/divide/album456",
                         "artwork": {
-                            "width": 3000,
-                            "height": 3000,
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/album.jpg"
+                            "width": 600,
+                            "height": 600,
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/divide.jpg"
                         },
                         "playParams": {
-                            "id": "album789",
+                            "id": "album456",
                             "kind": "album"
-                        },
-                        "url": "https://music.apple.com/" + storefront + "/album/after-hours/album789",
-                        "isCompilation": false,
-                        "trackCount": 14,
-                        "isSingle": false,
-                        "isComplete": true
+                        }
                     }
                 }
             ]
@@ -315,29 +303,31 @@ service /v1 on ep0 {
         return {
             "data": [
                 {
-                    "id": "topalbum001",
+                    "id": "album789",
                     "type": "albums",
-                    "href": "/v1/catalog/" + storefront + "/albums/topalbum001",
+                    "href": "/v1/catalog/" + storefront + "/albums/album789",
                     "attributes": {
-                        "artistName": "Drake",
-                        "name": "Certified Lover Boy",
-                        "genreNames": ["Hip-Hop/Rap"],
-                        "releaseDate": "2021-09-03",
+                        "name": "1989 (Taylor's Version)",
+                        "artistName": "Taylor Swift",
+                        "genreNames": ["Pop", "Alternative"],
+                        "releaseDate": "2023-10-27",
+                        "trackCount": 22,
+                        "copyright": "℗ 2023 Taylor Swift",
+                        "recordLabel": "Republic Records",
+                        "isComplete": true,
+                        "isSingle": false,
+                        "isCompilation": false,
                         "isMasteredForItunes": true,
+                        "url": "https://music.apple.com/" + storefront + "/album/1989-taylors-version/album789",
                         "artwork": {
-                            "width": 3000,
-                            "height": 3000,
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/album.jpg"
+                            "width": 600,
+                            "height": 600,
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/1989tv.jpg"
                         },
                         "playParams": {
-                            "id": "topalbum001",
+                            "id": "album789",
                             "kind": "album"
-                        },
-                        "url": "https://music.apple.com/" + storefront + "/album/certified-lover-boy/topalbum001",
-                        "isCompilation": false,
-                        "trackCount": 21,
-                        "isSingle": false,
-                        "isComplete": true
+                        }
                     }
                 }
             ]
@@ -363,29 +353,31 @@ service /v1 on ep0 {
                 "albums": {
                     "data": [
                         {
-                            "id": "search001",
+                            "id": "search123",
                             "type": "albums",
-                            "href": "/v1/catalog/" + storefront + "/albums/search001",
+                            "href": "/v1/catalog/" + storefront + "/albums/search123",
                             "attributes": {
-                                "artistName": "Olivia Rodrigo",
-                                "name": "SOUR",
-                                "genreNames": ["Pop"],
-                                "releaseDate": "2021-05-21",
+                                "name": "Folklore",
+                                "artistName": "Taylor Swift",
+                                "genreNames": ["Alternative", "Indie Folk"],
+                                "releaseDate": "2020-07-24",
+                                "trackCount": 16,
+                                "copyright": "℗ 2020 Taylor Swift",
+                                "recordLabel": "Republic Records",
+                                "isComplete": true,
+                                "isSingle": false,
+                                "isCompilation": false,
                                 "isMasteredForItunes": true,
+                                "url": "https://music.apple.com/" + storefront + "/album/folklore/search123",
                                 "artwork": {
-                                    "width": 3000,
-                                    "height": 3000,
-                                    "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/album.jpg"
+                                    "width": 600,
+                                    "height": 600,
+                                    "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/folklore.jpg"
                                 },
                                 "playParams": {
-                                    "id": "search001",
+                                    "id": "search123",
                                     "kind": "album"
-                                },
-                                "url": "https://music.apple.com/" + storefront + "/album/sour/search001",
-                                "isCompilation": false,
-                                "trackCount": 11,
-                                "isSingle": false,
-                                "isComplete": true
+                                }
                             }
                         }
                     ]
@@ -393,13 +385,13 @@ service /v1 on ep0 {
                 "artists": {
                     "data": [
                         {
-                            "id": "searchartist001",
+                            "id": "searchArtist456",
                             "type": "artists",
-                            "href": "/v1/catalog/" + storefront + "/artists/searchartist001",
+                            "href": "/v1/catalog/" + storefront + "/artists/searchArtist456",
                             "attributes": {
-                                "name": "Harry Styles",
-                                "genreNames": ["Pop"],
-                                "url": "https://music.apple.com/" + storefront + "/artist/harry-styles/searchartist001"
+                                "name": "Taylor Swift",
+                                "genreNames": ["Pop", "Country", "Alternative"],
+                                "url": "https://music.apple.com/" + storefront + "/artist/taylor-swift/searchArtist456"
                             }
                         }
                     ]
@@ -429,25 +421,25 @@ service /v1 on ep0 {
                     "type": "songs",
                     "href": "/v1/catalog/" + storefront + "/songs/song123",
                     "attributes": {
-                        "albumName": "Folklore",
-                        "artistName": "Taylor Swift",
-                        "name": "cardigan",
-                        "genreNames": ["Alternative"],
-                        "trackNumber": 2,
-                        "durationInMillis": 239000,
-                        "releaseDate": "2020-07-24",
+                        "name": "Shape of You",
+                        "artistName": "Ed Sheeran",
+                        "albumName": "÷ (Divide)",
+                        "genreNames": ["Pop", "Dance"],
+                        "releaseDate": "2017-01-06",
+                        "durationInMillis": 263000,
+                        "trackNumber": 4,
+                        "discNumber": 1,
+                        "hasLyrics": true,
+                        "url": "https://music.apple.com/" + storefront + "/song/shape-of-you/song123",
                         "artwork": {
-                            "width": 3000,
-                            "height": 3000,
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/song.jpg"
+                            "width": 600,
+                            "height": 600,
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/shape-of-you.jpg"
                         },
                         "playParams": {
                             "id": "song123",
                             "kind": "song"
                         },
-                        "url": "https://music.apple.com/" + storefront + "/song/cardigan/song123",
-                        "discNumber": 1,
-                        "hasLyrics": true,
                         "previews": []
                     }
                 }
@@ -474,25 +466,25 @@ service /v1 on ep0 {
                     "type": "songs",
                     "href": "/v1/catalog/" + storefront + "/songs/" + id,
                     "attributes": {
-                        "albumName": "Blinding Lights",
-                        "artistName": "The Weeknd",
                         "name": "Blinding Lights",
-                        "genreNames": ["R&B/Soul"],
-                        "trackNumber": 1,
-                        "durationInMillis": 200040,
+                        "artistName": "The Weeknd",
+                        "albumName": "After Hours",
+                        "genreNames": ["Pop", "R&B/Soul"],
                         "releaseDate": "2019-11-29",
+                        "durationInMillis": 200040,
+                        "trackNumber": 6,
+                        "discNumber": 1,
+                        "hasLyrics": true,
+                        "url": "https://music.apple.com/" + storefront + "/song/blinding-lights/" + id,
                         "artwork": {
-                            "width": 3000,
-                            "height": 3000,
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/song.jpg"
+                            "width": 600,
+                            "height": 600,
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/blinding-lights.jpg"
                         },
                         "playParams": {
                             "id": id,
                             "kind": "song"
                         },
-                        "url": "https://music.apple.com/" + storefront + "/song/blinding-lights/" + id,
-                        "discNumber": 1,
-                        "hasLyrics": true,
                         "previews": []
                     }
                 }
@@ -517,29 +509,29 @@ service /v1 on ep0 {
         return {
             "data": [
                 {
-                    "id": "related123",
+                    "id": "relatedSong456",
                     "type": "songs",
-                    "href": "/v1/catalog/" + storefront + "/songs/related123",
+                    "href": "/v1/catalog/" + storefront + "/songs/relatedSong456",
                     "attributes": {
-                        "albumName": "Positions",
-                        "artistName": "Ariana Grande",
-                        "name": "positions",
-                        "genreNames": ["Pop"],
-                        "trackNumber": 1,
-                        "durationInMillis": 172000,
-                        "releaseDate": "2020-10-30",
-                        "artwork": {
-                            "width": 3000,
-                            "height": 3000,
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/song.jpg"
-                        },
-                        "playParams": {
-                            "id": "related123",
-                            "kind": "song"
-                        },
-                        "url": "https://music.apple.com/" + storefront + "/song/positions/related123",
+                        "name": "Can't Feel My Face",
+                        "artistName": "The Weeknd",
+                        "albumName": "Beauty Behind the Madness",
+                        "genreNames": ["Pop", "R&B/Soul"],
+                        "releaseDate": "2015-06-08",
+                        "durationInMillis": 213000,
+                        "trackNumber": 3,
                         "discNumber": 1,
                         "hasLyrics": true,
+                        "url": "https://music.apple.com/" + storefront + "/song/cant-feel-my-face/relatedSong456",
+                        "artwork": {
+                            "width": 600,
+                            "height": 600,
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/cant-feel-my-face.jpg"
+                        },
+                        "playParams": {
+                            "id": "relatedSong456",
+                            "kind": "song"
+                        },
                         "previews": []
                     }
                 }
@@ -564,23 +556,23 @@ service /v1 on ep0 {
         return {
             "data": [
                 {
-                    "id": "lib001",
+                    "id": "lib123",
                     "type": "library-albums",
-                    "href": "/v1/me/library/albums/lib001",
+                    "href": "/v1/me/library/albums/lib123",
                     "attributes": {
-                        "trackCount": 12,
-                        "genreNames": ["Pop"],
-                        "releaseDate": "2022-10-21",
                         "name": "Midnights",
                         "artistName": "Taylor Swift",
-                        "artwork": {
-                            "width": 3000,
-                            "height": 3000,
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/library-album.jpg"
-                        },
+                        "genreNames": ["Pop", "Alternative"],
+                        "releaseDate": "2022-10-21",
+                        "trackCount": 13,
                         "dateAdded": "2022-10-22",
+                        "artwork": {
+                            "width": 600,
+                            "height": 600,
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/midnights.jpg"
+                        },
                         "playParams": {
-                            "id": "lib001",
+                            "id": "lib123",
                             "kind": "album"
                         }
                     }
@@ -608,17 +600,17 @@ service /v1 on ep0 {
                     "type": "library-albums",
                     "href": "/v1/me/library/albums/" + id,
                     "attributes": {
-                        "trackCount": 16,
-                        "genreNames": ["Hip-Hop/Rap"],
-                        "releaseDate": "2023-07-28",
-                        "name": "Pink Friday 2",
-                        "artistName": "Nicki Minaj",
+                        "name": "Evermore",
+                        "artistName": "Taylor Swift",
+                        "genreNames": ["Alternative", "Indie Folk"],
+                        "releaseDate": "2020-12-11",
+                        "trackCount": 15,
+                        "dateAdded": "2020-12-12",
                         "artwork": {
-                            "width": 3000,
-                            "height": 3000,
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/library-album.jpg"
+                            "width": 600,
+                            "height": 600,
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/evermore.jpg"
                         },
-                        "dateAdded": "2023-07-29",
                         "playParams": {
                             "id": id,
                             "kind": "album"
@@ -646,11 +638,11 @@ service /v1 on ep0 {
         return {
             "data": [
                 {
-                    "id": "libartist001",
+                    "id": "libArtist789",
                     "type": "library-artists",
-                    "href": "/v1/me/library/artists/libartist001",
+                    "href": "/v1/me/library/artists/libArtist789",
                     "attributes": {
-                        "name": "Lorde"
+                        "name": "Taylor Swift"
                     }
                 }
             ]
@@ -674,19 +666,11 @@ service /v1 on ep0 {
         return {
             "data": [
                 {
-                    "id": "libartist002",
+                    "id": "libArtist456",
                     "type": "library-artists",
-                    "href": "/v1/me/library/artists/libartist002",
+                    "href": "/v1/me/library/artists/libArtist456",
                     "attributes": {
-                        "name": "Doja Cat"
-                    }
-                },
-                {
-                    "id": "libartist003",
-                    "type": "library-artists",
-                    "href": "/v1/me/library/artists/libartist003",
-                    "attributes": {
-                        "name": "SZA"
+                        "name": "Ed Sheeran"
                     }
                 }
             ]
@@ -712,7 +696,7 @@ service /v1 on ep0 {
                     "type": "library-artists",
                     "href": "/v1/me/library/artists/" + id,
                     "attributes": {
-                        "name": "Beyoncé"
+                        "name": "The Weeknd"
                     }
                 }
             ]
@@ -736,23 +720,23 @@ service /v1 on ep0 {
         return {
             "data": [
                 {
-                    "id": "libalbum002",
+                    "id": "libAlbum999",
                     "type": "library-albums",
-                    "href": "/v1/me/library/albums/libalbum002",
+                    "href": "/v1/me/library/albums/libAlbum999",
                     "attributes": {
-                        "trackCount": 10,
-                        "genreNames": ["R&B/Soul"],
-                        "releaseDate": "2022-07-29",
-                        "name": "Renaissance",
-                        "artistName": "Beyoncé",
+                        "name": "After Hours",
+                        "artistName": "The Weeknd",
+                        "genreNames": ["Pop", "R&B/Soul"],
+                        "releaseDate": "2020-03-20",
+                        "trackCount": 14,
+                        "dateAdded": "2020-03-21",
                         "artwork": {
-                            "width": 3000,
-                            "height": 3000,
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/library-album.jpg"
+                            "width": 600,
+                            "height": 600,
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/after-hours.jpg"
                         },
-                        "dateAdded": "2022-07-30",
                         "playParams": {
-                            "id": "libalbum002",
+                            "id": "libAlbum999",
                             "kind": "album"
                         }
                     }
@@ -778,26 +762,26 @@ service /v1 on ep0 {
         return {
             "data": [
                 {
-                    "id": "libsong001",
+                    "id": "libSong123",
                     "type": "library-songs",
-                    "href": "/v1/me/library/songs/libsong001",
+                    "href": "/v1/me/library/songs/libSong123",
                     "attributes": {
-                        "albumName": "Un Verano Sin Ti",
-                        "discNumber": 1,
-                        "genreNames": ["Latin"],
-                        "hasLyrics": true,
+                        "name": "Anti-Hero",
+                        "artistName": "Taylor Swift",
+                        "albumName": "Midnights",
+                        "genreNames": ["Pop", "Alternative"],
+                        "releaseDate": "2022-10-21",
+                        "durationInMillis": 200560,
                         "trackNumber": 3,
-                        "durationInMillis": 195000,
-                        "releaseDate": "2022-05-06",
-                        "name": "Me Porto Bonito",
-                        "artistName": "Bad Bunny",
+                        "discNumber": 1,
+                        "hasLyrics": true,
                         "artwork": {
-                            "width": 3000,
-                            "height": 3000,
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/library-song.jpg"
+                            "width": 600,
+                            "height": 600,
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/anti-hero.jpg"
                         },
                         "playParams": {
-                            "id": "libsong001",
+                            "id": "libSong123",
                             "kind": "song"
                         }
                     }
@@ -825,19 +809,19 @@ service /v1 on ep0 {
                     "type": "library-songs",
                     "href": "/v1/me/library/songs/" + id,
                     "attributes": {
-                        "albumName": "As It Was",
-                        "discNumber": 1,
-                        "genreNames": ["Pop"],
-                        "hasLyrics": true,
+                        "name": "Lavender Haze",
+                        "artistName": "Taylor Swift",
+                        "albumName": "Midnights",
+                        "genreNames": ["Pop", "Electronic"],
+                        "releaseDate": "2022-10-21",
+                        "durationInMillis": 202000,
                         "trackNumber": 1,
-                        "durationInMillis": 167000,
-                        "releaseDate": "2022-04-01",
-                        "name": "As It Was",
-                        "artistName": "Harry Styles",
+                        "discNumber": 1,
+                        "hasLyrics": true,
                         "artwork": {
-                            "width": 3000,
-                            "height": 3000,
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/library-song.jpg"
+                            "width": 600,
+                            "height": 600,
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/lavender-haze.jpg"
                         },
                         "playParams": {
                             "id": id,
@@ -866,26 +850,26 @@ service /v1 on ep0 {
         return {
             "data": [
                 {
-                    "id": "libsongrel001",
+                    "id": "relatedLibSong456",
                     "type": "library-songs",
-                    "href": "/v1/me/library/songs/libsongrel001",
+                    "href": "/v1/me/library/songs/relatedLibSong456",
                     "attributes": {
-                        "albumName": "Happier Than Ever",
+                        "name": "Karma",
+                        "artistName": "Taylor Swift",
+                        "albumName": "Midnights",
+                        "genreNames": ["Pop", "Alternative"],
+                        "releaseDate": "2022-10-21",
+                        "durationInMillis": 204000,
+                        "trackNumber": 11,
                         "discNumber": 1,
-                        "genreNames": ["Alternative"],
                         "hasLyrics": true,
-                        "trackNumber": 2,
-                        "durationInMillis": 198000,
-                        "releaseDate": "2021-07-30",
-                        "name": "Happier Than Ever",
-                        "artistName": "Billie Eilish",
                         "artwork": {
-                            "width": 3000,
-                            "height": 3000,
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/library-song.jpg"
+                            "width": 600,
+                            "height": 600,
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/karma.jpg"
                         },
                         "playParams": {
-                            "id": "libsongrel001",
+                            "id": "relatedLibSong456",
                             "kind": "song"
                         }
                     }
