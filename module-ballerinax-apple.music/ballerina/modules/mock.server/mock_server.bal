@@ -23,43 +23,44 @@ service /v1 on ep0 {
         return {
             "data": [
                 {
-                    "id": "1234567890",
+                    "id": "1440857781",
                     "type": "albums",
-                    "href": "/v1/catalog/us/albums/1234567890",
+                    "href": "/v1/catalog/us/albums/1440857781",
                     "attributes": {
-                        "artistName": "Taylor Swift",
-                        "name": "1989",
-                        "copyright": "© 2014 Big Machine Records, LLC",
-                        "genreNames": ["Pop"],
-                        "releaseDate": "2014-10-27",
-                        "isMasteredForItunes": true,
-                        "upc": "00843930012345",
+                        "albumName": "Abbey Road",
+                        "artistName": "The Beatles",
                         "artwork": {
                             "width": 3000,
                             "height": 3000,
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/album.jpg",
-                            "bgColor": "f0f0f0",
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/sample.jpg",
+                            "bgColor": "ffffff",
                             "textColor1": "000000",
                             "textColor2": "333333",
                             "textColor3": "666666",
                             "textColor4": "999999"
                         },
+                        "genreNames": ["Rock", "Pop"],
+                        "releaseDate": "1969-09-26",
+                        "name": "Abbey Road",
+                        "trackCount": 17,
+                        "url": "https://music.apple.com/us/album/abbey-road/1440857781",
+                        "isComplete": true,
+                        "isSingle": false,
+                        "isCompilation": false,
+                        "isMasteredForItunes": true,
+                        "contentRating": "clean",
+                        "recordLabel": "Apple Records",
+                        "copyright": "℗ 1969 Apple Records",
+                        "upc": "602537479870",
+                        "artistUrl": "https://music.apple.com/us/artist/the-beatles/136975",
                         "playParams": {
-                            "id": "1234567890",
+                            "id": "1440857781",
                             "kind": "album"
                         },
-                        "url": "https://music.apple.com/us/album/1989/1234567890",
-                        "recordLabel": "Big Machine Records",
-                        "isCompilation": false,
-                        "trackCount": 13,
-                        "artistUrl": "https://music.apple.com/us/artist/taylor-swift/159260351",
-                        "isSingle": false,
-                        "contentRating": "clean",
                         "editorialNotes": {
-                            "standard": "Taylor Swift's fifth studio album marks her complete transition to pop.",
-                            "short": "Swift goes full pop on her fifth album."
-                        },
-                        "isComplete": true
+                            "short": "The Beatles' final recorded album.",
+                            "standard": "Abbey Road is the eleventh studio album by the English rock band the Beatles."
+                        }
                     }
                 }
             ]
@@ -86,28 +87,40 @@ service /v1 on ep0 {
                     "type": "albums",
                     "href": "/v1/catalog/" + storefront + "/albums/" + id,
                     "attributes": {
-                        "artistName": "The Beatles",
-                        "name": "Abbey Road",
-                        "copyright": "© 1969 Apple Records",
-                        "genreNames": ["Rock"],
-                        "releaseDate": "1969-09-26",
-                        "isMasteredForItunes": true,
-                        "upc": "00094638241823",
+                        "albumName": "Thriller",
+                        "artistName": "Michael Jackson",
                         "artwork": {
                             "width": 3000,
                             "height": 3000,
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/abbey-road.jpg"
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/sample.jpg",
+                            "bgColor": "000000",
+                            "textColor1": "ffffff",
+                            "textColor2": "cccccc",
+                            "textColor3": "999999",
+                            "textColor4": "666666"
                         },
+                        "genreNames": ["Pop", "R&B/Soul"],
+                        "releaseDate": "1982-11-30",
+                        "name": "Thriller",
+                        "trackCount": 9,
+                        "url": "https://music.apple.com/us/album/thriller/" + id,
+                        "isComplete": true,
+                        "isSingle": false,
+                        "isCompilation": false,
+                        "isMasteredForItunes": true,
+                        "contentRating": "clean",
+                        "recordLabel": "Epic",
+                        "copyright": "℗ 1982 Epic Records",
+                        "upc": "886979816626",
+                        "artistUrl": "https://music.apple.com/us/artist/michael-jackson/32940",
                         "playParams": {
                             "id": id,
                             "kind": "album"
                         },
-                        "url": "https://music.apple.com/us/album/abbey-road/" + id,
-                        "recordLabel": "Apple Records",
-                        "isCompilation": false,
-                        "trackCount": 17,
-                        "isSingle": false,
-                        "isComplete": true
+                        "editorialNotes": {
+                            "short": "The best-selling album of all time.",
+                            "standard": "Thriller is the sixth studio album by American singer Michael Jackson."
+                        }
                     }
                 }
             ]
@@ -131,72 +144,17 @@ service /v1 on ep0 {
         return {
             "data": [
                 {
-                    "id": "159260351",
+                    "id": "32940",
                     "type": "artists",
-                    "href": "/v1/catalog/" + storefront + "/artists/159260351",
+                    "href": "/v1/catalog/" + storefront + "/artists/32940",
                     "attributes": {
-                        "name": "Taylor Swift",
-                        "genreNames": ["Pop", "Country"],
-                        "url": "https://music.apple.com/us/artist/taylor-swift/159260351",
+                        "name": "Michael Jackson",
+                        "genreNames": ["Pop", "R&B/Soul"],
+                        "url": "https://music.apple.com/us/artist/michael-jackson/32940",
                         "editorialNotes": {
-                            "standard": "One of the most successful artists of all time."
+                            "short": "The King of Pop.",
+                            "standard": "Michael Joseph Jackson was an American singer, songwriter, and dancer."
                         }
-                    }
-                }
-            ]
-        };
-    }
-
-    # Get a Catalog Album's Relationship View Directly by Name
-    #
-    # + storefront - An iTunes Store territory, specified by an ISO 3166 alpha-2 country code. The possible values are the id attributes of Storefront objects
-    # + id - The unique identifier for the album
-    # + view - The name of the resource view to fetch
-    # + extend - A list of attribute extensions to apply to resources in the response
-    # + include - Additional relationships to include in the fetch
-    # + l - The localization to use, specified by a language tag. The possible values are in the `supportedLanguageTags` array belonging to the `Storefront` object specified by `storefront`. Otherwise, the default is `defaultLanguageTag` in `Storefront`
-    # + 'limit - The number of objects or number of objects in the specified relationship returned
-    # + with - A list of modifications to apply to the request
-    # + return - returns can be any of following types 
-    # http:Ok (OK)
-    # http:Unauthorized (Unauthorized)
-    # http:InternalServerError (Internal Server Error)
-    resource function get catalog/[string storefront]/albums/[string id]/view/["appears-on"|"other-versions"|"related-albums"|"related-videos" view](string[]? extend, string[]? include, string? l, ("attributes"|"topResults")[]? with, int 'limit = 5) returns MusicVideosResponse|ErrorsResponseUnauthorized|ErrorsResponseInternalServerError {
-        return {
-            "data": [
-                {
-                    "id": "1440857781",
-                    "type": "music-videos",
-                    "href": "/v1/catalog/" + storefront + "/music-videos/1440857781",
-                    "attributes": {
-                        "albumName": "Reputation",
-                        "genreNames": ["Pop"],
-                        "trackNumber": 6,
-                        "durationInMillis": 231000,
-                        "releaseDate": "2017-11-10",
-                        "isrc": "USCJY1731844",
-                        "artwork": {
-                            "width": 1920,
-                            "height": 1080,
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Video/music-video.jpg"
-                        },
-                        "playParams": {
-                            "id": "1440857781",
-                            "kind": "musicVideo"
-                        },
-                        "url": "https://music.apple.com/us/music-video/look-what-you-made-me-do/1440857781",
-                        "artistUrl": "https://music.apple.com/us/artist/taylor-swift/159260351",
-                        "has4K": true,
-                        "hasHDR": false,
-                        "name": "Look What You Made Me Do",
-                        "previews": [
-                            {
-                                "url": "https://video-ssl.itunes.apple.com/preview.m4v",
-                                "hlsUrl": "https://video-ssl.itunes.apple.com/preview.m3u8"
-                            }
-                        ],
-                        "artistName": "Taylor Swift",
-                        "contentRating": "clean"
                     }
                 }
             ]
@@ -220,16 +178,16 @@ service /v1 on ep0 {
         return {
             "data": [
                 {
-                    "id": "159260351",
+                    "id": "136975",
                     "type": "artists",
-                    "href": "/v1/catalog/" + storefront + "/artists/159260351",
+                    "href": "/v1/catalog/" + storefront + "/artists/136975",
                     "attributes": {
-                        "name": "Taylor Swift",
-                        "genreNames": ["Pop", "Country"],
-                        "url": "https://music.apple.com/us/artist/taylor-swift/159260351",
+                        "name": "The Beatles",
+                        "genreNames": ["Rock", "Pop"],
+                        "url": "https://music.apple.com/us/artist/the-beatles/136975",
                         "editorialNotes": {
-                            "standard": "One of the most successful recording artists of all time.",
-                            "short": "Global superstar and songwriter."
+                            "short": "The most influential band of all time.",
+                            "standard": "The Beatles were an English rock band formed in Liverpool in 1960."
                         }
                     }
                 }
@@ -257,109 +215,13 @@ service /v1 on ep0 {
                     "type": "artists",
                     "href": "/v1/catalog/" + storefront + "/artists/" + id,
                     "attributes": {
-                        "name": "Ed Sheeran",
-                        "genreNames": ["Pop", "Singer/Songwriter"],
-                        "url": "https://music.apple.com/us/artist/ed-sheeran/" + id,
+                        "name": "Taylor Swift",
+                        "genreNames": ["Pop", "Country"],
+                        "url": "https://music.apple.com/us/artist/taylor-swift/" + id,
                         "editorialNotes": {
-                            "standard": "British singer-songwriter known for his acoustic guitar melodies and heartfelt lyrics."
+                            "short": "Global superstar and songwriter.",
+                            "standard": "Taylor Alison Swift is an American singer-songwriter."
                         }
-                    }
-                }
-            ]
-        };
-    }
-
-    # Get a Catalog Artist's Relationship Directly by Name
-    #
-    # + storefront - An iTunes Store territory, specified by an ISO 3166 alpha-2 country code. The possible values are the id attributes of Storefront objects
-    # + id - The unique identifier for the artist
-    # + relationship - The name of the relationship you want to fetch for this resource
-    # + extend - A list of attribute extensions to apply to resources in the response
-    # + include - Additional relationships to include in the fetch
-    # + l - The localization to use, specified by a language tag. The possible values are in the `supportedLanguageTags` array belonging to the `Storefront` object specified by `storefront`. Otherwise, the default is `defaultLanguageTag` in `Storefront`
-    # + 'limit - The number of objects or number of objects in the specified relationship returned
-    # + return - returns can be any of following types 
-    # http:Ok (OK)
-    # http:Unauthorized (Unauthorized)
-    # http:InternalServerError (Internal Server Error)
-    resource function get catalog/[string storefront]/artists/[string id]/["albums"|"genres"|"music-videos"|"playlists"|"station" relationship](string[]? extend, string[]? include, string? l, int 'limit = 5) returns AlbumsResponse|ErrorsResponseUnauthorized|ErrorsResponseInternalServerError {
-        return {
-            "data": [
-                {
-                    "id": "1234567890",
-                    "type": "albums",
-                    "href": "/v1/catalog/" + storefront + "/albums/1234567890",
-                    "attributes": {
-                        "artistName": "Ed Sheeran",
-                        "name": "÷ (Divide)",
-                        "copyright": "© 2017 Asylum Records UK",
-                        "genreNames": ["Pop"],
-                        "releaseDate": "2017-03-03",
-                        "isMasteredForItunes": true,
-                        "artwork": {
-                            "width": 3000,
-                            "height": 3000,
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/divide.jpg"
-                        },
-                        "playParams": {
-                            "id": "1234567890",
-                            "kind": "album"
-                        },
-                        "url": "https://music.apple.com/us/album/divide/1234567890",
-                        "recordLabel": "Asylum Records",
-                        "isCompilation": false,
-                        "trackCount": 16,
-                        "isSingle": false,
-                        "isComplete": true
-                    }
-                }
-            ]
-        };
-    }
-
-    # Get a Catalog Artist's Relationship View Directly by Name
-    #
-    # + storefront - An iTunes Store territory, specified by an ISO 3166 alpha-2 country code. The possible values are the id attributes of Storefront objects
-    # + id - The unique identifier for the artist
-    # + view - The name of the resource view to fetch
-    # + extend - A list of attribute extensions to apply to resources in the response
-    # + include - Additional relationships to include in the fetch
-    # + l - The localization to use, specified by a language tag. The possible values are in the `supportedLanguageTags` array belonging to the `Storefront` object specified by `storefront`. Otherwise, the default is `defaultLanguageTag` in `Storefront`
-    # + 'limit - The number of objects or number of objects in the specified relationship returned
-    # + with - A list of modifications to apply to the request
-    # + return - returns can be any of following types 
-    # http:Ok (OK)
-    # http:Unauthorized (Unauthorized)
-    # http:InternalServerError (Internal Server Error)
-    resource function get catalog/[string storefront]/artists/[string id]/view/["appears-on-albums"|"compilation-albums"|"featured-albums"|"featured-playlists"|"full-albums"|"latest-release"|"live-albums"|"similar-artists"|"singles"|"top-music-videos"|"top-songs" view](string[]? extend, string[]? include, string? l, ("attributes"|"topResults")[]? with, int 'limit = 5) returns AlbumsResponse|ErrorsResponseUnauthorized|ErrorsResponseInternalServerError {
-        return {
-            "data": [
-                {
-                    "id": "987654321",
-                    "type": "albums",
-                    "href": "/v1/catalog/" + storefront + "/albums/987654321",
-                    "attributes": {
-                        "artistName": "Various Artists",
-                        "name": "Now That's What I Call Music! 85",
-                        "copyright": "© 2023 Various Labels",
-                        "genreNames": ["Pop"],
-                        "releaseDate": "2023-07-21",
-                        "isMasteredForItunes": false,
-                        "artwork": {
-                            "width": 3000,
-                            "height": 3000,
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/now85.jpg"
-                        },
-                        "playParams": {
-                            "id": "987654321",
-                            "kind": "album"
-                        },
-                        "url": "https://music.apple.com/us/album/now-85/987654321",
-                        "recordLabel": "Now Music",
-                        "isCompilation": true,
-                        "trackCount": 44,
-                        "isSingle": false,
-                        "isComplete": true
                     }
                 }
             ]
@@ -385,31 +247,26 @@ service /v1 on ep0 {
                 "albums": {
                     "data": [
                         {
-                            "id": "1234567890",
+                            "id": "1440857781",
                             "type": "albums",
-                            "href": "/v1/catalog/" + storefront + "/albums/1234567890",
+                            "href": "/v1/catalog/" + storefront + "/albums/1440857781",
                             "attributes": {
-                                "artistName": "Taylor Swift",
-                                "name": "1989",
-                                "copyright": "© 2014 Big Machine Records",
-                                "genreNames": ["Pop"],
-                                "releaseDate": "2014-10-27",
-                                "isMasteredForItunes": true,
+                                "albumName": "Abbey Road",
+                                "artistName": "The Beatles",
                                 "artwork": {
                                     "width": 3000,
                                     "height": 3000,
-                                    "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/1989.jpg"
+                                    "url": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/sample.jpg"
                                 },
-                                "playParams": {
-                                    "id": "1234567890",
-                                    "kind": "album"
-                                },
-                                "url": "https://music.apple.com/us/album/1989/1234567890",
-                                "recordLabel": "Big Machine Records",
-                                "isCompilation": false,
-                                "trackCount": 13,
+                                "genreNames": ["Rock"],
+                                "releaseDate": "1969-09-26",
+                                "name": "Abbey Road",
+                                "trackCount": 17,
+                                "url": "https://music.apple.com/us/album/abbey-road/1440857781",
+                                "isComplete": true,
                                 "isSingle": false,
-                                "isComplete": true
+                                "isCompilation": false,
+                                "isMasteredForItunes": true
                             }
                         }
                     ]
@@ -417,13 +274,13 @@ service /v1 on ep0 {
                 "artists": {
                     "data": [
                         {
-                            "id": "159260351",
+                            "id": "136975",
                             "type": "artists",
-                            "href": "/v1/catalog/" + storefront + "/artists/159260351",
+                            "href": "/v1/catalog/" + storefront + "/artists/136975",
                             "attributes": {
-                                "name": "Taylor Swift",
-                                "genreNames": ["Pop", "Country"],
-                                "url": "https://music.apple.com/us/artist/taylor-swift/159260351"
+                                "name": "The Beatles",
+                                "genreNames": ["Rock", "Pop"],
+                                "url": "https://music.apple.com/us/artist/the-beatles/136975"
                             }
                         }
                     ]
@@ -449,37 +306,38 @@ service /v1 on ep0 {
         return {
             "data": [
                 {
-                    "id": "1440857781",
+                    "id": "1440857924",
                     "type": "songs",
-                    "href": "/v1/catalog/" + storefront + "/songs/1440857781",
+                    "href": "/v1/catalog/" + storefront + "/songs/1440857924",
                     "attributes": {
-                        "albumName": "Reputation",
-                        "genreNames": ["Pop"],
-                        "trackNumber": 6.0,
-                        "durationInMillis": 231000,
-                        "releaseDate": "2017-11-10",
-                        "isrc": "USCJY1731844",
+                        "albumName": "Abbey Road",
+                        "artistName": "The Beatles",
                         "artwork": {
                             "width": 3000,
                             "height": 3000,
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/reputation.jpg"
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/sample.jpg"
                         },
+                        "composerName": "Lennon-McCartney",
+                        "contentRating": "clean",
+                        "discNumber": 1,
+                        "durationInMillis": 187000,
+                        "genreNames": ["Rock"],
+                        "hasLyrics": true,
+                        "name": "Come Together",
                         "playParams": {
-                            "id": "1440857781",
+                            "id": "1440857924",
                             "kind": "song"
                         },
-                        "url": "https://music.apple.com/us/song/look-what-you-made-me-do/1440857781",
-                        "discNumber": 1,
-                        "hasLyrics": true,
-                        "artistUrl": "https://music.apple.com/us/artist/taylor-swift/159260351",
-                        "name": "Look What You Made Me Do",
                         "previews": [
                             {
-                                "url": "https://audio-ssl.itunes.apple.com/preview.m4a"
+                                "url": "https://audio-ssl.itunes.apple.com/sample.m4a"
                             }
                         ],
-                        "artistName": "Taylor Swift",
-                        "contentRating": "clean"
+                        "releaseDate": "1969-09-26",
+                        "trackNumber": 1,
+                        "url": "https://music.apple.com/us/album/come-together/1440857781?i=1440857924",
+                        "isrc": "GBUM71505078",
+                        "artistUrl": "https://music.apple.com/us/artist/the-beatles/136975"
                     }
                 }
             ]
@@ -505,87 +363,34 @@ service /v1 on ep0 {
                     "type": "songs",
                     "href": "/v1/catalog/" + storefront + "/songs/" + id,
                     "attributes": {
-                        "albumName": "Shake It Off",
-                        "genreNames": ["Pop"],
-                        "trackNumber": 1.0,
-                        "durationInMillis": 219000,
-                        "releaseDate": "2014-08-18",
-                        "isrc": "USCJY1431315",
+                        "albumName": "Thriller",
+                        "artistName": "Michael Jackson",
                         "artwork": {
                             "width": 3000,
                             "height": 3000,
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/shake-it-off.jpg"
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/sample.jpg"
                         },
+                        "composerName": "Michael Jackson",
+                        "contentRating": "clean",
+                        "discNumber": 1,
+                        "durationInMillis": 358000,
+                        "genreNames": ["Pop", "R&B/Soul"],
+                        "hasLyrics": true,
+                        "name": "Billie Jean",
                         "playParams": {
                             "id": id,
                             "kind": "song"
                         },
-                        "url": "https://music.apple.com/us/song/shake-it-off/" + id,
-                        "discNumber": 1,
-                        "hasLyrics": true,
-                        "artistUrl": "https://music.apple.com/us/artist/taylor-swift/159260351",
-                        "name": "Shake It Off",
                         "previews": [
                             {
-                                "url": "https://audio-ssl.itunes.apple.com/preview-shake.m4a"
+                                "url": "https://audio-ssl.itunes.apple.com/sample.m4a"
                             }
                         ],
-                        "artistName": "Taylor Swift",
-                        "contentRating": "clean"
-                    }
-                }
-            ]
-        };
-    }
-
-    # Get a Catalog Song's Relationship Directly by Name
-    #
-    # + storefront - An iTunes Store territory, specified by an ISO 3166 alpha-2 country code. The possible values are the id attributes of Storefront objects
-    # + id - The unique identifier for the song
-    # + relationship - The name of the relationship you want to fetch for this resource
-    # + extend - A list of attribute extensions to apply to resources in the response
-    # + include - Additional relationships to include in the fetch
-    # + l - The localization to use, specified by a language tag. The possible values are in the `supportedLanguageTags` array belonging to the `Storefront` object specified by `storefront`. Otherwise, the default is `defaultLanguageTag` in `Storefront`
-    # + 'limit - The number of objects or number of objects in the specified relationship returned
-    # + return - returns can be any of following types 
-    # http:Ok (OK)
-    # http:Unauthorized (Unauthorized)
-    # http:InternalServerError (Internal Server Error)
-    resource function get catalog/[string storefront]/songs/[string id]/["albums"|"artists"|"composers"|"genres"|"library"|"music-videos"|"station" relationship](string[]? extend, string[]? include, string? l, int 'limit = 5) returns SongsResponse|ErrorsResponseUnauthorized|ErrorsResponseInternalServerError {
-        return {
-            "data": [
-                {
-                    "id": "1440857782",
-                    "type": "songs",
-                    "href": "/v1/catalog/" + storefront + "/songs/1440857782",
-                    "attributes": {
-                        "albumName": "Folklore",
-                        "genreNames": ["Alternative"],
-                        "trackNumber": 2.0,
-                        "durationInMillis": 253000,
-                        "releaseDate": "2020-07-24",
-                        "isrc": "USCJY2030001",
-                        "artwork": {
-                            "width": 3000,
-                            "height": 3000,
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/folklore.jpg"
-                        },
-                        "playParams": {
-                            "id": "1440857782",
-                            "kind": "song"
-                        },
-                        "url": "https://music.apple.com/us/song/cardigan/1440857782",
-                        "discNumber": 1,
-                        "hasLyrics": true,
-                        "artistUrl": "https://music.apple.com/us/artist/taylor-swift/159260351",
-                        "name": "cardigan",
-                        "previews": [
-                            {
-                                "url": "https://audio-ssl.itunes.apple.com/cardigan-preview.m4a"
-                            }
-                        ],
-                        "artistName": "Taylor Swift",
-                        "contentRating": "clean"
+                        "releaseDate": "1982-11-30",
+                        "trackNumber": 2,
+                        "url": "https://music.apple.com/us/album/billie-jean/" + id,
+                        "isrc": "USSM18200002",
+                        "artistUrl": "https://music.apple.com/us/artist/michael-jackson/32940"
                     }
                 }
             ]
@@ -609,26 +414,26 @@ service /v1 on ep0 {
         return {
             "data": [
                 {
-                    "id": "i.123456789",
+                    "id": "i.1440857781",
                     "type": "library-albums",
-                    "href": "/v1/me/library/albums/i.123456789",
+                    "href": "/v1/me/library/albums/i.1440857781",
                     "attributes": {
-                        "trackCount": 13.0,
-                        "genreNames": ["Pop"],
-                        "releaseDate": "2014-10-27",
-                        "name": "1989",
-                        "artistName": "Taylor Swift",
-                        "contentRating": "clean",
+                        "artistName": "The Beatles",
                         "artwork": {
                             "width": 3000,
                             "height": 3000,
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/1989-lib.jpg"
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/sample.jpg"
                         },
+                        "contentRating": "clean",
                         "dateAdded": "2023-01-15",
+                        "genreNames": ["Rock", "Pop"],
+                        "name": "Abbey Road",
                         "playParams": {
-                            "id": "i.123456789",
+                            "id": "i.1440857781",
                             "kind": "album"
-                        }
+                        },
+                        "releaseDate": "1969-09-26",
+                        "trackCount": 17
                     }
                 }
             ]
@@ -654,49 +459,22 @@ service /v1 on ep0 {
                     "type": "library-albums",
                     "href": "/v1/me/library/albums/" + id,
                     "attributes": {
-                        "trackCount": 16.0,
-                        "genreNames": ["Pop"],
-                        "releaseDate": "2017-03-03",
-                        "name": "÷ (Divide)",
-                        "artistName": "Ed Sheeran",
+                        "artistName": "Taylor Swift",
                         "artwork": {
                             "width": 3000,
                             "height": 3000,
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/divide-lib.jpg"
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/sample.jpg"
                         },
-                        "dateAdded": "2023-03-10",
+                        "contentRating": "clean",
+                        "dateAdded": "2023-10-27",
+                        "genreNames": ["Pop", "Alternative"],
+                        "name": "1989 (Taylor's Version)",
                         "playParams": {
                             "id": id,
                             "kind": "album"
-                        }
-                    }
-                }
-            ]
-        };
-    }
-
-    # Get a Library Album's Relationship Directly by Name
-    #
-    # + id - The unique identifier for the album
-    # + relationship - The name of the relationship you want to fetch for this resource
-    # + extend - A list of attribute extensions to apply to resources in the response
-    # + include - Additional relationships to include in the fetch
-    # + l - The localization to use, specified by a language tag. The possible values are in the `supportedLanguageTags` array belonging to the `Storefront` object specified by `storefront`. Otherwise, the default is `defaultLanguageTag` in `Storefront`
-    # + 'limit - The number of objects or number of objects in the specified relationship returned
-    # + return - returns can be any of following types 
-    # http:Ok (OK)
-    # http:Unauthorized (Unauthorized)
-    # http:Forbidden (Forbidden)
-    # http:InternalServerError (Internal Server Error)
-    resource function get me/library/albums/[string id]/["artists"|"genres"|"library"|"record-labels"|"tracks" relationship](string[]? extend, string[]? include, string? l, int 'limit = 5) returns LibraryArtistsResponse|ErrorsResponseUnauthorized|ErrorsResponseForbidden|ErrorsResponseInternalServerError {
-        return {
-            "data": [
-                {
-                    "id": "r.159260351",
-                    "type": "library-artists",
-                    "href": "/v1/me/library/artists/r.159260351",
-                    "attributes": {
-                        "name": "Taylor Swift"
+                        },
+                        "releaseDate": "2023-10-27",
+                        "trackCount": 21
                     }
                 }
             ]
@@ -720,14 +498,11 @@ service /v1 on ep0 {
         return {
             "data": [
                 {
-                    "id": "r.159260351",
+                    "id": "r.136975",
                     "type": "library-artists",
-                    "href": "/v1/me/library/artists/r.159260351",
+                    "href": "/v1/me/library/artists/r.136975",
                     "attributes": {
-                        "name": "Taylor Swift"
-                    },
-                    "relationships": {
-                        "catalog": {}
+                        "name": "The Beatles"
                     }
                 }
             ]
@@ -753,52 +528,7 @@ service /v1 on ep0 {
                     "type": "library-artists",
                     "href": "/v1/me/library/artists/" + id,
                     "attributes": {
-                        "name": "Ed Sheeran"
-                    },
-                    "relationships": {
-                        "catalog": {}
-                    }
-                }
-            ]
-        };
-    }
-
-    # Get a Library Artist's Relationship Directly by Name
-    #
-    # + id - The unique identifier for the artist
-    # + relationship - The name of the relationship you want to fetch for this resource
-    # + extend - A list of attribute extensions to apply to resources in the response
-    # + include - Additional relationships to include in the fetch
-    # + l - The localization to use, specified by a language tag. The possible values are in the `supportedLanguageTags` array belonging to the `Storefront` object specified by `storefront`. Otherwise, the default is `defaultLanguageTag` in `Storefront`
-    # + 'limit - The number of objects or number of objects in the specified relationship returned
-    # + return - returns can be any of following types 
-    # http:Ok (OK)
-    # http:Unauthorized (Unauthorized)
-    # http:Forbidden (Forbidden)
-    # http:InternalServerError (Internal Server Error)
-    resource function get me/library/artists/[string id]/["albums"|"genres"|"music-videos"|"playlists"|"station" relationship](string[]? extend, string[]? include, string? l, int 'limit = 5) returns LibraryAlbumsResponse|ErrorsResponseUnauthorized|ErrorsResponseForbidden|ErrorsResponseInternalServerError {
-        return {
-            "data": [
-                {
-                    "id": "i.987654321",
-                    "type": "library-albums",
-                    "href": "/v1/me/library/albums/i.987654321",
-                    "attributes": {
-                        "trackCount": 16.0,
-                        "genreNames": ["Pop"],
-                        "releaseDate": "2017-03-03",
-                        "name": "÷ (Divide)",
-                        "artistName": "Ed Sheeran",
-                        "artwork": {
-                            "width": 3000,
-                            "height": 3000,
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/divide-rel.jpg"
-                        },
-                        "dateAdded": "2023-03-10",
-                        "playParams": {
-                            "id": "i.987654321",
-                            "kind": "album"
-                        }
+                        "name": "Taylor Swift"
                     }
                 }
             ]
@@ -822,29 +552,29 @@ service /v1 on ep0 {
         return {
             "data": [
                 {
-                    "id": "i.1440857781",
+                    "id": "i.1440857924",
                     "type": "library-songs",
-                    "href": "/v1/me/library/songs/i.1440857781",
+                    "href": "/v1/me/library/songs/i.1440857924",
                     "attributes": {
-                        "albumName": "Reputation",
-                        "discNumber": 1,
-                        "genreNames": ["Pop"],
-                        "hasLyrics": true,
-                        "trackNumber": 6.0,
-                        "durationInMillis": 231000,
-                        "releaseDate": "2017-11-10",
-                        "name": "Look What You Made Me Do",
-                        "artistName": "Taylor Swift",
-                        "contentRating": "clean",
+                        "albumName": "Abbey Road",
+                        "artistName": "The Beatles",
                         "artwork": {
                             "width": 3000,
                             "height": 3000,
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/reputation-lib.jpg"
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/sample.jpg"
                         },
+                        "contentRating": "clean",
+                        "durationInMillis": 187000,
+                        "genreNames": ["Rock"],
+                        "hasLyrics": true,
+                        "name": "Come Together",
                         "playParams": {
-                            "id": "i.1440857781",
+                            "id": "i.1440857924",
                             "kind": "song"
-                        }
+                        },
+                        "releaseDate": "1969-09-26",
+                        "trackNumber": 1,
+                        "discNumber": 1
                     }
                 }
             ]
@@ -870,69 +600,25 @@ service /v1 on ep0 {
                     "type": "library-songs",
                     "href": "/v1/me/library/songs/" + id,
                     "attributes": {
-                        "albumName": "Folklore",
-                        "discNumber": 1,
-                        "genreNames": ["Alternative"],
-                        "hasLyrics": true,
-                        "trackNumber": 1.0,
-                        "durationInMillis": 253000,
-                        "releaseDate": "2020-07-24",
-                        "name": "the 1",
+                        "albumName": "1989 (Taylor's Version)",
                         "artistName": "Taylor Swift",
                         "artwork": {
                             "width": 3000,
                             "height": 3000,
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/folklore-lib.jpg"
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/sample.jpg"
                         },
+                        "contentRating": "clean",
+                        "durationInMillis": 231000,
+                        "genreNames": ["Pop"],
+                        "hasLyrics": true,
+                        "name": "Shake It Off (Taylor's Version)",
                         "playParams": {
                             "id": id,
                             "kind": "song"
-                        }
-                    }
-                }
-            ]
-        };
-    }
-
-    # Get a Library Song's Relationship Directly by Name
-    #
-    # + id - The unique identifier for the song
-    # + relationship - The name of the relationship you want to fetch for this resource
-    # + extend - A list of attribute extensions to apply to resources in the response
-    # + include - Additional relationships to include in the fetch
-    # + l - The localization to use, specified by a language tag. The possible values are in the `supportedLanguageTags` array belonging to the `Storefront` object specified by `storefront`. Otherwise, the default is `defaultLanguageTag` in `Storefront`
-    # + 'limit - The number of objects or number of objects in the specified relationship returned
-    # + return - returns can be any of following types 
-    # http:Ok (OK)
-    # http:Unauthorized (Unauthorized)
-    # http:Forbidden (Forbidden)
-    # http:InternalServerError (Internal Server Error)
-    resource function get me/library/songs/[string id]/["albums"|"artists"|"composers"|"genres"|"library"|"music-videos"|"station" relationship](string[]? extend, string[]? include, string? l, int 'limit = 5) returns LibrarySongsResponse|ErrorsResponseUnauthorized|ErrorsResponseForbidden|ErrorsResponseInternalServerError {
-        return {
-            "data": [
-                {
-                    "id": "i.1440857782",
-                    "type": "library-songs",
-                    "href": "/v1/me/library/songs/i.1440857782",
-                    "attributes": {
-                        "albumName": "Folklore",
-                        "discNumber": 1,
-                        "genreNames": ["Alternative"],
-                        "hasLyrics": true,
-                        "trackNumber": 2.0,
-                        "durationInMillis": 239000,
-                        "releaseDate": "2020-07-24",
-                        "name": "cardigan",
-                        "artistName": "Taylor Swift",
-                        "artwork": {
-                            "width": 3000,
-                            "height": 3000,
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/folklore-cardigan.jpg"
                         },
-                        "playParams": {
-                            "id": "i.1440857782",
-                            "kind": "song"
-                        }
+                        "releaseDate": "2023-10-27",
+                        "trackNumber": 6,
+                        "discNumber": 1
                     }
                 }
             ]

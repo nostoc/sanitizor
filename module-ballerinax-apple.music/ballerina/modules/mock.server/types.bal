@@ -5,32 +5,6 @@ import ballerina/constraint;
 import ballerina/data.jsondata;
 import ballerina/http;
 
-# Represents the Queries record for the operation: getArtistRelationshipFromLibrary
-public type GetArtistRelationshipFromLibraryQueries record {
-    # A list of attribute extensions to apply to resources in the response
-    string[] extend?;
-    # Additional relationships to include in the fetch
-    string[] include?;
-    # The number of objects or number of objects in the specified relationship returned
-    @constraint:Int {maxValue: 25}
-    int 'limit = 5;
-    # The localization to use, specified by a language tag. The possible values are in the `supportedLanguageTags` array belonging to the `Storefront` object specified by `storefront`. Otherwise, the default is `defaultLanguageTag` in `Storefront`
-    string l?;
-};
-
-# Represents the Queries record for the operation: getSongsRelationshipFromCatalog
-public type GetSongsRelationshipFromCatalogQueries record {
-    # A list of attribute extensions to apply to resources in the response
-    string[] extend?;
-    # Additional relationships to include in the fetch
-    string[] include?;
-    # The number of objects or number of objects in the specified relationship returned
-    @constraint:Int {maxValue: 25}
-    int 'limit = 5;
-    # The localization to use, specified by a language tag. The possible values are in the `supportedLanguageTags` array belonging to the `Storefront` object specified by `storefront`. Otherwise, the default is `defaultLanguageTag` in `Storefront`
-    string l?;
-};
-
 # The attributes for the song
 public type SongsAttributes record {
     # The name of the album the song appears on
@@ -97,24 +71,6 @@ public type ErrorsResponse record {
 
 public type GetAlbumsFromCatalogQueriesIdsItemsString string;
 
-# A resource object that represents a music video
-public type MusicVideos record {
-    # The relationships for the music video
-    record {} relationships?;
-    # Information about the request or response. The members may be any of the endpoint parameters
-    record {} meta?;
-    # The attributes for the music video
-    MusicVideosAttributes attributes?;
-    # The identifier for the music video
-    string id;
-    # The relative location for the music video resource
-    string href;
-    # This value is always `music-videos`
-    "music-videos" 'type;
-    # The relationship views for the music video
-    record {} views?;
-};
-
 public type GetSongsFromLibraryQueriesIdsItemsString string;
 
 # A resource object that represents an album
@@ -145,40 +101,12 @@ public type GetAlbumFromLibraryQueries record {
     string l?;
 };
 
-# Represents the Queries record for the operation: getSongsRelationshipFromLibrary
-public type GetSongsRelationshipFromLibraryQueries record {
-    # A list of attribute extensions to apply to resources in the response
-    string[] extend?;
-    # Additional relationships to include in the fetch
-    string[] include?;
-    # The number of objects or number of objects in the specified relationship returned
-    @constraint:Int {maxValue: 25}
-    int 'limit = 5;
-    # The localization to use, specified by a language tag. The possible values are in the `supportedLanguageTags` array belonging to the `Storefront` object specified by `storefront`. Otherwise, the default is `defaultLanguageTag` in `Storefront`
-    string l?;
-};
-
 public type GetAlbumsFromLibraryQueriesIdsItemsString string;
 
 public type ErrorsResponseInternalServerError record {|
     *http:InternalServerError;
     ErrorsResponse body;
 |};
-
-# Represents the Queries record for the operation: getArtistViewFromCatalog
-public type GetArtistViewFromCatalogQueries record {
-    # A list of attribute extensions to apply to resources in the response
-    string[] extend?;
-    # Additional relationships to include in the fetch
-    string[] include?;
-    # A list of modifications to apply to the request
-    ("attributes"|"topResults")[] with?;
-    # The number of objects or number of objects in the specified relationship returned
-    @constraint:Int {maxValue: 25}
-    int 'limit = 5;
-    # The localization to use, specified by a language tag. The possible values are in the `supportedLanguageTags` array belonging to the `Storefront` object specified by `storefront`. Otherwise, the default is `defaultLanguageTag` in `Storefront`
-    string l?;
-};
 
 # An object containing references to the source of the error
 public type ErrorInformationSource record {
@@ -206,19 +134,6 @@ public type LibrarySongs record {
     string href;
     # This value is always `library-songs`
     "library-songs" 'type;
-};
-
-# Represents the Queries record for the operation: getArtistRelationshipFromCatalog
-public type GetArtistRelationshipFromCatalogQueries record {
-    # A list of attribute extensions to apply to resources in the response
-    string[] extend?;
-    # Additional relationships to include in the fetch
-    string[] include?;
-    # The number of objects or number of objects in the specified relationship returned
-    @constraint:Int {maxValue: 25}
-    int 'limit = 5;
-    # The localization to use, specified by a language tag. The possible values are in the `supportedLanguageTags` array belonging to the `Storefront` object specified by `storefront`. Otherwise, the default is `defaultLanguageTag` in `Storefront`
-    string l?;
 };
 
 # A resource object that represents a song
@@ -459,19 +374,6 @@ public type SearchResponseResults record {
     AlbumsResponse albums?;
     # The response to an artists request
     ArtistsResponse artists?;
-};
-
-# Represents the Queries record for the operation: getAlbumRelationshipFromLibrary
-public type GetAlbumRelationshipFromLibraryQueries record {
-    # A list of attribute extensions to apply to resources in the response
-    string[] extend?;
-    # Additional relationships to include in the fetch
-    string[] include?;
-    # The number of objects or number of objects in the specified relationship returned
-    @constraint:Int {maxValue: 25}
-    int 'limit = 5;
-    # The localization to use, specified by a language tag. The possible values are in the `supportedLanguageTags` array belonging to the `Storefront` object specified by `storefront`. Otherwise, the default is `defaultLanguageTag` in `Storefront`
-    string l?;
 };
 
 # Represents the Queries record for the operation: getAlbumFromCatalog
@@ -717,70 +619,6 @@ public type Preview record {
     string url;
     # The HLS preview URL for the content
     string hlsUrl?;
-};
-
-# Represents the Queries record for the operation: getAlbumViewFromCatalog
-public type GetAlbumViewFromCatalogQueries record {
-    # A list of attribute extensions to apply to resources in the response
-    string[] extend?;
-    # Additional relationships to include in the fetch
-    string[] include?;
-    # A list of modifications to apply to the request
-    ("attributes"|"topResults")[] with?;
-    # The number of objects or number of objects in the specified relationship returned
-    @constraint:Int {maxValue: 25}
-    int 'limit = 5;
-    # The localization to use, specified by a language tag. The possible values are in the `supportedLanguageTags` array belonging to the `Storefront` object specified by `storefront`. Otherwise, the default is `defaultLanguageTag` in `Storefront`
-    string l?;
-};
-
-# The attributes for the music video
-public type MusicVideosAttributes record {
-    # The name of the album the music video appears on
-    string albumName?;
-    # The names of the genres associated with this album
-    string[] genreNames;
-    # The number of the music video in the album's track list, when associated with an album
-    int trackNumber?;
-    # The video subtype associated with the content
-    string videoSubType?;
-    # The duration of the music video in milliseconds
-    int durationInMillis;
-    # The release date of the music video, when known, in `YYYY-MM-DD` or `YYYY` format. Pre-release content may have an expected release date in the future
-    string releaseDate?;
-    # The International Standard Recording Code (ISRC) for the music video
-    string isrc?;
-    # An object that represents artwork
-    Artwork artwork;
-    # (Classical music only) The name of the associated work
-    string workName?;
-    # An object that represents play parameters for resources
-    PlayParameters playParams?;
-    # The URL for sharing the music video in Apple Music
-    string url;
-    # (Classical music only) A unique identifier for the associated work
-    string workId?;
-    # The url of the artist for this content
-    string artistUrl?;
-    # Whether the music video has 4K content
-    boolean has4K;
-    # Whether the music video has HDR10-encoded content
-    boolean hasHDR;
-    # The localized name of the music video
-    string name;
-    Preview[] previews;
-    # The artist's name
-    string artistName;
-    # The Recording Industry Association of America (RIAA) rating of the content. The possible values for this rating are clean and explicit. No value means no rating
-    "clean"|"explicit" contentRating?;
-    # An object that represents a notes attribute
-    EditorialNotes editorialNotes?;
-};
-
-# The response to a music videos request
-public type MusicVideosResponse record {
-    # The Music Videos included in the response for the request
-    MusicVideos[] data;
 };
 
 # Represents the Queries record for the operation: getSongFromCatalog
