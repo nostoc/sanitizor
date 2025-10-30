@@ -175,10 +175,10 @@ public function addMissingDescriptionsBatchWithRetry(string specFilePath, int ba
             }
         }
 
-        // 2. Collect parameter descriptions (NEW)
+        // 2. Collect parameter descriptions (ENHANCED - only processes existing parameters)
         collectParameterDescriptionRequests(specJson, allRequests, requestToLocationMap);
 
-        // 3. Collect operation descriptions for return parameters (NEW)
+        // 3. Collect operation descriptions for return parameters (ENHANCED - includes response descriptions)
         collectOperationDescriptionRequests(specJson, allRequests, requestToLocationMap);
 
         // Process requests in batches with retry
@@ -215,7 +215,13 @@ public function addMissingDescriptionsBatchWithRetry(string specFilePath, int ba
                             if pathsResult is map<json> {
                                 updateResult = updateParameterDescriptionInSpec(<map<json>>pathsResult, location, response.description);
                             }
-                        } else if location.startsWith("paths.") && !location.includes(".properties.") {
+                        } else if location.startsWith("paths.") && location.includes(".responses.") && location.endsWith(".description") {
+                            // Response description (NEW)
+                            json|error pathsResult = specMap.get("paths");
+                            if pathsResult is map<json> {
+                                updateResult = updateResponseDescriptionInSpec(<map<json>>pathsResult, location, response.description);
+                            }
+                        } else if location.startsWith("paths.") && !location.includes(".properties.") && !location.includes(".responses.") {
                             // Operation description
                             json|error pathsResult = specMap.get("paths");
                             if pathsResult is map<json> {
