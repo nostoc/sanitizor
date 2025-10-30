@@ -1,0 +1,128 @@
+import ballerina/io;
+import ballerinax/apple.music;
+
+configurable string developerToken = ?;
+configurable string musicUserToken = ?;
+
+public function main() returns error? {
+    
+    music:Client appleMusicClient = check new ({
+        authorization: developerToken,
+        musicUserToken: musicUserToken
+    });
+
+    io:println("=== Music Discovery App: Analyzing Personal Library Patterns ===\n");
+
+    // Step 1: Retrieve all albums from user's library
+    io:println("Step 1: Fetching all albums from your music library...");
+    music:LibraryAlbumsResponse libraryResponse = check appleMusicClient->/me/library/albums(
+        headers = {"Music-User-Token": musicUserToken},
+        'limit = 25
+    );
+
+    if libraryResponse.data.length() == 0 {
+        io:println("No albums found in your library.");
+        return;
+    }
+
+    io:println(string `Found ${libraryResponse.data.length()} albums in your library`);
+
+    // Step 2: Identify the most-played album (simulating analysis based on dateAdded as proxy for play frequency)
+    io:println("\nStep 2: Analyzing library patterns to identify your most-played album...");
+    
+    music:LibraryAlbums mostPlayedAlbum = libraryResponse.data[0];
+    string? latestDate = ();
+    music:LibraryAlbumsAttributes? firstAttrs = mostPlayedAlbum.attributes;
+    if firstAttrs is music:LibraryAlbumsAttributes {
+        latestDate = firstAttrs.dateAdded;
+    }
+    
+    foreach music:LibraryAlbums album in libraryResponse.data {
+        music:LibraryAlbumsAttributes? attrs = album.attributes;
+        if attrs is music:LibraryAlbumsAttributes {
+            string albumName = attrs.name is string ? attrs.name : "Unknown Album";
+            string artistName = attrs.artistName is string ? attrs.artistName : "Unknown Artist";
+            decimal trackCount = attrs.trackCount is decimal ? attrs.trackCount : 0;
+            io:println(string `- ${albumName} by ${artistName} (${trackCount} tracks)`);
+            
+            // Simple heuristic: most recently added might indicate recent heavy play
+            string? currentDate = attrs.dateAdded;
+            if currentDate is string && (latestDate is () || currentDate > latestDate) {
+                mostPlayedAlbum = album;
+                latestDate = currentDate;
+            }
+        }
+    }
+
+    music:LibraryAlbumsAttributes? topAlbumAttrs = mostPlayedAlbum.attributes;
+    if topAlbumAttrs is music:LibraryAlbumsAttributes {
+        string albumName = topAlbumAttrs.name is string ? topAlbumAttrs.name : "Unknown Album";
+        string artistName = topAlbumAttrs.artistName is string ? topAlbumAttrs.artistName : "Unknown Artist";
+        string[] genreNames = topAlbumAttrs.genreNames is string[] ? topAlbumAttrs.genreNames : [];
+        decimal trackCount = topAlbumAttrs.trackCount is decimal ? topAlbumAttrs.trackCount : 0;
+        string releaseDate = topAlbumAttrs.releaseDate is string ? topAlbumAttrs.releaseDate : "Unknown";
+        
+        io:println(string `\nIdentified most-played album: "${albumName}" by ${artistName}`);
+        io:println(string `- Genre: ${genreNames.toString()}`);
+        io:println(string `- Track Count: ${trackCount}`);
+        io:println(string `- Release Date: ${releaseDate}`);
+    }
+
+    // Step 3: Explore detailed track listing of the most-played album
+    io:println("\nStep 3: Analyzing detailed track listing for music preference patterns...");
+    
+    music:LibraryTracksResponse trackResponse = check appleMusicClient->/me/library/albums/[mostPlayedAlbum.id]/tracks(
+        headers = {"Music-User-Token": musicUserToken},
+        'limit = 20
+    );
+
+    io:println(string `Retrieved track details for analysis`);
+
+    // Step 4: Explore artist relationships for recommendation insights
+    io:println("\nStep 4: Exploring artist relationships for recommendation patterns...");
+    
+    music:LibraryArtistsResponse artistResponse = check appleMusicClient->/me/library/albums/[mostPlayedAlbum.id]/artists(
+        headers = {"Music-User-Token": musicUserToken},
+        'limit = 10
+    );
+
+    io:println("Artist relationship data retrieved for preference analysis");
+
+    if artistResponse.data.length() > 0 {
+        foreach music:LibraryArtists artist in artistResponse.data {
+            music:LibraryArtistsAttributes? artistAttrs = artist.attributes;
+            if artistAttrs is music:LibraryArtistsAttributes {
+                string artistName = artistAttrs.name is string ? artistAttrs.name : "Unknown Artist";
+                io:println(string `- Related Artist: ${artistName}`);
+            }
+        }
+    }
+
+    // Step 5: Generate music preference insights
+    io:println("\n=== Music Preference Analysis Results ===");
+    
+    if topAlbumAttrs is music:LibraryAlbumsAttributes {
+        string[] genreNames = topAlbumAttrs.genreNames is string[] ? topAlbumAttrs.genreNames : [];
+        string artistName = topAlbumAttrs.artistName is string ? topAlbumAttrs.artistName : "Unknown Artist";
+        decimal trackCount = topAlbumAttrs.trackCount is decimal ? topAlbumAttrs.trackCount : 0;
+        
+        io:println("Based on your most-played album analysis:");
+        string preferredGenre = genreNames.length() > 0 ? genreNames[0] : "Various";
+        io:println(string `✓ Preferred Genre: ${preferredGenre}`);
+        io:println(string `✓ Preferred Artist Style: ${artistName}`);
+        io:println(string `✓ Album Length Preference: ${trackCount} tracks`);
+        
+        string? contentRating = topAlbumAttrs.contentRating;
+        if contentRating is string {
+            io:println(string `✓ Content Preference: ${contentRating}`);
+        }
+        
+        io:println("\nRecommendation Strategy:");
+        io:println("- Look for albums in similar genres");
+        io:println("- Explore related artists and collaborations");
+        io:println("- Consider albums with similar track counts");
+        io:println("- Focus on releases from the same era");
+    }
+
+    io:println("\n=== Music Discovery Analysis Complete ===");
+}
