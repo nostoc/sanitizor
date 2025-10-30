@@ -20,7 +20,7 @@ function createMockServerPrompt(string mockServerTemplate, string types) returns
 
     **Critically Important:**
     - Your response MUST be a complete, raw Ballerina source code file.
-    - Do NOT include any explanations or markdown formatting.
+    - Do NOT include any explanations or markdown formatting, code fences like ${tripleBacktick}.
 
     <CONTEXT>
       <MOCK_SERVER_TEMPLATE>
@@ -97,7 +97,7 @@ function createTestGenerationPrompt(ConnectorAnalysis analysis) returns string {
     </CONTEXT>
 
     **Requirements:**
-    1.  **Complete File:** Your response must be a single, raw, and complete Ballerina source code file.
+    1.  **Complete File:** Your response must be a single, raw, and complete Ballerina source code file. Do not include any code fences in the response.
     2.  **Copyright Header:** The generated file must start with the standard Ballerina copyright header.
     3.  **Imports:** Include ${backtick}import ballerina/os;${backtick}, ${backtick}import ballerina/test;${backtick}, and the mock server import: ${backtick}import ${analysis.packageName}.mock.server as _;${backtick}.
     4.  **Environment Setup:** Implement configurable variables for ${backtick}isLiveServer${backtick}, ${backtick}serviceUrl${backtick}, and any necessary credentials as shown in the example. The mock server URL must be ${backtick}http://localhost:9090/v1${backtick}.
