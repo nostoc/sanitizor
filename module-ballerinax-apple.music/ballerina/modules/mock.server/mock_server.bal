@@ -27,39 +27,39 @@ service /v1 on ep0 {
                     "type": "albums",
                     "href": "/v1/catalog/us/albums/1234567890",
                     "attributes": {
-                        "artistName": "The Beatles",
-                        "artistUrl": "https://music.apple.com/us/artist/the-beatles/136975",
+                        "artistName": "Taylor Swift",
+                        "name": "1989",
+                        "copyright": "© 2014 Big Machine Records, LLC",
+                        "genreNames": ["Pop"],
+                        "releaseDate": "2014-10-27",
+                        "isMasteredForItunes": true,
+                        "upc": "00843930012345",
                         "artwork": {
                             "width": 3000,
                             "height": 3000,
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/ab/cd/ef/abcdef12-3456-7890-abcd-ef1234567890/{w}x{h}bb.jpg",
-                            "bgColor": "ffffff",
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/album.jpg",
+                            "bgColor": "f0f0f0",
                             "textColor1": "000000",
                             "textColor2": "333333",
                             "textColor3": "666666",
                             "textColor4": "999999"
                         },
-                        "contentRating": "clean",
-                        "copyright": "℗ 1969 Apple Records",
-                        "editorialNotes": {
-                            "standard": "The Beatles' masterpiece album featuring iconic tracks.",
-                            "short": "A legendary album by The Beatles."
-                        },
-                        "genreNames": ["Rock", "Pop"],
-                        "isCompilation": false,
-                        "isComplete": true,
-                        "isMasteredForItunes": true,
-                        "isSingle": false,
-                        "name": "Abbey Road",
                         "playParams": {
                             "id": "1234567890",
                             "kind": "album"
                         },
-                        "recordLabel": "Apple Records",
-                        "releaseDate": "1969-09-26",
-                        "trackCount": 17,
-                        "upc": "602537479870",
-                        "url": "https://music.apple.com/us/album/abbey-road/1234567890"
+                        "url": "https://music.apple.com/us/album/1989/1234567890",
+                        "recordLabel": "Big Machine Records",
+                        "isCompilation": false,
+                        "trackCount": 13,
+                        "artistUrl": "https://music.apple.com/us/artist/taylor-swift/159260351",
+                        "isSingle": false,
+                        "contentRating": "clean",
+                        "editorialNotes": {
+                            "standard": "Taylor Swift's fifth studio album marks her complete transition to pop.",
+                            "short": "Swift goes full pop on her fifth album."
+                        },
+                        "isComplete": true
                     }
                 }
             ]
@@ -86,39 +86,28 @@ service /v1 on ep0 {
                     "type": "albums",
                     "href": "/v1/catalog/" + storefront + "/albums/" + id,
                     "attributes": {
-                        "artistName": "Taylor Swift",
-                        "artistUrl": "https://music.apple.com/us/artist/taylor-swift/159260351",
+                        "artistName": "The Beatles",
+                        "name": "Abbey Road",
+                        "copyright": "© 1969 Apple Records",
+                        "genreNames": ["Rock"],
+                        "releaseDate": "1969-09-26",
+                        "isMasteredForItunes": true,
+                        "upc": "00094638241823",
                         "artwork": {
                             "width": 3000,
                             "height": 3000,
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/12/34/56/12345678-90ab-cdef-1234-567890abcdef/{w}x{h}bb.jpg",
-                            "bgColor": "d4af37",
-                            "textColor1": "000000",
-                            "textColor2": "1a1a1a",
-                            "textColor3": "333333",
-                            "textColor4": "4d4d4d"
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/abbey-road.jpg"
                         },
-                        "contentRating": "clean",
-                        "copyright": "℗ 2022 Taylor Swift",
-                        "editorialNotes": {
-                            "standard": "Taylor Swift's tenth studio album showcasing her artistic evolution.",
-                            "short": "Swift's latest masterpiece."
-                        },
-                        "genreNames": ["Pop", "Alternative"],
-                        "isCompilation": false,
-                        "isComplete": true,
-                        "isMasteredForItunes": true,
-                        "isSingle": false,
-                        "name": "Midnights",
                         "playParams": {
                             "id": id,
                             "kind": "album"
                         },
-                        "recordLabel": "Republic Records",
-                        "releaseDate": "2022-10-21",
-                        "trackCount": 13,
-                        "upc": "602445479870",
-                        "url": "https://music.apple.com/us/album/midnights/" + id
+                        "url": "https://music.apple.com/us/album/abbey-road/" + id,
+                        "recordLabel": "Apple Records",
+                        "isCompilation": false,
+                        "trackCount": 17,
+                        "isSingle": false,
+                        "isComplete": true
                     }
                 }
             ]
@@ -147,11 +136,10 @@ service /v1 on ep0 {
                     "href": "/v1/catalog/" + storefront + "/artists/159260351",
                     "attributes": {
                         "name": "Taylor Swift",
-                        "genreNames": ["Pop", "Country", "Alternative"],
+                        "genreNames": ["Pop", "Country"],
                         "url": "https://music.apple.com/us/artist/taylor-swift/159260351",
                         "editorialNotes": {
-                            "standard": "Grammy-winning singer-songwriter known for her narrative songwriting.",
-                            "short": "Multi-Grammy winner and global superstar."
+                            "standard": "One of the most successful artists of all time."
                         }
                     }
                 }
@@ -177,47 +165,38 @@ service /v1 on ep0 {
         return {
             "data": [
                 {
-                    "id": "1234567890",
+                    "id": "1440857781",
                     "type": "music-videos",
-                    "href": "/v1/catalog/" + storefront + "/music-videos/1234567890",
+                    "href": "/v1/catalog/" + storefront + "/music-videos/1440857781",
                     "attributes": {
-                        "albumName": "Midnights",
-                        "artistName": "Taylor Swift",
-                        "artistUrl": "https://music.apple.com/us/artist/taylor-swift/159260351",
+                        "albumName": "Reputation",
+                        "genreNames": ["Pop"],
+                        "trackNumber": 6,
+                        "durationInMillis": 231000,
+                        "releaseDate": "2017-11-10",
+                        "isrc": "USCJY1731844",
                         "artwork": {
                             "width": 1920,
                             "height": 1080,
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Video125/v4/ab/cd/ef/abcdef12-3456-7890-abcd-ef1234567890/{w}x{h}bb.jpg",
-                            "bgColor": "1a1a1a",
-                            "textColor1": "ffffff",
-                            "textColor2": "e6e6e6",
-                            "textColor3": "cccccc",
-                            "textColor4": "b3b3b3"
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Video/music-video.jpg"
                         },
-                        "contentRating": "clean",
-                        "durationInMillis": 240000,
-                        "editorialNotes": {
-                            "standard": "The official music video for Anti-Hero showcases Swift's creative vision.",
-                            "short": "Official music video."
-                        },
-                        "genreNames": ["Pop", "Alternative"],
-                        "has4K": true,
-                        "hasHDR": true,
-                        "isrc": "USUG12204567",
-                        "name": "Anti-Hero",
                         "playParams": {
-                            "id": "1234567890",
+                            "id": "1440857781",
                             "kind": "musicVideo"
                         },
+                        "url": "https://music.apple.com/us/music-video/look-what-you-made-me-do/1440857781",
+                        "artistUrl": "https://music.apple.com/us/artist/taylor-swift/159260351",
+                        "has4K": true,
+                        "hasHDR": false,
+                        "name": "Look What You Made Me Do",
                         "previews": [
                             {
-                                "url": "https://video-ssl.itunes.apple.com/itunes-assets/Video125/v4/preview.m4v"
+                                "url": "https://video-ssl.itunes.apple.com/preview.m4v",
+                                "hlsUrl": "https://video-ssl.itunes.apple.com/preview.m3u8"
                             }
                         ],
-                        "releaseDate": "2022-10-21",
-                        "trackNumber": 3,
-                        "url": "https://music.apple.com/us/music-video/anti-hero/1234567890",
-                        "videoSubType": "preview"
+                        "artistName": "Taylor Swift",
+                        "contentRating": "clean"
                     }
                 }
             ]
@@ -246,25 +225,11 @@ service /v1 on ep0 {
                     "href": "/v1/catalog/" + storefront + "/artists/159260351",
                     "attributes": {
                         "name": "Taylor Swift",
-                        "genreNames": ["Pop", "Country", "Alternative"],
+                        "genreNames": ["Pop", "Country"],
                         "url": "https://music.apple.com/us/artist/taylor-swift/159260351",
                         "editorialNotes": {
-                            "standard": "Grammy-winning singer-songwriter known for her narrative songwriting and genre evolution.",
-                            "short": "Multi-Grammy winner and global superstar."
-                        }
-                    }
-                },
-                {
-                    "id": "136975",
-                    "type": "artists",
-                    "href": "/v1/catalog/" + storefront + "/artists/136975",
-                    "attributes": {
-                        "name": "The Beatles",
-                        "genreNames": ["Rock", "Pop"],
-                        "url": "https://music.apple.com/us/artist/the-beatles/136975",
-                        "editorialNotes": {
-                            "standard": "The most influential band in popular music history.",
-                            "short": "Legendary British rock band."
+                            "standard": "One of the most successful recording artists of all time.",
+                            "short": "Global superstar and songwriter."
                         }
                     }
                 }
@@ -293,11 +258,10 @@ service /v1 on ep0 {
                     "href": "/v1/catalog/" + storefront + "/artists/" + id,
                     "attributes": {
                         "name": "Ed Sheeran",
-                        "genreNames": ["Pop", "Folk", "Hip-Hop"],
+                        "genreNames": ["Pop", "Singer/Songwriter"],
                         "url": "https://music.apple.com/us/artist/ed-sheeran/" + id,
                         "editorialNotes": {
-                            "standard": "British singer-songwriter known for his acoustic guitar-driven pop songs and heartfelt lyrics.",
-                            "short": "Chart-topping British singer-songwriter."
+                            "standard": "British singer-songwriter known for his acoustic guitar melodies and heartfelt lyrics."
                         }
                     }
                 }
@@ -327,38 +291,26 @@ service /v1 on ep0 {
                     "href": "/v1/catalog/" + storefront + "/albums/1234567890",
                     "attributes": {
                         "artistName": "Ed Sheeran",
-                        "artistUrl": "https://music.apple.com/us/artist/ed-sheeran/" + id,
+                        "name": "÷ (Divide)",
+                        "copyright": "© 2017 Asylum Records UK",
+                        "genreNames": ["Pop"],
+                        "releaseDate": "2017-03-03",
+                        "isMasteredForItunes": true,
                         "artwork": {
                             "width": 3000,
                             "height": 3000,
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/12/34/56/12345678-90ab-cdef-1234-567890abcdef/{w}x{h}bb.jpg",
-                            "bgColor": "ff6b35",
-                            "textColor1": "ffffff",
-                            "textColor2": "f4f4f4",
-                            "textColor3": "e6e6e6",
-                            "textColor4": "d9d9d9"
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/divide.jpg"
                         },
-                        "contentRating": "clean",
-                        "copyright": "℗ 2021 Asylum Records UK",
-                        "editorialNotes": {
-                            "standard": "Ed Sheeran's fifth studio album featuring collaborations with various artists.",
-                            "short": "Sheeran's collaborative album."
-                        },
-                        "genreNames": ["Pop", "Folk"],
-                        "isCompilation": false,
-                        "isComplete": true,
-                        "isMasteredForItunes": true,
-                        "isSingle": false,
-                        "name": "= (Equals)",
                         "playParams": {
                             "id": "1234567890",
                             "kind": "album"
                         },
-                        "recordLabel": "Asylum Records UK",
-                        "releaseDate": "2021-10-29",
-                        "trackCount": 14,
-                        "upc": "190295408718",
-                        "url": "https://music.apple.com/us/album/equals/1234567890"
+                        "url": "https://music.apple.com/us/album/divide/1234567890",
+                        "recordLabel": "Asylum Records",
+                        "isCompilation": false,
+                        "trackCount": 16,
+                        "isSingle": false,
+                        "isComplete": true
                     }
                 }
             ]
@@ -383,43 +335,31 @@ service /v1 on ep0 {
         return {
             "data": [
                 {
-                    "id": "9876543210",
+                    "id": "987654321",
                     "type": "albums",
-                    "href": "/v1/catalog/" + storefront + "/albums/9876543210",
+                    "href": "/v1/catalog/" + storefront + "/albums/987654321",
                     "attributes": {
-                        "artistName": "Adele",
-                        "artistUrl": "https://music.apple.com/us/artist/adele/" + id,
+                        "artistName": "Various Artists",
+                        "name": "Now That's What I Call Music! 85",
+                        "copyright": "© 2023 Various Labels",
+                        "genreNames": ["Pop"],
+                        "releaseDate": "2023-07-21",
+                        "isMasteredForItunes": false,
                         "artwork": {
                             "width": 3000,
                             "height": 3000,
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/ab/cd/ef/abcdef12-3456-7890-abcd-ef1234567890/{w}x{h}bb.jpg",
-                            "bgColor": "2c2c2c",
-                            "textColor1": "ffffff",
-                            "textColor2": "f0f0f0",
-                            "textColor3": "d4d4d4",
-                            "textColor4": "c0c0c0"
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/now85.jpg"
                         },
-                        "contentRating": "clean",
-                        "copyright": "℗ 2021 Melted Stone Ltd.",
-                        "editorialNotes": {
-                            "standard": "Adele's fourth studio album showcasing her powerful vocals and emotional depth.",
-                            "short": "Adele's triumphant return."
-                        },
-                        "genreNames": ["Pop", "Soul"],
-                        "isCompilation": false,
-                        "isComplete": true,
-                        "isMasteredForItunes": true,
-                        "isSingle": false,
-                        "name": "30",
                         "playParams": {
-                            "id": "9876543210",
+                            "id": "987654321",
                             "kind": "album"
                         },
-                        "recordLabel": "Columbia Records",
-                        "releaseDate": "2021-11-19",
-                        "trackCount": 12,
-                        "upc": "194398076119",
-                        "url": "https://music.apple.com/us/album/30/9876543210"
+                        "url": "https://music.apple.com/us/album/now-85/987654321",
+                        "recordLabel": "Now Music",
+                        "isCompilation": true,
+                        "trackCount": 44,
+                        "isSingle": false,
+                        "isComplete": true
                     }
                 }
             ]
@@ -450,34 +390,26 @@ service /v1 on ep0 {
                             "href": "/v1/catalog/" + storefront + "/albums/1234567890",
                             "attributes": {
                                 "artistName": "Taylor Swift",
-                                "artistUrl": "https://music.apple.com/us/artist/taylor-swift/159260351",
+                                "name": "1989",
+                                "copyright": "© 2014 Big Machine Records",
+                                "genreNames": ["Pop"],
+                                "releaseDate": "2014-10-27",
+                                "isMasteredForItunes": true,
                                 "artwork": {
                                     "width": 3000,
                                     "height": 3000,
-                                    "url": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/12/34/56/12345678-90ab-cdef-1234-567890abcdef/{w}x{h}bb.jpg",
-                                    "bgColor": "d4af37",
-                                    "textColor1": "000000",
-                                    "textColor2": "1a1a1a",
-                                    "textColor3": "333333",
-                                    "textColor4": "4d4d4d"
+                                    "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/1989.jpg"
                                 },
-                                "contentRating": "clean",
-                                "copyright": "℗ 2022 Taylor Swift",
-                                "genreNames": ["Pop", "Alternative"],
-                                "isCompilation": false,
-                                "isComplete": true,
-                                "isMasteredForItunes": true,
-                                "isSingle": false,
-                                "name": "Midnights",
                                 "playParams": {
                                     "id": "1234567890",
                                     "kind": "album"
                                 },
-                                "recordLabel": "Republic Records",
-                                "releaseDate": "2022-10-21",
+                                "url": "https://music.apple.com/us/album/1989/1234567890",
+                                "recordLabel": "Big Machine Records",
+                                "isCompilation": false,
                                 "trackCount": 13,
-                                "upc": "602445479870",
-                                "url": "https://music.apple.com/us/album/midnights/1234567890"
+                                "isSingle": false,
+                                "isComplete": true
                             }
                         }
                     ]
@@ -490,12 +422,8 @@ service /v1 on ep0 {
                             "href": "/v1/catalog/" + storefront + "/artists/159260351",
                             "attributes": {
                                 "name": "Taylor Swift",
-                                "genreNames": ["Pop", "Country", "Alternative"],
-                                "url": "https://music.apple.com/us/artist/taylor-swift/159260351",
-                                "editorialNotes": {
-                                    "standard": "Grammy-winning singer-songwriter known for her narrative songwriting.",
-                                    "short": "Multi-Grammy winner and global superstar."
-                                }
+                                "genreNames": ["Pop", "Country"],
+                                "url": "https://music.apple.com/us/artist/taylor-swift/159260351"
                             }
                         }
                     ]
@@ -521,47 +449,37 @@ service /v1 on ep0 {
         return {
             "data": [
                 {
-                    "id": "1234567890",
+                    "id": "1440857781",
                     "type": "songs",
-                    "href": "/v1/catalog/" + storefront + "/songs/1234567890",
+                    "href": "/v1/catalog/" + storefront + "/songs/1440857781",
                     "attributes": {
-                        "albumName": "Midnights",
-                        "artistName": "Taylor Swift",
-                        "artistUrl": "https://music.apple.com/us/artist/taylor-swift/159260351",
+                        "albumName": "Reputation",
+                        "genreNames": ["Pop"],
+                        "trackNumber": 6.0,
+                        "durationInMillis": 231000,
+                        "releaseDate": "2017-11-10",
+                        "isrc": "USCJY1731844",
                         "artwork": {
                             "width": 3000,
                             "height": 3000,
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/12/34/56/12345678-90ab-cdef-1234-567890abcdef/{w}x{h}bb.jpg",
-                            "bgColor": "d4af37",
-                            "textColor1": "000000",
-                            "textColor2": "1a1a1a",
-                            "textColor3": "333333",
-                            "textColor4": "4d4d4d"
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/reputation.jpg"
                         },
-                        "composerName": "Taylor Swift, Jack Antonoff",
-                        "contentRating": "clean",
-                        "discNumber": 1,
-                        "durationInMillis": 200690,
-                        "editorialNotes": {
-                            "standard": "A introspective track about self-reflection and personal growth.",
-                            "short": "Swift's introspective anthem."
-                        },
-                        "genreNames": ["Pop", "Alternative"],
-                        "hasLyrics": true,
-                        "isrc": "USUG12204560",
-                        "name": "Anti-Hero",
                         "playParams": {
-                            "id": "1234567890",
+                            "id": "1440857781",
                             "kind": "song"
                         },
+                        "url": "https://music.apple.com/us/song/look-what-you-made-me-do/1440857781",
+                        "discNumber": 1,
+                        "hasLyrics": true,
+                        "artistUrl": "https://music.apple.com/us/artist/taylor-swift/159260351",
+                        "name": "Look What You Made Me Do",
                         "previews": [
                             {
-                                "url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/12/34/56/12345678-90ab-cdef-1234-567890abcdef/mzaf_1234567890123456789.plus.aac.p.m4a"
+                                "url": "https://audio-ssl.itunes.apple.com/preview.m4a"
                             }
                         ],
-                        "releaseDate": "2022-10-21",
-                        "trackNumber": 3,
-                        "url": "https://music.apple.com/us/song/anti-hero/1234567890"
+                        "artistName": "Taylor Swift",
+                        "contentRating": "clean"
                     }
                 }
             ]
@@ -587,43 +505,33 @@ service /v1 on ep0 {
                     "type": "songs",
                     "href": "/v1/catalog/" + storefront + "/songs/" + id,
                     "attributes": {
-                        "albumName": "Shape of You",
-                        "artistName": "Ed Sheeran",
-                        "artistUrl": "https://music.apple.com/us/artist/ed-sheeran/183313439",
+                        "albumName": "Shake It Off",
+                        "genreNames": ["Pop"],
+                        "trackNumber": 1.0,
+                        "durationInMillis": 219000,
+                        "releaseDate": "2014-08-18",
+                        "isrc": "USCJY1431315",
                         "artwork": {
                             "width": 3000,
                             "height": 3000,
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/ab/cd/ef/abcdef12-3456-7890-abcd-ef1234567890/{w}x{h}bb.jpg",
-                            "bgColor": "ff6b35",
-                            "textColor1": "ffffff",
-                            "textColor2": "f4f4f4",
-                            "textColor3": "e6e6e6",
-                            "textColor4": "d9d9d9"
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/shake-it-off.jpg"
                         },
-                        "composerName": "Ed Sheeran, Steve Mac, Johnny McDaid",
-                        "contentRating": "clean",
-                        "discNumber": 1,
-                        "durationInMillis": 233712,
-                        "editorialNotes": {
-                            "standard": "Ed Sheeran's chart-topping hit about falling in love with someone's personality.",
-                            "short": "Sheeran's global smash hit."
-                        },
-                        "genreNames": ["Pop", "Dance"],
-                        "hasLyrics": true,
-                        "isrc": "GBAHT1700161",
-                        "name": "Shape of You",
                         "playParams": {
                             "id": id,
                             "kind": "song"
                         },
+                        "url": "https://music.apple.com/us/song/shake-it-off/" + id,
+                        "discNumber": 1,
+                        "hasLyrics": true,
+                        "artistUrl": "https://music.apple.com/us/artist/taylor-swift/159260351",
+                        "name": "Shake It Off",
                         "previews": [
                             {
-                                "url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview116/v4/ab/cd/ef/abcdef12-3456-7890-abcd-ef1234567890/mzaf_abcdef1234567890.plus.aac.p.m4a"
+                                "url": "https://audio-ssl.itunes.apple.com/preview-shake.m4a"
                             }
                         ],
-                        "releaseDate": "2017-01-06",
-                        "trackNumber": 4,
-                        "url": "https://music.apple.com/us/song/shape-of-you/" + id
+                        "artistName": "Taylor Swift",
+                        "contentRating": "clean"
                     }
                 }
             ]
@@ -647,43 +555,37 @@ service /v1 on ep0 {
         return {
             "data": [
                 {
-                    "id": "9876543210",
+                    "id": "1440857782",
                     "type": "songs",
-                    "href": "/v1/catalog/" + storefront + "/songs/9876543210",
+                    "href": "/v1/catalog/" + storefront + "/songs/1440857782",
                     "attributes": {
-                        "albumName": "÷ (Divide)",
-                        "artistName": "Ed Sheeran",
-                        "artistUrl": "https://music.apple.com/us/artist/ed-sheeran/183313439",
+                        "albumName": "Folklore",
+                        "genreNames": ["Alternative"],
+                        "trackNumber": 2.0,
+                        "durationInMillis": 253000,
+                        "releaseDate": "2020-07-24",
+                        "isrc": "USCJY2030001",
                         "artwork": {
                             "width": 3000,
                             "height": 3000,
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/12/34/56/12345678-90ab-cdef-1234-567890abcdef/{w}x{h}bb.jpg",
-                            "bgColor": "4a90e2",
-                            "textColor1": "ffffff",
-                            "textColor2": "f0f8ff",
-                            "textColor3": "e6f3ff",
-                            "textColor4": "d9ecff"
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/folklore.jpg"
                         },
-                        "composerName": "Ed Sheeran",
-                        "contentRating": "clean",
-                        "discNumber": 1,
-                        "durationInMillis": 263000,
-                        "genreNames": ["Pop", "Folk"],
-                        "hasLyrics": true,
-                        "isrc": "GBAHT1700162",
-                        "name": "Perfect",
                         "playParams": {
-                            "id": "9876543210",
+                            "id": "1440857782",
                             "kind": "song"
                         },
+                        "url": "https://music.apple.com/us/song/cardigan/1440857782",
+                        "discNumber": 1,
+                        "hasLyrics": true,
+                        "artistUrl": "https://music.apple.com/us/artist/taylor-swift/159260351",
+                        "name": "cardigan",
                         "previews": [
                             {
-                                "url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview116/v4/98/76/54/98765432-10ab-cdef-9876-543210abcdef/mzaf_9876543210123456789.plus.aac.p.m4a"
+                                "url": "https://audio-ssl.itunes.apple.com/cardigan-preview.m4a"
                             }
                         ],
-                        "releaseDate": "2017-03-03",
-                        "trackNumber": 9,
-                        "url": "https://music.apple.com/us/song/perfect/9876543210"
+                        "artistName": "Taylor Swift",
+                        "contentRating": "clean"
                     }
                 }
             ]
@@ -707,31 +609,26 @@ service /v1 on ep0 {
         return {
             "data": [
                 {
-                    "id": "l.1234567890",
+                    "id": "i.123456789",
                     "type": "library-albums",
-                    "href": "/v1/me/library/albums/l.1234567890",
+                    "href": "/v1/me/library/albums/i.123456789",
                     "attributes": {
+                        "trackCount": 13.0,
+                        "genreNames": ["Pop"],
+                        "releaseDate": "2014-10-27",
+                        "name": "1989",
                         "artistName": "Taylor Swift",
+                        "contentRating": "clean",
                         "artwork": {
                             "width": 3000,
                             "height": 3000,
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/12/34/56/12345678-90ab-cdef-1234-567890abcdef/{w}x{h}bb.jpg",
-                            "bgColor": "d4af37",
-                            "textColor1": "000000",
-                            "textColor2": "1a1a1a",
-                            "textColor3": "333333",
-                            "textColor4": "4d4d4d"
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/1989-lib.jpg"
                         },
-                        "contentRating": "clean",
-                        "dateAdded": "2022-10-21",
-                        "genreNames": ["Pop", "Alternative"],
-                        "name": "Midnights",
+                        "dateAdded": "2023-01-15",
                         "playParams": {
-                            "id": "l.1234567890",
+                            "id": "i.123456789",
                             "kind": "album"
-                        },
-                        "releaseDate": "2022-10-21",
-                        "trackCount": 13
+                        }
                     }
                 }
             ]
@@ -757,27 +654,21 @@ service /v1 on ep0 {
                     "type": "library-albums",
                     "href": "/v1/me/library/albums/" + id,
                     "attributes": {
-                        "artistName": "The Beatles",
+                        "trackCount": 16.0,
+                        "genreNames": ["Pop"],
+                        "releaseDate": "2017-03-03",
+                        "name": "÷ (Divide)",
+                        "artistName": "Ed Sheeran",
                         "artwork": {
                             "width": 3000,
                             "height": 3000,
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/ab/cd/ef/abcdef12-3456-7890-abcd-ef1234567890/{w}x{h}bb.jpg",
-                            "bgColor": "ffffff",
-                            "textColor1": "000000",
-                            "textColor2": "333333",
-                            "textColor3": "666666",
-                            "textColor4": "999999"
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/divide-lib.jpg"
                         },
-                        "contentRating": "clean",
-                        "dateAdded": "2020-05-15",
-                        "genreNames": ["Rock", "Pop"],
-                        "name": "Abbey Road",
+                        "dateAdded": "2023-03-10",
                         "playParams": {
                             "id": id,
                             "kind": "album"
-                        },
-                        "releaseDate": "1969-09-26",
-                        "trackCount": 17
+                        }
                     }
                 }
             ]
@@ -801,11 +692,11 @@ service /v1 on ep0 {
         return {
             "data": [
                 {
-                    "id": "l.159260351",
+                    "id": "r.159260351",
                     "type": "library-artists",
-                    "href": "/v1/me/library/artists/l.159260351",
+                    "href": "/v1/me/library/artists/r.159260351",
                     "attributes": {
-                        "name": "The Beatles"
+                        "name": "Taylor Swift"
                     }
                 }
             ]
@@ -829,19 +720,14 @@ service /v1 on ep0 {
         return {
             "data": [
                 {
-                    "id": "l.159260351",
+                    "id": "r.159260351",
                     "type": "library-artists",
-                    "href": "/v1/me/library/artists/l.159260351",
+                    "href": "/v1/me/library/artists/r.159260351",
                     "attributes": {
                         "name": "Taylor Swift"
-                    }
-                },
-                {
-                    "id": "l.136975",
-                    "type": "library-artists",
-                    "href": "/v1/me/library/artists/l.136975",
-                    "attributes": {
-                        "name": "The Beatles"
+                    },
+                    "relationships": {
+                        "catalog": {}
                     }
                 }
             ]
@@ -868,6 +754,9 @@ service /v1 on ep0 {
                     "href": "/v1/me/library/artists/" + id,
                     "attributes": {
                         "name": "Ed Sheeran"
+                    },
+                    "relationships": {
+                        "catalog": {}
                     }
                 }
             ]
@@ -891,31 +780,25 @@ service /v1 on ep0 {
         return {
             "data": [
                 {
-                    "id": "l.1234567890",
+                    "id": "i.987654321",
                     "type": "library-albums",
-                    "href": "/v1/me/library/albums/l.1234567890",
+                    "href": "/v1/me/library/albums/i.987654321",
                     "attributes": {
+                        "trackCount": 16.0,
+                        "genreNames": ["Pop"],
+                        "releaseDate": "2017-03-03",
+                        "name": "÷ (Divide)",
                         "artistName": "Ed Sheeran",
                         "artwork": {
                             "width": 3000,
                             "height": 3000,
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/12/34/56/12345678-90ab-cdef-1234-567890abcdef/{w}x{h}bb.jpg",
-                            "bgColor": "ff6b35",
-                            "textColor1": "ffffff",
-                            "textColor2": "f4f4f4",
-                            "textColor3": "e6e6e6",
-                            "textColor4": "d9d9d9"
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/divide-rel.jpg"
                         },
-                        "contentRating": "clean",
-                        "dateAdded": "2021-10-29",
-                        "genreNames": ["Pop", "Folk"],
-                        "name": "= (Equals)",
+                        "dateAdded": "2023-03-10",
                         "playParams": {
-                            "id": "l.1234567890",
+                            "id": "i.987654321",
                             "kind": "album"
-                        },
-                        "releaseDate": "2021-10-29",
-                        "trackCount": 14
+                        }
                     }
                 }
             ]
@@ -939,34 +822,29 @@ service /v1 on ep0 {
         return {
             "data": [
                 {
-                    "id": "i.1234567890",
+                    "id": "i.1440857781",
                     "type": "library-songs",
-                    "href": "/v1/me/library/songs/i.1234567890",
+                    "href": "/v1/me/library/songs/i.1440857781",
                     "attributes": {
-                        "albumName": "Midnights",
+                        "albumName": "Reputation",
+                        "discNumber": 1,
+                        "genreNames": ["Pop"],
+                        "hasLyrics": true,
+                        "trackNumber": 6.0,
+                        "durationInMillis": 231000,
+                        "releaseDate": "2017-11-10",
+                        "name": "Look What You Made Me Do",
                         "artistName": "Taylor Swift",
+                        "contentRating": "clean",
                         "artwork": {
                             "width": 3000,
                             "height": 3000,
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/12/34/56/12345678-90ab-cdef-1234-567890abcdef/{w}x{h}bb.jpg",
-                            "bgColor": "d4af37",
-                            "textColor1": "000000",
-                            "textColor2": "1a1a1a",
-                            "textColor3": "333333",
-                            "textColor4": "4d4d4d"
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/reputation-lib.jpg"
                         },
-                        "contentRating": "clean",
-                        "discNumber": 1,
-                        "durationInMillis": 200690,
-                        "genreNames": ["Pop", "Alternative"],
-                        "hasLyrics": true,
-                        "name": "Anti-Hero",
                         "playParams": {
-                            "id": "i.1234567890",
+                            "id": "i.1440857781",
                             "kind": "song"
-                        },
-                        "releaseDate": "2022-10-21",
-                        "trackNumber": 3
+                        }
                     }
                 }
             ]
@@ -992,30 +870,24 @@ service /v1 on ep0 {
                     "type": "library-songs",
                     "href": "/v1/me/library/songs/" + id,
                     "attributes": {
-                        "albumName": "÷ (Divide)",
-                        "artistName": "Ed Sheeran",
+                        "albumName": "Folklore",
+                        "discNumber": 1,
+                        "genreNames": ["Alternative"],
+                        "hasLyrics": true,
+                        "trackNumber": 1.0,
+                        "durationInMillis": 253000,
+                        "releaseDate": "2020-07-24",
+                        "name": "the 1",
+                        "artistName": "Taylor Swift",
                         "artwork": {
                             "width": 3000,
                             "height": 3000,
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/ab/cd/ef/abcdef12-3456-7890-abcd-ef1234567890/{w}x{h}bb.jpg",
-                            "bgColor": "4a90e2",
-                            "textColor1": "ffffff",
-                            "textColor2": "f0f8ff",
-                            "textColor3": "e6f3ff",
-                            "textColor4": "d9ecff"
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/folklore-lib.jpg"
                         },
-                        "contentRating": "clean",
-                        "discNumber": 1,
-                        "durationInMillis": 233712,
-                        "genreNames": ["Pop", "Dance"],
-                        "hasLyrics": true,
-                        "name": "Shape of You",
                         "playParams": {
                             "id": id,
                             "kind": "song"
-                        },
-                        "releaseDate": "2017-01-06",
-                        "trackNumber": 4
+                        }
                     }
                 }
             ]
@@ -1039,34 +911,28 @@ service /v1 on ep0 {
         return {
             "data": [
                 {
-                    "id": "i.9876543210",
+                    "id": "i.1440857782",
                     "type": "library-songs",
-                    "href": "/v1/me/library/songs/i.9876543210",
+                    "href": "/v1/me/library/songs/i.1440857782",
                     "attributes": {
-                        "albumName": "÷ (Divide)",
-                        "artistName": "Ed Sheeran",
+                        "albumName": "Folklore",
+                        "discNumber": 1,
+                        "genreNames": ["Alternative"],
+                        "hasLyrics": true,
+                        "trackNumber": 2.0,
+                        "durationInMillis": 239000,
+                        "releaseDate": "2020-07-24",
+                        "name": "cardigan",
+                        "artistName": "Taylor Swift",
                         "artwork": {
                             "width": 3000,
                             "height": 3000,
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/98/76/54/98765432-10ab-cdef-9876-543210abcdef/{w}x{h}bb.jpg",
-                            "bgColor": "4a90e2",
-                            "textColor1": "ffffff",
-                            "textColor2": "f0f8ff",
-                            "textColor3": "e6f3ff",
-                            "textColor4": "d9ecff"
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/folklore-cardigan.jpg"
                         },
-                        "contentRating": "clean",
-                        "discNumber": 1,
-                        "durationInMillis": 263000,
-                        "genreNames": ["Pop", "Folk"],
-                        "hasLyrics": true,
-                        "name": "Perfect",
                         "playParams": {
-                            "id": "i.9876543210",
+                            "id": "i.1440857782",
                             "kind": "song"
-                        },
-                        "releaseDate": "2017-03-03",
-                        "trackNumber": 9
+                        }
                     }
                 }
             ]
