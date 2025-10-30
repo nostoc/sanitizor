@@ -42,8 +42,6 @@ function callAI(string prompt) returns string|error {
     ai:ChatMessage[] messages = [{role: "user", content: prompt}];
     //io:println(prompt);
     ai:ChatAssistantMessage|error response = modelProvider->chat(messages);
-    //messages.push({role: "assistant", content: response is ai:ChatAssistantMessage ? response.content : ""});
-    //io:println(messages);
     io:println(response);
     if response is error {
         return error("AI generation failed: " + response.message());
