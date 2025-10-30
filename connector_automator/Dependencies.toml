@@ -10,7 +10,7 @@ distribution-version = "2201.13.0-20250927-204700-7b3ef131"
 [[package]]
 org = "ballerina"
 name = "ai"
-version = "1.5.4"
+version = "1.6.1"
 dependencies = [
 	{org = "ballerina", name = "constraint"},
 	{org = "ballerina", name = "data.jsondata"},
@@ -320,7 +320,7 @@ dependencies = [
 [[package]]
 org = "ballerina"
 name = "observe"
-version = "1.5.1"
+version = "1.6.0"
 dependencies = [
 	{org = "ballerina", name = "jballerina.java"}
 ]
@@ -479,6 +479,7 @@ modules = [
 	{org = "hansika", packageName = "connector_automator", moduleName = "connector_automator.code_fixer"},
 	{org = "hansika", packageName = "connector_automator", moduleName = "connector_automator.doc_generator"},
 	{org = "hansika", packageName = "connector_automator", moduleName = "connector_automator.example_generator"},
-	{org = "hansika", packageName = "connector_automator", moduleName = "connector_automator.sanitizor"}
+	{org = "hansika", packageName = "connector_automator", moduleName = "connector_automator.sanitizor"},
+	{org = "hansika", packageName = "connector_automator", moduleName = "connector_automator.test_generator"}
 ]
 

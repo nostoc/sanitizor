@@ -3,6 +3,7 @@ import connector_automator.code_fixer;
 import connector_automator.doc_generator;
 import connector_automator.example_generator;
 import connector_automator.sanitizor;
+import connector_automator.test_generator;
 
 import ballerina/io;
 import ballerina/os;
@@ -37,6 +38,9 @@ function handleCommandLineMode(string[] args) returns error? {
             return client_generator:main(...remainingArgs);
         }
         "generate-examples" => {
+            return example_generator:main(...remainingArgs);
+        }
+        "generate-tests" => {
             return example_generator:main(...remainingArgs);
         }
         "generate-docs" => {
@@ -91,27 +95,33 @@ function handleInteractiveMode() returns error? {
                 }
             }
             "4" => {
-                error? result = handleDocGeneration();
+                error? result = handleTestGeneration();
                 if result is error {
                     io:println("Operation failed: " + result.message());
                 }
             }
             "5" => {
-                error? result = handleCodeFixer();
+                error? result = handleDocGeneration();
                 if result is error {
                     io:println("Operation failed: " + result.message());
                 }
             }
             "6" => {
-                error? result = handleFullPipeline();
+                error? result = handleCodeFixer();
                 if result is error {
                     io:println("Operation failed: " + result.message());
                 }
             }
             "7" => {
-                printUsage();
+                error? result = handleFullPipeline();
+                if result is error {
+                    io:println("Operation failed: " + result.message());
+                }
             }
             "8" => {
+                printUsage();
+            }
+            "9" => {
                 io:println("Thank you for using Connector Automation CLI!");
                 return;
             }
@@ -154,24 +164,28 @@ function showMainMenu() {
     io:println("   • AI-powered example generation");
     io:println("   • Fix compilation errors automatically");
     io:println("");
-    io:println("4. Generate Documentation");
+    io:println("4. Generate test cases");
+    io:println("   • AI-powered test generation");
+    io:println("   • Ensure high test coverage");
+    io:println("");
+    io:println("5. Generate Documentation");
     io:println("   • Create README files");
     io:println("   • Documentation for modules and examples");
     io:println("   • AI-powered content generation");
     io:println("");
-    io:println("5. Fix Code Errors");
+    io:println("6. Fix Code Errors");
     io:println("   • Analyze compilation errors");
     io:println("   • AI-powered error fixing");
     io:println("   • Iterative error resolution");
     io:println("");
-    io:println("6. Full Pipeline");
+    io:println("7. Full Pipeline");
     io:println("   • Complete automation workflow");
     io:println("   • All operations in sequence");
     io:println("   • End-to-end processing");
     io:println("");
-    io:println("7. Help & Usage Information");
+    io:println("8. Help & Usage Information");
     io:println("");
-    io:println("8. Exit");
+    io:println("9. Exit");
     io:println(sep);
 }
 
@@ -288,6 +302,29 @@ function handleExampleGeneration() returns error? {
     }
 
     return example_generator:main(connectorPath.trim());
+}
+
+function handleTestGeneration() returns error? {
+    io:println("\n=== Test Generation ===");
+    io:println("This operation will:");
+    io:println("• Set up mock server module");
+    io:println("• Generate mock server implementation");
+    io:println("• Create comprehensive tests for the connector");
+    io:println("");
+
+    string|io:Error connectorPath = getUserInput("Enter path to connector directory: ");
+    if connectorPath is io:Error {
+        return error("Failed to read connector path");
+    }
+
+    string|io:Error specPath = getUserInput("Enter path to openAPI spec: ");
+    if specPath is io:Error {
+        return error("Failed to read openAPI spec path");
+    }
+
+    string[] args = [connectorPath.trim(), specPath.trim()];
+
+    return test_generator:main(...args);
 }
 
 function handleDocGeneration() returns error? {

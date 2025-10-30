@@ -386,8 +386,6 @@ function extractBlock(string content, string startPattern, string openChar, stri
     return content.substring(startIndex, currentIndex);
 }
 
-// New helper functions for intelligent chunking
-
 // Extract only function signature without implementation
 function findMatchingFunctionSignature(string clientContent, string llmFunctionName) returns string? {
     // Find all function starts and then extract the complete signature manually
