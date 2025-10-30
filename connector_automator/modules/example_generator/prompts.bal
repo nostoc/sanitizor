@@ -3,27 +3,91 @@ string tripleBackTick = "```";
 
 function getExampleCodegenerationPrompt(ConnectorDetails details, string useCase, string targetedContext) returns string {
     return string `
-You are an expert Ballerina developer.
-Write a complete, error-free Ballerina example code for the following use case for the connector ${details.connectorName}.
+You are an expert Ballerina developer with deep knowledge of API connector patterns, client initialization, and example code best practices.
 
-**CRITICAL INSTRUCTION: You MUST use the exact function and type names provided in the "Relevant Code Definitions" below. Do NOT shorten, simplify, invent, or modify any names. The provided names may be long and auto-generated; you MUST use them verbatim for the code to be correct.**
+<CONTEXT>
+Connector: ${details.connectorName}
+Task: Generate a complete, compilable Ballerina example demonstrating the following use case
+Use Case: ${useCase}
+</CONTEXT>
 
-**Use Case:**
-${useCase}
+<REFLECTION_PHASE>
+Before writing the code, think through this systematically:
 
-**Instructions:**
-- Generate a single, complete ${backTick}main.bal${backTick} file.
-- **Your ONLY source for function and type names is the "Relevant Code Definitions" section.** Every function call in your code must exactly match a signature from this section.
-- The code must be ready to compile and run.
-- Include necessary imports (e.g., ${backTick}ballerina/io${backTick}, ${backTick}ballerinax/${details.connectorName}${backTick}). 
-- **Initialize the client using the exact init function signature provided in the "Client Initialization" section.** Use configurable variables for credentials and follow the ConnectionConfig structure exactly.
-- When using the types of the ${details.connectorName}, import them using ${backTick}${details.connectorName}:relevantTypeName${backTick}. Don't define the types again in the example code.
-- Implement the use case logic inside a ${backTick}public function main() returns error?${backTick}.
-- Print the results of each step to the console using ${backTick}io:println()${backTick}.
-- Do NOT include any explanations, markdown, or code fences. Only return raw Ballerina code.
+1. **Use Case Analysis**:
+   - What is the main workflow this example should demonstrate?
+   - What are the key steps in this use case?
+   - What data flow is expected (input → processing → output)?
 
-**Relevant Code Definitions:**
+2. **Function Selection & Sequencing**:
+   - Which exact functions from "Relevant Code Definitions" do I need?
+   - What is the logical order of function calls?
+   - How do outputs from one function feed into the next?
+
+3. **Client Initialization Strategy**:
+   - What configuration parameters does the client need?
+   - Which configurable variables should I define?
+   - How should I handle connection setup and error scenarios?
+
+4. **Data Structure Planning**:
+   - What record types do I need to define or import?
+   - How will I handle API responses and requests?
+   - What realistic test data should I use?
+
+5. **Example Quality Validation**:
+   - Is this example clear and educational?
+   - Does it demonstrate real-world usage patterns?
+   - Will a developer understand how to adapt this for their needs?
+</REFLECTION_PHASE>
+
+<CRITICAL_REQUIREMENTS>
+**EXACT NAME USAGE**: You MUST use the exact function and type names from "Relevant Code Definitions" below. Do NOT modify, shorten, or invent names. Auto-generated names may be long - use them verbatim.
+
+**FUNCTION SOURCE**: Your ONLY source for function signatures is the "Relevant Code Definitions" section. Every function call must exactly match these signatures.
+</CRITICAL_REQUIREMENTS>
+
+<BALLERINA_EXAMPLE_GUIDELINES>
+### File Structure
+- Generate a single, complete ${backTick}main.bal${backTick} file
+- Include all necessary imports (${backTick}ballerina/io${backTick}, ${backTick}ballerinax/${details.connectorName}${backTick})
+- Use ${backTick}public function main() returns error?${backTick} as entry point
+
+### Client Initialization
+- Use exact init function signature from "Client Initialization" section
+- Define configurable variables for credentials and configuration
+- Follow ConnectionConfig structure exactly as provided
+- Include proper error handling for client creation
+
+### Data Types and Imports
+- Import connector types using: ${backTick}${details.connectorName}:relevantTypeName${backTick}
+- Do NOT redefine types that exist in the connector
+- Use proper record types for structured data
+- Define custom records only when necessary for example clarity
+
+### Code Quality
+- Print results of each step using ${backTick}io:println()${backTick}
+- Use meaningful variable names that reflect the use case
+- Include realistic test data appropriate for the connector domain
+- Demonstrate error handling where appropriate
+- Make the code self-explanatory and educational
+
+### Output Format
+- Return ONLY raw Ballerina code
+- No explanations, markdown, or code fences like ${tripleBackTick}
+- Code must be ready to compile and run
+
+DO NOT include:
+- Markdown code blocks or ${tripleBackTick} tags  
+- Any explanatory text or comments about fixes
+- Thinking or analysis sections
+- Any content other than raw .bal file content
+</BALLERINA_EXAMPLE_GUIDELINES>
+
+<RELEVANT_CODE_DEFINITIONS>
 ${targetedContext}
+</RELEVANT_CODE_DEFINITIONS>
+
+Now apply your reflection and generate the complete example code:
 `;
 }
 
@@ -33,60 +97,122 @@ function getUsecasePrompt(ConnectorDetails details, string[] usedFunctions) retu
         string[] formattedUsedFunctions = from string func in usedFunctions
             select string `- '${func}'`;
         previouslyUsedSection = string `
-**IMPORTANT: Previously Used Functions (Avoid these):**
-You have already generated examples using the functions below.
-To ensure variety, create a NEW and DISTINCT use case that does NOT use these functions.
+<PREVIOUSLY_USED_FUNCTIONS>
+The following functions have already been used in previous examples.
+Create a NEW and DISTINCT use case that avoids these functions to ensure variety:
 ${string:'join("\n", ...formattedUsedFunctions)}
+</PREVIOUSLY_USED_FUNCTIONS>
 `;
     }
 
     return string `
-You are a Ballerina software architect.
-Your task is to design a realistic, unique, and multi-step use case for a developer.
+You are a Ballerina software architect and API integration expert specializing in creating realistic, educational use cases.
 
-**Instructions:**
-1.  Analyze the provided function signatures to understand the connector's capabilities.
-2.  Devise a logical workflow that uses 2-3 functions in a sequence.
-3.  Describe this workflow in a concise 'useCase' paragraph. The use case MUST be unique and different from any previous ones.
-4.  For the 'requiredFunctions' array, extract the function identifiers based on these **strict rules**:
-    - For a **resource** function, use the format **"METHOD function.path"** (e.g., "get admin.apps.approved.list").
-    - For a **remote** function, use only the **function name** (e.g., "createRepository").
-5.  Your final output MUST be a single, valid JSON object. Don't inlcude code  fences in the response. 
+<CONTEXT>
+Connector: ${details.connectorName}
+Task: Design a unique, multi-step workflow that demonstrates practical API usage patterns
+</CONTEXT>
+
+<REFLECTION_PHASE>
+Before creating the use case, analyze systematically:
+
+1. **Connector Capability Analysis**:
+   - What are the main functional areas this connector covers?
+   - Which functions work well together in a logical sequence?
+   - What are the common integration patterns for this type of API?
+
+2. **Workflow Design Thinking**:
+   - What real-world problem would a developer solve with this connector?
+   - How can I create a 2-3 step workflow that tells a complete story?
+   - What would make this example educational and practical?
+
+3. **Function Selection Strategy**:
+   - Which combination of functions creates a meaningful workflow?
+   - How do the outputs of earlier functions feed into later ones?
+   - Am I avoiding previously used functions to ensure variety?
+
+4. **Use Case Validation**:
+   - Is this use case realistic and relevant to developers?
+   - Does it demonstrate important connector capabilities?
+   - Is it distinct from previous examples?
+</REFLECTION_PHASE>
 
 ${previouslyUsedSection}
 
-**Available Function Signatures:**
-${details.functionSignatures}
+<FUNCTION_IDENTIFICATION_RULES>
+**Critical**: Extract function identifiers using these EXACT rules:
+- **Resource functions**: Use format "METHOD function.path" (e.g., "get admin.apps.approved.list")
+- **Remote functions**: Use only the function name (e.g., "createRepository")
 
-**Required JSON Output Format:**
+Follow these rules precisely for the 'requiredFunctions' array.
+</FUNCTION_IDENTIFICATION_RULES>
+
+<AVAILABLE_FUNCTIONS>
+${details.functionSignatures}
+</AVAILABLE_FUNCTIONS>
+
+<OUTPUT_REQUIREMENTS>
+Generate a single, valid JSON object with:
+- "useCase": A unique, multi-step workflow description (2-3 sentences)
+- "requiredFunctions": Array of function identifiers following the rules above
+</OUTPUT_REQUIREMENTS>
+
+Required JSON Format:
 {
-  "useCase": "A unique, multi-step workflow description.",
+  "useCase": "A unique, multi-step workflow description that solves a real problem.",
   "requiredFunctions": ["get admin.teams.list", "post admin.teams.create"]
 }
 
-**CRITICAL:** Follow the function format rules and create a distinct use case.
+Now apply your reflection and create a distinct, valuable use case:
 `;
 }
 
 function getExampleNamePrompt(string useCase) returns string {
     return string `
-Generate a concise, descriptive example name for the following use case. The name should be 3-4 words maximum, use kebab-case (lowercase with hyphens), and clearly describe what the example demonstrates.
+You are a technical documentation expert specializing in creating clear, descriptive example names.
 
-**Use Case:**
-${useCase}
+<CONTEXT>
+Task: Generate a concise, professional example name for the following use case
+Use Case: ${useCase}
+</CONTEXT>
 
-**Requirements:**
-- Exactly 3-4 words
-- Use kebab-case (e.g., "send-slack-message", "user-profile-management")
+<REFLECTION_PHASE>
+Before creating the name, consider:
+
+1. **Core Action Identification**:
+   - What is the primary action or workflow being demonstrated?
+   - What are the key nouns and verbs in this use case?
+
+2. **Audience Perspective**:
+   - What would a developer expect this example to be called?
+   - How can I make the name immediately understandable?
+
+3. **Naming Convention Adherence**:
+   - How can I follow kebab-case while being descriptive?
+   - What 3-4 words best capture the essence of this workflow?
+</REFLECTION_PHASE>
+
+<NAMING_GUIDELINES>
+**Requirements**:
+- Exactly 3-4 words maximum
+- Use kebab-case (lowercase with hyphens)
 - Be descriptive and professional
 - Focus on the main action or workflow
+- Avoid generic terms like "example" or "demo"
 
-**Examples of good names:**
+**Good Examples**:
 - "channel-message-posting"
 - "user-profile-creation" 
 - "file-upload-workflow"
 - "team-member-invitation"
+- "project-status-tracking"
 
-Return ONLY the example name, no explanations or additional text.
+**Avoid**:
+- Generic names like "basic-example"
+- Too many words or complex phrases
+- Technical jargon that's not widely understood
+</NAMING_GUIDELINES>
+
+Return ONLY the example name following the guidelines above:
 `;
 }
