@@ -87,6 +87,7 @@ public type SongsAttributes record {
     string attribution?;
     # The localized name of the song
     string name;
+    # Array of preview clips available for the song
     Preview[] previews;
     # The artist's name
     string artistName;
@@ -329,13 +330,18 @@ public type LibrarySongsAttributes record {
 public type SongsRelationships record {
     # The response to an albums request
     AlbumsResponse albums?;
+    # Composers associated with the song
     record {} composers?;
+    # Library version of the song resource
     record {} library?;
     # The response to an artists request
     ArtistsResponse artists?;
+    # Genres associated with the song
     record {} genres?;
+    # Music videos associated with the song
     @jsondata:Name {value: "music-videos"}
     record {} musicVideos?;
+    # Apple Music station based on the song
     record {} station?;
 };
 
@@ -383,10 +389,14 @@ public type GetArtistFromCatalogQueries record {
 public type ArtistsRelationships record {
     # The response to an albums request
     AlbumsResponse albums?;
+    # Genres associated with the artist
     record {} genres?;
+    # Music videos associated with the artist
     @jsondata:Name {value: "music-videos"}
     record {} musicVideos?;
+    # Playlists related to the artist
     record {} playlists?;
+    # Apple Music station associated with the artist
     record {} station?;
 };
 
@@ -497,6 +507,7 @@ public type LibrarySongsRelationships record {
     AlbumsResponse albums?;
     # The response to an artists request
     ArtistsResponse artists?;
+    # Apple Music Catalog equivalent of the library song
     record {} catalog?;
 };
 
@@ -682,7 +693,9 @@ public type GetArtistsFromLibraryQueries record {
 
 # The relationships for the artist
 public type LibraryArtistsRelationships record {
+    # Response containing library albums from user's personal collection
     LibraryAlbumsResponse albums?;
+    # Reference to the corresponding catalog artist resource
     record {} catalog?;
 };
 
@@ -745,6 +758,7 @@ public type MusicVideosAttributes record {
     boolean hasHDR;
     # The localized name of the music video
     string name;
+    # Array of preview clips for the music video
     Preview[] previews;
     # The artist's name
     string artistName;
@@ -784,6 +798,7 @@ public type ArtistsAttributes record {
 
 public type AddToLibraryQueriesIdsItemsString string;
 
+# Response containing library albums from user's personal collection
 public type LibraryAlbumsResponse record {
     # A relative cursor to fetch the next paginated collection of resources, if more exist
     string next?;
@@ -807,6 +822,7 @@ public type LibraryArtistsAttributes record {
     string name;
 };
 
+# Response containing artists from user's iCloud Music Library
 public type LibraryArtistsResponse record {
     # A relative cursor to fetch the next paginated collection of resources, if more exist
     string next?;
@@ -862,43 +878,3 @@ public type GetSearchResponseFromCatalogQueries record {
     # The localization to use, specified by a language tag. The possible values are in the `supportedLanguageTags` array belonging to the `Storefront` object specified by `storefront`. Otherwise, the default is `defaultLanguageTag` in `Storefront`
     string l?;
 };
-
-public type ErrorsResponseUnauthorized record {|
-    *http:Unauthorized;
-    ErrorsResponse body;
-|};
-
-public type ErrorsResponse record {
-    # The collection of errors that occurred while processing the request
-    ErrorInformation[] data;
-};
-
-# Information about an error that occurred while processing a request
-public type ErrorInformation record {
-    # The code for this error. For possible values, see HTTP Status Codes
-    string code;
-    # A long, possibly localized, description of the problem
-    string detail?;
-    # A unique identifier for this occurrence of the error
-    string id;
-    # An object containing references to the source of the error
-    ErrorInformationSource 'source?;
-    # A short, possibly localized, description of the problem
-    string title;
-    # The HTTP status code for this problem
-    string status;
-};
-
-# An object containing references to the source of the error
-public type ErrorInformationSource record {
-    # A pointer to the associated entry in the request document
-    string pointer?;
-    # The URI query parameter that caused the error
-    string 'parameter?;
-};
-
-public type ErrorsResponseInternalServerError record {|
-    *http:InternalServerError;
-    ErrorsResponse body;
-|};
-
