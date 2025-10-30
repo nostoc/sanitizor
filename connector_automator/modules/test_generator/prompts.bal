@@ -162,3 +162,36 @@ function createTestGenerationPrompt(ConnectorAnalysis analysis) returns string {
     Now, generate the complete and final ${backtick}test.bal${backtick} file.
 `;
 }
+
+function createOperationSelectionPrompt(string[] operationIds, int maxOperations) returns string {
+    string operationList = string:'join(", ", ...operationIds);
+
+    return string `
+You are an expert API designer. Your task is to select the ${maxOperations} most useful and frequently used operations from the following list of API operations.
+
+**CRITICAL: Your response must be ONLY a comma-separated list of operation IDs with NO spaces between them. This will be used directly in a bal openapi command.**
+
+<OPERATIONS>
+${operationList}
+</OPERATIONS>
+
+Consider these criteria when selecting operations:
+1. **Core CRUD Operations**: Basic create, read, update, delete operations
+2. **Most Frequently Used**: Operations that developers typically use first
+3. **Representative Coverage**: Cover different resource types (albums, songs, artists, etc.)
+4. **Search & Discovery**: Include search and listing operations
+5. **Authentication Flow**: Include any auth-related operations
+
+For Apple Music API specifically, prioritize:
+- Get catalog albums/artists/songs (single and multiple)
+- Search functionality
+- Library operations (get user's library content)
+- Core browsing operations
+
+Select exactly ${maxOperations} operation IDs that provide the most value for developers getting started with this API.
+
+**IMPORTANT: Return ONLY the comma-separated list with no spaces, like this format:**
+getAlbumsFromCatalog,getAlbumFromCatalog,getArtistsFromCatalog,getArtistFromCatalog,getSongsFromCatalog,getSongFromCatalog,getSearchResponseFromCatalog,getAlbumsFromLibrary,getArtistsFromLibrary,getSongsFromLibrary
+
+Your response:`;
+}

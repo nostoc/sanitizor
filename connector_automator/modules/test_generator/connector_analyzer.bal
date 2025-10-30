@@ -22,7 +22,7 @@ function analyzeConnectorForTests(string connectorPath) returns ConnectorAnalysi
     string initMethodSignature = extractInitMethodComplete(clientContent); // Use the fixed function
 
     // Debug output to see what we extracted
-   // io:println("=== DEBUG: Extracted Init Method ===");
+    // io:println("=== DEBUG: Extracted Init Method ===");
     //io:println(initMethodSignature);
     //io:println("=== END DEBUG ===");
 
@@ -31,12 +31,12 @@ function analyzeConnectorForTests(string connectorPath) returns ConnectorAnalysi
 
     // extract all types referenced in the init method signatures
     string[] referencedTypes = findTypesInSignatures(initMethodSignature);
-    
+
     // // Debug output
     // io:println("=== DEBUG: Referenced Types ===");
     // io:println(referencedTypes.toString());
     // io:println("=== END DEBUG ===");
-    
+
     string[] allDependentTypes = [];
     allDependentTypes.push(...referencedTypes);
 
@@ -67,7 +67,6 @@ function analyzeConnectorForTests(string connectorPath) returns ConnectorAnalysi
     };
 }
 
-
 function findInitSignature(string clientContent) returns string? {
     // Look for the init function more broadly
     string[] lines = regexp:split(re `\n`, clientContent);
@@ -75,10 +74,10 @@ function findInitSignature(string clientContent) returns string? {
     boolean inInitFunction = false;
     boolean foundStart = false;
     int braceCount = 0;
-    
+
     foreach string line in lines {
         string trimmedLine = strings:trim(line);
-        
+
         // Look for documentation comments before init
         if strings:startsWith(trimmedLine, "#") && !foundStart {
             initMethod += line + "\n";
@@ -91,7 +90,7 @@ function findInitSignature(string clientContent) returns string? {
         }
         else if inInitFunction {
             initMethod += line + "\n";
-            
+
             // Count braces to find end of function signature
             if strings:includes(line, "{") {
                 braceCount += 1;
@@ -104,7 +103,7 @@ function findInitSignature(string clientContent) returns string? {
             foundStart = false;
         }
     }
-    
+
     if initMethod.length() > 0 {
         return initMethod.trim();
     }
@@ -113,16 +112,16 @@ function findInitSignature(string clientContent) returns string? {
 
 function findInitSignatureRegex(string clientContent) returns string? {
     // More flexible regex pattern
-       regexp:RegExp initPattern = re `public\sisolated\sfunction\sinit\s*\([^{]*\)\sreturns\s[^{]+`;
+    regexp:RegExp initPattern = re `public\sisolated\sfunction\sinit\s*\([^{]*\)\sreturns\s[^{]+`;
     regexp:Span[] matches = initPattern.findAll(clientContent);
 
     if matches.length() > 0 {
         regexp:Span span = matches[0];
         string signature = clientContent.substring(span.startIndex, span.endIndex).trim();
-        
+
         // Extract documentation before the function
         string docComment = extractFunctionDocumentation(clientContent, span.startIndex);
-        
+
         if docComment != "" {
             return docComment + "\n" + signature + ";";
         } else {
@@ -136,14 +135,15 @@ function findInitSignatureRegex(string clientContent) returns string? {
 function extractInitMethodComplete(string clientContent) returns string {
     // Try the line-by-line approach first
     string? result = findInitSignature(clientContent);
-    
+
     // Fallback to regex approach
     if result is () {
         result = findInitSignatureRegex(clientContent);
     }
-    
+
     return result ?: "";
 }
+
 function findTypesInSignatures(string signatures) returns string[] {
     regexp:RegExp typePattern = re `[A-Z][a-zA-Z0-9_]*`;
     regexp:Span[] matches = typePattern.findAll(signatures);
@@ -293,6 +293,7 @@ function arrayContains(string[] arr, string value) returns boolean {
     }
     return false;
 }
+
 function extractPackageName(string tomlContent) returns string {
     string connectorName = "";
     string[] tomlLines = regexp:split(re `\n`, tomlContent);
