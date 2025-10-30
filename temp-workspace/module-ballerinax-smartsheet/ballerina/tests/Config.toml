@@ -1,0 +1,4 @@
+# Test configuration
+# Set to false to use mock server (default for testing)
+# Set to true to test against live API (requires valid credentials)
+isLiveServer = false
