@@ -21,38 +21,38 @@ import ballerina/constraint;
 import ballerina/data.jsondata;
 import ballerina/http;
 
-# Response schema for bulk function update operations
+# Response object containing results of bulk function update operations
 public type BulkUpdateFunctionResponse record {
-    # Array of updated function objects
+    # Array of function update results from the bulk operation
     BulkUpdateFunctionResponseFunctions[] functions;
 };
 
-# Request body for revoking OAuth tokens
+# Request body for revoking OAuth refresh tokens
 public type OAuthRevokeTokenBody record {|
-    # OAuth refresh token to revoke
+    # OAuth refresh token to be revoked
     @jsondata:Name {value: "refresh_token"}
     string refreshToken;
     # OAuth client secret for authentication
     @jsondata:Name {value: "client_secret"}
     string clientSecret;
-    # UUID of the OAuth client
+    # Unique identifier for the OAuth client
     @jsondata:Name {value: "client_id"}
     string clientId;
 |};
 
 # Request body for updating API key properties
 public type UpdateApiKeyBody record {
-    # JWT template configuration object
+    # JWT template configuration for the API key
     @jsondata:Name {value: "secret_jwt_template"}
     record {}? secretJwtTemplate?;
-    # API key name (4-64 chars, lowercase letters, numbers, underscores)
+    # Name of the API key (4-64 chars, lowercase with underscores)
     @constraint:String {maxLength: 64, minLength: 4, pattern: re `^[a-z_][a-z0-9_]+$`}
     string name?;
     # Optional description of the API key
     string? description?;
 };
 
-# Warning information for project claim preview operations
+# Warning message for organization project claim preview operations
 public type OrganizationProjectClaimResponsePreviewWarnings record {
     # Warning message text
     string message;
@@ -60,15 +60,15 @@ public type OrganizationProjectClaimResponsePreviewWarnings record {
     string 'key;
 };
 
-# Deprecated UUID string identifier for branch reference
+# Deprecated UUID identifier for branch reference
 # 
 # # Deprecated
 @deprecated
 public type BranchIdOrRefBranchIdOrRefOneOf12 string;
 
-# Response containing signing key details
+# Response object containing signing key details and metadata
 public type SigningKeyResponse record {|
-    # Public JSON Web Key data
+    # Public JSON Web Key for signature verification
     @jsondata:Name {value: "public_jwk"}
     anydata? publicJwk?;
     # Timestamp when the signing key was last updated
@@ -79,23 +79,23 @@ public type SigningKeyResponse record {|
     string createdAt;
     # Unique identifier for the signing key
     string id;
-    # Cryptographic algorithm used (EdDSA, ES256, RS256, HS256)
+    # Cryptographic algorithm used by the signing key
     "EdDSA"|"ES256"|"RS256"|"HS256" algorithm;
     # Current status of the signing key
     "in_use"|"previously_used"|"revoked"|"standby" status;
 |};
 
-# Available addon configuration with name, type, and variant options
+# Available addon configuration with name, type, and variants
 public type ListProjectAddonsResponseAvailableAddons record {
     # Name of the available addon
     string name;
-    # Array of available variants for the addon
+    # Available variants for the addon
     ListProjectAddonsResponseVariant[] variants;
-    # Type of addon (domain, compute, PITR, IPv4, MFA, log drain)
+    # Type of addon (custom_domain, compute_instance, pitr, etc.)
     "custom_domain"|"compute_instance"|"pitr"|"ipv4"|"auth_mfa_phone"|"auth_mfa_web_authn"|"log_drain" 'type;
 };
 
-# Configuration body for updating Supabase connection pooler settings
+# Configuration parameters for updating Supavisor pooler settings
 public type UpdateSupavisorConfigBody record {
     # Default connection pool size (0-3000, nullable)
     @jsondata:Name {value: "default_pool_size"}
@@ -105,18 +105,18 @@ public type UpdateSupavisorConfigBody record {
     "transaction"|"session" poolMode?;
 };
 
-# Response containing project upgrade eligibility and compatibility details
+# Project upgrade eligibility status and requirements information
 public type ProjectUpgradeEligibilityResponse record {
-    # Array of available target versions for upgrade
+    # Available target versions for project upgrade
     @jsondata:Name {value: "target_upgrade_versions"}
     ProjectUpgradeEligibilityResponseTargetUpgradeVersions[] targetUpgradeVersions;
-    # List of extensions not supported in target upgrade version
+    # Extensions that are not supported in the upgrade
     @jsondata:Name {value: "unsupported_extensions"}
     string[] unsupportedExtensions;
-    # User-created objects in internal schemas that may block upgrade
+    # User-defined objects found in internal schemas
     @jsondata:Name {value: "user_defined_objects_in_internal_schemas"}
     string[] userDefinedObjectsInInternalSchemas;
-    # Legacy authentication custom roles that may need migration
+    # Legacy authentication custom roles that may affect upgrade
     @jsondata:Name {value: "legacy_auth_custom_roles"}
     string[] legacyAuthCustomRoles;
     # Current application version of the project
@@ -124,33 +124,33 @@ public type ProjectUpgradeEligibilityResponse record {
     string currentAppVersion;
     # Whether the project is eligible for upgrade
     boolean eligible;
-    # Release channel of current version (alpha, beta, GA, etc.)
+    # Release channel of current app version (internal, alpha, beta, etc.)
     @jsondata:Name {value: "current_app_version_release_channel"}
     "internal"|"alpha"|"beta"|"ga"|"withdrawn"|"preview" currentAppVersionReleaseChannel;
     # Latest available application version
     @jsondata:Name {value: "latest_app_version"}
     string latestAppVersion;
-    # Estimated upgrade duration in hours
+    # Estimated duration for the upgrade process in hours
     @jsondata:Name {value: "duration_estimate_hours"}
     decimal durationEstimateHours;
-    # Database objects that will be removed during upgrade
+    # Database objects that will be dropped during upgrade
     @jsondata:Name {value: "objects_to_be_dropped"}
     string[] objectsToBeDropped;
 };
 
-# Response containing updated authentication provider configuration
+# Response containing updated authentication provider information
 public type UpdateProviderResponse record {
     # Timestamp when the provider was last updated
     @jsondata:Name {value: "updated_at"}
     string updatedAt?;
-    # Response containing SAML identity provider configuration details
+    # Response object for SAML authentication provider creation
     CreateProviderResponseSaml saml?;
-    # Array of domains associated with the updated provider
+    # Array of domains associated with the authentication provider
     CreateProviderResponseDomains[] domains?;
-    # ISO timestamp when the provider was originally created
+    # Timestamp when the authentication provider was created
     @jsondata:Name {value: "created_at"}
     string createdAt?;
-    # Unique identifier of the updated authentication provider
+    # Unique identifier for the authentication provider
     string id;
 };
 
@@ -158,7 +158,7 @@ public type UpdateProviderResponse record {
 public type SslEnforcementResponse record {
     # Current SSL enforcement configuration settings
     SslEnforcementResponseCurrentConfig currentConfig;
-    # Boolean indicating if SSL enforcement was applied successfully
+    # Indicates whether SSL enforcement was applied successfully
     boolean appliedSuccessfully;
 };
 
@@ -177,13 +177,13 @@ public type VanitySubdomainBody record {
     string vanitySubdomain;
 };
 
-# Project reference response containing ID, name, and reference
+# Project reference information including ID, name, and reference
 public type V1ProjectRefResponse record {
     # Project reference identifier or slug
     string ref;
     # Display name of the project
     string name;
-    # Unique numeric identifier of the project
+    # Unique numeric identifier for the project
     int id;
 };
 
@@ -231,22 +231,22 @@ public type ConnectionConfig record {|
     boolean laxDataBinding = true;
 |};
 
-# Response containing network access restrictions configuration and status
+# Network access restrictions configuration and status information
 public type NetworkRestrictionsResponse record {
     # Previous network restrictions configuration before update
     @jsondata:Name {value: "old_config"}
     NetworkRestrictionsResponseOldConfig oldConfig?;
-    # ISO timestamp when network restrictions were last applied
+    # Timestamp when network restrictions were applied
     @jsondata:Name {value: "applied_at"}
     string appliedAt?;
-    # ISO timestamp when network restrictions were last updated
+    # Timestamp when network restrictions were last updated
     @jsondata:Name {value: "updated_at"}
     string updatedAt?;
     # Network restriction entitlement status (allowed or disallowed)
     "disallowed"|"allowed" entitlement;
     # At any given point in time, this is the config that the user has requested be applied to their project. The `status` field indicates if it has been applied to the project, or is pending. When an updated config is received, the applied config is moved to `old_config`
     NetworkRestrictionsResponseConfig config;
-    # Current status of network restrictions (stored or applied)
+    # Network restrictions status (stored or applied)
     "stored"|"applied" status;
 };
 
@@ -259,40 +259,40 @@ public type GetProjectAvailableRestoreVersionsResponse record {
 
 # Request body for updating authentication configuration settings
 public type UpdateAuthConfigBody record {
-    # Disable new user registration
+    # Whether to disable user registration
     @jsondata:Name {value: "disable_signup"}
     boolean? disableSignup?;
-    # Make email optional for Slack OAuth authentication
+    # Whether email is optional for Slack OAuth authentication
     @jsondata:Name {value: "external_slack_email_optional"}
     boolean? externalSlackEmailOptional?;
     # Google OAuth client ID for external authentication
     @jsondata:Name {value: "external_google_client_id"}
     string? externalGoogleClientId?;
-    # API key for Textlocal SMS provider
+    # API key for TextLocal SMS provider
     @jsondata:Name {value: "sms_textlocal_api_key"}
     string? smsTextlocalApiKey?;
-    # Enable phone number authentication
+    # Whether phone number authentication is enabled
     @jsondata:Name {value: "external_phone_enabled"}
     boolean? externalPhoneEnabled?;
-    # Enable webhook trigger before user creation
+    # Whether the before user created webhook is enabled
     @jsondata:Name {value: "hook_before_user_created_enabled"}
     boolean? hookBeforeUserCreatedEnabled?;
     # GitHub OAuth client secret for external authentication
     @jsondata:Name {value: "external_github_secret"}
     string? externalGithubSecret?;
-    # Additional Google OAuth client IDs
+    # Additional Google OAuth client IDs for authentication
     @jsondata:Name {value: "external_google_additional_client_ids"}
     string? externalGoogleAdditionalClientIds?;
     # Administrator email address for SMTP configuration
     @jsondata:Name {value: "smtp_admin_email"}
     string? smtpAdminEmail?;
-    # Enable HaveIBeenPwned password breach validation
+    # Whether Have I Been Pwned password validation is enabled
     @jsondata:Name {value: "password_hibp_enabled"}
     boolean? passwordHibpEnabled?;
-    # Email subject for password change notifications
+    # Email subject for password changed notification
     @jsondata:Name {value: "mailer_subjects_password_changed_notification"}
     string? mailerSubjectsPasswordChangedNotification?;
-    # Enable Solana Web3 wallet authentication
+    # Whether Solana Web3 authentication is enabled
     @jsondata:Name {value: "external_web3_solana_enabled"}
     boolean? externalWeb3SolanaEnabled?;
     # Test OTP codes for SMS authentication (format: phone=code)
@@ -301,31 +301,31 @@ public type UpdateAuthConfigBody record {
     # GitHub OAuth client ID for external authentication
     @jsondata:Name {value: "external_github_client_id"}
     string? externalGithubClientId?;
-    # Maximum duration in seconds for API requests
+    # Maximum duration in seconds for API requests before timeout
     @jsondata:Name {value: "api_max_request_duration"}
     int? apiMaxRequestDuration?;
     # Whether email is optional for Spotify OAuth authentication
     @jsondata:Name {value: "external_spotify_email_optional"}
     boolean? externalSpotifyEmailOptional?;
-    # SMTP server password for email delivery
+    # SMTP server password for email authentication
     @jsondata:Name {value: "smtp_pass"}
     string? smtpPass?;
     # Client ID for Keycloak OAuth integration
     @jsondata:Name {value: "external_keycloak_client_id"}
     string? externalKeycloakClientId?;
-    # OAuth client secret for Nimbus provider
+    # Client secret for Nimbus OAuth provider
     @jsondata:Name {value: "nimbus_oauth_client_secret"}
     string? nimbusOauthClientSecret?;
     # Email subject line for reauthentication messages
     @jsondata:Name {value: "mailer_subjects_reauthentication"}
     string? mailerSubjectsReauthentication?;
-    # Secrets configuration for SMS sending webhooks
+    # Secret keys for SMS sending webhook authentication
     @jsondata:Name {value: "hook_send_sms_secrets"}
     string? hookSendSmsSecrets?;
     # Client secret for Facebook OAuth integration
     @jsondata:Name {value: "external_facebook_secret"}
     string? externalFacebookSecret?;
-    # Enable Slack OAuth provider for authentication
+    # Whether Slack OAuth authentication is enabled
     @jsondata:Name {value: "external_slack_enabled"}
     boolean? externalSlackEnabled?;
     # Primary site URL for authentication redirects
@@ -334,16 +334,16 @@ public type UpdateAuthConfigBody record {
     # Twilio Message Service SID for SMS delivery
     @jsondata:Name {value: "sms_twilio_message_service_sid"}
     string? smsTwilioMessageServiceSid?;
-    # Length of OTP codes for phone-based MFA
+    # Length of OTP codes for phone-based MFA verification
     @jsondata:Name {value: "mfa_phone_otp_length"}
     int? mfaPhoneOtpLength?;
-    # Twilio Verify service authentication token
+    # Authentication token for Twilio Verify SMS service
     @jsondata:Name {value: "sms_twilio_verify_auth_token"}
     string? smsTwilioVerifyAuthToken?;
-    # OIDC client ID for Slack authentication
+    # OIDC client ID for Slack OAuth integration
     @jsondata:Name {value: "external_slack_oidc_client_id"}
     string? externalSlackOidcClientId?;
-    # Maximum number of MFA factors per user
+    # Maximum number of MFA factors a user can enroll
     @jsondata:Name {value: "mfa_max_enrolled_factors"}
     int? mfaMaxEnrolledFactors?;
     # Email subject line for account confirmation messages
@@ -352,13 +352,13 @@ public type UpdateAuthConfigBody record {
     # Whether email is optional for GitHub OAuth authentication
     @jsondata:Name {value: "external_github_email_optional"}
     boolean? externalGithubEmailOptional?;
-    # Email subject line for magic link messages
+    # Email subject line for magic link authentication messages
     @jsondata:Name {value: "mailer_subjects_magic_link"}
     string? mailerSubjectsMagicLink?;
-    # Email subject line for email change notifications
+    # Email subject line for email change notification messages
     @jsondata:Name {value: "mailer_subjects_email_changed_notification"}
     string? mailerSubjectsEmailChangedNotification?;
-    # Enable phone verification for MFA
+    # Whether phone verification is enabled for MFA
     @jsondata:Name {value: "mfa_phone_verify_enabled"}
     boolean? mfaPhoneVerifyEnabled?;
     # JWT token expiration time in seconds (0-604800)
@@ -376,10 +376,10 @@ public type UpdateAuthConfigBody record {
     # Whether email is optional for Figma authentication
     @jsondata:Name {value: "external_figma_email_optional"}
     boolean? externalFigmaEmailOptional?;
-    # Base URL for Keycloak authentication server
+    # Keycloak server URL for external authentication
     @jsondata:Name {value: "external_keycloak_url"}
     string? externalKeycloakUrl?;
-    # Enable Spotify OAuth authentication provider
+    # Whether Spotify OAuth authentication is enabled
     @jsondata:Name {value: "external_spotify_enabled"}
     boolean? externalSpotifyEnabled?;
     # Secrets for password verification attempt webhook
@@ -391,16 +391,16 @@ public type UpdateAuthConfigBody record {
     # Client secret for Azure OAuth integration
     @jsondata:Name {value: "external_azure_secret"}
     string? externalAzureSecret?;
-    # Rate limit for OTP requests per hour (1-2147483647)
+    # Rate limit for OTP requests per hour
     @jsondata:Name {value: "rate_limit_otp"}
     int? rateLimitOtp?;
-    # Authentication token for Twilio SMS service
+    # Twilio authentication token for SMS delivery
     @jsondata:Name {value: "sms_twilio_auth_token"}
     string? smsTwilioAuthToken?;
     # Email subject line for password recovery emails
     @jsondata:Name {value: "mailer_subjects_recovery"}
     string? mailerSubjectsRecovery?;
-    # Enable TOTP enrollment for multi-factor authentication
+    # Whether TOTP enrollment is enabled for MFA
     @jsondata:Name {value: "mfa_totp_enroll_enabled"}
     boolean? mfaTotpEnrollEnabled?;
     # Display name for SMTP email sender
@@ -412,31 +412,31 @@ public type UpdateAuthConfigBody record {
     # Email template content for MFA enrollment notifications
     @jsondata:Name {value: "mailer_templates_mfa_factor_enrolled_notification_content"}
     string? mailerTemplatesMfaFactorEnrolledNotificationContent?;
-    # Allow sign-ins with unverified email addresses
+    # Whether to allow sign-ins with unverified email addresses
     @jsondata:Name {value: "mailer_allow_unverified_email_sign_ins"}
     boolean? mailerAllowUnverifiedEmailSignIns?;
     # Client ID for Discord OAuth integration
     @jsondata:Name {value: "external_discord_client_id"}
     string? externalDiscordClientId?;
-    # Enable Slack OIDC authentication provider
+    # Whether Slack OIDC authentication is enabled
     @jsondata:Name {value: "external_slack_oidc_enabled"}
     boolean? externalSlackOidcEnabled?;
     # Rate limit for token refresh requests (1-2147483647)
     @jsondata:Name {value: "rate_limit_token_refresh"}
     int? rateLimitTokenRefresh?;
-    # MessageBird SMS service access key for authentication
+    # Access key for MessageBird SMS provider
     @jsondata:Name {value: "sms_messagebird_access_key"}
     string? smsMessagebirdAccessKey?;
-    # Discord OAuth provider client secret
+    # Client secret for Discord OAuth provider
     @jsondata:Name {value: "external_discord_secret"}
     string? externalDiscordSecret?;
-    # Figma OAuth provider client secret
+    # Client secret for Figma OAuth provider
     @jsondata:Name {value: "external_figma_secret"}
     string? externalFigmaSecret?;
     # Enable email notifications when MFA factor is enrolled
     @jsondata:Name {value: "mailer_notifications_mfa_factor_enrolled_enabled"}
     boolean? mailerNotificationsMfaFactorEnrolledEnabled?;
-    # Webhook URI for password verification attempt events
+    # Webhook URI for password verification attempts
     @jsondata:Name {value: "hook_password_verification_attempt_uri"}
     string? hookPasswordVerificationAttemptUri?;
     # Email template content for email change notifications
@@ -445,16 +445,16 @@ public type UpdateAuthConfigBody record {
     # Enable GitLab OAuth provider
     @jsondata:Name {value: "external_gitlab_enabled"}
     boolean? externalGitlabEnabled?;
-    # Maximum frequency for phone-based MFA attempts (0-32767)
+    # Maximum frequency for phone-based MFA requests (0-32767)
     @jsondata:Name {value: "mfa_phone_max_frequency"}
     int? mfaPhoneMaxFrequency?;
-    # SMTP server username for email delivery
+    # Username for SMTP server authentication
     @jsondata:Name {value: "smtp_user"}
     string? smtpUser?;
-    # Minimum password length requirement (6-32767)
+    # Minimum required password length (6-32767 characters)
     @jsondata:Name {value: "password_min_length"}
     int? passwordMinLength?;
-    # Enable webhook for MFA verification attempt events
+    # Enable webhook for MFA verification attempts
     @jsondata:Name {value: "hook_mfa_verification_attempt_enabled"}
     boolean? hookMfaVerificationAttemptEnabled?;
     # Enable CAPTCHA security verification
@@ -469,13 +469,13 @@ public type UpdateAuthConfigBody record {
     # Enable email-based authentication
     @jsondata:Name {value: "external_email_enabled"}
     boolean? externalEmailEnabled?;
-    # Keycloak OAuth provider client secret
+    # Client secret for Keycloak OAuth provider
     @jsondata:Name {value: "external_keycloak_secret"}
     string? externalKeycloakSecret?;
     # Enable WorkOS OAuth provider
     @jsondata:Name {value: "external_workos_enabled"}
     boolean? externalWorkosEnabled?;
-    # SMTP server port for email delivery
+    # Port number for SMTP server connection
     @jsondata:Name {value: "smtp_port"}
     string? smtpPort?;
     # Enable Kakao OAuth provider
@@ -493,40 +493,40 @@ public type UpdateAuthConfigBody record {
     # URI endpoint for custom email sending webhook
     @jsondata:Name {value: "hook_send_email_uri"}
     string? hookSendEmailUri?;
-    # Originator identifier for MessageBird SMS service
+    # Originator ID for MessageBird SMS provider
     @jsondata:Name {value: "sms_messagebird_originator"}
     string? smsMessagebirdOriginator?;
     # Email subject line for MFA factor enrollment notifications
     @jsondata:Name {value: "mailer_subjects_mfa_factor_enrolled_notification"}
     string? mailerSubjectsMfaFactorEnrolledNotification?;
-    # Enable or disable Twitch OAuth authentication provider
+    # Enable Twitch OAuth authentication provider
     @jsondata:Name {value: "external_twitch_enabled"}
     boolean? externalTwitchEnabled?;
-    # Enable or disable custom SMS sending webhook
+    # Enable custom SMS sending webhook
     @jsondata:Name {value: "hook_send_sms_enabled"}
     boolean? hookSendSmsEnabled?;
-    # Enable or disable Google OAuth authentication provider
+    # Enable Google OAuth authentication provider
     @jsondata:Name {value: "external_google_enabled"}
     boolean? externalGoogleEnabled?;
     # Client secret for WorkOS OAuth authentication provider
     @jsondata:Name {value: "external_workos_secret"}
     string? externalWorkosSecret?;
-    # Enable or disable GitHub OAuth authentication provider
+    # Enable GitHub OAuth authentication provider
     @jsondata:Name {value: "external_github_enabled"}
     boolean? externalGithubEnabled?;
-    # Enable or disable email notifications for phone number changes
+    # Enable email notifications when user phone number changes
     @jsondata:Name {value: "mailer_notifications_phone_changed_enabled"}
     boolean? mailerNotificationsPhoneChangedEnabled?;
     # Client secret for Twitter OAuth authentication provider
     @jsondata:Name {value: "external_twitter_secret"}
     string? externalTwitterSecret?;
-    # Enable or disable WebAuthn verification for MFA
+    # Enable WebAuthn verification for multi-factor authentication
     @jsondata:Name {value: "mfa_web_authn_verify_enabled"}
     boolean? mfaWebAuthnVerifyEnabled?;
     # Make email optional for Facebook OAuth authentication
     @jsondata:Name {value: "external_facebook_email_optional"}
     boolean? externalFacebookEmailOptional?;
-    # Enable or disable email notifications for password changes
+    # Enable email notifications when user password changes
     @jsondata:Name {value: "mailer_notifications_password_changed_enabled"}
     boolean? mailerNotificationsPasswordChangedEnabled?;
     # Custom URL for Azure OAuth authentication provider
@@ -544,196 +544,196 @@ public type UpdateAuthConfigBody record {
     # URI endpoint for custom SMS sending webhook
     @jsondata:Name {value: "hook_send_sms_uri"}
     string? hookSendSmsUri?;
-    # Whether email is optional for Notion OAuth provider
+    # Whether email is optional for Notion OAuth authentication
     @jsondata:Name {value: "external_notion_email_optional"}
     boolean? externalNotionEmailOptional?;
-    # Require user reauthentication when updating password
+    # Whether password updates require user reauthentication
     @jsondata:Name {value: "security_update_password_require_reauthentication"}
     boolean? securityUpdatePasswordRequireReauthentication?;
     # HTML content template for magic link emails
     @jsondata:Name {value: "mailer_templates_magic_link_content"}
     string? mailerTemplatesMagicLinkContent?;
-    # Whether email is optional for Twitch OAuth provider
+    # Whether email is optional for Twitch OAuth authentication
     @jsondata:Name {value: "external_twitch_email_optional"}
     boolean? externalTwitchEmailOptional?;
-    # Sender ID for Textlocal SMS provider
+    # Sender name or number for Textlocal SMS provider
     @jsondata:Name {value: "sms_textlocal_sender"}
     string? smsTextlocalSender?;
-    # From number for Vonage SMS provider
+    # Sender identifier for Vonage SMS provider
     @jsondata:Name {value: "sms_vonage_from"}
     string? smsVonageFrom?;
-    # HTML content template for confirmation emails
+    # HTML content template for email confirmation messages
     @jsondata:Name {value: "mailer_templates_confirmation_content"}
     string? mailerTemplatesConfirmationContent?;
-    # Client ID for Kakao OAuth provider
+    # Client ID for Kakao OAuth integration
     @jsondata:Name {value: "external_kakao_client_id"}
     string? externalKakaoClientId?;
-    # OAuth client ID for Nimbus provider
+    # OAuth client ID for Nimbus authentication provider
     @jsondata:Name {value: "nimbus_oauth_client_id"}
     string? nimbusOauthClientId?;
     # Email subject for MFA factor unenrollment notifications
     @jsondata:Name {value: "mailer_subjects_mfa_factor_unenrolled_notification"}
     string? mailerSubjectsMfaFactorUnenrolledNotification?;
-    # Rate limit for anonymous users (requests per hour)
+    # Rate limit for anonymous user requests per hour
     @jsondata:Name {value: "rate_limit_anonymous_users"}
     int? rateLimitAnonymousUsers?;
-    # Whether email is optional for Google OAuth provider
+    # Whether email is optional for Google OAuth authentication
     @jsondata:Name {value: "external_google_email_optional"}
     boolean? externalGoogleEmailOptional?;
-    # Enable WebAuthn enrollment for multi-factor authentication
+    # Whether WebAuthn enrollment is enabled for MFA
     @jsondata:Name {value: "mfa_web_authn_enroll_enabled"}
     boolean? mfaWebAuthnEnrollEnabled?;
-    # Client secret for Slack OIDC provider
+    # Client secret for Slack OIDC integration
     @jsondata:Name {value: "external_slack_oidc_secret"}
     string? externalSlackOidcSecret?;
-    # Base URL for WorkOS OAuth provider
+    # WorkOS organization URL for SSO integration
     @jsondata:Name {value: "external_workos_url"}
     string? externalWorkosUrl?;
-    # Whether email is optional for Bitbucket OAuth provider
+    # Whether email is optional for Bitbucket OAuth authentication
     @jsondata:Name {value: "external_bitbucket_email_optional"}
     boolean? externalBitbucketEmailOptional?;
-    # Client ID for Twitch OAuth provider
+    # Client ID for Twitch OAuth integration
     @jsondata:Name {value: "external_twitch_client_id"}
     string? externalTwitchClientId?;
-    # CAPTCHA provider (turnstile or hcaptcha)
+    # CAPTCHA provider for security verification (turnstile or hcaptcha)
     @jsondata:Name {value: "security_captcha_provider"}
     "turnstile"|"hcaptcha"? securityCaptchaProvider?;
-    # Client ID for Azure OAuth provider
+    # Client ID for Azure Active Directory OAuth integration
     @jsondata:Name {value: "external_azure_client_id"}
     string? externalAzureClientId?;
     # External URL for SAML authentication configuration
     @jsondata:Name {value: "saml_external_url"}
     string? samlExternalUrl?;
-    # Client secret for Apple OAuth authentication
+    # Client secret for Apple OAuth provider authentication
     @jsondata:Name {value: "external_apple_secret"}
     string? externalAppleSecret?;
-    # Session timeout duration in seconds (minimum 0)
+    # Session duration limit in seconds (minimum 0)
     @jsondata:Name {value: "sessions_timebox"}
     int? sessionsTimebox?;
     # Secret key for CAPTCHA security verification
     @jsondata:Name {value: "security_captcha_secret"}
     string? securityCaptchaSecret?;
-    # Automatically confirm SMS-based user registrations
+    # Enable automatic confirmation for SMS-based authentication
     @jsondata:Name {value: "sms_autoconfirm"}
     boolean? smsAutoconfirm?;
-    # Expiration timestamp for test SMS OTP codes
+    # Expiration timestamp for SMS test OTP validity
     @jsondata:Name {value: "sms_test_otp_valid_until"}
     string? smsTestOtpValidUntil?;
-    # Client ID for Facebook OAuth authentication
+    # Client ID for Facebook OAuth provider authentication
     @jsondata:Name {value: "external_facebook_client_id"}
     string? externalFacebookClientId?;
-    # Make email optional for GitLab OAuth authentication
+    # Make email optional for GitLab OAuth provider authentication
     @jsondata:Name {value: "external_gitlab_email_optional"}
     boolean? externalGitlabEmailOptional?;
-    # Enable Figma OAuth authentication provider
+    # Enable Figma as an external OAuth provider
     @jsondata:Name {value: "external_figma_enabled"}
     boolean? externalFigmaEnabled?;
-    # Automatically confirm email-based user registrations
+    # Enable automatic confirmation for email-based authentication
     @jsondata:Name {value: "mailer_autoconfirm"}
     boolean? mailerAutoconfirm?;
-    # Enable Discord OAuth authentication provider
+    # Enable Discord as an external OAuth provider
     @jsondata:Name {value: "external_discord_enabled"}
     boolean? externalDiscordEnabled?;
-    # Make email optional for Keycloak OAuth authentication
+    # Make email optional for Keycloak OAuth provider authentication
     @jsondata:Name {value: "external_keycloak_email_optional"}
     boolean? externalKeycloakEmailOptional?;
-    # Email subject line for user invitation messages
+    # Email subject line template for user invitation messages
     @jsondata:Name {value: "mailer_subjects_invite"}
     string? mailerSubjectsInvite?;
     # Twilio Verify Message Service SID for SMS authentication
     @jsondata:Name {value: "sms_twilio_verify_message_service_sid"}
     string? smsTwilioVerifyMessageServiceSid?;
-    # Make email optional for Discord OAuth authentication
+    # Make email optional for Discord OAuth provider authentication
     @jsondata:Name {value: "external_discord_email_optional"}
     boolean? externalDiscordEmailOptional?;
-    # Client secret for Zoom OAuth authentication
+    # Client secret for Zoom OAuth provider authentication
     @jsondata:Name {value: "external_zoom_secret"}
     string? externalZoomSecret?;
     # Enable phone number enrollment for multi-factor authentication
     @jsondata:Name {value: "mfa_phone_enroll_enabled"}
     boolean? mfaPhoneEnrollEnabled?;
-    # Client ID for WorkOS OAuth authentication
+    # Client ID for WorkOS OAuth provider authentication
     @jsondata:Name {value: "external_workos_client_id"}
     string? externalWorkosClientId?;
-    # Maximum number of emails sent per rate limit period
+    # Maximum number of emails that can be sent per rate limit period
     @jsondata:Name {value: "rate_limit_email_sent"}
     int? rateLimitEmailSent?;
-    # API secret for Vonage SMS provider configuration
+    # API secret for Vonage SMS service authentication
     @jsondata:Name {value: "sms_vonage_api_secret"}
     string? smsVonageApiSecret?;
-    # Spotify OAuth client ID for external authentication integration
+    # Client ID for Spotify OAuth integration
     @jsondata:Name {value: "external_spotify_client_id"}
     string? externalSpotifyClientId?;
-    # Email subject line for identity linked notification messages
+    # Email subject for identity linked notification
     @jsondata:Name {value: "mailer_subjects_identity_linked_notification"}
     string? mailerSubjectsIdentityLinkedNotification?;
-    # Email template content for MFA factor unenrollment notifications
+    # Email template content for MFA factor unenrollment notification
     @jsondata:Name {value: "mailer_templates_mfa_factor_unenrolled_notification_content"}
     string? mailerTemplatesMfaFactorUnenrolledNotificationContent?;
-    # Whether email is optional for Azure OAuth authentication
+    # Whether email is optional for Azure OAuth provider
     @jsondata:Name {value: "external_azure_email_optional"}
     boolean? externalAzureEmailOptional?;
-    # Enable webhook triggers for password verification attempts
+    # Whether password verification attempt hook is enabled
     @jsondata:Name {value: "hook_password_verification_attempt_enabled"}
     boolean? hookPasswordVerificationAttemptEnabled?;
     # SMS OTP expiration time in seconds
     @jsondata:Name {value: "sms_otp_exp"}
     int? smsOtpExp?;
-    # Email subject line for email change confirmation messages
+    # Email subject for email change notifications
     @jsondata:Name {value: "mailer_subjects_email_change"}
     string? mailerSubjectsEmailChange?;
-    # Allow manual linking of external authentication accounts
+    # Whether manual account linking is enabled
     @jsondata:Name {value: "security_manual_linking_enabled"}
     boolean? securityManualLinkingEnabled?;
-    # Email template content for email change notification messages
+    # Email template content for email changed notification
     @jsondata:Name {value: "mailer_templates_email_changed_notification_content"}
     string? mailerTemplatesEmailChangedNotificationContent?;
-    # Whether email is optional for LinkedIn OIDC authentication
+    # Whether email is optional for LinkedIn OIDC provider
     @jsondata:Name {value: "external_linkedin_oidc_email_optional"}
     boolean? externalLinkedinOidcEmailOptional?;
-    # Enable anonymous user authentication without credentials
+    # Whether anonymous user authentication is enabled
     @jsondata:Name {value: "external_anonymous_users_enabled"}
     boolean? externalAnonymousUsersEnabled?;
-    # Skip nonce validation for Google OAuth authentication
+    # Whether to skip nonce verification for Google OAuth
     @jsondata:Name {value: "external_google_skip_nonce_check"}
     boolean? externalGoogleSkipNonceCheck?;
-    # Twitter OAuth client ID for external authentication integration
+    # Client ID for Twitter OAuth integration
     @jsondata:Name {value: "external_twitter_client_id"}
     string? externalTwitterClientId?;
-    # Enable SAML-based authentication for enterprise SSO
+    # Whether SAML authentication is enabled
     @jsondata:Name {value: "saml_enabled"}
     boolean? samlEnabled?;
-    # Rate limit for verification requests per time window
+    # Rate limit for verification requests per hour
     @jsondata:Name {value: "rate_limit_verify"}
     int? rateLimitVerify?;
-    # GitLab OAuth client secret for external authentication
+    # Client secret for GitLab OAuth integration
     @jsondata:Name {value: "external_gitlab_secret"}
     string? externalGitlabSecret?;
     # Length of OTP codes sent via email (6-10 characters)
     @jsondata:Name {value: "mailer_otp_length"}
     int? mailerOtpLength?;
-    # Rate limit for SMS messages sent per time window
+    # Rate limit for SMS messages sent per hour
     @jsondata:Name {value: "rate_limit_sms_sent"}
     int? rateLimitSmsSent?;
-    # Enable Azure OAuth authentication provider
+    # Whether Azure OAuth provider is enabled
     @jsondata:Name {value: "external_azure_enabled"}
     boolean? externalAzureEnabled?;
-    # Zoom OAuth client ID for external authentication integration
+    # Client ID for Zoom OAuth integration
     @jsondata:Name {value: "external_zoom_client_id"}
     string? externalZoomClientId?;
-    # Apple OAuth client ID for external authentication integration
+    # Client ID for Apple OAuth provider integration
     @jsondata:Name {value: "external_apple_client_id"}
     string? externalAppleClientId?;
-    # Twilio Content SID for SMS template configuration
+    # Twilio Content SID for SMS message templates
     @jsondata:Name {value: "sms_twilio_content_sid"}
     string? smsTwilioContentSid?;
-    # Vonage API key for SMS service integration
+    # API key for Vonage SMS service integration
     @jsondata:Name {value: "sms_vonage_api_key"}
     string? smsVonageApiKey?;
-    # Secrets for post-user creation webhook authentication
+    # Secrets configuration for post-user creation webhook
     @jsondata:Name {value: "hook_after_user_created_secrets"}
     string? hookAfterUserCreatedSecrets?;
-    # SMS message template for authentication codes
+    # Template content for SMS authentication messages
     @jsondata:Name {value: "sms_template"}
     string? smsTemplate?;
     # Maximum SMS sending frequency limit (0-32767)
@@ -742,10 +742,10 @@ public type UpdateAuthConfigBody record {
     # Email template content for identity linking notifications
     @jsondata:Name {value: "mailer_templates_identity_linked_notification_content"}
     string? mailerTemplatesIdentityLinkedNotificationContent?;
-    # Notion OAuth client ID for external authentication integration
+    # Client ID for Notion OAuth provider integration
     @jsondata:Name {value: "external_notion_client_id"}
     string? externalNotionClientId?;
-    # Enable or disable Facebook OAuth authentication provider
+    # Enable or disable Facebook OAuth provider
     @jsondata:Name {value: "external_facebook_enabled"}
     boolean? externalFacebookEnabled?;
     # Email template content for phone number change notifications
@@ -757,10 +757,10 @@ public type UpdateAuthConfigBody record {
     # Webhook URI for MFA verification attempt events
     @jsondata:Name {value: "hook_mfa_verification_attempt_uri"}
     string? hookMfaVerificationAttemptUri?;
-    # Session inactivity timeout duration in seconds
+    # Session timeout duration in seconds for inactive users
     @jsondata:Name {value: "sessions_inactivity_timeout"}
     int? sessionsInactivityTimeout?;
-    # Required character sets for password validation rules
+    # Character set requirements for password validation
     @jsondata:Name {value: "password_required_characters"}
     "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ:0123456789"|"abcdefghijklmnopqrstuvwxyz:ABCDEFGHIJKLMNOPQRSTUVWXYZ:0123456789"|"abcdefghijklmnopqrstuvwxyz:ABCDEFGHIJKLMNOPQRSTUVWXYZ:0123456789:!@#$%^&*()_+-=[]{};'\\:\"|<>?,./`~"|""? passwordRequiredCharacters?;
     # Enable or disable identity linking email notifications
@@ -769,103 +769,103 @@ public type UpdateAuthConfigBody record {
     # Email template content for password recovery messages
     @jsondata:Name {value: "mailer_templates_recovery_content"}
     string? mailerTemplatesRecoveryContent?;
-    # Enable or disable LinkedIn OIDC authentication provider
+    # Enable or disable LinkedIn OIDC OAuth provider
     @jsondata:Name {value: "external_linkedin_oidc_enabled"}
     boolean? externalLinkedinOidcEnabled?;
-    # Slack OAuth client secret for external authentication integration
+    # Client secret for Slack OAuth provider integration
     @jsondata:Name {value: "external_slack_secret"}
     string? externalSlackSecret?;
-    # Enable or disable TOTP verification for multi-factor authentication
+    # Enable or disable TOTP verification for MFA
     @jsondata:Name {value: "mfa_totp_verify_enabled"}
     boolean? mfaTotpVerifyEnabled?;
-    # SMTP server hostname for email delivery configuration
+    # SMTP server hostname for email delivery
     @jsondata:Name {value: "smtp_host"}
     string? smtpHost?;
-    # Enable webhook trigger after user account creation
+    # Enable or disable the hook that runs after user creation
     @jsondata:Name {value: "hook_after_user_created_enabled"}
     boolean? hookAfterUserCreatedEnabled?;
-    # Kakao OAuth provider client secret for authentication
+    # Secret key for Kakao OAuth provider authentication
     @jsondata:Name {value: "external_kakao_secret"}
     string? externalKakaoSecret?;
     # Email template content for password change notifications
     @jsondata:Name {value: "mailer_templates_password_changed_notification_content"}
     string? mailerTemplatesPasswordChangedNotificationContent?;
-    # Make email optional for Apple OAuth authentication
+    # Whether email is optional for Apple OAuth authentication
     @jsondata:Name {value: "external_apple_email_optional"}
     boolean? externalAppleEmailOptional?;
-    # Enable email notifications when identity providers are unlinked
+    # Enable or disable email notifications for identity unlinking
     @jsondata:Name {value: "mailer_notifications_identity_unlinked_enabled"}
     boolean? mailerNotificationsIdentityUnlinkedEnabled?;
-    # SMS service provider for authentication messages
+    # SMS provider service for authentication messages
     @jsondata:Name {value: "sms_provider"}
     "messagebird"|"textlocal"|"twilio"|"twilio_verify"|"vonage"? smsProvider?;
-    # Twilio Verify service account SID for SMS authentication
+    # Twilio Verify account SID for SMS authentication
     @jsondata:Name {value: "sms_twilio_verify_account_sid"}
     string? smsTwilioVerifyAccountSid?;
-    # Google OAuth provider client secret for authentication
+    # Secret key for Google OAuth provider authentication
     @jsondata:Name {value: "external_google_secret"}
     string? externalGoogleSecret?;
-    # Maximum SMTP email sending frequency limit (0-32767)
+    # Maximum frequency for SMTP email sending (0-32767)
     @jsondata:Name {value: "smtp_max_frequency"}
     int? smtpMaxFrequency?;
-    # Custom webhook URI for access token generation
+    # URI for custom access token hook endpoint
     @jsondata:Name {value: "hook_custom_access_token_uri"}
     string? hookCustomAccessTokenUri?;
     # Twilio account SID for SMS authentication services
     @jsondata:Name {value: "sms_twilio_account_sid"}
     string? smsTwilioAccountSid?;
-    # Enable Web3 Ethereum wallet authentication provider
+    # Enable or disable Web3 Ethereum authentication provider
     @jsondata:Name {value: "external_web3_ethereum_enabled"}
     boolean? externalWeb3EthereumEnabled?;
-    # Refresh token reuse interval in seconds for security
+    # Interval in seconds for refresh token reuse security (0-2147483647)
     @jsondata:Name {value: "security_refresh_token_reuse_interval"}
     int? securityRefreshTokenReuseInterval?;
-    # Enable Zoom OAuth provider for authentication
+    # Enable or disable Zoom OAuth authentication provider
     @jsondata:Name {value: "external_zoom_enabled"}
     boolean? externalZoomEnabled?;
-    # Enable automatic refresh token rotation for enhanced security
+    # Enable or disable automatic refresh token rotation
     @jsondata:Name {value: "refresh_token_rotation_enabled"}
     boolean? refreshTokenRotationEnabled?;
-    # Make email optional for Twitter OAuth authentication
+    # Whether email is optional for Twitter OAuth authentication
     @jsondata:Name {value: "external_twitter_email_optional"}
     boolean? externalTwitterEmailOptional?;
-    # Enable Keycloak OAuth provider for authentication
+    # Enable or disable Keycloak OAuth authentication provider
     @jsondata:Name {value: "external_keycloak_enabled"}
     boolean? externalKeycloakEnabled?;
-    # SMS template for multi-factor authentication codes
+    # SMS template for multi-factor authentication phone verification
     @jsondata:Name {value: "mfa_phone_template"}
     string? mfaPhoneTemplate?;
-    # Limit users to single active session at a time
+    # Restrict users to a single active session at a time
     @jsondata:Name {value: "sessions_single_per_user"}
     boolean? sessionsSinglePerUser?;
-    # Enable Apple OAuth provider for authentication
+    # Enable or disable Apple OAuth authentication provider
     @jsondata:Name {value: "external_apple_enabled"}
     boolean? externalAppleEnabled?;
-    # Secrets for the send email hook authentication
+    # Secrets configuration for the send email hook
     @jsondata:Name {value: "hook_send_email_secrets"}
     string? hookSendEmailSecrets?;
     # Maximum database connection pool size
     @jsondata:Name {value: "db_max_pool_size"}
     int? dbMaxPoolSize?;
-    # Length of SMS OTP codes (0-32767 characters)
+    # Length of SMS one-time password (0-32767)
     @jsondata:Name {value: "sms_otp_length"}
     int smsOtpLength?;
     # LinkedIn OIDC OAuth client ID
     @jsondata:Name {value: "external_linkedin_oidc_client_id"}
     string? externalLinkedinOidcClientId?;
-    # Secrets for custom access token hook authentication
+    # Secrets configuration for custom access token hook
     @jsondata:Name {value: "hook_custom_access_token_secrets"}
     string? hookCustomAccessTokenSecrets?;
     # Enable Notion OAuth provider
     @jsondata:Name {value: "external_notion_enabled"}
     boolean? externalNotionEnabled?;
-    # Enable email notifications for MFA factor unenrollment
+    # Enable email notifications when MFA factor is unenrolled
     @jsondata:Name {value: "mailer_notifications_mfa_factor_unenrolled_enabled"}
     boolean? mailerNotificationsMfaFactorUnenrolledEnabled?;
     # GitLab OAuth client ID
     @jsondata:Name {value: "external_gitlab_client_id"}
     string? externalGitlabClientId?;
-    # Enable secure email change confirmation
+    # Enable secure email change process
     @jsondata:Name {value: "mailer_secure_email_change_enabled"}
     boolean? mailerSecureEmailChangeEnabled?;
     # Email OTP expiration time in seconds
@@ -874,7 +874,7 @@ public type UpdateAuthConfigBody record {
     # Email subject for phone number change notifications
     @jsondata:Name {value: "mailer_subjects_phone_changed_notification"}
     string? mailerSubjectsPhoneChangedNotification?;
-    # Make email optional for Zoom OAuth provider
+    # Make email optional for Zoom OAuth
     @jsondata:Name {value: "external_zoom_email_optional"}
     boolean? externalZoomEmailOptional?;
     # Figma OAuth client ID
@@ -889,31 +889,31 @@ public type UpdateAuthConfigBody record {
     # Spotify OAuth client secret
     @jsondata:Name {value: "external_spotify_secret"}
     string? externalSpotifySecret?;
-    # Secrets for before user created hook authentication
+    # Secrets configuration for before user created hook
     @jsondata:Name {value: "hook_before_user_created_secrets"}
     string? hookBeforeUserCreatedSecrets?;
     # Rate limit for Web3 authentication requests per hour
     @jsondata:Name {value: "rate_limit_web3"}
     int? rateLimitWeb3?;
-    # URI for before user created hook
+    # URI for before user created hook endpoint
     @jsondata:Name {value: "hook_before_user_created_uri"}
     string? hookBeforeUserCreatedUri?;
     # Comma-separated list of allowed redirect URIs
     @jsondata:Name {value: "uri_allow_list"}
     string? uriAllowList?;
-    # Whether email is optional for Kakao OAuth authentication
+    # Whether email is optional for Kakao authentication
     @jsondata:Name {value: "external_kakao_email_optional"}
     boolean? externalKakaoEmailOptional?;
-    # HTML content template for user invitation emails
+    # HTML content template for invitation emails
     @jsondata:Name {value: "mailer_templates_invite_content"}
     string? mailerTemplatesInviteContent?;
-    # Email subject line for identity unlinked notifications
+    # Email subject for identity unlinked notification messages
     @jsondata:Name {value: "mailer_subjects_identity_unlinked_notification"}
     string? mailerSubjectsIdentityUnlinkedNotification?;
-    # Enable custom access token hooks for authentication
+    # Whether custom access token hooks are enabled
     @jsondata:Name {value: "hook_custom_access_token_enabled"}
     boolean? hookCustomAccessTokenEnabled?;
-    # Enable Bitbucket OAuth provider for authentication
+    # Whether Bitbucket OAuth authentication is enabled
     @jsondata:Name {value: "external_bitbucket_enabled"}
     boolean? externalBitbucketEnabled?;
     # Client ID for Bitbucket OAuth application
@@ -921,14 +921,14 @@ public type UpdateAuthConfigBody record {
     string? externalBitbucketClientId?;
 };
 
-# Configuration response for Supabase connection pooling settings
+# Configuration response for Supavisor database connection pooling settings
 public type SupavisorConfigResponse record {
-    # Database type: PRIMARY or READ_REPLICA
+    # Type of database connection (PRIMARY or READ_REPLICA)
     @jsondata:Name {value: "database_type"}
     "PRIMARY"|"READ_REPLICA" databaseType;
-    # Unique identifier for the database configuration
+    # Unique identifier for the Supavisor configuration
     string identifier;
-    # Whether SCRAM authentication is enabled for database connection
+    # Whether SCRAM authentication is enabled for the database
     @jsondata:Name {value: "is_using_scram_auth"}
     boolean isUsingScramAuth;
     # Default number of connections in the database pool
@@ -937,13 +937,13 @@ public type SupavisorConfigResponse record {
     # Name of the target database
     @jsondata:Name {value: "db_name"}
     string dbName;
-    # Connection pooling mode: transaction or session
+    # Connection pooling mode (transaction or session)
     @jsondata:Name {value: "pool_mode"}
     "transaction"|"session" poolMode;
-    # Database username for connection authentication
+    # Database username for connections
     @jsondata:Name {value: "db_user"}
     string dbUser;
-    # Port number for database connection
+    # Port number for database connections
     @jsondata:Name {value: "db_port"}
     int dbPort;
     # Hostname or IP address of the database server
@@ -957,57 +957,57 @@ public type SupavisorConfigResponse record {
     int? maxClientConn;
 };
 
-# API usage statistics response with request counts by service type
+# API usage statistics result containing request counts by service type
 public type V1GetUsageApiCountResponseResult record {
     # Total number of authentication API requests
     @jsondata:Name {value: "total_auth_requests"}
     decimal totalAuthRequests;
-    # Total number of realtime API requests made
+    # Total number of realtime requests made during the usage period
     @jsondata:Name {value: "total_realtime_requests"}
     decimal totalRealtimeRequests;
-    # Total number of storage API requests made
+    # Total number of storage requests made during the usage period
     @jsondata:Name {value: "total_storage_requests"}
     decimal totalStorageRequests;
-    # Total number of REST API requests made
+    # Total number of REST API requests made during the usage period
     @jsondata:Name {value: "total_rest_requests"}
     decimal totalRestRequests;
-    # Timestamp when the usage data was recorded
+    # Timestamp when the usage data was recorded in ISO 8601 format
     string timestamp;
 };
 
-# Information about available regions and recommendations
+# Information about available regions and region recommendations
 public type RegionsInfo record {
-    # Complete region information including specific and smart group options.
+    # Complete regional information including specific and smart group options
     RegionsInfoAll all;
-    # Region recommendations including specific and smart group options
+    # Region recommendations containing specific regions and smart group data
     RegionsInfoRecommendations recommendations;
 };
 
 # Request body for applying an addon to a project
 public type ApplyProjectAddonBody record {
-    # Type of addon to apply (compute, domain, auth, etc.)
+    # Type of addon to apply to the project
     @jsondata:Name {value: "addon_type"}
     "custom_domain"|"compute_instance"|"pitr"|"ipv4"|"auth_mfa_phone"|"auth_mfa_web_authn"|"log_drain" addonType;
-    # Specific variant configuration for the selected addon type
+    # Specific variant configuration of the addon type
     @jsondata:Name {value: "addon_variant"}
     "ci_micro"|"ci_small"|"ci_medium"|"ci_large"|"ci_xlarge"|"ci_2xlarge"|"ci_4xlarge"|"ci_8xlarge"|"ci_12xlarge"|"ci_16xlarge"|"ci_24xlarge"|"ci_24xlarge_optimized_cpu"|"ci_24xlarge_optimized_memory"|"ci_24xlarge_high_memory"|"ci_48xlarge"|"ci_48xlarge_optimized_cpu"|"ci_48xlarge_optimized_memory"|"ci_48xlarge_high_memory"|"cd_default"|"pitr_7"|"pitr_14"|"pitr_28"|"ipv4_default" addonVariant;
 };
 
 # Request body for executing a database query
 public type V1RunQueryBody record {
-    # Whether to execute query in read-only mode
+    # Whether the query should be executed in read-only mode
     @jsondata:Name {value: "read_only"}
     boolean readOnly?;
     # SQL query string to execute
     @constraint:String {minLength: 1}
     string query;
-    # Array of parameters for the SQL query
+    # Array of parameters to bind to the query
     anydata[] parameters?;
 };
 
-# Request body for updating a custom hostname
+# Request body for updating a project's custom hostname
 public type UpdateCustomHostnameBody record {
-    # The custom hostname to set for the project
+    # Custom hostname to set for the project
     @jsondata:Name {value: "custom_hostname"}
     string customHostname;
 };
@@ -1018,21 +1018,21 @@ public type UpdateCustomHostnameBody record {
 @deprecated
 public type BranchIdOrRef1BranchIdOrRef1OneOf12 string;
 
-# Storage configuration settings and capabilities
+# Configuration and capability information for storage services
 public type StorageConfigResponse record {
-    # Storage feature configuration options and availability
+    # Storage feature availability configuration
     StorageConfigResponseFeatures features;
-    # External storage configuration response with upstream target
+    # External storage configuration response
     StorageConfigResponseExternal 'external;
-    # Storage service capabilities configuration
+    # Storage configuration capabilities and feature flags
     StorageConfigResponseCapabilities capabilities;
     # Maximum allowed file size in bytes for storage uploads
     int fileSizeLimit;
 };
 
-# Request body for branch operations containing migration version
+# Request body containing parameters for branch operations
 public type BranchActionBody record {
-    # Migration version identifier for branch action
+    # Target migration version for the branch action
     @jsondata:Name {value: "migration_version"}
     string migrationVersion?;
 };
@@ -1041,22 +1041,22 @@ public type BranchActionBody record {
 @constraint:String {maxLength: 20, minLength: 20, pattern: re `^[a-z]+$`}
 public type BranchIdOrRef4OneOf1 string;
 
-# Storage feature configuration options and availability
+# Storage feature availability configuration
 public type StorageConfigResponseFeatures record {
-    # Configuration for image transformation feature availability
+    # Image transformation feature configuration for storage
     StorageConfigResponseFeaturesImageTransformation s3Protocol;
-    # Configuration for image transformation feature availability
+    # Image transformation feature configuration for storage
     StorageConfigResponseFeaturesImageTransformation imageTransformation;
-    # Configuration for image transformation feature availability
+    # Image transformation feature configuration for storage
     StorageConfigResponseFeaturesImageTransformation icebergCatalog?;
 };
 
-# Request body for creating third-party authentication configuration
+# Request body for creating third-party authentication provider
 public type CreateThirdPartyAuthBody record {
-    # OpenID Connect issuer URL for third-party authentication
+    # OIDC issuer URL for the authentication provider
     @jsondata:Name {value: "oidc_issuer_url"}
     string oidcIssuerUrl?;
-    # Custom JSON Web Key Set for authentication
+    # Custom JSON Web Key Set configuration
     @jsondata:Name {value: "custom_jwks"}
     anydata customJwks?;
     # URL endpoint for JSON Web Key Set retrieval
@@ -1071,7 +1071,7 @@ public type V1ApplyAMigrationHeaders record {
     string idempotencyKey?;
 };
 
-# Response containing created role credentials and configuration
+# Response containing created database role credentials and details
 public type CreateRoleResponse record {
     # Generated password for the created role
     @constraint:String {minLength: 1}
@@ -1079,7 +1079,7 @@ public type CreateRoleResponse record {
     # Name of the created database role
     @constraint:String {minLength: 1}
     string role;
-    # Time-to-live in seconds for role credentials
+    # Time-to-live in seconds for the role credentials
     @jsondata:Name {value: "ttl_seconds"}
     int ttlSeconds;
 };
@@ -1092,32 +1092,32 @@ public type UpdateSigningKeyBody record {|
 
 # Request body for database version upgrade operation
 public type UpgradeDatabaseBody record {
-    # Release channel for database upgrade target
+    # Release channel for the database upgrade
     @jsondata:Name {value: "release_channel"}
     "internal"|"alpha"|"beta"|"ga"|"withdrawn"|"preview" releaseChannel?;
-    # Target database version for the upgrade operation
+    # The target database version to upgrade to
     @jsondata:Name {value: "target_version"}
     string targetVersion;
 };
 
-# Database backup information with status and metadata
+# Individual backup information with status and metadata
 public type V1BackupsResponseBackups record {
     # Timestamp when the backup was created
     @jsondata:Name {value: "inserted_at"}
     string insertedAt;
-    # Indicates if this is a physical backup type
+    # Indicates if this is a physical backup
     @jsondata:Name {value: "is_physical_backup"}
     boolean isPhysicalBackup;
     # Current status of the backup operation
     "COMPLETED"|"FAILED"|"PENDING"|"REMOVED"|"ARCHIVED"|"CANCELLED" status;
 };
 
-# Complete backup configuration and status information
+# Database backup configuration and list of available backups
 public type V1BackupsResponse record {
-    # Physical backup configuration and metadata
+    # Physical backup configuration data
     @jsondata:Name {value: "physical_backup_data"}
     V1BackupsResponsePhysicalBackupData physicalBackupData;
-    # Indicates if WAL-G backup tool is enabled
+    # Indicates if WAL-G backup system is enabled
     @jsondata:Name {value: "walg_enabled"}
     boolean walgEnabled;
     # Geographic region where backups are stored
@@ -1129,96 +1129,96 @@ public type V1BackupsResponse record {
     V1BackupsResponseBackups[] backups;
 };
 
-# OAuth token request parameters for authentication
+# OAuth token request parameters for authentication flows
 public type OAuthTokenBody record {|
     # Refresh token for obtaining new access tokens
     @jsondata:Name {value: "refresh_token"}
     string refreshToken?;
     # Authorization code from OAuth flow
     string code?;
-    # OAuth grant type for token exchange
+    # OAuth grant type being requested
     @jsondata:Name {value: "grant_type"}
     "authorization_code"|"refresh_token" grantType?;
     # Resource indicator for MCP (Model Context Protocol) clients
     string 'resource?;
-    # Requested OAuth access scope
+    # Requested OAuth scope permissions
     string scope?;
     # OAuth client secret for authentication
     @jsondata:Name {value: "client_secret"}
     string clientSecret?;
-    # OAuth redirect URI for authorization flow
+    # URI to redirect to after authorization
     @jsondata:Name {value: "redirect_uri"}
     string redirectUri?;
-    # OAuth client identifier (UUID format)
+    # OAuth client identifier
     @jsondata:Name {value: "client_id"}
     string clientId?;
-    # PKCE code verifier for secure OAuth flow
+    # PKCE code verifier for secure authorization
     @jsondata:Name {value: "code_verifier"}
     string codeVerifier?;
 |};
 
-# Response containing project claim token details and metadata
+# Response object containing project claim token details and metadata
 public type CreateProjectClaimTokenResponse record {
-    # Token expiration timestamp
+    # Timestamp when the project claim token expires
     @jsondata:Name {value: "expires_at"}
     string expiresAt;
-    # Human-readable alias for the token
+    # Human-readable alias for the project claim token
     @jsondata:Name {value: "token_alias"}
     string tokenAlias;
-    # Token creation timestamp
+    # Timestamp when the project claim token was created
     @jsondata:Name {value: "created_at"}
     string createdAt;
-    # UUID of the user who created the token
+    # UUID of the user who created the project claim token
     @jsondata:Name {value: "created_by"}
     string createdBy;
-    # The generated project claim token
+    # The actual project claim token string
     string token;
 };
 
-# Response containing organization project claim details
+# Response object for organization project claim operations
 public type OrganizationProjectClaimResponse record {
     # Preview response for organization project claim operation
     OrganizationProjectClaimResponsePreview preview;
-    # Claim expiration timestamp
+    # Timestamp when the organization project claim expires
     @jsondata:Name {value: "expires_at"}
     string expiresAt;
     # Project details returned after claiming a project
     OrganizationProjectClaimResponseProject project;
-    # Claim creation timestamp
+    # Timestamp when the organization project claim was created
     @jsondata:Name {value: "created_at"}
     string createdAt;
-    # UUID of the user who created the claim
+    # UUID of the user who created the organization project claim
     @jsondata:Name {value: "created_by"}
     string createdBy;
 };
 
-# Provider item details in list response
+# Individual provider item in the list providers response
 public type ListProvidersResponseItems record {
-    # Provider last update timestamp
+    # Timestamp when the provider was last updated
     @jsondata:Name {value: "updated_at"}
     string updatedAt?;
-    # Response containing SAML identity provider configuration details
+    # Response object for SAML authentication provider creation
     CreateProviderResponseSaml saml?;
     # Array of domains associated with the provider
     CreateProviderResponseDomains[] domains?;
-    # Provider creation timestamp
+    # Timestamp when the provider was created
     @jsondata:Name {value: "created_at"}
     string createdAt?;
-    # Unique provider identifier
+    # Unique identifier for the provider
     string id;
 };
 
 # Request body for updating provider configuration
 public type UpdateProviderBody record {
-    # URL to the SAML metadata endpoint
+    # URL to the SAML metadata endpoint for the provider
     @jsondata:Name {value: "metadata_url"}
     string metadataUrl?;
-    # Attribute mapping configuration for SAML provider
+    # Attribute mapping configuration for the SAML provider
     @jsondata:Name {value: "attribute_mapping"}
     CreateProviderBodyAttributeMapping attributeMapping?;
-    # Array of allowed domains for the authentication provider
+    # Array of allowed domains for the provider
     string[] domains?;
-    # XML metadata configuration for SAML provider
+    # SAML metadata XML configuration
     @jsondata:Name {value: "metadata_xml"}
     string metadataXml?;
     # SAML NameID format specification
@@ -1226,11 +1226,11 @@ public type UpdateProviderBody record {
     "urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified"|"urn:oasis:names:tc:SAML:2.0:nameid-format:transient"|"urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress"|"urn:oasis:names:tc:SAML:2.0:nameid-format:persistent" nameIdFormat?;
 };
 
-# Configuration object for updating storage settings
+# Request body for updating storage configuration settings
 public type UpdateStorageConfigBody record {|
-    # Storage feature configuration options and availability
+    # Storage feature availability configuration
     StorageConfigResponseFeatures features?;
-    # External storage configuration response with upstream target
+    # External storage configuration response
     StorageConfigResponseExternal 'external?;
     # Maximum file size limit in bytes (0-536870912000)
     @constraint:Int {minValue: 0, maxValue: 536870912000}
@@ -1248,7 +1248,7 @@ public type FunctionResponse record {
     # Timestamp when the function was last updated
     @jsondata:Name {value: "updated_at"}
     int updatedAt;
-    # File path to the import map configuration
+    # Path to the import map file
     @jsondata:Name {value: "import_map_path"}
     string importMapPath?;
     # SHA256 hash of the function bundle
@@ -1259,16 +1259,16 @@ public type FunctionResponse record {
     # Timestamp when the function was created
     @jsondata:Name {value: "created_at"}
     int createdAt;
-    # Unique identifier for the function
+    # Unique identifier of the function
     string id;
     # Version number of the function
     int version;
     # URL-friendly identifier for the function
     string slug;
-    # File path to the function's entry point
+    # Path to the function's entry point file
     @jsondata:Name {value: "entrypoint_path"}
     string entrypointPath?;
-    # Current function status: ACTIVE, REMOVED, or THROTTLED
+    # Current status of the function (ACTIVE, REMOVED, or THROTTLED)
     "ACTIVE"|"REMOVED"|"THROTTLED" status;
 };
 
@@ -1280,37 +1280,37 @@ public type V1ListActionRunsQueries record {
     decimal 'limit?;
 };
 
-# Response data for custom hostname update operations
+# Response data containing custom hostname configuration details
 public type UpdateCustomHostnameResponseDataResult record {
     # The custom hostname domain name
     string hostname;
-    # Ownership verification details for the custom hostname
+    # Domain ownership verification details and status
     @jsondata:Name {value: "ownership_verification"}
     UpdateCustomHostnameResponseDataResultOwnershipVerification ownershipVerification;
-    # Custom origin server URL for the hostname
+    # The custom origin server address for the hostname
     @jsondata:Name {value: "custom_origin_server"}
     string customOriginServer;
     # Unique identifier for the custom hostname configuration
     string id;
-    # SSL configuration details for custom hostname with validation records.
+    # SSL configuration details for custom hostname update results
     UpdateCustomHostnameResponseDataResultSsl ssl;
-    # List of hostname verification error messages
+    # List of verification errors encountered during hostname setup
     @jsondata:Name {value: "verification_errors"}
     string[] verificationErrors?;
     # Current status of the custom hostname configuration
     string status;
 };
 
-# Response for initiating a project upgrade operation
+# Response containing tracking information for project upgrade initiation
 public type ProjectUpgradeInitiateResponse record {
-    # Unique tracking identifier for the upgrade operation
+    # Unique tracking identifier for the project upgrade process
     @jsondata:Name {value: "tracking_id"}
     string trackingId;
 };
 
-# Allowed CIDR network configuration for just-in-time access
+# Network CIDR block configuration for just-in-time access
 public type JitAccessResponseAllowedNetworksAllowedCidrs record {
-    # CIDR notation for allowed network range
+    # CIDR notation for the allowed network range
     string cidr;
 };
 
@@ -1318,9 +1318,9 @@ public type JitAccessResponseAllowedNetworksAllowedCidrs record {
 @constraint:String {maxLength: 20, minLength: 20, pattern: re `^[a-z]+$`}
 public type BranchIdOrRefOneOf1 string;
 
-# Response containing TypeScript type definitions
+# Response containing generated TypeScript type definitions
 public type TypescriptResponse record {
-    # Generated TypeScript type definitions as string
+    # Generated TypeScript type definitions as a string
     string types;
 };
 
@@ -1347,18 +1347,18 @@ public type OrganizationProjectsResponsePagination record {
     decimal 'limit;
 };
 
-# Response containing project secret configuration details
+# Response containing secret configuration details
 public type SecretResponse record {
     # Timestamp when the secret was last updated
     @jsondata:Name {value: "updated_at"}
     string updatedAt?;
-    # Name of the secret configuration
+    # Name identifier of the secret
     string name;
     # The secret value content
     string value;
 };
 
-# Metadata information for project advisor responses
+# Metadata information for project advisor recommendations
 public type V1ProjectAdvisorsResponseMetadata record {
     # Database schema name
     string schema?;
@@ -1366,25 +1366,25 @@ public type V1ProjectAdvisorsResponseMetadata record {
     string name?;
     # Type of database object (table, view, auth, function, extension, compliance)
     "table"|"view"|"auth"|"function"|"extension"|"compliance" 'type?;
-    # Array of foreign key column numbers
+    # Array of foreign key column indices
     @jsondata:Name {value: "fkey_columns"}
     decimal[] fkeyColumns?;
-    # Entity name associated with the metadata
+    # Entity name associated with the object
     string entity?;
     # Name of the foreign key constraint
     @jsondata:Name {value: "fkey_name"}
     string fkeyName?;
 };
 
-# Deprecated UUID identifier for a branch reference
+# Deprecated UUID identifier for branch reference
 # 
 # # Deprecated
 @deprecated
 public type BranchIdOrRef6BranchIdOrRef6OneOf12 string;
 
-# Project details including associated database information
+# Project information including database configuration details
 public type V1ProjectWithDatabaseResponse record {
-    # Database configuration details for a project
+    # Database information for a project response
     V1ProjectWithDatabaseResponseDatabase database;
     # Slug of your organization
     @jsondata:Name {value: "organization_id"}
@@ -1402,9 +1402,9 @@ public type V1ProjectWithDatabaseResponse record {
     "INACTIVE"|"ACTIVE_HEALTHY"|"ACTIVE_UNHEALTHY"|"COMING_UP"|"UNKNOWN"|"GOING_DOWN"|"INIT_FAILED"|"REMOVED"|"RESTORING"|"UPGRADING"|"PAUSING"|"RESTORE_FAILED"|"RESTARTING"|"PAUSE_FAILED"|"RESIZING" status;
 };
 
-# Database configuration details for organization projects
+# Database instance configuration and infrastructure details
 public type OrganizationProjectsResponseDatabases record {
-    # Infrastructure compute size tier for the database
+    # Compute instance size for database infrastructure
     @jsondata:Name {value: "infra_compute_size"}
     "pico"|"nano"|"micro"|"small"|"medium"|"large"|"xlarge"|"2xlarge"|"4xlarge"|"8xlarge"|"12xlarge"|"16xlarge"|"24xlarge"|"24xlarge_optimized_memory"|"24xlarge_optimized_cpu"|"24xlarge_high_memory"|"48xlarge"|"48xlarge_optimized_memory"|"48xlarge_optimized_cpu"|"48xlarge_high_memory" infraComputeSize?;
     # Unique identifier for the database instance
@@ -1418,9 +1418,9 @@ public type OrganizationProjectsResponseDatabases record {
     # Storage volume size in gigabytes
     @jsondata:Name {value: "disk_volume_size_gb"}
     decimal diskVolumeSizeGb?;
-    # Geographic region where the database is hosted
+    # Geographic region where database is deployed
     string region;
-    # Database type (PRIMARY or READ_REPLICA)
+    # Database type (primary or read replica)
     "PRIMARY"|"READ_REPLICA" 'type;
     # Disk throughput performance in megabytes per second
     @jsondata:Name {value: "disk_throughput_mbps"}
@@ -1436,9 +1436,9 @@ public type OrganizationProjectsResponseDatabases record {
 @constraint:String {maxLength: 20, minLength: 20, pattern: re `^[a-z]+$`}
 public type BranchIdOrRef5OneOf1 string;
 
-# Response containing user ID and roles for just-in-time access
+# Response containing user ID and associated roles for just-in-time access
 public type JitAccessResponse record {
-    # Unique UUID identifier for the user
+    # UUID of the user granted just-in-time access
     @jsondata:Name {value: "user_id"}
     string userId;
     # Array of roles assigned to the user
@@ -1446,17 +1446,17 @@ public type JitAccessResponse record {
     JitAccessResponseUserRoles[] userRoles;
 };
 
-# Owner information for code snippets with ID and username
+# Owner information for a code snippet
 public type SnippetListOwner record {
-    # Numeric identifier for the snippet owner
+    # Unique numeric identifier of the snippet owner
     decimal id;
     # Username of the snippet owner
     string username;
 };
 
-# Request to remove network IP address bans
+# Request to remove IP addresses from network ban list
 public type RemoveNetworkBanRequest record {
-    # Optional identifier for the unban request
+    # Optional identifier for the network ban removal request
     string identifier?;
     # List of IP addresses to unban
     @jsondata:Name {value: "ipv4_addresses"}
@@ -1466,9 +1466,9 @@ public type RemoveNetworkBanRequest record {
     boolean requesterIp = false;
 };
 
-# Request body for removing a database read replica
+# Request body for removing a read replica database
 public type RemoveReadReplicaBody record {
-    # Identifier of the database replica to remove
+    # Identifier of the database read replica to remove
     @jsondata:Name {value: "database_identifier"}
     string databaseIdentifier;
 };
@@ -1491,50 +1491,50 @@ public type V1GetAllProjectsForOrganizationQueries record {
     "name_asc"|"name_desc"|"created_asc"|"created_desc" sort = "name_asc";
 };
 
-# Represents a file that can be streamed
+# Streamable file object with no defined properties
 public type StreamableFile record {
 };
 
-# Project advisory lint with security and performance recommendations
+# Project advisor lint recommendation with details and remediation
 public type V1ProjectAdvisorsResponseLints record {
-    # Suggested solution or fix for the identified issue
+    # Recommended actions to resolve the lint issue
     string remediation;
-    # Metadata information for project advisor responses
+    # Metadata information for project advisor recommendations
     V1ProjectAdvisorsResponseMetadata metadata?;
     # Severity level of the lint issue (ERROR, WARN, INFO)
     "ERROR"|"WARN"|"INFO" level;
-    # Cache key for the lint advisory result
+    # Cache key for the lint recommendation
     @jsondata:Name {value: "cache_key"}
     string cacheKey;
-    # Specific name identifier for the type of lint issue
+    # Type name of the lint rule that triggered this recommendation
     "unindexed_foreign_keys"|"auth_users_exposed"|"auth_rls_initplan"|"no_primary_key"|"unused_index"|"multiple_permissive_policies"|"policy_exists_rls_disabled"|"rls_enabled_no_policy"|"duplicate_index"|"security_definer_view"|"function_search_path_mutable"|"rls_disabled_in_public"|"extension_in_public"|"rls_references_user_metadata"|"materialized_view_in_api"|"foreign_table_in_api"|"unsupported_reg_types"|"auth_otp_long_expiry"|"auth_otp_short_length"|"ssl_not_enforced"|"network_restrictions_not_set"|"password_requirements_min_length"|"pitr_not_enabled"|"auth_leaked_password_protection"|"auth_insufficient_mfa_options"|"auth_password_policy_missing"|"leaked_service_key"|"no_backup_admin"|"vulnerable_postgres_version" name;
-    # Indicates the lint check scope. Currently supports 'EXTERNAL' facing only.
+    # The facing direction of the lint advisory, indicating external visibility
     "EXTERNAL" facing;
-    # Detailed description of the lint check or advisory recommendation.
+    # Detailed description of the lint advisory
     string description;
-    # Array of lint categories. Can include 'PERFORMANCE' and 'SECURITY'.
+    # Categories that classify the lint advisory (performance, security)
     ("PERFORMANCE"|"SECURITY")[] categories;
-    # Additional detailed information about the lint check result.
+    # Additional detailed information about the lint advisory
     string detail;
-    # Title or name of the lint check or advisory item.
+    # Title of the lint advisory
     string title;
 };
 
-# SSL configuration details for custom hostname with validation records.
+# SSL configuration details for custom hostname update results
 public type UpdateCustomHostnameResponseDataResultSsl record {
-    # Array of SSL validation records required for hostname verification.
+    # Array of SSL validation records for the custom hostname
     @jsondata:Name {value: "validation_records"}
     UpdateCustomHostnameResponseDataResultSslValidationRecords[] validationRecords;
-    # Array of validation errors encountered during SSL setup process.
+    # Array of SSL validation errors encountered during hostname update
     @jsondata:Name {value: "validation_errors"}
     UpdateCustomHostnameResponseDataResultSslValidationErrors[] validationErrors?;
-    # Current status of the SSL certificate validation process.
+    # Current status of the SSL configuration
     string status;
 };
 
-# Request body schema for creating a new Supabase project.
+# Request body schema for creating a new Supabase project
 public type V1CreateProjectBody record {|
-    # Desired compute instance size from pico to 48xlarge variants.
+    # Desired compute instance size for the project
     @jsondata:Name {value: "desired_instance_size"}
     "pico"|"nano"|"micro"|"small"|"medium"|"large"|"xlarge"|"2xlarge"|"4xlarge"|"8xlarge"|"12xlarge"|"16xlarge"|"24xlarge"|"24xlarge_optimized_memory"|"24xlarge_optimized_cpu"|"24xlarge_high_memory"|"48xlarge"|"48xlarge_optimized_memory"|"48xlarge_optimized_cpu"|"48xlarge_high_memory" desiredInstanceSize?;
     # Template URL used to create the project from the CLI
@@ -1582,9 +1582,9 @@ public type V1CreateProjectBody record {|
     "free"|"pro" plan?;
 |};
 
-# Enhanced network ban response containing banned IPv4 address details.
+# Enriched response containing network ban information
 public type NetworkBanResponseEnriched record {
-    # Array of banned IPv4 addresses with enriched metadata.
+    # Array of banned IPv4 addresses with enriched details
     @jsondata:Name {value: "banned_ipv4_addresses"}
     NetworkBanResponseEnrichedBannedIpv4Addresses[] bannedIpv4Addresses;
 };
@@ -1612,36 +1612,36 @@ public type V1AuthorizeUserQueries record {
     string responseMode?;
 };
 
-# Request schema for creating a new organization in Supabase.
+# Request schema for creating a new organization
 public type CreateOrganizationV1 record {|
-    # Name of the organization to be created.
+    # Name of the organization to create
     string name;
 |};
 
-# Smart region group recommendation with geographic grouping details.
+# Smart region group recommendation information
 public type RegionsInfoRecommendationsSmartGroup record {
-    # Smart group region code: americas, emea, or apac.
+    # Smart region group code (americas, emea, apac)
     "americas"|"emea"|"apac" code;
-    # Display name of the smart region group.
+    # Human-readable name of the smart region group
     string name;
-    # Type identifier, always 'smartGroup' for smart region groupings.
+    # Type identifier for smart region group
     "smartGroup" 'type;
 };
 
-# Complete region information including specific and smart group options.
+# Complete regional information including specific and smart group options
 public type RegionsInfoAll record {
-    # Array of region-specific recommendation configurations
+    # Array of specific region recommendation information
     RegionsInfoRecommendationsSpecific[] specific;
-    # Array of smart group recommendation configurations for regions
+    # Array of smart group region recommendations
     RegionsInfoRecommendationsSmartGroup[] smartGroup;
 };
 
-# Response item containing user ID and associated JIT access roles
+# Just-in-time access response item containing user ID and roles
 public type JitListAccessResponseItems record {
     # Unique identifier for the user in UUID format
     @jsondata:Name {value: "user_id"}
     string userId;
-    # Array of JIT access roles assigned to the user
+    # Array of user roles for just-in-time access
     @jsondata:Name {value: "user_roles"}
     JitAccessResponseUserRoles[] userRoles;
 };
@@ -1654,48 +1654,48 @@ public type NetworkRestrictionsResponseConfig record {
     string[] dbAllowedCidrsV6?;
 };
 
-# Response confirming successful role deletion operation
+# Response object for successful role deletion operations
 public type DeleteRolesResponse record {
     # Success confirmation message, always returns 'ok'
     "ok" message;
 };
 
-# Deprecated UUID-based branch identifier (legacy format)
+# Deprecated UUID string identifier for branch reference
 # 
 # # Deprecated
 @deprecated
 public type BranchIdOrRef5BranchIdOrRef5OneOf12 string;
 
-# Response containing SAML identity provider configuration details
+# Response object for SAML authentication provider creation
 public type CreateProviderResponseSaml record {
     # URL endpoint for SAML metadata retrieval
     @jsondata:Name {value: "metadata_url"}
     string metadataUrl?;
-    # SAML attribute mapping configuration for user claims
+    # Configuration for mapping SAML attributes to user properties
     @jsondata:Name {value: "attribute_mapping"}
     CreateProviderBodyAttributeMapping attributeMapping?;
     # Unique identifier for the SAML provider
     string id;
-    # SAML entity identifier for the identity provider
+    # SAML entity identifier for the authentication provider
     @jsondata:Name {value: "entity_id"}
     string entityId;
-    # Raw XML metadata content for SAML configuration
+    # XML content containing SAML metadata configuration
     @jsondata:Name {value: "metadata_xml"}
     string metadataXml?;
-    # SAML NameID format specification for user identification
+    # SAML name identifier format specification
     @jsondata:Name {value: "name_id_format"}
     "urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified"|"urn:oasis:names:tc:SAML:2.0:nameid-format:transient"|"urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress"|"urn:oasis:names:tc:SAML:2.0:nameid-format:persistent" nameIdFormat?;
 };
 
-# Array of secret configuration objects for creation
+# Array of secret creation objects for batch secret operations
 public type CreateSecretBody CreateSecretBodyInner[];
 
-# Detailed information about a database branch configuration
+# Detailed information about a database branch including connection details
 public type BranchDetailResponse record {
     # PostgreSQL version running on the branch
     @jsondata:Name {value: "postgres_version"}
     string postgresVersion;
-    # Branch reference identifier
+    # Reference identifier for the branch
     string ref;
     # PostgreSQL engine version used by the branch
     @jsondata:Name {value: "postgres_engine"}
@@ -1706,16 +1706,16 @@ public type BranchDetailResponse record {
     # Database username for connection
     @jsondata:Name {value: "db_user"}
     string dbUser?;
-    # Release channel configuration for the branch
+    # Release channel for the branch deployment
     @jsondata:Name {value: "release_channel"}
     string releaseChannel;
-    # Database port number (must be greater than 0)
+    # Database port number for connection
     @jsondata:Name {value: "db_port"}
     int dbPort;
     # Database password for authentication
     @jsondata:Name {value: "db_pass"}
     string dbPass?;
-    # Database host address
+    # Database host address for connection
     @jsondata:Name {value: "db_host"}
     string dbHost;
     # Current operational status of the branch
@@ -1727,17 +1727,17 @@ public type JitAccessResponseUserRoles record {
     # Role name assigned to the user
     @constraint:String {minLength: 1}
     string role;
-    # Role expiration timestamp
+    # Timestamp when the role access expires
     @jsondata:Name {value: "expires_at"}
     decimal expiresAt?;
-    # Network access restrictions for the role
+    # Network restrictions for the user role
     @jsondata:Name {value: "allowed_networks"}
     JitAccessResponseAllowedNetworks allowedNetworks?;
 };
 
 # Response containing authorized user access details
 public type JitAuthorizeAccessResponse record {
-    # User role details for authorized access
+    # Role configuration assigned to the authorized user
     @jsondata:Name {value: "user_role"}
     JitAccessResponseUserRoles userRole;
     # Unique identifier of the authorized user
@@ -1745,9 +1745,9 @@ public type JitAuthorizeAccessResponse record {
     string userId;
 };
 
-# SQL snippet content with schema version information
+# Content structure for code snippet responses
 public type SnippetResponseContent record {
-    # Schema version of the snippet content
+    # Version of the snippet content schema
     @jsondata:Name {value: "schema_version"}
     string schemaVersion;
     # Deprecated: Rely on root-level favorite property instead
@@ -1755,16 +1755,16 @@ public type SnippetResponseContent record {
     # # Deprecated
     @deprecated
     boolean favorite?;
-    # SQL query content of the snippet
+    # SQL code content of the snippet
     string sql;
 };
 
-# Configuration response for Supavisor connection pooling settings
+# Response for Supavisor configuration update operations
 public type UpdateSupavisorConfigResponse record {
-    # Default connection pool size for the database supervisor
+    # Default connection pool size for the supervisor configuration
     @jsondata:Name {value: "default_pool_size"}
     int? defaultPoolSize;
-    # Connection pooling mode configuration for the supervisor
+    # Connection pool mode setting for the supervisor
     @jsondata:Name {value: "pool_mode"}
     string poolMode;
 };
@@ -1777,18 +1777,18 @@ public type SnippetListProject record {
     decimal id;
 };
 
-# Configuration parameters for updating PostgREST settings
+# Request body for updating PostgREST configuration settings
 public type V1UpdatePostgrestConfigBody record {
     # Database connection pool size (0-1000)
     @jsondata:Name {value: "db_pool"}
     int dbPool?;
-    # Maximum number of rows returned per query (0-1000000)
+    # Maximum number of rows returned per request (0-1000000)
     @jsondata:Name {value: "max_rows"}
     int maxRows?;
     # Additional database schema search path
     @jsondata:Name {value: "db_extra_search_path"}
     string dbExtraSearchPath?;
-    # Primary database schema to expose via API
+    # Database schema to expose via the API
     @jsondata:Name {value: "db_schema"}
     string dbSchema?;
 };
@@ -1842,14 +1842,14 @@ public type V1GetRestorePointQueries record {
 
 # Detailed project information within an organization
 public type OrganizationProjectsResponseProjects record {
-    # Indicates if the project is a branch deployment
+    # Indicates whether this project is a branch project
     @jsondata:Name {value: "is_branch"}
     boolean isBranch;
     # List of databases associated with the project
     OrganizationProjectsResponseDatabases[] databases;
     # Project reference identifier
     string ref;
-    # The display name of the project
+    # The name of the project
     string name;
     # The cloud provider hosting the project
     @jsondata:Name {value: "cloud_provider"}
@@ -1859,7 +1859,7 @@ public type OrganizationProjectsResponseProjects record {
     # The timestamp when the project was created
     @jsondata:Name {value: "inserted_at"}
     string insertedAt;
-    # Current operational status of the project
+    # The current operational status of the project
     "INACTIVE"|"ACTIVE_HEALTHY"|"ACTIVE_UNHEALTHY"|"COMING_UP"|"UNKNOWN"|"GOING_DOWN"|"INIT_FAILED"|"REMOVED"|"RESTORING"|"UPGRADING"|"PAUSING"|"RESTORE_FAILED"|"RESTARTING"|"PAUSE_FAILED"|"RESIZING" status;
 };
 
@@ -1867,42 +1867,42 @@ public type OrganizationProjectsResponseProjects record {
 public type OrganizationProjectClaimResponsePreview record {
     # Whether the project claim operation is valid
     boolean valid;
-    # The subscription plan the project will be moved to
+    # The target subscription plan after claiming the project
     @jsondata:Name {value: "target_subscription_plan"}
     "free"|"pro"|"team"|"enterprise"? targetSubscriptionPlan;
-    # The current subscription plan of the project
+    # The current subscription plan of the project being claimed
     @jsondata:Name {value: "source_subscription_plan"}
     "free"|"pro"|"team"|"enterprise" sourceSubscriptionPlan;
-    # Warning messages for the claim operation
+    # List of warnings for the project claim operation
     OrganizationProjectClaimResponsePreviewWarnings[] warnings;
-    # Members who exceed the free project limit
+    # Members who would exceed free project limits after claiming
     @jsondata:Name {value: "members_exceeding_free_project_limit"}
     OrganizationProjectClaimResponsePreviewMembersExceedingFreeProjectLimit[] membersExceedingFreeProjectLimit;
-    # Error messages preventing the claim operation
+    # List of errors preventing the project claim operation
     OrganizationProjectClaimResponsePreviewWarnings[] errors;
-    # Informational messages about the claim operation
+    # Informational messages about the project claim operation
     OrganizationProjectClaimResponsePreviewWarnings[] info;
 };
 
 # Metadata configuration for function deployment
 public type FunctionDeployBodyMetadata record {
-    # Whether to enable JWT verification for the function
+    # Whether to verify JWT tokens for the function
     @jsondata:Name {value: "verify_jwt"}
     boolean verifyJwt?;
-    # URL patterns for static file serving
+    # Array of static file patterns for the function
     @jsondata:Name {value: "static_patterns"}
     string[] staticPatterns?;
-    # Path to the import map file for module resolution
+    # Path to the import map file for the function
     @jsondata:Name {value: "import_map_path"}
     string importMapPath?;
-    # The name of the function being deployed
+    # The name of the function to deploy
     string name?;
-    # Path to the main function entry point file
+    # Path to the main entry point file for the function
     @jsondata:Name {value: "entrypoint_path"}
     string entrypointPath;
 };
 
-# Container status updates for various deployment stages
+# Request body for updating container run status across deployment stages
 public type UpdateRunStatusBody record {
     # Status of the pull operation step
     "CREATED"|"DEAD"|"EXITED"|"PAUSED"|"REMOVING"|"RESTARTING"|"RUNNING" pull?;
@@ -1910,7 +1910,7 @@ public type UpdateRunStatusBody record {
     "CREATED"|"DEAD"|"EXITED"|"PAUSED"|"REMOVING"|"RESTARTING"|"RUNNING" seed?;
     # Status of the clone operation step
     "CREATED"|"DEAD"|"EXITED"|"PAUSED"|"REMOVING"|"RESTARTING"|"RUNNING" clone?;
-    # Status of the health check step
+    # Status of the health check operation step
     "CREATED"|"DEAD"|"EXITED"|"PAUSED"|"REMOVING"|"RESTARTING"|"RUNNING" health?;
     # Status of the configure operation step
     "CREATED"|"DEAD"|"EXITED"|"PAUSED"|"REMOVING"|"RESTARTING"|"RUNNING" configure?;
@@ -1922,33 +1922,33 @@ public type UpdateRunStatusBody record {
 
 # Response object for branch update operations
 public type BranchUpdateResponse record {
-    # Success message indicating operation completion
+    # Success status message
     "ok" message;
-    # Unique identifier for the workflow run
+    # Unique identifier of the workflow run
     @jsondata:Name {value: "workflow_run_id"}
     string workflowRunId;
 };
 
-# Individual action run details with execution steps and metadata
+# Action run details including steps and execution metadata
 public type ListActionRunResponseInner record {
-    # Optional check run identifier associated with this action run
+    # Unique identifier of the associated check run
     @jsondata:Name {value: "check_run_id"}
     decimal? checkRunId;
-    # Array of execution steps with their status and timestamps
+    # Array of execution steps with their status and timing
     @jsondata:Name {value: "run_steps"}
     ListActionRunResponseInner_run_steps[] runSteps;
-    # Optional working directory path for the action run
+    # Working directory path for the action run
     string? workdir;
     # Timestamp when the action run was last updated
     @jsondata:Name {value: "updated_at"}
     string updatedAt;
-    # Unique identifier of the Git branch associated with the action run
+    # Identifier of the Git branch associated with the action run
     @jsondata:Name {value: "branch_id"}
     string branchId;
     # Timestamp when the action run was created
     @jsondata:Name {value: "created_at"}
     string createdAt;
-    # Git configuration settings for the action run (nullable)
+    # Git configuration settings for the action run
     @jsondata:Name {value: "git_config"}
     anydata? gitConfig?;
     # Unique identifier of the action run
@@ -1961,26 +1961,26 @@ public type V1GetProjectApiKeyQueries record {
     boolean reveal?;
 };
 
-# Request body for upserting a database migration
+# Request body for creating or updating a database migration
 public type V1UpsertMigrationBody record {
-    # SQL query string for the migration (required, minimum 1 character)
+    # SQL query to execute for the migration
     @constraint:String {minLength: 1}
     string query;
-    # Optional name for the migration
+    # Name of the migration
     string name?;
 };
 
-# Domain configuration response for authentication provider creation
+# Domain configuration details in provider creation response
 public type CreateProviderResponseDomains record {
     # Timestamp when the domain was last updated
     @jsondata:Name {value: "updated_at"}
     string updatedAt?;
-    # Domain name associated with the authentication provider
+    # Domain name associated with the provider
     string domain?;
     # Timestamp when the domain was created
     @jsondata:Name {value: "created_at"}
     string createdAt?;
-    # Unique identifier of the domain (required)
+    # Unique identifier of the domain
     string id;
 };
 
@@ -1996,31 +1996,31 @@ public type V1DeleteProjectApiKeyQueries record {
 
 # Request body for updating PostgreSQL database configuration settings
 public type UpdatePostgresConfigBody record {|
-    # Maximum number of parallel workers (0-1024)
+    # Maximum number of parallel worker processes (0-1024)
     @jsondata:Name {value: "max_parallel_workers"}
     int maxParallelWorkers?;
     # Session replication role: origin, replica, or local
     @jsondata:Name {value: "session_replication_role"}
     "origin"|"replica"|"local" sessionReplicationRole?;
-    # Amount of memory for shared buffer cache
+    # Amount of memory allocated for shared buffer cache
     @jsondata:Name {value: "shared_buffers"}
     string sharedBuffers?;
-    # Maximum number of WAL sender processes
+    # Maximum number of concurrent WAL sender processes
     @jsondata:Name {value: "max_wal_senders"}
     int maxWalSenders?;
-    # Timeout for WAL sender processes
+    # Timeout duration for WAL sender processes
     @jsondata:Name {value: "wal_sender_timeout"}
     string walSenderTimeout?;
-    # Maximum delay before canceling queries on standby streaming
+    # Maximum delay before canceling queries when standby server processes streamed WAL
     @jsondata:Name {value: "max_standby_streaming_delay"}
     string maxStandbyStreamingDelay?;
-    # Maximum delay before canceling queries on standby archive recovery
+    # Maximum delay before canceling queries when standby server processes archived WAL
     @jsondata:Name {value: "max_standby_archive_delay"}
     string maxStandbyArchiveDelay?;
     # Maximum number of parallel maintenance workers (0-1024)
     @jsondata:Name {value: "max_parallel_maintenance_workers"}
     int maxParallelMaintenanceWorkers?;
-    # Amount of WAL files to keep for standby servers
+    # Minimum size of WAL files to keep for standby servers
     @jsondata:Name {value: "wal_keep_size"}
     string walKeepSize?;
     # Memory limit for logical decoding operations
@@ -2032,56 +2032,56 @@ public type UpdatePostgresConfigBody record {|
     # Maximum number of concurrent database connections (1-262143)
     @jsondata:Name {value: "max_connections"}
     int maxConnections?;
-    # Maximum locks per transaction (10-2147483640)
+    # Maximum number of locks per transaction (10-2147483640)
     @jsondata:Name {value: "max_locks_per_transaction"}
     int maxLocksPerTransaction?;
-    # Enable feedback from standby to primary server
+    # Enable hot standby feedback to prevent query conflicts
     @jsondata:Name {value: "hot_standby_feedback"}
     boolean hotStandbyFeedback?;
-    # Whether to restart the database after configuration update
+    # Whether to restart the database after configuration changes
     @jsondata:Name {value: "restart_database"}
     boolean restartDatabase?;
-    # Maximum WAL size to keep for replication slots
+    # Maximum size of WAL files to keep for replication slots
     @jsondata:Name {value: "max_slot_wal_keep_size"}
     string maxSlotWalKeepSize?;
-    # Memory limit for maintenance operations like VACUUM
+    # Memory limit for maintenance operations like VACUUM and CREATE INDEX
     @jsondata:Name {value: "maintenance_work_mem"}
     string maintenanceWorkMem?;
     # Maximum parallel workers per gather node (0-1024)
     @jsondata:Name {value: "max_parallel_workers_per_gather"}
     int maxParallelWorkersPerGather?;
-    # Planner's assumption of effective disk cache size
+    # Planner's assumption about effective disk cache size
     @jsondata:Name {value: "effective_cache_size"}
     string effectiveCacheSize?;
-    # Size of query text tracked in pg_stat_activity
+    # Size of buffer for tracking current executing queries
     @jsondata:Name {value: "track_activity_query_size"}
     string trackActivityQuerySize?;
-    # Maximum size of WAL files between checkpoints
+    # Maximum size of WAL between automatic checkpoints
     @jsondata:Name {value: "max_wal_size"}
     string maxWalSize?;
-    # Maximum allowed duration of any statement
+    # Maximum allowed duration for any statement execution
     @jsondata:Name {value: "statement_timeout"}
     string statementTimeout?;
-    # Enable tracking of commit timestamps
+    # Enable tracking of commit timestamps for transactions
     @jsondata:Name {value: "track_commit_timestamp"}
     boolean trackCommitTimestamp?;
-    # Maximum number of replication slots
+    # Maximum number of replication slots for streaming replication
     @jsondata:Name {value: "max_replication_slots"}
     int maxReplicationSlots?;
-    # Memory limit for query operations before using disk
+    # Memory limit for query operations before using temporary disk files
     @jsondata:Name {value: "work_mem"}
     string workMem?;
 |};
 
-# Response data for custom hostname update operation
+# Response data for custom hostname update operations
 public type UpdateCustomHostnameResponseData record {
-    # Response data for custom hostname update operations
+    # Response data containing custom hostname configuration details
     UpdateCustomHostnameResponseDataResult result;
     # Indicates whether the custom hostname update operation was successful
     boolean success;
-    # Array of informational messages from the hostname update operation
+    # Array of informational messages from the custom hostname update operation
     anydata[] messages;
-    # Array of error messages encountered during hostname update operation
+    # Array of error messages encountered during the custom hostname update
     anydata[] errors;
 };
 
@@ -2091,13 +2091,13 @@ public type BranchIdOrRef3OneOf1 string;
 
 # Response schema containing a list of authentication providers
 public type ListProvidersResponse record {
-    # Array of available authentication provider configurations
+    # Array of authentication provider items
     ListProvidersResponseItems[] items;
 };
 
-# Response for custom hostname update operations with status and data
+# Response schema for custom hostname update operations
 public type UpdateCustomHostnameResponse record {
-    # Response data for custom hostname update operation
+    # Response data for custom hostname update operations
     UpdateCustomHostnameResponseData data;
     # The custom hostname that was updated
     @jsondata:Name {value: "custom_hostname"}
@@ -2106,32 +2106,32 @@ public type UpdateCustomHostnameResponse record {
     "1_not_started"|"2_initiated"|"3_challenge_verified"|"4_origin_setup_completed"|"5_services_reconfigured" status;
 };
 
-# Union type for specifying a branch by ID or reference name
+# Union type representing either a branch ID or branch reference
 public type BranchIdOrRef BranchIdOrRefOneOf1|BranchIdOrRefBranchIdOrRefOneOf12;
 
-# Response schema for listing code snippets with pagination support
+# Response schema containing a paginated list of code snippets
 public type SnippetList record {
     # Pagination cursor for retrieving the next set of snippets
     string cursor?;
-    # Array of code snippet objects in the current page
+    # Array of snippet data objects
     SnippetListData[] data;
 };
 
-# Request body schema for creating a new database restore point
+# Request body schema for creating a new restore point
 public type V1RestorePointPostBody record {
     # Name for the restore point (maximum 20 characters)
     @constraint:String {maxLength: 20}
     string name;
 };
 
-# Complete response schema for a single code snippet with metadata
+# Complete response schema for a single code snippet with all metadata
 public type SnippetResponse record {
-    # Owner information for code snippets with ID and username
+    # Owner information for a code snippet
     SnippetListOwner owner;
     # Timestamp when the snippet was last updated
     @jsondata:Name {value: "updated_at"}
     string updatedAt;
-    # Visibility scope of the snippet (user, project, org, or public)
+    # Visibility level of the snippet (user, project, org, or public)
     "user"|"project"|"org"|"public" visibility;
     # Name of the snippet
     string name;
@@ -2151,7 +2151,7 @@ public type SnippetResponse record {
     string insertedAt;
     # Whether the snippet is marked as favorite
     boolean favorite;
-    # SQL snippet content with schema version information
+    # Content structure for code snippet responses
     SnippetResponseContent content;
 };
 
@@ -2163,7 +2163,7 @@ public type OrganizationResponseV1 record {
     string id;
 };
 
-# Network access restrictions configuration and status
+# Network restrictions configuration and status information
 public type NetworkRestrictionsV2Response record {
     # Previous network restrictions configuration
     @jsondata:Name {value: "old_config"}
@@ -2182,7 +2182,7 @@ public type NetworkRestrictionsV2Response record {
     "stored"|"applied" status;
 };
 
-# Physical backup metadata containing earliest and latest backup timestamps
+# Physical backup data containing earliest and latest backup timestamps
 public type V1BackupsResponsePhysicalBackupData record {
     # Unix timestamp of the most recent physical backup
     @jsondata:Name {value: "latest_physical_backup_date_unix"}
@@ -2194,13 +2194,13 @@ public type V1BackupsResponsePhysicalBackupData record {
 
 # CIDR block configuration for database network access restrictions
 public type NetworkRestrictionsV2ResponseConfigDbAllowedCidrs record {
-    # CIDR block address for network access
+    # IP address or CIDR block notation
     string address;
-    # IP version type (v4 or v6)
+    # IP address version type (IPv4 or IPv6)
     "v4"|"v6" 'type;
 };
 
-# Array of migration records
+# Array of database migration entries
 public type V1ListMigrationsResponse V1ListMigrationsResponseInner[];
 
 # Represents the Queries record for the operation: v1-create-a-function
@@ -2238,7 +2238,7 @@ public type LegacyApiKeysResponse record {
 
 # Subdomain availability check result
 public type SubdomainAvailabilityResponse record {
-    # Whether the subdomain is available
+    # Whether the requested subdomain is available
     boolean available;
 };
 
@@ -2246,12 +2246,12 @@ public type SubdomainAvailabilityResponse record {
 @constraint:String {maxLength: 20, minLength: 20, pattern: re `^[a-z]+$`}
 public type BranchIdOrRef2OneOf1 string;
 
-# Banned IPv4 address details with identifier and type information
+# Enriched information about a banned IPv4 address
 public type NetworkBanResponseEnrichedBannedIpv4Addresses record {
     # The banned IP address
     @jsondata:Name {value: "banned_address"}
     string bannedAddress;
-    # Unique identifier for the banned address
+    # Unique identifier for the banned address entry
     string identifier;
     # Type classification of the banned address
     string 'type;
@@ -2269,7 +2269,7 @@ public type V1GetSecurityAdvisorsQueries record {
     "sql" lintType?;
 };
 
-# Response schema containing function details after bulk update operation
+# Response schema for bulk function update operations containing function details
 public type BulkUpdateFunctionResponseFunctions record {
     # Whether JWT verification is enabled for the function
     @jsondata:Name {value: "verify_jwt"}
@@ -2277,18 +2277,18 @@ public type BulkUpdateFunctionResponseFunctions record {
     # Whether import map is enabled for the function
     @jsondata:Name {value: "import_map"}
     boolean importMap?;
-    # Timestamp when the function was last updated (Unix timestamp)
+    # Unix timestamp when the function was last updated
     @jsondata:Name {value: "updated_at"}
     int updatedAt;
     # File path to the import map configuration
     @jsondata:Name {value: "import_map_path"}
     string importMapPath?;
-    # SHA256 hash of the function bundle
+    # SHA256 hash of the function's EZBR bundle
     @jsondata:Name {value: "ezbr_sha256"}
     string ezbrSha256?;
     # Display name of the function
     string name;
-    # Timestamp when the function was created (Unix timestamp)
+    # Unix timestamp when the function was created
     @jsondata:Name {value: "created_at"}
     int createdAt;
     # Unique identifier for the function
@@ -2304,12 +2304,12 @@ public type BulkUpdateFunctionResponseFunctions record {
     "ACTIVE"|"REMOVED"|"THROTTLED" status;
 };
 
-# Response schema containing API key details and metadata
+# Response schema containing API key information and metadata
 public type ApiKeyResponse record {
     # JWT template configuration for secret API keys
     @jsondata:Name {value: "secret_jwt_template"}
     record {}? secretJwtTemplate?;
-    # Timestamp when the API key was last updated
+    # ISO 8601 timestamp when the API key was last updated
     @jsondata:Name {value: "updated_at"}
     string? updatedAt?;
     # The actual API key value
@@ -2323,7 +2323,7 @@ public type ApiKeyResponse record {
     string? description?;
     # Unique identifier for the API key
     string? id?;
-    # Type of API key: legacy, publishable, or secret
+    # Type of API key (legacy, publishable, or secret)
     "legacy"|"publishable"|"secret"? 'type?;
     # Timestamp when the API key was created
     @jsondata:Name {value: "inserted_at"}
@@ -2332,7 +2332,7 @@ public type ApiKeyResponse record {
     string? hash?;
 };
 
-# Request body for updating pgsodium encryption configuration
+# Request body for updating pgsodium configuration
 public type UpdatePgsodiumConfigBody record {
     # Root encryption key for pgsodium configuration
     @jsondata:Name {value: "root_key"}
@@ -2345,13 +2345,13 @@ public type V1ProjectAdvisorsResponse record {
     V1ProjectAdvisorsResponseLints[] lints;
 };
 
-# Health status response for a Supabase service
+# Health status information for a Supabase service
 public type V1ServiceHealthResponse record {
-    # Boolean indicating if the service is healthy
+    # Indicates whether the service is healthy
     boolean healthy;
-    # Name of the service being monitored
+    # Name of the Supabase service being monitored
     "auth"|"db"|"db_postgres_user"|"pooler"|"realtime"|"rest"|"storage"|"pg_bouncer" name;
-    # Error message if the service is unhealthy
+    # Error message if the service is experiencing issues
     string 'error?;
     # Current operational status of the service
     "COMING_UP"|"ACTIVE_HEALTHY"|"UNHEALTHY" status;
@@ -2361,7 +2361,7 @@ public type V1ServiceHealthResponse record {
 
 # Response containing database upgrade status information
 public type DatabaseUpgradeStatusResponse record {
-    # Database upgrade status response containing progress and error information
+    # Database upgrade status information including progress and timestamps
     DatabaseUpgradeStatusResponseDatabaseUpgradeStatus? databaseUpgradeStatus;
 };
 
@@ -2373,9 +2373,9 @@ public type RegionsInfoRecommendationsSpecific record {
     "AWS"|"FLY"|"AWS_K8S"|"AWS_NIMBUS" provider;
     # Human-readable name of the region
     string name;
-    # Type identifier for specific region recommendations
+    # Type identifier for specific region recommendation
     "specific" 'type;
-    # Status of the region recommendation (capacity or other)
+    # Status category of the region recommendation
     "capacity"|"other" status?;
 };
 
@@ -2399,9 +2399,9 @@ public type V1OauthAuthorizeProjectClaimQueries record {
     string responseMode?;
 };
 
-# Database upgrade status response containing progress and error information
+# Database upgrade status information including progress and timestamps
 public type DatabaseUpgradeStatusResponseDatabaseUpgradeStatus record {
-    # Timestamp of the latest status update for the database upgrade
+    # Timestamp of the most recent status update
     @jsondata:Name {value: "latest_status_at"}
     string latestStatusAt;
     # Current progress stage of the database upgrade process
@@ -2409,7 +2409,7 @@ public type DatabaseUpgradeStatusResponseDatabaseUpgradeStatus record {
     # Timestamp when the database upgrade was initiated
     @jsondata:Name {value: "initiated_at"}
     string initiatedAt;
-    # Error code if the database upgrade encountered an issue
+    # Error type encountered during the upgrade process, if any
     "1_upgraded_instance_launch_failed"|"2_volume_detachchment_from_upgraded_instance_failed"|"3_volume_attachment_to_original_instance_failed"|"4_data_upgrade_initiation_failed"|"5_data_upgrade_completion_failed"|"6_volume_detachchment_from_original_instance_failed"|"7_volume_attachment_to_upgraded_instance_failed"|"8_upgrade_completion_failed"|"9_post_physical_backup_failed" 'error?;
     # Target database version for the upgrade
     @jsondata:Name {value: "target_version"}
@@ -2418,26 +2418,26 @@ public type DatabaseUpgradeStatusResponseDatabaseUpgradeStatus record {
     decimal status;
 };
 
-# Request body for setting up a read replica in a specified region
+# Request body for setting up a database read replica
 public type SetUpReadReplicaBody record {
     # Region you want your read replica to reside in
     @jsondata:Name {value: "read_replica_region"}
     "us-east-1"|"us-east-2"|"us-west-1"|"us-west-2"|"ap-east-1"|"ap-southeast-1"|"ap-northeast-1"|"ap-northeast-2"|"ap-southeast-2"|"eu-west-1"|"eu-west-2"|"eu-west-3"|"eu-north-1"|"eu-central-1"|"eu-central-2"|"ca-central-1"|"ap-south-1"|"sa-east-1" readReplicaRegion;
 };
 
-# Request body for creating a SAML authentication provider
+# Request body for creating a new SAML authentication provider
 public type CreateProviderBody record {
-    # URL to fetch SAML metadata from the identity provider
+    # URL to the SAML provider's metadata endpoint
     @jsondata:Name {value: "metadata_url"}
     string metadataUrl?;
     # Mapping configuration for SAML attributes
     @jsondata:Name {value: "attribute_mapping"}
     CreateProviderBodyAttributeMapping attributeMapping?;
-    # Array of domains associated with the SAML provider
+    # List of domains associated with the SAML provider
     string[] domains?;
     # What type of provider will be created
     "saml" 'type;
-    # Raw XML metadata for the SAML identity provider
+    # XML content of the SAML provider's metadata
     @jsondata:Name {value: "metadata_xml"}
     string metadataXml?;
     # SAML NameID format specification for user identification
@@ -2457,9 +2457,9 @@ public type V1GetAvailableRegionsQueries record {
     string organizationSlug;
 };
 
-# External storage configuration response with upstream target
+# External storage configuration response
 public type StorageConfigResponseExternal record {
-    # Upstream target environment (main or canary)
+    # Target upstream environment for storage operations
     "main"|"canary" upstreamTarget;
 };
 
@@ -2469,23 +2469,23 @@ public type NetworkRestrictionsV2ResponseOldConfig record {
     NetworkRestrictionsV2ResponseConfigDbAllowedCidrs[] dbAllowedCidrs?;
 };
 
-# Read-only mode status response with override settings
+# Read-only mode status and override configuration
 public type ReadOnlyStatusResponse record {
     # Timestamp until which the read-only override remains active
     @jsondata:Name {value: "override_active_until"}
     string overrideActiveUntil;
-    # Whether read-only mode override is enabled
+    # Indicates if read-only mode override is enabled
     @jsondata:Name {value: "override_enabled"}
     boolean overrideEnabled;
-    # Whether read-only mode is currently enabled
+    # Indicates if read-only mode is currently enabled
     boolean enabled;
 };
 
-# Response containing restore point information with name and status
+# Response containing restore point information
 public type V1RestorePointResponse record {
-    # Name identifier of the restore point
+    # Name of the restore point
     string name;
-    # Current status of the restore point (AVAILABLE, PENDING, REMOVED)
+    # Current status of the restore point
     "AVAILABLE"|"PENDING"|"REMOVED" status;
 };
 
@@ -2518,51 +2518,51 @@ public type V1GenerateTypescriptTypesQueries record {
     string includedSchemas = "public";
 };
 
-# Response containing a list of just-in-time access items
+# Response containing list of just-in-time access items
 public type JitListAccessResponse record {
     # Array of just-in-time access items
     JitListAccessResponseItems[] items;
 };
 
-# Request body for creating a new API key with name, type and options
+# Request body for creating a new API key
 public type CreateApiKeyBody record {
-    # Optional JWT template configuration for secret keys
+    # JWT template configuration for secret API keys
     @jsondata:Name {value: "secret_jwt_template"}
     record {}? secretJwtTemplate?;
-    # API key name (4-64 chars, lowercase letters, numbers, underscores)
+    # Name of the API key (4-64 characters, lowercase with underscores)
     @constraint:String {maxLength: 64, minLength: 4, pattern: re `^[a-z_][a-z0-9_]+$`}
     string name;
-    # Optional description for the API key
+    # Optional description of the API key
     string? description?;
     # Type of API key (publishable or secret)
     "publishable"|"secret" 'type;
 };
 
-# Response containing available and selected project add-ons
+# Response containing available and selected project addons
 public type ListProjectAddonsResponse record {
-    # Array of currently selected add-ons for the project
+    # Array of currently selected project addons
     @jsondata:Name {value: "selected_addons"}
     ListProjectAddonsResponseSelectedAddons[] selectedAddons;
-    # Array of add-ons available for selection
+    # Array of available project addons
     @jsondata:Name {value: "available_addons"}
     ListProjectAddonsResponseAvailableAddons[] availableAddons;
 };
 
-# Request body for creating a role with read-only permission setting
+# Request body for creating a new role
 public type CreateRoleBody record {
-    # Whether the role should have read-only permissions
+    # Indicates if the role has read-only permissions
     @jsondata:Name {value: "read_only"}
     boolean readOnly;
 };
 
-# Request body for point-in-time recovery with target timestamp
+# Request body for point-in-time recovery restore operation
 public type V1RestorePitrBody record {
-    # Target recovery time as Unix timestamp (minimum 0)
+    # Unix timestamp for the target recovery time
     @jsondata:Name {value: "recovery_time_target_unix"}
     int recoveryTimeTargetUnix;
 };
 
-# Available version configuration for project restore operations
+# Available version information for project restore operations
 public type GetProjectAvailableRestoreVersionsResponseAvailableVersions record {
     # PostgreSQL engine version (13, 14, 15, 17, or 17-oriole)
     @jsondata:Name {value: "postgres_engine"}
@@ -2574,32 +2574,32 @@ public type GetProjectAvailableRestoreVersionsResponseAvailableVersions record {
     string version;
 };
 
-# Storage service capabilities configuration
+# Storage configuration capabilities and feature flags
 public type StorageConfigResponseCapabilities record {
-    # Whether Iceberg catalog functionality is enabled
+    # Whether Iceberg catalog support is enabled
     @jsondata:Name {value: "iceberg_catalog"}
     boolean icebergCatalog;
-    # Whether list API v2 functionality is enabled
+    # Whether list API v2 is supported
     @jsondata:Name {value: "list_v2"}
     boolean listV2;
 };
 
 # Request body for undo operations
 public type V1UndoBody record {
-    # Name identifier for undo operation (max 20 characters)
+    # Name identifier for the undo operation (max 20 characters)
     @constraint:String {maxLength: 20}
     string name;
 };
 
-# Response data for function deployment operations
+# Response containing deployed function details and metadata
 public type DeployFunctionResponse record {
     # Whether JWT verification is enabled for the function
     @jsondata:Name {value: "verify_jwt"}
     boolean verifyJwt?;
-    # Whether import map functionality is enabled
+    # Whether import map is enabled for the function
     @jsondata:Name {value: "import_map"}
     boolean importMap?;
-    # Timestamp when the function was last updated
+    # Unix timestamp when the function was last updated
     @jsondata:Name {value: "updated_at"}
     int updatedAt?;
     # File path to the import map configuration
@@ -2608,16 +2608,16 @@ public type DeployFunctionResponse record {
     # SHA256 hash of the function bundle
     @jsondata:Name {value: "ezbr_sha256"}
     string ezbrSha256?;
-    # Function name identifier
+    # Name of the deployed function
     string name;
-    # Timestamp when the function was created
+    # Unix timestamp when the function was created
     @jsondata:Name {value: "created_at"}
     int createdAt?;
-    # Unique function identifier
+    # Unique identifier of the function
     string id;
-    # Function version number
+    # Version number of the deployed function
     int version;
-    # URL-friendly function identifier
+    # URL-friendly identifier for the function
     string slug;
     # Path to the function's entry point file
     @jsondata:Name {value: "entrypoint_path"}
@@ -2626,25 +2626,25 @@ public type DeployFunctionResponse record {
     "ACTIVE"|"REMOVED"|"THROTTLED" status;
 };
 
-# Response object containing authentication provider creation details
+# Response object containing details of the created authentication provider
 public type CreateProviderResponse record {
     # Timestamp when the provider was last updated
     @jsondata:Name {value: "updated_at"}
     string updatedAt?;
-    # Response containing SAML identity provider configuration details
+    # Response object for SAML authentication provider creation
     CreateProviderResponseSaml saml?;
-    # List of domains associated with the authentication provider
+    # List of domains associated with the provider
     CreateProviderResponseDomains[] domains?;
     # Timestamp when the provider was created
     @jsondata:Name {value: "created_at"}
     string createdAt?;
-    # Unique identifier for the authentication provider
+    # Unique identifier for the provider
     string id;
 };
 
-# Selected addon configuration with type and variant details
+# Selected addon configuration for a project
 public type ListProjectAddonsResponseSelectedAddons record {
-    # Available addon variant with pricing and configuration options
+    # Addon variant with pricing information and configuration options
     ListProjectAddonsResponseVariant variant;
     # Type of addon selected for the project
     "custom_domain"|"compute_instance"|"pitr"|"ipv4"|"auth_mfa_phone"|"auth_mfa_web_authn"|"log_drain" 'type;
@@ -2661,14 +2661,14 @@ public type ListActionRunResponseInner_run_steps record {
     string updated_at;
 };
 
-# Storage bucket information including metadata and access settings
+# Response object containing storage bucket details and metadata
 public type V1StorageBucketResponse record {
     # Owner identifier of the storage bucket
     string owner;
     # Timestamp when the bucket was last updated
     @jsondata:Name {value: "updated_at"}
     string updatedAt;
-    # Whether the storage bucket is publicly accessible
+    # Whether the bucket allows public access
     boolean 'public;
     # Name of the storage bucket
     string name;
@@ -2679,17 +2679,17 @@ public type V1StorageBucketResponse record {
     string id;
 };
 
-# Request to modify network access restrictions by adding or removing rules
+# Request object for modifying network access restrictions
 public type NetworkRestrictionsPatchRequest record {
-    # Request body for adding network restrictions
+    # Request object for adding network access restrictions
     NetworkRestrictionsPatchRequestAdd add?;
-    # Request body for adding network restrictions
+    # Request object for adding network access restrictions
     NetworkRestrictionsPatchRequestAdd remove?;
 };
 
 # Request body for creating a new database migration
 public type V1CreateMigrationBody record {
-    # SQL query string for the migration (required, minimum 1 character)
+    # SQL query or migration script to execute (required, minimum 1 character)
     @constraint:String {minLength: 1}
     string query;
     # Optional name identifier for the migration
@@ -2708,42 +2708,42 @@ public type V1CreateProjectApiKeyQueries record {
     boolean reveal?;
 };
 
-# Response after successfully activating a vanity subdomain
+# Response returned after activating a custom vanity subdomain
 public type ActivateVanitySubdomainResponse record {
-    # The activated custom domain name
+    # The activated custom domain URL
     @jsondata:Name {value: "custom_domain"}
     string customDomain;
 };
 
-# UUID identifier for a branch (deprecated)
+# Branch identifier using UUID format (deprecated)
 # 
 # # Deprecated
 @deprecated
 public type BranchIdOrRef4BranchIdOrRef4OneOf12 string;
 
-# UUID identifier for a branch (deprecated)
+# Branch identifier using UUID format (deprecated)
 # 
 # # Deprecated
 @deprecated
 public type BranchIdOrRef2BranchIdOrRef2OneOf12 string;
 
-# Database metadata information including name and schemas
+# Database metadata information including name and schema details
 public type GetProjectDbMetadataResponseDatabases record {
     # Name of the database
     string name;
-    # Array of database schemas contained within this database
+    # Array of database schemas within this database
     GetProjectDbMetadataResponseSchemas[] schemas;
 };
 
 # Response confirming successful branch deletion
 public type BranchDeleteResponse record {
-    # Confirmation message, always 'ok' for successful deletion
+    # Confirmation message indicating successful operation
     "ok" message;
 };
 
 # Response containing details of an executed action run
 public type ActionRunResponse record {
-    # Numeric identifier for the associated check run (nullable)
+    # Unique identifier for the associated check run (nullable)
     @jsondata:Name {value: "check_run_id"}
     decimal? checkRunId;
     # Array of execution steps performed during the action run
@@ -2754,51 +2754,51 @@ public type ActionRunResponse record {
     # Timestamp when the action run was last updated
     @jsondata:Name {value: "updated_at"}
     string updatedAt;
-    # Unique identifier of the Git branch associated with the action run
+    # The Git branch identifier associated with the action run
     @jsondata:Name {value: "branch_id"}
     string branchId;
-    # Timestamp when the action run was created
+    # The timestamp when the action run was created
     @jsondata:Name {value: "created_at"}
     string createdAt;
     # Git configuration settings for the action run (nullable)
     @jsondata:Name {value: "git_config"}
     anydata? gitConfig?;
-    # Unique identifier of the action run
+    # Unique identifier for the action run
     string id;
 };
 
-# Available addon variant with pricing and configuration options
+# Addon variant with pricing information and configuration options
 public type ListProjectAddonsResponseVariant record {
-    # Pricing information for project addon variants
+    # Pricing information for a project addon variant
     ListProjectAddonsResponseVariantPrice price;
     # Any JSON-serializable value
     anydata meta?;
     # Display name of the addon variant
     string name;
-    # Unique identifier for the addon variant type
+    # Addon variant identifier (compute, deployment, backup, or feature type)
     "ci_micro"|"ci_small"|"ci_medium"|"ci_large"|"ci_xlarge"|"ci_2xlarge"|"ci_4xlarge"|"ci_8xlarge"|"ci_12xlarge"|"ci_16xlarge"|"ci_24xlarge"|"ci_24xlarge_optimized_cpu"|"ci_24xlarge_optimized_memory"|"ci_24xlarge_high_memory"|"ci_48xlarge"|"ci_48xlarge_optimized_cpu"|"ci_48xlarge_optimized_memory"|"ci_48xlarge_high_memory"|"cd_default"|"pitr_7"|"pitr_14"|"pitr_28"|"ipv4_default"|"auth_mfa_phone_default"|"auth_mfa_web_authn_default"|"log_drain_default" id;
 };
 
-# Continuous deployment addon variant identifier
+# Continuous deployment addon variant with default configuration
 public type AddonVariantAddonVariantOneOf12 "cd_default";
 
 # Project ref
 @constraint:String {maxLength: 20, minLength: 20, pattern: re `^[a-z]+$`}
 public type BranchIdOrRef6OneOf1 string;
 
-# Response containing authentication provider details and configuration
+# Authentication provider details with SAML configuration and domains
 public type GetProviderResponse record {
-    # Timestamp when the provider was last updated
+    # The timestamp when the provider was last updated
     @jsondata:Name {value: "updated_at"}
     string updatedAt?;
-    # Response containing SAML identity provider configuration details
+    # Response object for SAML authentication provider creation
     CreateProviderResponseSaml saml?;
-    # List of domains associated with the authentication provider
+    # List of domains associated with the provider
     CreateProviderResponseDomains[] domains?;
-    # Timestamp when the provider was created
+    # The timestamp when the provider was created
     @jsondata:Name {value: "created_at"}
     string createdAt?;
-    # Unique identifier of the authentication provider
+    # Unique identifier for the provider
     string id;
 };
 
@@ -2808,71 +2808,71 @@ public type V1DiffABranchQueries record {
     string includedSchemas?;
 };
 
-# Configuration for mapping provider attributes to local fields
+# Defines attribute mapping configuration for provider creation
 public type CreateProviderBodyAttributeMapping record {
-    # Key-value pairs defining attribute mapping configurations
+    # Mapping keys for provider attribute configuration
     record {|CreateProviderBodyAttributeMappingKeys...;|} keys;
 };
 
-# SSL validation records required for custom hostname verification
+# SSL validation records for custom hostname configuration
 public type UpdateCustomHostnameResponseDataResultSslValidationRecords record {
-    # TXT record value for SSL certificate validation
+    # TXT record value for SSL validation
     @jsondata:Name {value: "txt_value"}
     string txtValue;
-    # TXT record name for SSL certificate validation
+    # TXT record name for SSL validation
     @jsondata:Name {value: "txt_name"}
     string txtName;
 };
 
-# Database schema information with name and additional properties
+# Database schema metadata information
 public type GetProjectDbMetadataResponseSchemas record {
     # Name of the database schema
     string name;
 };
 
-# Configuration for image transformation feature availability
+# Image transformation feature configuration for storage
 public type StorageConfigResponseFeaturesImageTransformation record {
     # Whether image transformation feature is enabled
     boolean enabled;
 };
 
-# Third-party authentication provider configuration and metadata
+# Third-party authentication provider configuration
 public type ThirdPartyAuth record {
-    # Timestamp when the third-party auth configuration was last updated
+    # Timestamp when the auth provider was last updated
     @jsondata:Name {value: "updated_at"}
     string updatedAt;
-    # Timestamp when JWKS was last resolved (optional)
+    # Timestamp when the auth provider was resolved
     @jsondata:Name {value: "resolved_at"}
     string? resolvedAt?;
-    # Unique identifier for the third-party authentication provider
+    # Unique identifier for the auth provider
     string id;
-    # OIDC issuer URL for the authentication provider (optional)
+    # OIDC issuer URL for the auth provider
     @jsondata:Name {value: "oidc_issuer_url"}
     string? oidcIssuerUrl?;
-    # Custom JSON Web Key Set configuration (optional)
+    # Custom JWKS configuration for the auth provider
     @jsondata:Name {value: "custom_jwks"}
     anydata? customJwks?;
-    # Type of third-party authentication provider
+    # Type of the third-party auth provider
     string 'type;
-    # Timestamp when the third-party auth configuration was created
+    # Timestamp when the auth provider was created
     @jsondata:Name {value: "inserted_at"}
     string insertedAt;
-    # URL to fetch JSON Web Key Set from provider (optional)
+    # JWKS URL for the auth provider
     @jsondata:Name {value: "jwks_url"}
     string? jwksUrl?;
-    # Resolved JSON Web Key Set data (optional)
+    # Resolved JWKS data for the auth provider
     @jsondata:Name {value: "resolved_jwks"}
     anydata? resolvedJwks?;
 };
 
-# Code snippet metadata including owner, project, and visibility settings
+# Code snippet metadata and configuration information
 public type SnippetListData record {
-    # Owner information for code snippets with ID and username
+    # Owner information for a code snippet
     SnippetListOwner owner;
     # Timestamp when the snippet was last updated
     @jsondata:Name {value: "updated_at"}
     string updatedAt;
-    # Visibility level: user, project, org, or public
+    # Visibility level of the snippet (user, project, org, or public)
     "user"|"project"|"org"|"public" visibility;
     # Name of the snippet
     string name;
@@ -2885,7 +2885,7 @@ public type SnippetListData record {
     SnippetListProject project;
     # Unique identifier for the snippet
     string id;
-    # Type of snippet (currently only SQL supported)
+    # Type of snippet (SQL)
     "sql" 'type;
     # Timestamp when the snippet was created
     @jsondata:Name {value: "inserted_at"}
@@ -2896,7 +2896,7 @@ public type SnippetListData record {
 
 # SSL validation error details for custom hostname updates
 public type UpdateCustomHostnameResponseDataResultSslValidationErrors record {
-    # Error message describing the SSL validation issue
+    # SSL validation error message
     string message;
 };
 
@@ -2907,15 +2907,15 @@ public type V1GetProjectFunctionCombinedStatsQueries record {
     "15min"|"1hr"|"3hr"|"1day" interval;
 };
 
-# Members exceeding free project limits in claim preview
+# Members exceeding free project limits in organization claim preview
 public type OrganizationProjectClaimResponsePreviewMembersExceedingFreeProjectLimit record {
-    # Name of the member exceeding the limit
+    # Name of member exceeding free project limit
     string name;
-    # Maximum number of free projects allowed
+    # Free project limit that was exceeded
     decimal 'limit;
 };
 
-# Database configuration details for a project
+# Database information for a project response
 public type V1ProjectWithDatabaseResponseDatabase record {
     # Database engine
     @jsondata:Name {value: "postgres_engine"}
@@ -2929,9 +2929,9 @@ public type V1ProjectWithDatabaseResponseDatabase record {
     string version;
 };
 
-# Organization member information and access details
+# Organization member information and permissions
 public type V1OrganizationMemberResponse record {
-    # Role assigned to the organization member
+    # Role name assigned to the organization member
     @jsondata:Name {value: "role_name"}
     string roleName;
     # Unique identifier for the organization member
@@ -2940,7 +2940,7 @@ public type V1OrganizationMemberResponse record {
     # The username of the organization member
     @jsondata:Name {value: "user_name"}
     string userName;
-    # Indicates whether multi-factor authentication is enabled for the member
+    # Whether multi-factor authentication is enabled for the member
     @jsondata:Name {value: "mfa_enabled"}
     boolean mfaEnabled;
     # The email address of the organization member
@@ -2952,32 +2952,32 @@ public type V1PostgrestConfigResponse record {
     # If `null`, the value is automatically configured based on compute size
     @jsondata:Name {value: "db_pool"}
     int? dbPool;
-    # Maximum number of rows returned in a single query response
+    # Maximum number of rows returned by PostgREST queries
     @jsondata:Name {value: "max_rows"}
     int maxRows;
-    # Additional database schema search paths for PostgREST queries
+    # Additional database schema search path for PostgREST
     @jsondata:Name {value: "db_extra_search_path"}
     string dbExtraSearchPath;
-    # Primary database schema used by PostgREST
+    # Default database schema used by PostgREST
     @jsondata:Name {value: "db_schema"}
     string dbSchema;
 };
 
-# Request body for creating a new database branch
+# Request body for creating a new branch with configuration options
 public type CreateBranchBody record {
-    # Compute instance size for the branch (pico to 48xlarge variants)
+    # Desired compute instance size for the branch
     @jsondata:Name {value: "desired_instance_size"}
     "pico"|"nano"|"micro"|"small"|"medium"|"large"|"xlarge"|"2xlarge"|"4xlarge"|"8xlarge"|"12xlarge"|"16xlarge"|"24xlarge"|"24xlarge_optimized_memory"|"24xlarge_optimized_cpu"|"24xlarge_high_memory"|"48xlarge"|"48xlarge_optimized_memory"|"48xlarge_optimized_cpu"|"48xlarge_high_memory" desiredInstanceSize?;
     # Postgres engine version. If not provided, the latest version will be used
     @jsondata:Name {value: "postgres_engine"}
     "15"|"17"|"17-oriole" postgresEngine?;
-    # Name for the new database branch (required, minimum 1 character)
+    # Name of the branch to create (required, minimum 1 character)
     @jsondata:Name {value: "branch_name"}
     string branchName;
     # Release channel. If not provided, GA will be used
     @jsondata:Name {value: "release_channel"}
     "internal"|"alpha"|"beta"|"ga"|"withdrawn"|"preview" releaseChannel?;
-    # Git branch name to associate with the database branch
+    # Git branch name to associate with this branch
     @jsondata:Name {value: "git_branch"}
     string gitBranch?;
     # Whether this branch should be set as the default branch
@@ -2985,7 +2985,7 @@ public type CreateBranchBody record {
     boolean isDefault?;
     # Whether the branch should persist beyond temporary usage
     boolean persistent?;
-    # Geographic region where the branch will be deployed
+    # Geographic region where the branch should be deployed
     string region?;
     # Whether to include existing data when creating the branch
     @jsondata:Name {value: "with_data"}
@@ -2999,7 +2999,7 @@ public type CreateBranchBody record {
 
 # Response confirming successful run status update
 public type UpdateRunStatusResponse record {
-    # Status message confirming the operation (always 'ok')
+    # Status message confirming the update was successful
     "ok" message;
 };
 
@@ -3012,21 +3012,21 @@ public type V1GetProjectLogsQueries record {
     string sql?;
 };
 
-# Individual function update object for bulk function operations
+# Function configuration object for bulk update operations
 public type BulkUpdateFunctionBodyInner record {
     # Whether JWT verification is enabled for the function
     @jsondata:Name {value: "verify_jwt"}
     boolean verifyJwt?;
-    # Whether to use import map for function dependencies
+    # Whether to use import map for module resolution
     @jsondata:Name {value: "import_map"}
     boolean importMap?;
     # File path to the import map configuration
     @jsondata:Name {value: "import_map_path"}
     string importMapPath?;
-    # SHA256 hash of the function bundle
+    # SHA256 hash of the Edge Runtime bundle
     @jsondata:Name {value: "ezbr_sha256"}
     string ezbrSha256?;
-    # Name of the function
+    # Display name of the function
     string name;
     # Unix timestamp when the function was created
     @jsondata:Name {value: "created_at"}
@@ -3035,34 +3035,34 @@ public type BulkUpdateFunctionBodyInner record {
     string id;
     # Version number of the function
     int version;
-    # URL-friendly identifier for the function
+    # URL-safe identifier for the function
     @constraint:String {pattern: re `^[A-Za-z0-9_-]+$`}
     string slug;
-    # File path to the function's entry point
+    # File path to the function's main entry point
     @jsondata:Name {value: "entrypoint_path"}
     string entrypointPath?;
-    # Current status of the function (ACTIVE, REMOVED, or THROTTLED)
+    # Current operational status of the function
     "ACTIVE"|"REMOVED"|"THROTTLED" status;
 };
 
 # Response containing list of banned IPv4 addresses
 public type NetworkBanResponse record {
-    # Array of banned IPv4 addresses
+    # Array of IPv4 addresses that are currently banned
     @jsondata:Name {value: "banned_ipv4_addresses"}
     string[] bannedIpv4Addresses;
 };
 
-# Response for API requests count usage data
+# Response containing API request count usage data or error information
 public type V1GetUsageApiRequestsCountResponse record {
-    # Array of API request count results
+    # Array of API request count usage results
     V1GetUsageApiRequestsCountResponseResult[] result?;
-    # Error information if request failed
+    # Error information if the request failed
     string|record {decimal code; record {string domain; string location; string locationType; string message; string reason;}[] errors; string message; string status;} 'error?;
 };
 
-# Signing key information with algorithm and status
+# Cryptographic signing key with metadata and status information
 public type SigningKeysResponseKeys record {|
-    # Public JSON Web Key for the signing key
+    # JSON Web Key representation of the public key
     @jsondata:Name {value: "public_jwk"}
     anydata? publicJwk?;
     # ISO 8601 timestamp when the key was last updated
@@ -3073,23 +3073,23 @@ public type SigningKeysResponseKeys record {|
     string createdAt;
     # UUID identifier for the signing key
     string id;
-    # Cryptographic algorithm used for signing keys
+    # Cryptographic algorithm used for the signing key
     "EdDSA"|"ES256"|"RS256"|"HS256" algorithm;
     # Current status of the signing key
     "in_use"|"previously_used"|"revoked"|"standby" status;
 |};
 
-# Request body for configuring network access restrictions
+# Request object for configuring network access restrictions
 public type NetworkRestrictionsRequest record {
-    # Array of allowed IPv4 CIDR blocks for database access
+    # List of allowed IPv4 CIDR blocks for database access
     string[] dbAllowedCidrs?;
-    # Array of allowed IPv6 CIDR blocks for database access
+    # List of allowed IPv6 CIDR blocks for database access
     string[] dbAllowedCidrsV6?;
 };
 
 # Request body for authorizing just-in-time access
 public type AuthorizeJitAccessBody record {
-    # Role to be assigned for the access request
+    # Role to be granted for the access request
     @constraint:String {minLength: 1}
     string role;
     # Remote host identifier for the access request
@@ -3102,7 +3102,7 @@ public type ActionRunResponseRunSteps record {
     # Timestamp when the step was last updated
     @jsondata:Name {value: "updated_at"}
     string updatedAt;
-    # Name of the action run step
+    # Name of the execution step
     "clone"|"pull"|"health"|"configure"|"migrate"|"seed"|"deploy" name;
     # Timestamp when the step was created
     @jsondata:Name {value: "created_at"}
@@ -3111,11 +3111,11 @@ public type ActionRunResponseRunSteps record {
     "CREATED"|"DEAD"|"EXITED"|"PAUSED"|"REMOVING"|"RESTARTING"|"RUNNING" status;
 };
 
-# Request body for adding network restrictions
+# Request object for adding network access restrictions
 public type NetworkRestrictionsPatchRequestAdd record {
-    # IPv4 CIDR blocks to add to allowed database access list
+    # IPv4 CIDR blocks to add to database access allowlist
     string[] dbAllowedCidrs?;
-    # IPv6 CIDR blocks to add to allowed database access list
+    # IPv6 CIDR blocks to add to database access allowlist
     string[] dbAllowedCidrsV6?;
 };
 
@@ -3134,19 +3134,19 @@ public type V1ListAllSnippetsQueries record {
 
 # PostgreSQL database configuration settings
 public type PostgresConfigResponse record {
-    # Maximum number of concurrent database connections
+    # Maximum number of concurrent database connections (1-262143)
     @jsondata:Name {value: "max_connections"}
     int maxConnections?;
-    # Maximum number of locks per database transaction
+    # Maximum locks per transaction (10-2147483640)
     @jsondata:Name {value: "max_locks_per_transaction"}
     int maxLocksPerTransaction?;
-    # Maximum number of parallel worker processes
+    # Maximum number of parallel worker processes (0-1024)
     @jsondata:Name {value: "max_parallel_workers"}
     int maxParallelWorkers?;
-    # Session replication role: origin, replica, or local
+    # Current session's replication role (origin, replica, or local)
     @jsondata:Name {value: "session_replication_role"}
     "origin"|"replica"|"local" sessionReplicationRole?;
-    # Amount of memory allocated for shared buffer cache
+    # Amount of memory allocated for shared buffers
     @jsondata:Name {value: "shared_buffers"}
     string sharedBuffers?;
     # Maximum number of concurrent WAL sender processes
@@ -3155,43 +3155,43 @@ public type PostgresConfigResponse record {
     # Timeout duration for WAL sender connections
     @jsondata:Name {value: "wal_sender_timeout"}
     string walSenderTimeout?;
-    # Enable hot standby feedback to prevent query conflicts
+    # Whether hot standby provides feedback to primary server
     @jsondata:Name {value: "hot_standby_feedback"}
     boolean hotStandbyFeedback?;
     # Maximum WAL size retained for replication slots
     @jsondata:Name {value: "max_slot_wal_keep_size"}
     string maxSlotWalKeepSize?;
-    # Maximum delay before canceling conflicting standby queries
+    # Maximum delay before canceling queries on hot standby
     @jsondata:Name {value: "max_standby_streaming_delay"}
     string maxStandbyStreamingDelay?;
-    # Memory allocated for maintenance operations like VACUUM
+    # Memory allocated for maintenance operations
     @jsondata:Name {value: "maintenance_work_mem"}
     string maintenanceWorkMem?;
-    # Maximum parallel workers per gather node (0-1024)
+    # Maximum parallel workers per gather operation (0-1024)
     @jsondata:Name {value: "max_parallel_workers_per_gather"}
     int maxParallelWorkersPerGather?;
     # Planner's assumption of effective disk cache size
     @jsondata:Name {value: "effective_cache_size"}
     string effectiveCacheSize?;
-    # Maximum delay before canceling archive recovery queries
+    # Maximum delay before canceling queries on archive recovery
     @jsondata:Name {value: "max_standby_archive_delay"}
     string maxStandbyArchiveDelay?;
     # Maximum parallel workers for maintenance operations (0-1024)
     @jsondata:Name {value: "max_parallel_maintenance_workers"}
     int maxParallelMaintenanceWorkers?;
-    # Size reserved for tracking currently executing query text
+    # Memory reserved for storing query text in pg_stat_activity
     @jsondata:Name {value: "track_activity_query_size"}
     string trackActivityQuerySize?;
-    # Minimum WAL size to retain for standby servers
+    # Minimum WAL size retained in pg_wal directory
     @jsondata:Name {value: "wal_keep_size"}
     string walKeepSize?;
     # Maximum WAL size before triggering checkpoint
     @jsondata:Name {value: "max_wal_size"}
     string maxWalSize?;
-    # Maximum execution time for any statement
+    # Maximum execution time for statements
     @jsondata:Name {value: "statement_timeout"}
     string statementTimeout?;
-    # Enable tracking of transaction commit timestamps
+    # Whether to track transaction commit timestamps
     @jsondata:Name {value: "track_commit_timestamp"}
     boolean trackCommitTimestamp?;
     # Memory allocated for logical decoding operations
@@ -3208,13 +3208,13 @@ public type PostgresConfigResponse record {
     string workMem?;
 };
 
-# Domain ownership verification details for custom hostname
+# Ownership verification details for custom hostname update
 public type UpdateCustomHostnameResponseDataResultOwnershipVerification record {
-    # DNS record name for domain ownership verification
+    # Name of the ownership verification record
     string name;
-    # DNS record type for domain ownership verification
+    # Type of the ownership verification record
     string 'type;
-    # DNS record value for domain ownership verification
+    # Value of the ownership verification record
     string value;
 };
 
@@ -3224,30 +3224,30 @@ public type CreateProviderBodyAttributeMappingKeys record {
     record {}|decimal|string|boolean default?;
     # Array of attribute names for mapping
     string[] names?;
-    # Whether the attribute should be treated as an array
+    # Whether the attribute is an array type
     boolean array?;
     # Name of the attribute mapping key
     string name?;
 };
 
-# Pricing information for project addon variants
+# Pricing information for a project addon variant
 public type ListProjectAddonsResponseVariantPrice record {
-    # Price amount for the addon variant
+    # The price amount for the addon variant
     decimal amount;
-    # Description of the pricing model
+    # A description of the pricing structure
     string description;
-    # Billing interval for the pricing
+    # The billing interval for the pricing (monthly or hourly)
     "monthly"|"hourly" interval;
-    # Type of pricing model (fixed or usage-based)
+    # The pricing type (fixed or usage-based)
     "fixed"|"usage" 'type;
 };
 
-# Available addon variant configurations
+# Addon variant configuration with multiple possible schemas
 public type AddonVariant AddonVariantOneOf1|AddonVariantAddonVariantOneOf12|AddonVariantAddonVariantAddonVariantOneOf123|AddonVariantAddonVariantAddonVariantAddonVariantOneOf1234;
 
 # Current SSL enforcement configuration settings
 public type SslEnforcementResponseCurrentConfig record {
-    # Whether SSL is enforced for database connections
+    # Whether SSL enforcement is enabled for database connections
     boolean database;
 };
 
@@ -3256,37 +3256,37 @@ public type V1GetProjectUsageApiCountQueries record {
     "15min"|"30min"|"1hr"|"3hr"|"1day"|"3day"|"7day" interval?;
 };
 
-# Request to update SSL enforcement settings
+# Request to update SSL enforcement configuration
 public type SslEnforcementRequest record {
     # Current SSL enforcement configuration settings
     SslEnforcementResponseCurrentConfig requestedConfig;
 };
 
-# Response schema for API usage count requests with result data or error
+# Response schema for API usage count queries with result data and error handling
 public type V1GetUsageApiCountResponse record {
     # Array of API usage count results
     V1GetUsageApiCountResponseResult[] result?;
-    # Error information as string or detailed error object
+    # Error information as string or structured error object
     string|record {decimal code; record {string domain; string location; string locationType; string message; string reason;}[] errors; string message; string status;} 'error?;
 };
 
-# Organization details with plan, features, and configuration settings
+# Organization details including ID, name, plan, and feature opt-ins
 public type V1OrganizationSlugResponse record {
-    # AI feature opt-in tags for SQL, data, and log generators
+    # Array of AI feature opt-in tags for the organization
     @jsondata:Name {value: "opt_in_tags"}
     ("AI_SQL_GENERATOR_OPT_IN"|"AI_DATA_GENERATOR_OPT_IN"|"AI_LOG_GENERATOR_OPT_IN")[] optInTags;
     # Organization name
     string name;
     # Unique organization identifier
     string id;
-    # Organization subscription plan (free, pro, team, enterprise)
+    # Organization subscription plan type
     "free"|"pro"|"team"|"enterprise" plan?;
-    # Permitted release channels for features and updates
+    # Array of permitted release channels for the organization
     @jsondata:Name {value: "allowed_release_channels"}
     ("internal"|"alpha"|"beta"|"ga"|"withdrawn"|"preview")[] allowedReleaseChannels;
 };
 
-# Request body for deploying Edge Functions with metadata and files
+# Request body for function deployment containing metadata and optional files
 public type FunctionDeployBody record {
     # Metadata configuration for function deployment
     FunctionDeployBodyMetadata metadata;
@@ -3294,26 +3294,26 @@ public type FunctionDeployBody record {
     record {byte[] fileContent; string fileName;}[] file?;
 };
 
-# Response after deleting an authentication provider
+# Response data for deleted authentication provider with timestamps and config
 public type DeleteProviderResponse record {
-    # Timestamp when provider was last updated
+    # Timestamp when the provider was last updated
     @jsondata:Name {value: "updated_at"}
     string updatedAt?;
-    # Response containing SAML identity provider configuration details
+    # Response object for SAML authentication provider creation
     CreateProviderResponseSaml saml?;
-    # Array of associated domain configurations
+    # Array of associated domains for the provider
     CreateProviderResponseDomains[] domains?;
-    # Timestamp when provider was created
+    # Timestamp when the provider was created
     @jsondata:Name {value: "created_at"}
     string createdAt?;
     # Unique provider identifier
     string id;
 };
 
-# CI compute instance size variants from micro to 48xlarge with memory/CPU options
+# CI compute instance size variants for addon configuration
 public type AddonVariantOneOf1 "ci_micro"|"ci_small"|"ci_medium"|"ci_large"|"ci_xlarge"|"ci_2xlarge"|"ci_4xlarge"|"ci_8xlarge"|"ci_12xlarge"|"ci_16xlarge"|"ci_24xlarge"|"ci_24xlarge_optimized_cpu"|"ci_24xlarge_optimized_memory"|"ci_24xlarge_high_memory"|"ci_48xlarge"|"ci_48xlarge_optimized_cpu"|"ci_48xlarge_optimized_memory"|"ci_48xlarge_high_memory";
 
-# Response containing project claim token details and metadata
+# Project claim token details with creation info and expiration
 public type ProjectClaimTokenResponse record {
     # Token expiration timestamp
     @jsondata:Name {value: "expires_at"}
@@ -3329,11 +3329,11 @@ public type ProjectClaimTokenResponse record {
     string createdBy;
 };
 
-# Response object containing analytics results or error information
+# Response containing analytics query results and optional error information
 public type AnalyticsResponse record {
-    # Array of analytics query results
+    # Array containing the analytics query results
     anydata[] result?;
-    # Error information as string or detailed error object
+    # Error information if the analytics query failed
     string|record {decimal code; record {string domain; string location; string locationType; string message; string reason;}[] errors; string message; string status;} 'error?;
 };
 
@@ -3346,10 +3346,10 @@ public type V1GetServicesHealthQueries record {
 
 # Request body for updating just-in-time access permissions for a user
 public type UpdateJitAccessBody record {
-    # UUID of the user to update JIT access for
+    # UUID of the user to update just-in-time access for
     @jsondata:Name {value: "user_id"}
     string userId;
-    # Array of roles to assign for just-in-time access
+    # Array of roles to assign to the user for just-in-time access
     JitAccessResponseUserRoles[] roles;
 };
 
@@ -3361,17 +3361,17 @@ public type V1DeployAFunctionQueries record {
     string slug?;
 };
 
-# Secret configuration with name and value (excludes SUPABASE_ prefix)
+# Individual secret configuration with name and value for creation
 public type CreateSecretBodyInner record {
     # Secret name must not start with the SUPABASE_ prefix
     @constraint:String {maxLength: 256}
     string name;
-    # Secret value (max 24,576 characters)
+    # The secret value to store (max 24576 characters)
     @constraint:String {maxLength: 24576}
     string value;
 };
 
-# Migration item with optional name and required version identifier
+# Individual migration entry with version and optional name information
 public type V1ListMigrationsResponseInner record {
     # Optional name of the database migration
     string name?;
@@ -3380,24 +3380,24 @@ public type V1ListMigrationsResponseInner record {
     string version;
 };
 
-# Response containing an array of cryptographic signing keys
+# Response containing cryptographic signing keys for authentication
 public type SigningKeysResponse record {|
-    # Array of signing key objects
+    # Array of signing key objects for cryptographic operations
     SigningKeysResponseKeys[] keys;
 |};
 
-# Branch information with project references, status, and deployment details
+# Complete branch information including status, metadata, and configuration
 public type BranchResponse record {
     # Timestamp when the branch was created
     @jsondata:Name {value: "created_at"}
     string createdAt;
-    # Associated Git branch name
+    # Associated Git branch name for the project branch
     @jsondata:Name {value: "git_branch"}
     string gitBranch?;
-    # Indicates if this is the default branch for the project
+    # Indicates whether this branch is the default branch
     @jsondata:Name {value: "is_default"}
     boolean isDefault;
-    # Webhook URL for branch notifications and status updates
+    # URL endpoint for branch notifications
     @jsondata:Name {value: "notify_url"}
     string notifyUrl?;
     # Reference identifier of the associated project
@@ -3406,22 +3406,22 @@ public type BranchResponse record {
     # Timestamp when the branch was last updated
     @jsondata:Name {value: "updated_at"}
     string updatedAt;
-    # Reference identifier of the parent project this branch derives from
+    # Reference identifier of the parent project
     @jsondata:Name {value: "parent_project_ref"}
     string parentProjectRef;
     # Name of the branch
     string name;
-    # Pull request number associated with this branch
+    # Pull request number associated with the branch
     @jsondata:Name {value: "pr_number"}
     int:Signed32 prNumber?;
-    # Timestamp when review was requested for this branch
+    # Timestamp when review was requested for the branch
     @jsondata:Name {value: "review_requested_at"}
     string reviewRequestedAt?;
-    # Unique identifier for the branch
+    # Unique identifier of the branch
     string id;
-    # Indicates if the branch persists beyond temporary usage
+    # Indicates whether the branch is persistent
     boolean persistent;
-    # Indicates if the branch includes data from the parent project
+    # Indicates whether the branch includes data
     @jsondata:Name {value: "with_data"}
     boolean withData;
     # This field is deprecated and will not be populated
@@ -3430,7 +3430,7 @@ public type BranchResponse record {
     @jsondata:Name {value: "latest_check_run_id"}
     @deprecated
     decimal latestCheckRunId?;
-    # Current deployment status of the branch
+    # Current status of the branch deployment process
     "CREATING_PROJECT"|"RUNNING_MIGRATIONS"|"MIGRATIONS_PASSED"|"MIGRATIONS_FAILED"|"FUNCTIONS_DEPLOYED"|"FUNCTIONS_FAILED" status;
 };
 
@@ -3440,25 +3440,25 @@ public type V1UpdateProjectApiKeyQueries record {
     boolean reveal?;
 };
 
-# Region recommendations including specific and smart group options
+# Region recommendations containing specific regions and smart group data
 public type RegionsInfoRecommendations record {
-    # List of specific region recommendations
+    # Array of specific region recommendations
     RegionsInfoRecommendationsSpecific[] specific;
-    # Smart region group recommendation with geographic grouping details.
+    # Smart region group recommendation information
     RegionsInfoRecommendationsSmartGroup smartGroup;
 };
 
-# Network access configuration for just-in-time access permissions
+# Network access configuration for just-in-time access
 public type JitAccessResponseAllowedNetworks record {
-    # List of allowed IPv4 CIDR blocks for network access
+    # Array of allowed IPv4 CIDR blocks for network access
     @jsondata:Name {value: "allowed_cidrs"}
     JitAccessResponseAllowedNetworksAllowedCidrs[] allowedCidrs?;
-    # List of allowed IPv6 CIDR blocks for network access
+    # Array of allowed IPv6 CIDR blocks for network access
     @jsondata:Name {value: "allowed_cidrs_v6"}
     JitAccessResponseAllowedNetworksAllowedCidrs[] allowedCidrsV6?;
 };
 
-# Array of function update operations for bulk processing
+# Array of function update requests for bulk operations
 public type BulkUpdateFunctionBody BulkUpdateFunctionBodyInner[];
 
 # PostgREST configuration response including JWT secret and database settings
@@ -3466,16 +3466,16 @@ public type PostgrestConfigWithJWTSecretResponse record {
     # If `null`, the value is automatically configured based on compute size
     @jsondata:Name {value: "db_pool"}
     int? dbPool;
-    # JWT secret used for token verification
+    # JWT secret key used for token verification
     @jsondata:Name {value: "jwt_secret"}
     string jwtSecret?;
-    # Maximum number of rows returned in API responses
+    # Maximum number of rows returned in a single response
     @jsondata:Name {value: "max_rows"}
     int maxRows;
-    # Additional database schema search path
+    # Additional database schema search paths
     @jsondata:Name {value: "db_extra_search_path"}
     string dbExtraSearchPath;
-    # Primary database schema for API operations
+    # Primary database schema name
     @jsondata:Name {value: "db_schema"}
     string dbSchema;
 };
@@ -3492,65 +3492,65 @@ public type BranchIdOrRef5 BranchIdOrRef5OneOf1|BranchIdOrRef5BranchIdOrRef5OneO
 # Branch identifier or reference with multiple format options
 public type BranchIdOrRef6 BranchIdOrRef6OneOf1|BranchIdOrRef6BranchIdOrRef6OneOf12;
 
-# Response schema for pgsodium configuration containing encryption root key
+# Response containing pgsodium encryption configuration details
 public type PgsodiumConfigResponse record {
-    # Root encryption key for pgsodium configuration
+    # The root encryption key used by pgsodium for database encryption
     @jsondata:Name {value: "root_key"}
     string rootKey;
 };
 
-# Response schema for PgBouncer connection pooling configuration settings
+# Response containing PgBouncer connection pooling configuration settings
 public type V1PgbouncerConfigResponse record {
-    # Comma-separated list of startup parameters to ignore
+    # Comma-separated list of startup parameters to ignore from client
     @jsondata:Name {value: "ignore_startup_parameters"}
     string ignoreStartupParameters?;
-    # Default number of connections in the pool per database
+    # Default number of server connections to allow per user/database pair
     @jsondata:Name {value: "default_pool_size"}
     int defaultPoolSize?;
-    # Maximum lifetime of a server connection in seconds
+    # Maximum lifetime in seconds for server connections before recycling
     @jsondata:Name {value: "server_lifetime"}
     int serverLifetime?;
-    # Connection pooling mode: transaction, session, or statement
+    # Connection pooling mode: transaction, session, or statement level
     @jsondata:Name {value: "pool_mode"}
     "transaction"|"session"|"statement" poolMode?;
     # Maximum time in seconds a query can wait for a connection
     @jsondata:Name {value: "query_wait_timeout"}
     int queryWaitTimeout?;
-    # Maximum idle time in seconds before closing server connection
+    # Maximum idle time in seconds before closing server connections
     @jsondata:Name {value: "server_idle_timeout"}
     int serverIdleTimeout?;
-    # Number of additional connections reserved for emergencies
+    # Number of additional connections to maintain in reserve pool
     @jsondata:Name {value: "reserve_pool_size"}
     int reservePoolSize?;
-    # Maximum number of client connections allowed
+    # Maximum number of client connections allowed per database
     @jsondata:Name {value: "max_client_conn"}
     int maxClientConn?;
-    # Database connection string for PgBouncer
+    # Database connection string used by PgBouncer to connect to PostgreSQL
     @jsondata:Name {value: "connection_string"}
     string connectionString?;
 };
 
-# Response schema for custom subdomain configuration status
+# Response containing vanity subdomain configuration and status information
 public type VanitySubdomainConfigResponse record {
-    # Custom domain name for the vanity subdomain
+    # Custom domain name configured for the vanity subdomain
     @jsondata:Name {value: "custom_domain"}
     string customDomain?;
-    # Status of vanity subdomain: not-used, custom-domain-used, or active
+    # Current status of the vanity subdomain configuration
     "not-used"|"custom-domain-used"|"active" status;
 };
 
-# Response schema for OAuth token authentication containing access tokens
+# Response containing OAuth authentication tokens and metadata
 public type OAuthTokenResponse record {|
-    # OAuth access token for API authentication
+    # JWT access token for authenticating API requests
     @jsondata:Name {value: "access_token"}
     string accessToken;
-    # OAuth refresh token for renewing access tokens
+    # Token used to obtain new access tokens when they expire
     @jsondata:Name {value: "refresh_token"}
     string refreshToken;
-    # Type of OAuth token, always 'Bearer'
+    # Type of token issued, always 'Bearer' for OAuth responses
     @jsondata:Name {value: "token_type"}
     "Bearer" tokenType;
-    # Token expiration time in seconds from issuance
+    # Number of seconds until the access token expires
     @jsondata:Name {value: "expires_in"}
     int expiresIn;
 |};
@@ -3563,18 +3563,18 @@ public type FunctionSlugResponse record {
     # Whether import map is enabled for the function
     @jsondata:Name {value: "import_map"}
     boolean importMap?;
-    # Timestamp when the function was last updated (Unix timestamp)
+    # Unix timestamp when the function was last updated
     @jsondata:Name {value: "updated_at"}
     int updatedAt;
     # File path to the import map configuration
     @jsondata:Name {value: "import_map_path"}
     string importMapPath?;
-    # SHA256 hash of the function bundle
+    # SHA256 hash of the function's ezbr bundle
     @jsondata:Name {value: "ezbr_sha256"}
     string ezbrSha256?;
-    # Display name of the function
+    # Human-readable name of the function
     string name;
-    # Timestamp when the function was created (Unix timestamp)
+    # Unix timestamp when the function was created
     @jsondata:Name {value: "created_at"}
     int createdAt;
     # Unique identifier for the function
@@ -3590,20 +3590,20 @@ public type FunctionSlugResponse record {
     "ACTIVE"|"REMOVED"|"THROTTLED" status;
 };
 
-# Union type accepting either branch ID or reference format
+# Union type accepting either branch ID or reference identifier
 public type BranchIdOrRef1 BranchIdOrRef1OneOf1|BranchIdOrRef1BranchIdOrRef1OneOf12;
 
-# Union type accepting either branch ID or reference format
+# Union type accepting either branch ID or reference identifier
 public type BranchIdOrRef2 BranchIdOrRef2OneOf1|BranchIdOrRef2BranchIdOrRef2OneOf12;
 
 # Request body for creating a new cryptographic signing key
 public type CreateSigningKeyBody record {|
-    # Private JSON Web Key for signing operations (RSA, EC, OKP, or symmetric)
+    # Private JSON Web Key for signing operations
     @jsondata:Name {value: "private_jwk"}
     record {|string kid?; "sig" use?; ("sign"|"verify")[] key_ops?; true ext?; "RSA" kty; "RS256" alg?; string n; "AQAB" e; string d; string p; string q; string dp; string dq; string qi;|}|record {|string kid?; "sig" use?; ("sign"|"verify")[] key_ops?; true ext?; "EC" kty; "ES256" alg?; "P-256" crv; string x; string y; string d;|}|record {|string kid?; "sig" use?; ("sign"|"verify")[] key_ops?; true ext?; "OKP" kty; "EdDSA" alg?; "Ed25519" crv; string x; string d;|}|record {|string kid?; "sig" use?; ("sign"|"verify")[] key_ops?; true ext?; "oct" kty; "HS256" alg?; string k;|} privateJwk?;
-    # Signing algorithm to use (EdDSA, ES256, RS256, or HS256)
+    # Cryptographic algorithm for the signing key
     "EdDSA"|"ES256"|"RS256"|"HS256" algorithm;
-    # Status of the signing key (in_use or standby)
+    # Current status of the signing key
     "in_use"|"standby" status?;
 |};
 
@@ -3621,36 +3621,36 @@ public type UpdateBranchBody record {
     # Name of the branch to update
     @jsondata:Name {value: "branch_name"}
     string branchName?;
-    # Git branch name associated with this branch
+    # Git branch reference for the update
     @jsondata:Name {value: "git_branch"}
     string gitBranch?;
     # Whether to request review for branch changes
     @jsondata:Name {value: "request_review"}
     boolean requestReview?;
-    # Whether the branch should persist after operations
+    # Whether the branch should persist across operations
     boolean persistent?;
     # HTTP endpoint to receive branch status updates
     @jsondata:Name {value: "notify_url"}
     string notifyUrl?;
-    # Current status of the branch deployment process
+    # Current deployment status of the branch
     "CREATING_PROJECT"|"RUNNING_MIGRATIONS"|"MIGRATIONS_PASSED"|"MIGRATIONS_FAILED"|"FUNCTIONS_DEPLOYED"|"FUNCTIONS_FAILED" status?;
 };
 
-# Array of action run response objects
+# Array of action run execution results
 public type ListActionRunResponse ListActionRunResponseInner[];
 
-# Complete authentication configuration response with all auth providers
+# Complete authentication configuration settings and provider details
 public type AuthConfigResponse record {
     # Whether user registration is disabled
     @jsondata:Name {value: "disable_signup"}
     boolean? disableSignup;
-    # Whether email is optional for Slack OAuth authentication
+    # Whether email is optional for Slack authentication
     @jsondata:Name {value: "external_slack_email_optional"}
     boolean? externalSlackEmailOptional;
-    # Google OAuth client ID for authentication
+    # Google OAuth client identifier
     @jsondata:Name {value: "external_google_client_id"}
     string? externalGoogleClientId;
-    # API key for Textlocal SMS provider
+    # API key for Textlocal SMS service
     @jsondata:Name {value: "sms_textlocal_api_key"}
     string? smsTextlocalApiKey;
     # Whether phone number authentication is enabled
@@ -3659,58 +3659,58 @@ public type AuthConfigResponse record {
     # Whether pre-user creation webhook is enabled
     @jsondata:Name {value: "hook_before_user_created_enabled"}
     boolean? hookBeforeUserCreatedEnabled;
-    # GitHub OAuth client secret for authentication
+    # GitHub OAuth client secret
     @jsondata:Name {value: "external_github_secret"}
     string? externalGithubSecret;
-    # Additional Google OAuth client IDs for multi-client support
+    # Additional Google OAuth client identifiers
     @jsondata:Name {value: "external_google_additional_client_ids"}
     string? externalGoogleAdditionalClientIds;
-    # Enable HaveIBeenPwned password breach detection for user passwords
+    # Indicates if Have I Been Pwned password breach checking is enabled
     @jsondata:Name {value: "password_hibp_enabled"}
     boolean? passwordHibpEnabled;
-    # Administrator email address for SMTP email configuration
+    # Administrator email address for SMTP configuration
     @jsondata:Name {value: "smtp_admin_email"}
     string? smtpAdminEmail;
     # Email subject line for password change notification messages
     @jsondata:Name {value: "mailer_subjects_password_changed_notification"}
     string? mailerSubjectsPasswordChangedNotification;
-    # Enable Solana Web3 wallet authentication provider
+    # Indicates if Solana Web3 external authentication is enabled
     @jsondata:Name {value: "external_web3_solana_enabled"}
     boolean? externalWeb3SolanaEnabled;
     # Maximum allowed duration for API requests in milliseconds
     @jsondata:Name {value: "api_max_request_duration"}
     int? apiMaxRequestDuration;
-    # GitHub OAuth application client ID for external authentication
+    # Client ID for GitHub OAuth integration
     @jsondata:Name {value: "external_github_client_id"}
     string? externalGithubClientId;
-    # Test OTP code for SMS authentication in development/testing
+    # Test OTP code for SMS authentication testing
     @jsondata:Name {value: "sms_test_otp"}
     string? smsTestOtp;
-    # Make email optional for Spotify OAuth authentication flow
+    # Indicates if email is optional for Spotify OAuth integration
     @jsondata:Name {value: "external_spotify_email_optional"}
     boolean? externalSpotifyEmailOptional;
-    # Keycloak OAuth application client ID for external authentication
+    # Client ID for Keycloak OAuth integration
     @jsondata:Name {value: "external_keycloak_client_id"}
     string? externalKeycloakClientId;
     # Password for SMTP server authentication
     @jsondata:Name {value: "smtp_pass"}
     string? smtpPass;
-    # Nimbus OAuth application client secret for authentication
+    # Client secret for Nimbus OAuth integration
     @jsondata:Name {value: "nimbus_oauth_client_secret"}
     string? nimbusOauthClientSecret;
-    # Email subject line for user reauthentication messages
+    # Email subject line for reauthentication notification messages
     @jsondata:Name {value: "mailer_subjects_reauthentication"}
     string? mailerSubjectsReauthentication;
-    # Facebook OAuth application client secret for external authentication
+    # Client secret for Facebook OAuth integration
     @jsondata:Name {value: "external_facebook_secret"}
     string? externalFacebookSecret;
-    # Secrets configuration for custom SMS sending webhook
+    # Secrets configuration for SMS sending webhook
     @jsondata:Name {value: "hook_send_sms_secrets"}
     string? hookSendSmsSecrets;
-    # Enable Slack OAuth authentication provider
+    # Indicates if Slack external authentication is enabled
     @jsondata:Name {value: "external_slack_enabled"}
     boolean? externalSlackEnabled;
-    # Primary site URL for authentication redirects and callbacks
+    # Primary site URL for the authentication service
     @jsondata:Name {value: "site_url"}
     string? siteUrl;
     # Length of OTP codes for phone-based multi-factor authentication
@@ -3719,10 +3719,10 @@ public type AuthConfigResponse record {
     # Twilio Message Service SID for SMS delivery
     @jsondata:Name {value: "sms_twilio_message_service_sid"}
     string? smsTwilioMessageServiceSid;
-    # Twilio Verify service authentication token for SMS verification
+    # Twilio Verify service authentication token
     @jsondata:Name {value: "sms_twilio_verify_auth_token"}
     string? smsTwilioVerifyAuthToken;
-    # Slack OIDC application client ID for external authentication
+    # Client ID for Slack OIDC integration
     @jsondata:Name {value: "external_slack_oidc_client_id"}
     string? externalSlackOidcClientId;
     # Maximum number of MFA factors a user can enroll
@@ -3758,22 +3758,22 @@ public type AuthConfigResponse record {
     # Whether email is optional for Figma OAuth authentication
     @jsondata:Name {value: "external_figma_email_optional"}
     boolean? externalFigmaEmailOptional;
-    # Keycloak server URL for OAuth integration
+    # Base URL for Keycloak OAuth provider
     @jsondata:Name {value: "external_keycloak_url"}
     string? externalKeycloakUrl;
-    # Whether Spotify OAuth authentication is enabled
+    # Whether Spotify OAuth provider is enabled
     @jsondata:Name {value: "external_spotify_enabled"}
     boolean? externalSpotifyEnabled;
     # Client secret for Notion OAuth integration
     @jsondata:Name {value: "external_notion_secret"}
     string? externalNotionSecret;
-    # Secrets for password verification attempt webhook
+    # Webhook secrets for password verification attempt events
     @jsondata:Name {value: "hook_password_verification_attempt_secrets"}
     string? hookPasswordVerificationAttemptSecrets;
     # Client secret for Azure OAuth integration
     @jsondata:Name {value: "external_azure_secret"}
     string? externalAzureSecret;
-    # Rate limit for OTP requests per time period
+    # Rate limit for OTP requests per time window
     @jsondata:Name {value: "rate_limit_otp"}
     int? rateLimitOtp;
     # Authentication token for Twilio SMS service
@@ -3785,28 +3785,28 @@ public type AuthConfigResponse record {
     # Whether TOTP enrollment is enabled for MFA
     @jsondata:Name {value: "mfa_totp_enroll_enabled"}
     boolean? mfaTotpEnrollEnabled;
-    # Display name for SMTP email sender
+    # Display name used as the sender for SMTP email notifications
     @jsondata:Name {value: "smtp_sender_name"}
     string? smtpSenderName;
-    # Whether email is optional for Nimbus OAuth authentication
+    # Whether email is optional for Nimbus OAuth authentication flows
     @jsondata:Name {value: "nimbus_oauth_email_optional"}
     boolean? nimbusOauthEmailOptional;
-    # Tags associated with authentication sessions
+    # Tags associated with user authentication sessions
     @jsondata:Name {value: "sessions_tags"}
     string? sessionsTags;
     # Email template content for MFA factor enrollment notifications
     @jsondata:Name {value: "mailer_templates_mfa_factor_enrolled_notification_content"}
     string? mailerTemplatesMfaFactorEnrolledNotificationContent;
-    # Allow sign-ins with unverified email addresses
+    # Whether users can sign in with unverified email addresses
     @jsondata:Name {value: "mailer_allow_unverified_email_sign_ins"}
     boolean? mailerAllowUnverifiedEmailSignIns;
     # Client ID for Discord OAuth integration
     @jsondata:Name {value: "external_discord_client_id"}
     string? externalDiscordClientId;
-    # Enable Slack OIDC authentication provider
+    # Whether Slack OpenID Connect authentication is enabled
     @jsondata:Name {value: "external_slack_oidc_enabled"}
     boolean? externalSlackOidcEnabled;
-    # Rate limit for token refresh requests
+    # Rate limit for token refresh requests per time window
     @jsondata:Name {value: "rate_limit_token_refresh"}
     int? rateLimitTokenRefresh;
     # Access key for MessageBird SMS service integration
@@ -3818,19 +3818,19 @@ public type AuthConfigResponse record {
     # Client secret for Figma OAuth integration
     @jsondata:Name {value: "external_figma_secret"}
     string? externalFigmaSecret;
-    # Enable email notifications for MFA factor enrollment
+    # Whether email notifications for MFA factor enrollment are enabled
     @jsondata:Name {value: "mailer_notifications_mfa_factor_enrolled_enabled"}
     boolean? mailerNotificationsMfaFactorEnrolledEnabled;
     # Webhook URI for password verification attempt events
     @jsondata:Name {value: "hook_password_verification_attempt_uri"}
     string? hookPasswordVerificationAttemptUri;
-    # Enable GitLab OAuth authentication provider
+    # Whether GitLab OAuth authentication is enabled
     @jsondata:Name {value: "external_gitlab_enabled"}
     boolean? externalGitlabEnabled;
-    # Email template content for email change notifications
+    # Email template content for email address change notifications
     @jsondata:Name {value: "mailer_templates_email_change_content"}
     string? mailerTemplatesEmailChangeContent;
-    # Maximum frequency for phone-based MFA attempts
+    # Maximum frequency for phone-based MFA attempts per time window
     @jsondata:Name {value: "mfa_phone_max_frequency"}
     int? mfaPhoneMaxFrequency;
     # Username for SMTP server authentication
@@ -3839,31 +3839,31 @@ public type AuthConfigResponse record {
     # Minimum required length for user passwords
     @jsondata:Name {value: "password_min_length"}
     int? passwordMinLength;
-    # Enable webhooks for MFA verification attempt events
+    # Whether webhooks for MFA verification attempts are enabled
     @jsondata:Name {value: "hook_mfa_verification_attempt_enabled"}
     boolean? hookMfaVerificationAttemptEnabled;
-    # Enable CAPTCHA for security verification
+    # Whether CAPTCHA verification is enabled for security
     @jsondata:Name {value: "security_captcha_enabled"}
     boolean? securityCaptchaEnabled;
-    # Indicates if Twitter OAuth authentication is enabled
+    # Indicates whether Twitter OAuth authentication is enabled
     @jsondata:Name {value: "external_twitter_enabled"}
     boolean? externalTwitterEnabled;
-    # Enables email notifications when user email address is changed
+    # Indicates whether email notifications are sent when user email is changed
     @jsondata:Name {value: "mailer_notifications_email_changed_enabled"}
     boolean? mailerNotificationsEmailChangedEnabled;
-    # Indicates if email/password authentication is enabled
+    # Indicates whether email/password authentication is enabled
     @jsondata:Name {value: "external_email_enabled"}
     boolean? externalEmailEnabled;
     # Client secret for Keycloak OAuth integration
     @jsondata:Name {value: "external_keycloak_secret"}
     string? externalKeycloakSecret;
-    # Indicates if WorkOS SSO authentication is enabled
+    # Indicates whether WorkOS authentication is enabled
     @jsondata:Name {value: "external_workos_enabled"}
     boolean? externalWorkosEnabled;
     # Port number for SMTP email server connection
     @jsondata:Name {value: "smtp_port"}
     string? smtpPort;
-    # Indicates if Kakao OAuth authentication is enabled
+    # Indicates whether Kakao OAuth authentication is enabled
     @jsondata:Name {value: "external_kakao_enabled"}
     boolean? externalKakaoEnabled;
     # Client secret for Bitbucket OAuth integration
@@ -3872,163 +3872,163 @@ public type AuthConfigResponse record {
     # Additional client IDs for Apple Sign-In integration
     @jsondata:Name {value: "external_apple_additional_client_ids"}
     string? externalAppleAdditionalClientIds;
-    # Webhook secrets for MFA verification attempt events
+    # Webhook secrets for MFA verification attempt hooks
     @jsondata:Name {value: "hook_mfa_verification_attempt_secrets"}
     string? hookMfaVerificationAttemptSecrets;
-    # Webhook URI for custom email sending functionality
+    # URI endpoint for custom email sending webhook
     @jsondata:Name {value: "hook_send_email_uri"}
     string? hookSendEmailUri;
-    # Originator/sender ID for MessageBird SMS service
+    # Originator identifier for MessageBird SMS service
     @jsondata:Name {value: "sms_messagebird_originator"}
     string? smsMessagebirdOriginator;
-    # Email subject for MFA factor enrollment notifications
+    # Email subject line for MFA factor enrollment notifications
     @jsondata:Name {value: "mailer_subjects_mfa_factor_enrolled_notification"}
     string? mailerSubjectsMfaFactorEnrolledNotification;
-    # Indicates if Twitch OAuth authentication is enabled
+    # Indicates whether Twitch OAuth authentication is enabled
     @jsondata:Name {value: "external_twitch_enabled"}
     boolean? externalTwitchEnabled;
-    # Enables webhook for custom SMS sending functionality
+    # Indicates whether custom SMS sending webhook is enabled
     @jsondata:Name {value: "hook_send_sms_enabled"}
     boolean? hookSendSmsEnabled;
-    # Indicates if Google OAuth authentication is enabled
+    # Indicates whether Google OAuth authentication is enabled
     @jsondata:Name {value: "external_google_enabled"}
     boolean? externalGoogleEnabled;
-    # Client secret for WorkOS SSO integration
+    # Client secret for WorkOS authentication integration
     @jsondata:Name {value: "external_workos_secret"}
     string? externalWorkosSecret;
-    # Indicates if GitHub OAuth authentication is enabled
+    # Indicates whether GitHub OAuth authentication is enabled
     @jsondata:Name {value: "external_github_enabled"}
     boolean? externalGithubEnabled;
-    # Enables email notifications when user phone number is changed
+    # Indicates whether email notifications are sent when user phone is changed
     @jsondata:Name {value: "mailer_notifications_phone_changed_enabled"}
     boolean? mailerNotificationsPhoneChangedEnabled;
     # Client secret for Twitter OAuth integration
     @jsondata:Name {value: "external_twitter_secret"}
     string? externalTwitterSecret;
-    # Enables WebAuthn verification for multi-factor authentication
+    # Indicates if WebAuthn verification is enabled for multi-factor authentication
     @jsondata:Name {value: "mfa_web_authn_verify_enabled"}
     boolean? mfaWebAuthnVerifyEnabled;
-    # Makes email optional for Facebook OAuth authentication
+    # Whether email is optional when authenticating with Facebook provider
     @jsondata:Name {value: "external_facebook_email_optional"}
     boolean? externalFacebookEmailOptional;
-    # Azure OAuth provider endpoint URL
+    # The URL endpoint for Azure Active Directory authentication provider
     @jsondata:Name {value: "external_azure_url"}
     string? externalAzureUrl;
-    # Enables email notifications when user password is changed
+    # Whether email notifications are sent when user passwords are changed
     @jsondata:Name {value: "mailer_notifications_password_changed_enabled"}
     boolean? mailerNotificationsPasswordChangedEnabled;
     # Email template content for identity unlinked notifications
     @jsondata:Name {value: "mailer_templates_identity_unlinked_notification_content"}
     string? mailerTemplatesIdentityUnlinkedNotificationContent;
-    # Webhook URI triggered after user creation
+    # Webhook URI to call after a new user is successfully created
     @jsondata:Name {value: "hook_after_user_created_uri"}
     string? hookAfterUserCreatedUri;
-    # GitLab OAuth provider endpoint URL
+    # The URL endpoint for GitLab authentication provider
     @jsondata:Name {value: "external_gitlab_url"}
     string? externalGitlabUrl;
-    # Makes email optional for Notion OAuth authentication
+    # Whether email is optional when authenticating with Notion provider
     @jsondata:Name {value: "external_notion_email_optional"}
     boolean? externalNotionEmailOptional;
-    # Webhook URI for sending SMS messages
+    # Webhook URI to call for sending SMS messages
     @jsondata:Name {value: "hook_send_sms_uri"}
     string? hookSendSmsUri;
-    # Requires reauthentication before password updates
+    # Whether users must reauthenticate before updating their password
     @jsondata:Name {value: "security_update_password_require_reauthentication"}
     boolean? securityUpdatePasswordRequireReauthentication;
-    # Email template content for magic link authentication
+    # Email template content for magic link authentication messages
     @jsondata:Name {value: "mailer_templates_magic_link_content"}
     string? mailerTemplatesMagicLinkContent;
-    # Makes email optional for Twitch OAuth authentication
+    # Whether email is optional when authenticating with Twitch provider
     @jsondata:Name {value: "external_twitch_email_optional"}
     boolean? externalTwitchEmailOptional;
-    # Sender identifier for Textlocal SMS provider
+    # The sender identifier for SMS messages sent via Textlocal provider
     @jsondata:Name {value: "sms_textlocal_sender"}
     string? smsTextlocalSender;
-    # Sender number for Vonage SMS provider
+    # The sender number or identifier for SMS messages sent via Vonage provider
     @jsondata:Name {value: "sms_vonage_from"}
     string? smsVonageFrom;
-    # Client ID for Kakao OAuth provider
+    # The client ID for Kakao authentication provider integration
     @jsondata:Name {value: "external_kakao_client_id"}
     string? externalKakaoClientId;
-    # Email template content for account confirmation
+    # Email template content for account confirmation messages
     @jsondata:Name {value: "mailer_templates_confirmation_content"}
     string? mailerTemplatesConfirmationContent;
-    # Client ID for Nimbus OAuth provider
+    # The OAuth client ID for Nimbus authentication provider integration
     @jsondata:Name {value: "nimbus_oauth_client_id"}
     string? nimbusOauthClientId;
-    # Email subject for MFA factor unenrolled notifications
+    # Email subject line for MFA factor unenrollment notifications
     @jsondata:Name {value: "mailer_subjects_mfa_factor_unenrolled_notification"}
     string? mailerSubjectsMfaFactorUnenrolledNotification;
-    # Makes email optional for Google OAuth authentication
+    # Whether email is optional when authenticating with Google provider
     @jsondata:Name {value: "external_google_email_optional"}
     boolean? externalGoogleEmailOptional;
-    # Rate limit threshold for anonymous users
+    # Rate limit threshold for requests from anonymous users
     @jsondata:Name {value: "rate_limit_anonymous_users"}
     int? rateLimitAnonymousUsers;
     # Whether WebAuthn enrollment is enabled for multi-factor authentication
     @jsondata:Name {value: "mfa_web_authn_enroll_enabled"}
     boolean? mfaWebAuthnEnrollEnabled;
-    # Client secret for Slack OIDC authentication integration
+    # Client secret for Slack OIDC authentication provider
     @jsondata:Name {value: "external_slack_oidc_secret"}
     string? externalSlackOidcSecret;
-    # WorkOS authentication service URL for external provider integration
+    # Base URL for WorkOS authentication provider
     @jsondata:Name {value: "external_workos_url"}
     string? externalWorkosUrl;
-    # Whether email is optional for Bitbucket OAuth authentication
+    # Whether email is optional for Bitbucket authentication
     @jsondata:Name {value: "external_bitbucket_email_optional"}
     boolean? externalBitbucketEmailOptional;
-    # Client ID for Twitch OAuth authentication integration
+    # Client ID for Twitch authentication provider
     @jsondata:Name {value: "external_twitch_client_id"}
     string? externalTwitchClientId;
-    # CAPTCHA provider type (turnstile or hcaptcha) for security verification
+    # CAPTCHA provider used for security validation (turnstile or hcaptcha)
     @jsondata:Name {value: "security_captcha_provider"}
     "turnstile"|"hcaptcha"? securityCaptchaProvider;
-    # Whether encrypted assertions are allowed in SAML authentication
+    # Whether encrypted SAML assertions are allowed
     @jsondata:Name {value: "saml_allow_encrypted_assertions"}
     boolean? samlAllowEncryptedAssertions;
-    # Client ID for Azure Active Directory OAuth authentication
+    # Client ID for Azure authentication provider
     @jsondata:Name {value: "external_azure_client_id"}
     string? externalAzureClientId;
-    # Client secret for Apple Sign-In authentication integration
+    # Client secret for Apple authentication provider
     @jsondata:Name {value: "external_apple_secret"}
     string? externalAppleSecret;
-    # External URL endpoint for SAML authentication service
+    # External URL for SAML authentication endpoint
     @jsondata:Name {value: "saml_external_url"}
     string? samlExternalUrl;
-    # Session duration limit in seconds for user authentication sessions
+    # Session duration limit in seconds
     @jsondata:Name {value: "sessions_timebox"}
     int? sessionsTimebox;
-    # Secret key for CAPTCHA provider authentication and verification
+    # Secret key for CAPTCHA provider authentication
     @jsondata:Name {value: "security_captcha_secret"}
     string? securityCaptchaSecret;
-    # Whether SMS-based user registrations are automatically confirmed
+    # Whether SMS verification is automatically confirmed
     @jsondata:Name {value: "sms_autoconfirm"}
     boolean? smsAutoconfirm;
-    # Client ID for Facebook OAuth authentication integration
+    # Client ID for Facebook authentication provider
     @jsondata:Name {value: "external_facebook_client_id"}
     string? externalFacebookClientId;
-    # Expiration timestamp for SMS test OTP codes in development mode
+    # Expiration timestamp for SMS test OTP codes
     @jsondata:Name {value: "sms_test_otp_valid_until"}
     string? smsTestOtpValidUntil;
-    # Whether email is optional for GitLab OAuth authentication
+    # Whether email is optional for GitLab authentication
     @jsondata:Name {value: "external_gitlab_email_optional"}
     boolean? externalGitlabEmailOptional;
-    # Whether Figma OAuth authentication provider is enabled
+    # Whether Figma authentication provider is enabled
     @jsondata:Name {value: "external_figma_enabled"}
     boolean? externalFigmaEnabled;
-    # Whether email-based user registrations are automatically confirmed
+    # Whether email verification is automatically confirmed
     @jsondata:Name {value: "mailer_autoconfirm"}
     boolean? mailerAutoconfirm;
-    # Whether Discord OAuth authentication provider is enabled
+    # Whether Discord authentication provider is enabled
     @jsondata:Name {value: "external_discord_enabled"}
     boolean? externalDiscordEnabled;
-    # Whether email is optional for Keycloak OAuth authentication
+    # Whether email is optional for Keycloak authentication
     @jsondata:Name {value: "external_keycloak_email_optional"}
     boolean? externalKeycloakEmailOptional;
-    # Subject line template for user invitation emails
+    # Subject line for invitation emails sent to users
     @jsondata:Name {value: "mailer_subjects_invite"}
     string? mailerSubjectsInvite;
-    # Twilio Verify Message Service SID for SMS authentication
+    # Twilio Verify Message Service SID for SMS verification
     @jsondata:Name {value: "sms_twilio_verify_message_service_sid"}
     string? smsTwilioVerifyMessageServiceSid;
     # Whether email is optional for Discord OAuth authentication
@@ -4043,7 +4043,7 @@ public type AuthConfigResponse record {
     # Client ID for WorkOS OAuth integration
     @jsondata:Name {value: "external_workos_client_id"}
     string? externalWorkosClientId;
-    # Rate limit for email sending per time period
+    # Rate limit for number of emails that can be sent
     @jsondata:Name {value: "rate_limit_email_sent"}
     int? rateLimitEmailSent;
     # API secret for Vonage SMS service integration
@@ -4052,7 +4052,7 @@ public type AuthConfigResponse record {
     # Client ID for Spotify OAuth integration
     @jsondata:Name {value: "external_spotify_client_id"}
     string? externalSpotifyClientId;
-    # Subject line for identity linking notification emails
+    # Subject line for identity linked notification emails
     @jsondata:Name {value: "mailer_subjects_identity_linked_notification"}
     string? mailerSubjectsIdentityLinkedNotification;
     # Email template content for MFA factor unenrollment notifications
@@ -4067,7 +4067,7 @@ public type AuthConfigResponse record {
     # SMS OTP expiration time in seconds
     @jsondata:Name {value: "sms_otp_exp"}
     int? smsOtpExp;
-    # Subject line template for email change confirmation emails
+    # Subject line for email change confirmation emails
     @jsondata:Name {value: "mailer_subjects_email_change"}
     string? mailerSubjectsEmailChange;
     # Whether manual account linking is enabled for security
@@ -4085,34 +4085,34 @@ public type AuthConfigResponse record {
     # Whether to skip nonce validation for Google OAuth
     @jsondata:Name {value: "external_google_skip_nonce_check"}
     boolean? externalGoogleSkipNonceCheck;
-    # Twitter OAuth client ID for external authentication integration
+    # Twitter OAuth client ID for external authentication
     @jsondata:Name {value: "external_twitter_client_id"}
     string? externalTwitterClientId;
-    # Indicates whether SAML authentication is enabled
+    # Whether SAML authentication is enabled
     @jsondata:Name {value: "saml_enabled"}
     boolean? samlEnabled;
-    # GitLab OAuth client secret for external authentication integration
+    # GitLab OAuth client secret for external authentication
     @jsondata:Name {value: "external_gitlab_secret"}
     string? externalGitlabSecret;
     # Rate limit for verification requests per time period
     @jsondata:Name {value: "rate_limit_verify"}
     int? rateLimitVerify;
-    # Length of OTP codes sent via email
+    # Length of one-time password codes sent via email
     @jsondata:Name {value: "mailer_otp_length"}
     int? mailerOtpLength;
     # Rate limit for SMS messages sent per time period
     @jsondata:Name {value: "rate_limit_sms_sent"}
     int? rateLimitSmsSent;
-    # Indicates whether Azure AD authentication is enabled
+    # Whether Azure AD external authentication is enabled
     @jsondata:Name {value: "external_azure_enabled"}
     boolean? externalAzureEnabled;
-    # Zoom OAuth client ID for external authentication integration
+    # Zoom OAuth client ID for external authentication
     @jsondata:Name {value: "external_zoom_client_id"}
     string? externalZoomClientId;
-    # Apple OAuth client ID for external authentication integration
+    # Apple OAuth client ID for external authentication
     @jsondata:Name {value: "external_apple_client_id"}
     string? externalAppleClientId;
-    # Twilio Content SID for SMS message templates
+    # Twilio content SID for SMS message templates
     @jsondata:Name {value: "sms_twilio_content_sid"}
     string? smsTwilioContentSid;
     # Vonage API key for SMS service integration
@@ -4121,25 +4121,25 @@ public type AuthConfigResponse record {
     # Secrets for webhook triggered after user creation
     @jsondata:Name {value: "hook_after_user_created_secrets"}
     string? hookAfterUserCreatedSecrets;
-    # Template content for SMS messages
+    # Template for SMS messages sent to users
     @jsondata:Name {value: "sms_template"}
     string? smsTemplate;
-    # Maximum frequency for sending SMS messages in seconds
+    # Maximum frequency for sending SMS messages to users
     @jsondata:Name {value: "sms_max_frequency"}
     int? smsMaxFrequency;
     # Email template content for identity linking notifications
     @jsondata:Name {value: "mailer_templates_identity_linked_notification_content"}
     string? mailerTemplatesIdentityLinkedNotificationContent;
-    # Notion OAuth client ID for external authentication integration
+    # Notion OAuth client ID for external authentication
     @jsondata:Name {value: "external_notion_client_id"}
     string? externalNotionClientId;
-    # Indicates whether Facebook authentication is enabled
+    # Whether Facebook external authentication is enabled
     @jsondata:Name {value: "external_facebook_enabled"}
     boolean? externalFacebookEnabled;
     # Email template content for phone number change notifications
     @jsondata:Name {value: "mailer_templates_phone_changed_notification_content"}
     string? mailerTemplatesPhoneChangedNotificationContent;
-    # Webhook URI for MFA verification attempt events
+    # Webhook URI triggered on MFA verification attempts
     @jsondata:Name {value: "hook_mfa_verification_attempt_uri"}
     string? hookMfaVerificationAttemptUri;
     # Email template content for reauthentication requests
@@ -4151,16 +4151,16 @@ public type AuthConfigResponse record {
     # Required character sets for password validation
     @jsondata:Name {value: "password_required_characters"}
     "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ:0123456789"|"abcdefghijklmnopqrstuvwxyz:ABCDEFGHIJKLMNOPQRSTUVWXYZ:0123456789"|"abcdefghijklmnopqrstuvwxyz:ABCDEFGHIJKLMNOPQRSTUVWXYZ:0123456789:!@#$%^&*()_+-=[]{};'\\:\"|<>?,./`~"|""? passwordRequiredCharacters;
-    # Enable email notifications when identity is linked to account
+    # Enable email notifications when identities are linked
     @jsondata:Name {value: "mailer_notifications_identity_linked_enabled"}
     boolean? mailerNotificationsIdentityLinkedEnabled;
-    # HTML content template for password recovery emails
+    # Email template content for password recovery messages
     @jsondata:Name {value: "mailer_templates_recovery_content"}
     string? mailerTemplatesRecoveryContent;
-    # Enable LinkedIn OpenID Connect authentication provider
+    # Enable LinkedIn OpenID Connect authentication
     @jsondata:Name {value: "external_linkedin_oidc_enabled"}
     boolean? externalLinkedinOidcEnabled;
-    # Client secret for Slack OAuth authentication
+    # Slack OAuth application secret key
     @jsondata:Name {value: "external_slack_secret"}
     string? externalSlackSecret;
     # Enable TOTP verification for multi-factor authentication
@@ -4169,31 +4169,31 @@ public type AuthConfigResponse record {
     # SMTP server hostname for email delivery
     @jsondata:Name {value: "smtp_host"}
     string? smtpHost;
-    # Enable webhook trigger after user account creation
+    # Enable webhook trigger after user creation
     @jsondata:Name {value: "hook_after_user_created_enabled"}
     boolean? hookAfterUserCreatedEnabled;
-    # Client secret for Kakao OAuth authentication
+    # Kakao OAuth application secret key
     @jsondata:Name {value: "external_kakao_secret"}
     string? externalKakaoSecret;
-    # Make email optional for Apple Sign In authentication
+    # Make email optional for Apple Sign-In authentication
     @jsondata:Name {value: "external_apple_email_optional"}
     boolean? externalAppleEmailOptional;
-    # HTML template for password change notification emails
+    # Email template content for password change notifications
     @jsondata:Name {value: "mailer_templates_password_changed_notification_content"}
     string? mailerTemplatesPasswordChangedNotificationContent;
-    # Enable email notifications when identity is unlinked from account
+    # Enable email notifications when identities are unlinked
     @jsondata:Name {value: "mailer_notifications_identity_unlinked_enabled"}
     boolean? mailerNotificationsIdentityUnlinkedEnabled;
-    # SMS service provider for phone authentication
+    # SMS service provider for authentication messages
     @jsondata:Name {value: "sms_provider"}
     "messagebird"|"textlocal"|"twilio"|"twilio_verify"|"vonage"? smsProvider;
-    # Twilio Verify service account SID for SMS verification
+    # Twilio Verify service account SID for SMS authentication
     @jsondata:Name {value: "sms_twilio_verify_account_sid"}
     string? smsTwilioVerifyAccountSid;
-    # Client secret for Google OAuth authentication
+    # Google OAuth application secret key
     @jsondata:Name {value: "external_google_secret"}
     string? externalGoogleSecret;
-    # Maximum email sending frequency limit in seconds
+    # Maximum SMTP email sending frequency limit
     @jsondata:Name {value: "smtp_max_frequency"}
     int? smtpMaxFrequency;
     # Custom webhook URI for access token generation
@@ -4202,67 +4202,67 @@ public type AuthConfigResponse record {
     # Enable Web3 Ethereum wallet authentication
     @jsondata:Name {value: "external_web3_ethereum_enabled"}
     boolean? externalWeb3EthereumEnabled;
-    # Twilio account SID for SMS service integration
+    # Twilio account SID for SMS authentication services
     @jsondata:Name {value: "sms_twilio_account_sid"}
     string? smsTwilioAccountSid;
-    # Indicates whether Zoom external authentication provider is enabled
+    # Whether Zoom OAuth provider is enabled for authentication
     @jsondata:Name {value: "external_zoom_enabled"}
     boolean? externalZoomEnabled;
     # Time interval in seconds for refresh token reuse security policy
     @jsondata:Name {value: "security_refresh_token_reuse_interval"}
     int? securityRefreshTokenReuseInterval;
-    # Indicates whether refresh token rotation security feature is enabled
+    # Whether refresh token rotation is enabled for enhanced security
     @jsondata:Name {value: "refresh_token_rotation_enabled"}
     boolean? refreshTokenRotationEnabled;
-    # Indicates whether email is optional for Twitter authentication
+    # Whether email is optional for Twitter OAuth authentication
     @jsondata:Name {value: "external_twitter_email_optional"}
     boolean? externalTwitterEmailOptional;
-    # Indicates whether Keycloak external authentication provider is enabled
+    # Whether Keycloak OAuth provider is enabled for authentication
     @jsondata:Name {value: "external_keycloak_enabled"}
     boolean? externalKeycloakEnabled;
-    # Template string used for multi-factor authentication phone messages
+    # Template used for multi-factor authentication phone messages
     @jsondata:Name {value: "mfa_phone_template"}
     string? mfaPhoneTemplate;
-    # Indicates whether users are limited to a single active session
+    # Whether to limit users to a single active session
     @jsondata:Name {value: "sessions_single_per_user"}
     boolean? sessionsSinglePerUser;
-    # Indicates whether Apple external authentication provider is enabled
+    # Whether Apple OAuth provider is enabled for authentication
     @jsondata:Name {value: "external_apple_enabled"}
     boolean? externalAppleEnabled;
-    # Secret configuration for send email webhook functionality
+    # Secrets configuration for send email webhook functionality
     @jsondata:Name {value: "hook_send_email_secrets"}
     string? hookSendEmailSecrets;
-    # Maximum number of database connections in the connection pool
+    # Maximum database connection pool size for auth service
     @jsondata:Name {value: "db_max_pool_size"}
     int? dbMaxPoolSize;
-    # Length of one-time password codes sent via SMS
+    # Length of SMS one-time password codes
     @jsondata:Name {value: "sms_otp_length"}
     int smsOtpLength;
-    # Client ID for LinkedIn OpenID Connect authentication integration
+    # Client ID for LinkedIn OIDC OAuth provider
     @jsondata:Name {value: "external_linkedin_oidc_client_id"}
     string? externalLinkedinOidcClientId;
-    # Indicates whether Notion external authentication provider is enabled
+    # Whether Notion OAuth provider is enabled for authentication
     @jsondata:Name {value: "external_notion_enabled"}
     boolean? externalNotionEnabled;
-    # Secret configuration for custom access token webhook functionality
+    # Secrets configuration for custom access token webhook functionality
     @jsondata:Name {value: "hook_custom_access_token_secrets"}
     string? hookCustomAccessTokenSecrets;
-    # Indicates whether email notifications for MFA unenrollment are enabled
+    # Whether to send email notifications when MFA factors are unenrolled
     @jsondata:Name {value: "mailer_notifications_mfa_factor_unenrolled_enabled"}
     boolean? mailerNotificationsMfaFactorUnenrolledEnabled;
-    # Client ID for GitLab external authentication integration
+    # Client ID for GitLab OAuth provider
     @jsondata:Name {value: "external_gitlab_client_id"}
     string? externalGitlabClientId;
-    # Indicates whether secure email change notifications are enabled
+    # Whether secure email change process is enabled
     @jsondata:Name {value: "mailer_secure_email_change_enabled"}
     boolean? mailerSecureEmailChangeEnabled;
-    # Expiration time in seconds for email-based one-time passwords
+    # Expiration time in seconds for email one-time passwords
     @jsondata:Name {value: "mailer_otp_exp"}
     int mailerOtpExp;
-    # Indicates whether email is optional for Zoom authentication
+    # Whether email is optional for Zoom OAuth authentication
     @jsondata:Name {value: "external_zoom_email_optional"}
     boolean? externalZoomEmailOptional;
-    # Email subject line template for phone number change notifications
+    # Email subject line for phone number change notifications
     @jsondata:Name {value: "mailer_subjects_phone_changed_notification"}
     string? mailerSubjectsPhoneChangedNotification;
     # Client ID for Figma OAuth integration
@@ -4277,16 +4277,16 @@ public type AuthConfigResponse record {
     # Client secret for Spotify OAuth integration
     @jsondata:Name {value: "external_spotify_secret"}
     string? externalSpotifySecret;
-    # Secrets for before user created webhook
+    # Secrets for before user created hook
     @jsondata:Name {value: "hook_before_user_created_secrets"}
     string? hookBeforeUserCreatedSecrets;
-    # Rate limit threshold for Web3 authentication requests
+    # Rate limit for Web3 authentication requests
     @jsondata:Name {value: "rate_limit_web3"}
     int? rateLimitWeb3;
-    # URI endpoint for before user created webhook
+    # URI endpoint for before user created hook
     @jsondata:Name {value: "hook_before_user_created_uri"}
     string? hookBeforeUserCreatedUri;
-    # Comma-separated list of allowed redirect URIs
+    # Comma-separated list of allowed URIs
     @jsondata:Name {value: "uri_allow_list"}
     string? uriAllowList;
     # Whether email is optional for Kakao authentication
@@ -4295,7 +4295,7 @@ public type AuthConfigResponse record {
     # HTML content template for invitation emails
     @jsondata:Name {value: "mailer_templates_invite_content"}
     string? mailerTemplatesInviteContent;
-    # Email subject for identity unlinked notifications
+    # Subject line for identity unlinked notification emails
     @jsondata:Name {value: "mailer_subjects_identity_unlinked_notification"}
     string? mailerSubjectsIdentityUnlinkedNotification;
     # Client ID for Bitbucket OAuth integration
@@ -4321,15 +4321,15 @@ public type NetworkRestrictionsV2ResponseConfig record {
     NetworkRestrictionsV2ResponseConfigDbAllowedCidrs[] dbAllowedCidrs?;
 };
 
-# Available target versions for project upgrade
+# Target versions available for project upgrade
 public type ProjectUpgradeEligibilityResponseTargetUpgradeVersions record {
-    # PostgreSQL version for upgrade target
+    # PostgreSQL version for the upgrade target
     @jsondata:Name {value: "postgres_version"}
     "13"|"14"|"15"|"17"|"17-oriole" postgresVersion;
-    # Application version for upgrade target
+    # Application version for the upgrade target
     @jsondata:Name {value: "app_version"}
     string appVersion;
-    # Release channel type for the target upgrade version
+    # Release channel type for the project upgrade version
     @jsondata:Name {value: "release_channel"}
     "internal"|"alpha"|"beta"|"ga"|"withdrawn"|"preview" releaseChannel;
 };
