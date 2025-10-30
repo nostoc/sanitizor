@@ -1,5 +1,5 @@
 import ballerina/ai;
-// Process multiple description requests in a single LLM call
+
 public function generateDescriptionsBatch(DescriptionRequest[] requests, string apiContext) returns BatchDescriptionResponse[]|LLMServiceError {
     ai:ModelProvider? model = anthropicModel;
     if model is () {
@@ -10,19 +10,27 @@ public function generateDescriptionsBatch(DescriptionRequest[] requests, string 
         return [];
     }
 
-    // Build batch prompt
+    // Build batch prompt with enhanced categorization
     string requestsSection = "";
     foreach int i in 0 ..< requests.length() {
         DescriptionRequest req = requests[i];
+        string requestType = "field";
+        if req.schemaPath.startsWith("paths.") && req.schemaPath.includes("parameters[name=") {
+            requestType = "parameter";
+        } else if req.schemaPath.startsWith("paths.") && !req.schemaPath.includes(".properties.") {
+            requestType = "operation";
+        }
+        
         requestsSection += string `
 ${i + 1}. ID: ${req.id}
+   Type: ${requestType}
    Name: ${req.name}
    Path: ${req.schemaPath}
    Context: ${req.context}
 `;
     }
 
-    string prompt = string `You are an API documentation expert. Generate concise, professional descriptions for the following fields/schemas.
+    string prompt = string `You are an API documentation expert. Generate concise, professional descriptions for the following API elements.
 
 API CONTEXT:
 ${apiContext}
@@ -31,12 +39,14 @@ REQUESTS TO PROCESS:
 ${requestsSection}
 
 INSTRUCTIONS:
-1. For each request, generate a description under 100 characters
-2. Use professional API documentation language
-3. Consider the API context and field context
-4. Return responses in the exact JSON format shown below
-5. Do not include fenced code blocks in the response. 
-6. Keep the descriptions concise under 80 characters but informative
+1. For FIELD descriptions: Describe what the field represents (under 80 characters)
+2. For PARAMETER descriptions: Explain the parameter's purpose (under 100 characters)
+3. For OPERATION descriptions: Describe what the operation returns (under 120 characters, suitable for return parameter docs)
+4. Use professional API documentation language
+5. Consider the API context and element context
+6. Return responses in the exact JSON format shown below
+7. Do not include fenced code blocks in the response
+8. Keep descriptions concise but informative
 
 REQUIRED RESPONSE FORMAT (JSON):
 {

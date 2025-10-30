@@ -321,3 +321,132 @@ function containsSchemaReference(json data, string refPattern) returns boolean {
     }
     return false;
 }
+
+// Helper function to collect parameter description requests
+function collectParameterDescriptionRequests(json spec, DescriptionRequest[] requests, map<string> locationMap) {
+    json|error pathsResult = spec.paths;
+    if pathsResult is map<json> {
+        foreach string path in pathsResult.keys() {
+            json|error pathResult = pathsResult.get(path);
+            if pathResult is map<json> {
+                map<json> pathItem = <map<json>>pathResult;
+                string[] httpMethods = ["get", "post", "put", "delete", "patch", "head", "options", "trace"];
+                
+                foreach string method in httpMethods {
+                    if pathItem.hasKey(method) {
+                        json|error operationResult = pathItem.get(method);
+                        if operationResult is map<json> {
+                            map<json> operation = <map<json>>operationResult;
+                            
+                            // Process parameters array
+                            if operation.hasKey("parameters") {
+                                json|error parametersResult = operation.get("parameters");
+                                if parametersResult is json[] {
+                                    foreach json param in parametersResult {
+                                        if param is map<json> {
+                                            map<json> paramMap = <map<json>>param;
+                                            
+                                            // Check if parameter needs description
+                                            if !paramMap.hasKey("description") && paramMap.hasKey("name") {
+                                                string paramName = <string>paramMap.get("name");
+                                                string paramIn = paramMap.hasKey("in") ? <string>paramMap.get("in") : "query";
+                                                string operationId = operation.hasKey("operationId") ? <string>operation.get("operationId") : string `${method.toUpperAscii()} ${path}`;
+                                                
+                                                string requestId = generateRequestId("param", string `${path}_${method}_${paramName}`, "parameter");
+                                                string context = string `${paramIn} parameter '${paramName}' for operation: ${operationId}. Parameter definition: ${paramMap.toString()}`;
+                                                
+                                                // Add schema type info for better context
+                                                if paramMap.hasKey("schema") {
+                                                    json|error schemaResult = paramMap.get("schema");
+                                                    if schemaResult is map<json> {
+                                                        map<json> schema = <map<json>>schemaResult;
+                                                        if schema.hasKey("type") {
+                                                            string paramType = <string>schema.get("type");
+                                                            context += string ` Type: ${paramType}.`;
+                                                        }
+                                                        if schema.hasKey("minimum") {
+                                                            context += string ` Minimum: ${schema.get("minimum").toString()}.`;
+                                                        }
+                                                        if schema.hasKey("maximum") {
+                                                            context += string ` Maximum: ${schema.get("maximum").toString()}.`;
+                                                        }
+                                                    }
+                                                }
+                                                
+                                                requests.push({
+                                                    id: requestId,
+                                                    name: paramName,
+                                                    context: context,
+                                                    schemaPath: string `paths.${path}.${method}.parameters[name=${paramName}]`
+                                                });
+                                                locationMap[requestId] = string `paths.${path}.${method}.parameters[name=${paramName}]`;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// Helper function to collect operation description requests (for client return parameters)
+function collectOperationDescriptionRequests(json spec, DescriptionRequest[] requests, map<string> locationMap) {
+    json|error pathsResult = spec.paths;
+    if pathsResult is map<json> {
+        foreach string path in pathsResult.keys() {
+            json|error pathResult = pathsResult.get(path);
+            if pathResult is map<json> {
+                map<json> pathItem = <map<json>>pathResult;
+                string[] httpMethods = ["get", "post", "put", "delete", "patch", "head", "options", "trace"];
+                
+                foreach string method in httpMethods {
+                    if pathItem.hasKey(method) {
+                        json|error operationResult = pathItem.get(method);
+                        if operationResult is map<json> {
+                            map<json> operation = <map<json>>operationResult;
+                            
+                            // Check if operation needs description (this becomes return parameter description)
+                            if !operation.hasKey("description") {
+                                string operationId = operation.hasKey("operationId") ? <string>operation.get("operationId") : string `${method.toUpperAscii()} ${path}`;
+                                string summary = operation.hasKey("summary") ? <string>operation.get("summary") : "";
+                                
+                                string requestId = generateRequestId("operation", string `${path}_${method}`, "description");
+                                string context = string `Operation '${operationId}' (${method.toUpperAscii()} ${path})`;
+                                if summary.length() > 0 {
+                                    context += string `. Summary: ${summary}`;
+                                }
+                                context += ". This description will be used for the return parameter documentation in the generated client.";
+                                
+                                // Add response info for context
+                                if operation.hasKey("responses") {
+                                    json|error responsesResult = operation.get("responses");
+                                    if responsesResult is map<json> {
+                                        string[] responseCodes = [];
+                                        foreach string code in responsesResult.keys() {
+                                            responseCodes.push(code);
+                                        }
+                                        if responseCodes.length() > 0 {
+                                            context += string ` Response codes: ${string:'join(", ", ...responseCodes)}.`;
+                                        }
+                                    }
+                                }
+                                
+                                requests.push({
+                                    id: requestId,
+                                    name: operationId,
+                                    context: context,
+                                    schemaPath: string `paths.${path}.${method}`
+                                });
+                                locationMap[requestId] = string `paths.${path}.${method}`;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

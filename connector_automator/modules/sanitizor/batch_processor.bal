@@ -134,10 +134,10 @@ public function generateSchemaNamesBatchWithRetry(SchemaRenameRequest[] requests
 }
 
 
-// Enhanced batch processing version of addMissingDescriptions with retry
+// Batch processing to include parameters and operations
 public function addMissingDescriptionsBatchWithRetry(string specFilePath, int batchSize = 20, boolean quietMode = false, RetryConfig? config = ()) returns int|LLMServiceError {
     if !quietMode {
-        log:printInfo("Processing OpenAPI spec for missing descriptions (batch mode with retry)",
+        log:printInfo("Processing OpenAPI spec for missing descriptions",
                 specPath = specFilePath, batchSize = batchSize);
     }
 
@@ -151,76 +151,104 @@ public function addMissingDescriptionsBatchWithRetry(string specFilePath, int ba
     int descriptionsAdded = 0;
 
     if specJson is map<json> {
-        json|error componentsResult = specJson.get("components");
+        map<json> specMap = <map<json>>specJson;
+        string apiContext = extractApiContext(specJson);
+
+        // Collect all missing description requests
+        DescriptionRequest[] allRequests = [];
+        map<string> requestToLocationMap = {}; // Map request ID to location for updating
+
+        // 1. Collect schema and property descriptions (existing logic)
+        json|error componentsResult = specMap.get("components");
         if componentsResult is map<json> {
             json|error schemasResult = componentsResult.get("schemas");
             if schemasResult is map<json> {
                 map<json> schemas = <map<json>>schemasResult;
-                string apiContext = extractApiContext(specJson);
-
-                // Collect all missing description requests
-                DescriptionRequest[] allRequests = [];
-                map<string> requestToLocationMap = {}; // Map request ID to location for updating
 
                 foreach string schemaName in schemas.keys() {
                     json|error schemaResult = schemas.get(schemaName);
                     if schemaResult is map<json> {
                         map<json> schemaMap = <map<json>>schemaResult;
-
-                        // Collect schema-level and property-level description requests
                         collectDescriptionRequests(schemaMap, schemaName, "", allRequests, requestToLocationMap, specJson);
                     }
                 }
+            }
+        }
 
-                // Process requests in batches with retry
-                int totalRequests = allRequests.length();
-                if !quietMode {
-                    log:printInfo("Collected description requests", totalRequests = totalRequests);
-                }
+        // 2. Collect parameter descriptions (NEW)
+        collectParameterDescriptionRequests(specJson, allRequests, requestToLocationMap);
 
-                int startIdx = 0;
-                while startIdx < totalRequests {
-                    int endIdx = startIdx + batchSize;
-                    if endIdx > totalRequests {
-                        endIdx = totalRequests;
-                    }
+        // 3. Collect operation descriptions for return parameters (NEW)
+        collectOperationDescriptionRequests(specJson, allRequests, requestToLocationMap);
 
-                    DescriptionRequest[] batch = allRequests.slice(startIdx, endIdx);
-                    if !quietMode {
-                        log:printInfo("Processing batch with retry", batchNumber = (startIdx / batchSize) + 1,
-                                batchSize = batch.length());
-                    }
+        // Process requests in batches with retry
+        int totalRequests = allRequests.length();
+        if !quietMode {
+            log:printInfo("Collected description requests", totalRequests = totalRequests);
+        }
 
-                    BatchDescriptionResponse[]|LLMServiceError batchResult = generateDescriptionsBatchWithRetry(batch, apiContext, quietMode, config);
-                    if batchResult is BatchDescriptionResponse[] {
-                        // Apply the generated descriptions
-                        foreach BatchDescriptionResponse response in batchResult {
-                            string? location = requestToLocationMap[response.id];
-                            if location is string {
-                                error? updateResult = updateDescriptionInSpec(schemas, location, response.description);
-                                if updateResult is () {
-                                    descriptionsAdded += 1;
-                                    if !quietMode {
-                                        log:printInfo("Applied batch description", id = response.id, location = location);
-                                    }
-                                } else {
-                                    log:printError("Failed to apply description", id = response.id, 'error = updateResult);
+        int startIdx = 0;
+        while startIdx < totalRequests {
+            int endIdx = startIdx + batchSize;
+            if endIdx > totalRequests {
+                endIdx = totalRequests;
+            }
+
+            DescriptionRequest[] batch = allRequests.slice(startIdx, endIdx);
+            if !quietMode {
+                log:printInfo("Processing batch with retry", batchNumber = (startIdx / batchSize) + 1,
+                        batchSize = batch.length());
+            }
+
+            BatchDescriptionResponse[]|LLMServiceError batchResult = generateDescriptionsBatchWithRetry(batch, apiContext, quietMode, config);
+            if batchResult is BatchDescriptionResponse[] {
+                // Apply the generated descriptions
+                foreach BatchDescriptionResponse response in batchResult {
+                    string? location = requestToLocationMap[response.id];
+                    if location is string {
+                        error? updateResult = ();
+                        
+                        // Determine update method based on location type
+                        if location.startsWith("paths.") && location.includes("parameters[name=") {
+                            // Parameter description
+                            json|error pathsResult = specMap.get("paths");
+                            if pathsResult is map<json> {
+                                updateResult = updateParameterDescriptionInSpec(<map<json>>pathsResult, location, response.description);
+                            }
+                        } else if location.startsWith("paths.") && !location.includes(".properties.") {
+                            // Operation description
+                            json|error pathsResult = specMap.get("paths");
+                            if pathsResult is map<json> {
+                                updateResult = updateOperationDescriptionInSpec(<map<json>>pathsResult, location, response.description);
+                            }
+                        } else {
+                            // Schema/property description (existing logic)
+                            json|error componentsResult2 = specMap.get("components");
+                            if componentsResult2 is map<json> {
+                                json|error schemasResult2 = componentsResult2.get("schemas");
+                                if schemasResult2 is map<json> {
+                                    updateResult = updateDescriptionInSpec(<map<json>>schemasResult2, location, response.description);
                                 }
                             }
                         }
-                    } else {
-                        if !quietMode {
-                            log:printError("Batch processing failed after all retries", batchNumber = (startIdx / batchSize) + 1, 'error = batchResult);
+                        
+                        if updateResult is () {
+                            descriptionsAdded += 1;
+                            if !quietMode {
+                                log:printInfo("Applied batch description", id = response.id, location = location);
+                            }
+                        } else {
+                            log:printError("Failed to apply description", id = response.id, 'error = updateResult);
                         }
-                        // Continue with next batch instead of failing completely
                     }
-                    startIdx += batchSize;
                 }
-
-                // Update the spec with modified schemas
-                componentsResult["schemas"] = schemas;
-                specJson["components"] = componentsResult;
+            } else {
+                if !quietMode {
+                    log:printError("Batch processing failed after all retries", batchNumber = (startIdx / batchSize) + 1, 'error = batchResult);
+                }
+                // Continue with next batch instead of failing completely
             }
+            startIdx += batchSize;
         }
     }
 
@@ -232,7 +260,6 @@ public function addMissingDescriptionsBatchWithRetry(string specFilePath, int ba
 
     return descriptionsAdded;
 }
-
 // Batch version of renameInlineResponseSchemas with retry and configurable batch size
 public function renameInlineResponseSchemasBatchWithRetry(string specFilePath, int batchSize = 10, boolean quietMode = false, RetryConfig? config = ()) returns int|LLMServiceError {
     if !quietMode {

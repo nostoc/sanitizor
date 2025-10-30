@@ -29,7 +29,96 @@ function updateDescriptionInSpec(map<json> schemas, string location, string desc
     return ();
 }
 
+// Helper function to update parameter description in spec
+function updateParameterDescriptionInSpec(map<json> paths, string location, string description) returns error? {
+    // Parse location: paths.{path}.{method}.parameters[name={paramName}]
+    if location.startsWith("paths.") {
+        string locationWithoutPrefix = location.substring(6); // Remove "paths."
+        
+        // Find the first dot to separate path from method
+        int? firstDot = locationWithoutPrefix.indexOf(".");
+        if firstDot is int {
+            string path = locationWithoutPrefix.substring(0, firstDot);
+            string remainingLocation = locationWithoutPrefix.substring(firstDot + 1);
+            
+            // Find second dot to separate method from parameters
+            int? secondDot = remainingLocation.indexOf(".");
+            if secondDot is int {
+                string method = remainingLocation.substring(0, secondDot);
+                string paramLocation = remainingLocation.substring(secondDot + 1);
+                
+                // Extract parameter name from parameters[name={paramName}]
+                if paramLocation.startsWith("parameters[name=") && paramLocation.endsWith("]") {
+                    string paramName = paramLocation.substring(16, paramLocation.length() - 1); // Remove "parameters[name=" and "]"
+                    
+                    json|error pathItem = paths.get(path);
+                    if pathItem is map<json> {
+                        map<json> pathItemMap = <map<json>>pathItem;
+                        
+                        if pathItemMap.hasKey(method) {
+                            json|error operation = pathItemMap.get(method);
+                            if operation is map<json> {
+                                map<json> operationMap = <map<json>>operation;
+                                
+                                if operationMap.hasKey("parameters") {
+                                    json|error parametersResult = operationMap.get("parameters");
+                                    if parametersResult is json[] {
+                                        json[] parameters = parametersResult;
+                                        
+                                        // Find the parameter by name
+                                        foreach int i in 0 ..< parameters.length() {
+                                            json param = parameters[i];
+                                            if param is map<json> {
+                                                map<json> paramMap = <map<json>>param;
+                                                if paramMap.hasKey("name") && paramMap.get("name") == paramName {
+                                                    paramMap["description"] = description;
+                                                    return ();
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    return error("Could not find parameter at location: " + location);
+}
 
+// Helper function to update operation description in spec
+function updateOperationDescriptionInSpec(map<json> paths, string location, string description) returns error? {
+    // Parse location: paths.{path}.{method}
+    if location.startsWith("paths.") {
+        string locationWithoutPrefix = location.substring(6); // Remove "paths."
+        
+        // Find the first dot to separate path from method
+        int? firstDot = locationWithoutPrefix.indexOf(".");
+        if firstDot is int {
+            string path = locationWithoutPrefix.substring(0, firstDot);
+            string method = locationWithoutPrefix.substring(firstDot + 1);
+            
+            json|error pathItem = paths.get(path);
+            if pathItem is map<json> {
+                map<json> pathItemMap = <map<json>>pathItem;
+                
+                if pathItemMap.hasKey(method) {
+                    json|error operation = pathItemMap.get(method);
+                    if operation is map<json> {
+                        map<json> operationMap = <map<json>>operation;
+                        operationMap["description"] = description;
+                        return ();
+                    }
+                }
+            }
+        }
+    }
+    
+    return error("Could not find operation at location: " + location);
+}
 // Recursive helper to safely update nested descriptions
 function updateNestedDescription(map<json> current, string[] pathParts, int index, string description) returns error? {
     if index == pathParts.length() {
