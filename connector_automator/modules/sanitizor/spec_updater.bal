@@ -34,46 +34,44 @@ function updateParameterDescriptionInSpec(map<json> paths, string location, stri
     // Parse location: paths.{path}.{method}.parameters[name={paramName}]
     if location.startsWith("paths.") {
         string locationWithoutPrefix = location.substring(6); // Remove "paths."
-        
-        // Find the first dot to separate path from method
-        int? firstDot = locationWithoutPrefix.indexOf(".");
-        if firstDot is int {
-            string path = locationWithoutPrefix.substring(0, firstDot);
-            string remainingLocation = locationWithoutPrefix.substring(firstDot + 1);
-            
-            // Find second dot to separate method from parameters
-            int? secondDot = remainingLocation.indexOf(".");
-            if secondDot is int {
-                string method = remainingLocation.substring(0, secondDot);
-                string paramLocation = remainingLocation.substring(secondDot + 1);
-                
-                // Extract parameter name from parameters[name={paramName}]
-                if paramLocation.startsWith("parameters[name=") && paramLocation.endsWith("]") {
-                    string paramName = paramLocation.substring(16, paramLocation.length() - 1); // Remove "parameters[name=" and "]"
-                    
-                    json|error pathItem = paths.get(path);
-                    if pathItem is map<json> {
-                        map<json> pathItemMap = <map<json>>pathItem;
-                        
-                        if pathItemMap.hasKey(method) {
-                            json|error operation = pathItemMap.get(method);
-                            if operation is map<json> {
-                                map<json> operationMap = <map<json>>operation;
-                                
-                                if operationMap.hasKey("parameters") {
-                                    json|error parametersResult = operationMap.get("parameters");
-                                    if parametersResult is json[] {
-                                        json[] parameters = parametersResult;
-                                        
-                                        // Find the parameter by name
-                                        foreach int i in 0 ..< parameters.length() {
-                                            json param = parameters[i];
-                                            if param is map<json> {
-                                                map<json> paramMap = <map<json>>param;
-                                                if paramMap.hasKey("name") && paramMap.get("name") == paramName {
-                                                    paramMap["description"] = description;
-                                                    return ();
-                                                }
+
+        // Use last dot to separate path from method+rest (handles dots in path)
+        int? lastDot = locationWithoutPrefix.lastIndexOf(".");
+        if lastDot is int {
+            string path = locationWithoutPrefix.substring(0, lastDot);
+            string methodAndRest = locationWithoutPrefix.substring(lastDot + 1);
+
+            // Separate method from any trailing part (like parameters[...] )
+            int? firstDotAfterMethod = methodAndRest.indexOf(".");
+            string method = firstDotAfterMethod is int ? methodAndRest.substring(0, firstDotAfterMethod) : methodAndRest;
+            string paramLocation = firstDotAfterMethod is int ? methodAndRest.substring(firstDotAfterMethod + 1) : "";
+
+            // Extract parameter name from parameters[name={paramName}]
+            if paramLocation.startsWith("parameters[name=") && paramLocation.endsWith("]") {
+                string paramName = paramLocation.substring(16, paramLocation.length() - 1); // Remove "parameters[name=" and "]"
+
+                json|error pathItem = paths.get(path);
+                if pathItem is map<json> {
+                    map<json> pathItemMap = <map<json>>pathItem;
+
+                    if pathItemMap.hasKey(method) {
+                        json|error operation = pathItemMap.get(method);
+                        if operation is map<json> {
+                            map<json> operationMap = <map<json>>operation;
+
+                            if operationMap.hasKey("parameters") {
+                                json|error parametersResult = operationMap.get("parameters");
+                                if parametersResult is json[] {
+                                    json[] parameters = parametersResult;
+
+                                    // Find the parameter by name
+                                    foreach int i in 0 ..< parameters.length() {
+                                        json param = parameters[i];
+                                        if param is map<json> {
+                                            map<json> paramMap = <map<json>>param;
+                                            if paramMap.hasKey("name") && paramMap.get("name") == paramName {
+                                                paramMap["description"] = description;
+                                                return ();
                                             }
                                         }
                                     }
@@ -85,26 +83,25 @@ function updateParameterDescriptionInSpec(map<json> paths, string location, stri
             }
         }
     }
-    
+
     return error("Could not find parameter at location: " + location);
 }
-
 // Helper function to update operation description in spec
 function updateOperationDescriptionInSpec(map<json> paths, string location, string description) returns error? {
     // Parse location: paths.{path}.{method}
     if location.startsWith("paths.") {
         string locationWithoutPrefix = location.substring(6); // Remove "paths."
-        
-        // Find the first dot to separate path from method
-        int? firstDot = locationWithoutPrefix.indexOf(".");
-        if firstDot is int {
-            string path = locationWithoutPrefix.substring(0, firstDot);
-            string method = locationWithoutPrefix.substring(firstDot + 1);
-            
+
+        // Use last dot to split path and method (handles dots inside path)
+        int? lastDot = locationWithoutPrefix.lastIndexOf(".");
+        if lastDot is int {
+            string path = locationWithoutPrefix.substring(0, lastDot);
+            string method = locationWithoutPrefix.substring(lastDot + 1);
+
             json|error pathItem = paths.get(path);
             if pathItem is map<json> {
                 map<json> pathItemMap = <map<json>>pathItem;
-                
+
                 if pathItemMap.hasKey(method) {
                     json|error operation = pathItemMap.get(method);
                     if operation is map<json> {
@@ -116,7 +113,7 @@ function updateOperationDescriptionInSpec(map<json> paths, string location, stri
             }
         }
     }
-    
+
     return error("Could not find operation at location: " + location);
 }
 // Recursive helper to safely update nested descriptions
@@ -157,24 +154,29 @@ function updateNestedDescription(map<json> current, string[] pathParts, int inde
 
 // Helper function to update operationId in the spec
 function updateOperationIdInSpec(map<json> paths, string location, string operationId) returns error? {
-    string[] locationParts = regex:split(location, "\\.");
-    if locationParts.length() != 2 {
-        return error("Invalid location format: " + location);
+    // Expect location like "{path}.{method}" (no leading "paths." here)
+    // To be robust, tolerate both "paths.{path}.{method}" and "{path}.{method}"
+    string loc = location;
+    if loc.startsWith("paths.") {
+        loc = loc.substring(6);
     }
 
-    string path = locationParts[0];
-    string method = locationParts[1];
+    int? lastDot = loc.lastIndexOf(".");
+    if lastDot is int {
+        string path = loc.substring(0, lastDot);
+        string method = loc.substring(lastDot + 1);
 
-    json|error pathItem = paths.get(path);
-    if pathItem is map<json> {
-        map<json> pathItemMap = <map<json>>pathItem;
+        json|error pathItem = paths.get(path);
+        if pathItem is map<json> {
+            map<json> pathItemMap = <map<json>>pathItem;
 
-        if pathItemMap.hasKey(method) {
-            json|error operation = pathItemMap.get(method);
-            if operation is map<json> {
-                map<json> operationMap = <map<json>>operation;
-                operationMap["operationId"] = operationId;
-                return ();
+            if pathItemMap.hasKey(method) {
+                json|error operation = pathItemMap.get(method);
+                if operation is map<json> {
+                    map<json> operationMap = <map<json>>operation;
+                    operationMap["operationId"] = operationId;
+                    return ();
+                }
             }
         }
     }
