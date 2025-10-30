@@ -27,8 +27,6 @@ Description: ${description}`;
     return "API context not available";
 }
 
-
-
 // Helper function to extract usage context (where schema is referenced)
 function extractSchemaUsageContext(string schemaName, json spec) returns string {
     string[] usages = [];
@@ -116,9 +114,25 @@ function collectPropertyDescriptionRequests(map<json> properties, string parentS
                 parentSchemaName + ".properties." + propertyName;
 
             // Check if property needs description (not $ref and no description)
-            if !propertyMap.hasKey("description") && !propertyMap.hasKey("$ref") {
+            if !propertyMap.hasKey("description") {
                 string requestId = generateRequestId(parentSchemaName, propertyPath, "property");
                 string context = string `Property '${propertyName}' in schema '${parentSchemaName}'. Property definition: ${propertyMap.toString()}`;
+                // add schema type infor to context for better IA understanding
+                if propertyMap.hasKey("type") {
+                    string propType = propertyMap.get("type").toString();
+                    context += string ` Type: ${propType}`;
+                }
+                if propertyMap.hasKey("$ref") {
+                    string refValue = propertyMap.get("$ref").toString();
+                    context += string ` References: ${refValue}.`;
+                }
+                boolean isGenericRecord = false;
+                if propertyMap.keys().length() == 0 {
+                    // Empty property definition = record {}
+                    isGenericRecord = true;
+                    context += " Generic record type - needs specific description.";
+                }
+
                 requests.push({
                     id: requestId,
                     name: propertyName,
@@ -182,7 +196,6 @@ function collectExistingOperationIds(map<json> paths, string[] existingOperation
         }
     }
 }
-
 
 // Helper function to collect missing operationId requests
 function collectMissingOperationIdRequests(map<json> paths, OperationIdRequest[] requests,
@@ -256,7 +269,6 @@ function collectMissingOperationIdRequests(map<json> paths, OperationIdRequest[]
         }
     }
 }
-
 
 // Helper function to find schema usage in a path item
 function findSchemaUsageInPathItem(string path, map<json> pathItem, string refPattern) returns string {
