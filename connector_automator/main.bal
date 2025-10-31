@@ -41,7 +41,7 @@ function handleCommandLineMode(string[] args) returns error? {
             return example_generator:main(...remainingArgs);
         }
         "generate-tests" => {
-            return example_generator:main(...remainingArgs);
+            return test_generator:main(...remainingArgs);
         }
         "generate-docs" => {
             return doc_generator:main(...remainingArgs);
@@ -62,7 +62,6 @@ function handleCommandLineMode(string[] args) returns error? {
         }
     }
 }
-
 function handleInteractiveMode() returns error? {
     while true {
         showMainMenu();
@@ -138,10 +137,10 @@ function handleInteractiveMode() returns error? {
 }
 
 function showMainMenu() {
-    // Build a separator line of 50 '=' characters since string has no .repeat method
+    // Build a separator line of 80 '=' characters 
     string sep = "";
     int i = 0;
-    while i < 50 {
+    while i < 80 {
         sep += "=";
         i += 1;
     }
@@ -419,9 +418,10 @@ function handleFullPipeline() returns error? {
     io:println("This will execute the complete workflow:");
     io:println("1. Sanitize OpenAPI specification");
     io:println("2. Generate Ballerina client");
-    io:println("3. Fix compilation errors");
+    io:println("3. Build and validate client");
     io:println("4. Generate examples");
-    io:println("5. Generate documentation");
+    io:println("5. Generate tests");
+    io:println("6. Generate documentation");
     io:println("");
 
     string|io:Error openApiSpec = getUserInput("Enter path to OpenAPI specification file: ");
@@ -476,9 +476,10 @@ function runFullPipeline(string... args) returns error? {
     io:println("\nPipeline Steps:");
     io:println("1. Sanitize OpenAPI specification");
     io:println("2. Generate Ballerina client");
-    io:println("3. Fix compilation errors");
+    io:println("3. Build and validate client");
     io:println("4. Generate examples");
-    io:println("5. Generate documentation");
+    io:println("5. Generate tests");
+    io:println("6. Generate documentation");
 
     if !getUserConfirmation("\nProceed with full pipeline?") {
         io:println("Operation cancelled by user.");
@@ -507,28 +508,43 @@ function runFullPipeline(string... args) returns error? {
         io:println("Continuing with pipeline...");
     }
 
-    // Step 3: Fix any compilation errors in generated client
-    io:println("\n=== Step 3: Fixing Compilation Errors ===");
-    string[] fixArgs = [clientPath];
-    fixArgs.push(...pipelineOptions);
-    error? fixResult = code_fixer:main(...fixArgs);
-    if fixResult is error {
-        io:println("Warning: Code fixing failed: " + fixResult.message());
-        io:println("Continuing with pipeline...");
+   // Step 3: Build and validate client (check for compilation errors)
+    io:println("\n=== Step 3: Building and Validating Client ===");
+    io:println("Checking for compilation errors in generated client...");
+    string[] buildArgs = [clientPath];  
+    buildArgs.push(...pipelineOptions);
+    error? buildResult = code_fixer:main(...buildArgs);
+    if buildResult is error {
+        io:println("Pipeline failed: Generated client has compilation errors.");
+        io:println("Error details: " + buildResult.message());
+        io:println("\nThe pipeline has been terminated due to client compilation errors.");
+        io:println("Please review the generated client code and fix the compilation errors manually.");
+        return buildResult;
     }
+    io:println("✓ Client built successfully without compilation errors");
 
     // Step 4: Generate examples
     io:println("\n=== Step 4: Generating Examples ===");
-    string[] exampleArgs = [clientPath];
+    string[] exampleArgs = [outputDir];
     error? exampleResult = example_generator:main(...exampleArgs);
     if exampleResult is error {
         io:println("Warning: Example generation failed: " + exampleResult.message());
         io:println("Continuing with pipeline...");
     }
 
-    // Step 5: Generate documentation
-    io:println("\n=== Step 5: Generating Documentation ===");
-    string[] docArgs = ["generate-all", clientPath];
+    // Step 5: Generate tests
+    io:println("\n=== Step 5: Generating Tests ===");
+    string[] testArgs = [outputDir, sanitizedSpec];
+    testArgs.push(...pipelineOptions);
+    error? testResult = test_generator:main(...testArgs);
+    if testResult is error {
+        io:println("Warning: Test generation failed: " + testResult.message());
+        io:println("Continuing with pipeline...");
+    }
+
+    // Step 6: Generate documentation
+    io:println("\n=== Step 6: Generating Documentation ===");
+    string[] docArgs = ["generate-all", outputDir];
     docArgs.push(...pipelineOptions);
     error? docResult = doc_generator:main(...docArgs);
     if docResult is error {
@@ -539,6 +555,7 @@ function runFullPipeline(string... args) returns error? {
     io:println("Generated files are available in: " + outputDir);
     return;
 }
+
 
 function printUsage() {
     io:println("Connector Automation CLI");
@@ -583,3 +600,4 @@ function printUsage() {
     io:println("Environment Variables:");
     io:println("  ANTHROPIC_API_KEY    Required for AI-powered features");
 }
+

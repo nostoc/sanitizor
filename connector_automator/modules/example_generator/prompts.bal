@@ -113,30 +113,6 @@ Connector: ${details.connectorName}
 Task: Design a unique, multi-step workflow that demonstrates practical API usage patterns
 </CONTEXT>
 
-<REFLECTION_PHASE>
-Before creating the use case, analyze systematically:
-
-1. **Connector Capability Analysis**:
-   - What are the main functional areas this connector covers?
-   - Which functions work well together in a logical sequence?
-   - What are the common integration patterns for this type of API?
-
-2. **Workflow Design Thinking**:
-   - What real-world problem would a developer solve with this connector?
-   - How can I create a 2-3 step workflow that tells a complete story?
-   - What would make this example educational and practical?
-
-3. **Function Selection Strategy**:
-   - Which combination of functions creates a meaningful workflow?
-   - How do the outputs of earlier functions feed into later ones?
-   - Am I avoiding previously used functions to ensure variety?
-
-4. **Use Case Validation**:
-   - Is this use case realistic and relevant to developers?
-   - Does it demonstrate important connector capabilities?
-   - Is it distinct from previous examples?
-</REFLECTION_PHASE>
-
 ${previouslyUsedSection}
 
 <FUNCTION_IDENTIFICATION_RULES>
@@ -151,19 +127,25 @@ Follow these rules precisely for the 'requiredFunctions' array.
 ${details.functionSignatures}
 </AVAILABLE_FUNCTIONS>
 
-<OUTPUT_REQUIREMENTS>
-Generate a single, valid JSON object with:
-- "useCase": A unique, multi-step workflow description (2-3 sentences)
-- "requiredFunctions": Array of function identifiers following the rules above
-</OUTPUT_REQUIREMENTS>
+<INSTRUCTIONS>
+Analyze the connector capabilities and create a realistic, multi-step use case that:
+1. Solves a real-world problem developers would face
+2. Uses 2-3 functions in a logical sequence  
+3. Demonstrates practical API usage patterns
+4. Avoids previously used functions to ensure variety
+5. Is educational and relevant to developers
 
-Required JSON Format:
+Return ONLY a valid JSON object with no additional text, explanations, or reflection sections.
+</INSTRUCTIONS>
+
+<OUTPUT_FORMAT>
 {
   "useCase": "A unique, multi-step workflow description that solves a real problem.",
   "requiredFunctions": ["get admin.teams.list", "post admin.teams.create"]
 }
+</OUTPUT_FORMAT>
 
-Now apply your reflection and create a distinct, valuable use case:
+Generate the JSON response now:
 `;
 }
 
@@ -175,22 +157,6 @@ You are a technical documentation expert specializing in creating clear, descrip
 Task: Generate a concise, professional example name for the following use case
 Use Case: ${useCase}
 </CONTEXT>
-
-<REFLECTION_PHASE>
-Before creating the name, consider:
-
-1. **Core Action Identification**:
-   - What is the primary action or workflow being demonstrated?
-   - What are the key nouns and verbs in this use case?
-
-2. **Audience Perspective**:
-   - What would a developer expect this example to be called?
-   - How can I make the name immediately understandable?
-
-3. **Naming Convention Adherence**:
-   - How can I follow kebab-case while being descriptive?
-   - What 3-4 words best capture the essence of this workflow?
-</REFLECTION_PHASE>
 
 <NAMING_GUIDELINES>
 **Requirements**:
@@ -213,6 +179,6 @@ Before creating the name, consider:
 - Technical jargon that's not widely understood
 </NAMING_GUIDELINES>
 
-Return ONLY the example name following the guidelines above:
+Generate ONLY the example name following kebab-case format, no additional text or explanations:
 `;
 }
