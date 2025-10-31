@@ -70,18 +70,14 @@ Before writing the code, think through this systematically:
 - Include realistic test data appropriate for the connector domain
 - Demonstrate error handling where appropriate
 - Make the code self-explanatory and educational
-
-### Output Format
-- Return ONLY raw Ballerina code
-- No explanations, markdown, or code fences like ${tripleBackTick}
-- Code must be ready to compile and run
-
-DO NOT include:
-- Markdown code blocks or ${tripleBackTick} tags  
-- Any explanatory text or comments about fixes
-- Thinking or analysis sections
-- Any content other than raw .bal file content
 </BALLERINA_EXAMPLE_GUIDELINES>
+
+<OUTPUT_FORMATTING_RULES>
+- **Your entire response must be raw Ballerina code.**
+- **Under no circumstances should you wrap the output in markdown code fences like ${tripleBackTick}ballerina or ${tripleBackTick}.**
+- The response must not contain any explanations, markdown, or any text that is not valid Ballerina code.
+- The code must be ready to be saved directly to a ${backTick}.bal${backTick} file and compiled.
+</OUTPUT_FORMATTING_RULES>
 
 <RELEVANT_CODE_DEFINITIONS>
 ${targetedContext}
@@ -135,6 +131,7 @@ Analyze the connector capabilities and create a realistic, multi-step use case t
 4. Avoids previously used functions to ensure variety
 5. Is educational and relevant to developers
 
+**Your entire response must be a raw JSON string, without any markdown formatting like ${tripleBackTick}json ... ${tripleBackTick}.**
 Return ONLY a valid JSON object with no additional text, explanations, or reflection sections.
 </INSTRUCTIONS>
 
@@ -177,6 +174,8 @@ Use Case: ${useCase}
 - Generic names like "basic-example"
 - Too many words or complex phrases
 - Technical jargon that's not widely understood
+
+**The output must be the raw name itself, not wrapped in any markdown or quotes.**
 </NAMING_GUIDELINES>
 
 Generate ONLY the example name following kebab-case format, no additional text or explanations:

@@ -2,6 +2,8 @@ import ballerina/io;
 import ballerina/lang.runtime;
 import ballerina/log;
 
+configurable RetryConfig retryConfig = {};
+
 // Process multiple description requests with retry and exponential backoff
 public function generateDescriptionsBatchWithRetry(DescriptionRequest[] requests, string apiContext, boolean quietMode = false, RetryConfig? config = ()) returns BatchDescriptionResponse[]|LLMServiceError {
     RetryConfig retryConf = config ?: retryConfig;

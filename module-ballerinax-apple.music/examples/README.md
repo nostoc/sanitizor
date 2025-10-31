@@ -1,10 +1,12 @@
 # Examples
 
-The `apple.music` connector provides practical examples illustrating usage in various scenarios. Explore these [examples](https://github.com/ballerina-platform/module-ballerinax-apple.music/tree/main/examples), covering use cases like artist discovery recommendations, and music discovery recommendations.
+The `apple.music` connector provides practical examples illustrating usage in various scenarios. Explore these [examples](https://github.com/ballerina-platform/module-ballerinax-apple.music/tree/main/examples), covering use cases like regional music discovery, music discovery dashboard, and music discovery recommendations.
 
-1. [Artist discovery recommendations](https://github.com/ballerina-platform/module-ballerinax-apple.music/tree/main/examples/artist-discovery-recommendations) - Discover and recommend new artists based on user preferences and listening history.
+1. [Regional music discovery](https://github.com/ballerina-platform/module-ballerinax-apple.music/tree/main/examples/regional-music-discovery) - Discover popular music content from specific geographic regions using Apple Music's regional charts and recommendations.
 
-2. [Music discovery recommendations](https://github.com/ballerina-platform/module-ballerinax-apple.music/tree/main/examples/music-discovery-recommendations) - Generate personalized music recommendations to help users discover new songs and albums.
+2. [Music discovery dashboard](https://github.com/ballerina-platform/module-ballerinax-apple.music/tree/main/examples/music-discovery-dashboard) - Build a comprehensive dashboard that displays trending songs, albums, and artists from Apple Music's catalog.
+
+3. [Music discovery recommendations](https://github.com/ballerina-platform/module-ballerinax-apple.music/tree/main/examples/music-discovery-recommendations) - Generate personalized music recommendations based on user preferences and listening history using Apple Music's recommendation engine.
 
 ## Prerequisites
 

@@ -1,122 +1,86 @@
 import ballerina/io;
 import ballerinax/apple.music;
 
+configurable string developerToken = ?;
+configurable string musicUserToken = ?;
 configurable string storefront = "us";
-configurable string searchTerm = "Bohemian+Rhapsody";
-configurable string apiKey = "";
-configurable string musicUserToken = "";
 
 public function main() returns error? {
-    
-    music:ApiKeysConfig apiKeyConfig = {
-        authorization: apiKey,
+    music:Client appleMusic = check new ({
+        authorization: developerToken,
         musicUserToken: musicUserToken
-    };
+    });
+
+    io:println("=== Music Discovery Service ===\n");
+
+    string searchTerm = "indie+rock+alternative";
+    io:println("1. Searching for songs with term: " + searchTerm);
     
-    music:Client musicClient = check new (apiKeyConfig = apiKeyConfig);
-    
-    io:println("🎵 Starting Music Discovery Service");
-    io:println("=====================================");
-    
-    io:println(string `\n🔍 Searching for song: ${searchTerm.toString()}`);
-    
-    music:GetSearchResponseFromCatalogQueries searchQueries = {
-        term: searchTerm,
-        types: ["songs", "artists"],
-        'limit: 10
-    };
-    
-    music:SearchResponse searchResponse = check musicClient->/catalog/[storefront]/search(queries = searchQueries);
-    
-    music:ArtistsResponse? artistsResponse = searchResponse.results.artists;
-    if artistsResponse is () {
-        io:println("❌ No artists found for the search term");
+    string[] searchTypes = ["songs", "artists"];
+    music:SearchResponse searchResults = check appleMusic->/catalog/[storefront]/search(term = searchTerm, types = searchTypes, 'limit = 10);
+
+    if searchResults.results.albums is () && searchResults.results.artists is () {
+        io:println("No search results found");
         return;
     }
-    
-    music:Artists[] artistsData = artistsResponse.data;
-    if artistsData.length() == 0 {
-        io:println("❌ No artists found for the search term");
-        return;
+
+    if searchResults.results.artists is music:ArtistsResponse {
+        music:ArtistsResponse artistsResponse = <music:ArtistsResponse>searchResults.results.artists;
+        io:println("Found " + artistsResponse.data.length().toString() + " artists");
+        foreach music:Artists artist in artistsResponse.data {
+            io:println("  - Artist: " + artist.id);
+        }
     }
+
+    string sampleSongId = "1441164670";
+    io:println("\n2. Getting detailed song information for ID: " + sampleSongId);
     
-    music:Artists primaryArtist = artistsData[0];
-    io:println(string `✅ Found primary artist: ${primaryArtist.id}`);
-    
-    io:println(string `\n🎭 Finding similar artists to: ${primaryArtist.id}`);
-    
-    music:GetArtistViewFromCatalogQueries similarArtistsQueries = {
-        'limit: 5
-    };
-    
-    music:AlbumsResponse|error similarArtistsResult = musicClient->/catalog/[storefront]/artists/[primaryArtist.id]/view/["similar-artists"](queries = similarArtistsQueries);
-    
-    if similarArtistsResult is error {
-        io:println(string `⚠️ Could not fetch similar artists: ${similarArtistsResult.message()}`);
-    } else {
-        io:println(string `✅ Found ${similarArtistsResult.data.length()} similar artists`);
-    }
-    
-    io:println(string `\n🎶 Getting top songs for primary artist: ${primaryArtist.id}`);
-    
-    music:GetArtistViewFromCatalogQueries topSongsQueries = {
-        'limit: 10
-    };
-    
-    music:AlbumsResponse|error topSongsResult = musicClient->/catalog/[storefront]/artists/[primaryArtist.id]/view/["top-songs"](queries = topSongsQueries);
-    
-    if topSongsResult is error {
-        io:println(string `⚠️ Could not fetch top songs: ${topSongsResult.message()}`);
-    } else {
-        io:println(string `✅ Found ${topSongsResult.data.length()} top songs for primary artist`);
+    string[] includeTypes = ["artists", "albums"];
+    music:SongsResponse songDetails = check appleMusic->/catalog/[storefront]/songs/[sampleSongId](include = includeTypes);
+
+    if songDetails.data.length() > 0 {
+        music:Songs song = songDetails.data[0];
+        io:println("Song ID: " + song.id);
+        io:println("Song Type: " + song.'type);
         
-        foreach int i in 0..<topSongsResult.data.length() {
-            if i < 3 {
-                music:Albums song = topSongsResult.data[i];
-                io:println(string `   🎵 Song ${i + 1}: ID ${song.id}`);
+        if song.attributes is music:SongsAttributes {
+            music:SongsAttributes attrs = <music:SongsAttributes>song.attributes;
+            io:println("Album: " + attrs.albumName);
+            io:println("Genres: " + attrs.genreNames.toString());
+            io:println("Duration: " + attrs.durationInMillis.toString() + " ms");
+            if attrs.trackNumber is decimal {
+                decimal trackNumber = <decimal>attrs.trackNumber;
+                io:println("Track Number: " + trackNumber.toString());
             }
         }
     }
+
+    io:println("\n3. Finding related artists for recommendations");
     
-    io:println("\n📊 Music Discovery Summary");
-    io:println("==========================");
-    io:println(string `🎯 Original search: ${searchTerm}`);
-    io:println(string `🎤 Primary artist found: ${primaryArtist.id}`);
-    
-    if similarArtistsResult is music:AlbumsResponse {
-        io:println(string `👥 Similar artists discovered: ${similarArtistsResult.data.length()}`);
+    music:SongsResponse relatedArtists = check appleMusic->/catalog/[storefront]/songs/[sampleSongId]/artists('limit = 5);
+
+    io:println("Found " + relatedArtists.data.length().toString() + " related artist connections");
+    foreach music:Songs relatedSong in relatedArtists.data {
+        io:println("  - Related connection ID: " + relatedSong.id);
+        io:println("    Type: " + relatedSong.'type);
     }
+
+    io:println("\n4. Exploring genre connections");
     
-    if topSongsResult is music:AlbumsResponse {
-        io:println(string `🎵 Top songs available: ${topSongsResult.data.length()}`);
-    }
-    
-    io:println("\n🔄 Expanding recommendations with additional song search...");
-    
-    music:GetSongsFromCatalogQueries additionalSongsQueries = {
-        'limit: 5
-    };
-    
-    music:SongsResponse|error additionalSongs = musicClient->/catalog/[storefront]/songs(queries = additionalSongsQueries);
-    
-    if additionalSongs is error {
-        io:println(string `⚠️ Could not fetch additional songs: ${additionalSongs.message()}`);
-    } else {
-        io:println(string `✅ Found ${additionalSongs.data.length()} additional songs for discovery`);
-        
-        foreach int i in 0..<additionalSongs.data.length() {
-            music:Songs song = additionalSongs.data[i];
-            if song.attributes is music:SongsAttributes {
-                music:SongsAttributes attrs = <music:SongsAttributes>song.attributes;
-                io:println(string `   🎵 ${attrs.albumName} - Duration: ${attrs.durationInMillis}ms`);
-                
-                if attrs.genreNames.length() > 0 {
-                    io:println(string `      🏷️ Genres: ${attrs.genreNames[0]}`);
-                }
-            }
+    music:SongsResponse genreConnections = check appleMusic->/catalog/[storefront]/songs/[sampleSongId]/genres('limit = 3);
+
+    io:println("Found " + genreConnections.data.length().toString() + " genre connections");
+    foreach music:Songs genreConnection in genreConnections.data {
+        io:println("  - Genre connection ID: " + genreConnection.id);
+        if genreConnection.attributes is music:SongsAttributes {
+            music:SongsAttributes genreAttrs = <music:SongsAttributes>genreConnection.attributes;
+            io:println("    Genres: " + genreAttrs.genreNames.toString());
         }
     }
-    
-    io:println("\n🎉 Music discovery service completed!");
-    io:println("Recommendations have been built based on musical taste patterns.");
+
+    io:println("\n=== Music Discovery Complete ===");
+    io:println("Recommendation engine can now use this data to:");
+    io:println("- Build user profiles based on genre preferences");
+    io:println("- Suggest similar artists and tracks");
+    io:println("- Create personalized playlists");
 }

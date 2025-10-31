@@ -64,13 +64,13 @@ Alternatively, you can set your authentication credentials as environment variab
 If you are using linux or mac, you can use following method:
 ```bash
    export IS_LIVE_SERVER=true
-   export APPLE_MUSIC_TOKEN="<your-apple.music-access-token>"
+   export APPLE.MUSIC_TOKEN="<your-apple.music-access-token>"
 ```
 
 If you are using Windows you can use following method:
 ```bash
    setx IS_LIVE_SERVER true
-   setx APPLE_MUSIC_TOKEN <your-apple.music-access-token>
+   setx APPLE.MUSIC_TOKEN <your-apple.music-access-token>
 ```
 Then, run the following command to run the tests:
 

@@ -5,15 +5,11 @@ import ballerina/os;
 import ballerina/regex;
 import ballerina/time;
 
-# Execute shell commands and capture results
-#
-# + command - Command to execute
-# + workingDir - working directory for command execution
-# + return - `CommandResult` with all execution details
-public function executeCommand(string command, string workingDir) returns CommandResult {
+public function executeCommand(string command, string workingDir, boolean quietMode = false) returns CommandResult {
     time:Utc startTime = time:utcNow();
-
-    log:printInfo("Executing", command = command, workingDirectory = workingDir);
+    if !quietMode {
+        log:printInfo("Executing", command = command, workingDirectory = workingDir);
+    }
 
     string stdout = "";
     string stderr = "";
@@ -34,7 +30,9 @@ public function executeCommand(string command, string workingDir) returns Comman
                     exitCode = 1;
                     success = false;
                 } else {
-                    log:printInfo("Created working directory", workingDir = workingDir);
+                    if !quietMode {
+                        log:printInfo("Created working directory", workingDir = workingDir);
+                    }
                 }
             }
         }
@@ -75,7 +73,9 @@ public function executeCommand(string command, string workingDir) returns Comman
                             stdout = stdoutContent;
                         } else {
                             stdout = "";
-                            log:printWarn("Failed to read stdout file", 'error = stdoutContent);
+                            if !quietMode {
+                                log:printWarn("Failed to read stdout file", 'error = stdoutContent);
+                            }
                         }
 
                         // Read stderr from file
@@ -84,18 +84,24 @@ public function executeCommand(string command, string workingDir) returns Comman
                             stderr = stderrContent;
                         } else {
                             stderr = "";
-                            log:printWarn("Failed to read stderr file", 'error = stderrContent);
+                            if !quietMode {
+                                log:printWarn("Failed to read stderr file", 'error = stderrContent);
+                            }
                         }
 
                         // Clean up temporary files
                         file:Error? stdoutDeleteResult = file:remove(stdoutFile);
                         if stdoutDeleteResult is file:Error {
-                            log:printWarn("Failed to delete stdout temp file", path = stdoutFile);
+                            if !quietMode {
+                                log:printWarn("Failed to delete stdout temp file", path = stdoutFile);
+                            }
                         }
 
                         file:Error? stderrDeleteResult = file:remove(stderrFile);
                         if stderrDeleteResult is file:Error {
-                            log:printWarn("Failed to delete stderr temp file", path = stderrFile);
+                            if !quietMode {
+                                log:printWarn("Failed to delete stderr temp file", path = stderrFile);
+                            }
                         }
                     } else {
                         stderr = exitResult.toString();
@@ -112,7 +118,9 @@ public function executeCommand(string command, string workingDir) returns Comman
     decimal executionTime = <decimal>(endTime[0] - startTime[0]);
 
     if (!success) {
-        log:printWarn("Command failed", exitCode = exitCode, stderr = stderr);
+        if !quietMode {
+            log:printWarn("Command failed", exitCode = exitCode, stderr = stderr);
+        }
     }
 
     // Parse compilation errors from stderr if it contains error messages
@@ -262,8 +270,9 @@ public function executeBalClientGenerate(string inputPath, string outputPath) re
 
 # Execute bal build command
 # + projectPath - Path to Ballerina project directory
+# + quietMode - Enable quiet mode
 # + return - CommandResult with execution details and compilation errors
-public function executeBalBuild(string projectPath) returns CommandResult {
+public function executeBalBuild(string projectPath, boolean quietMode = false) returns CommandResult {
     string command = "bal build";
     CommandResult result = executeCommand(command, projectPath);
 

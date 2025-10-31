@@ -1,14 +1,11 @@
 import connector_automator.utils;
 
-import ballerina/ai;
 import ballerina/file;
 import ballerina/io;
 import ballerina/lang.array;
 import ballerina/lang.regexp;
 import ballerina/log;
-import ballerinax/ai.anthropic;
 
-configurable string apiKey = ?;
 configurable int maxIterations = ?;
 
 // Parse compilation errors from build output (only ERRORs)
@@ -94,6 +91,11 @@ public function fixFileWithLLM(string projectPath, string filePath, CompilationE
         log:printInfo("Attempting to fix file with LLM", filePath = filePath, errorCount = errors.length());
     }
 
+    // Check if AI service is initialized
+    if !utils:isAIServiceInitialized() {
+        return error("AI service not initialized. Please call utils:initAIService() first.");
+    }
+
     // Construct full file path
     string fullFilePath = check file:joinPath(projectPath, filePath);
 
@@ -119,8 +121,8 @@ public function fixFileWithLLM(string projectPath, string filePath, CompilationE
         log:printInfo("Sending fix request to LLM");
     }
 
-    // Get fix from LLM
-    string|error llmResponse = fixBallerinaCode(prompt);
+    // Get fix from LLM using centralized service
+    string|error llmResponse = utils:callAI(prompt);
     if llmResponse is error {
         if !quietMode {
             log:printError("LLM failed to generate fix", 'error = llmResponse);
@@ -134,26 +136,6 @@ public function fixFileWithLLM(string projectPath, string filePath, CompilationE
         fixedCode: llmResponse,
         explanation: "Fixed using LLM"
     };
-}
-
-public function fixBallerinaCode(string prompt) returns string|error {
-    ai:ModelProvider anthropicModel = check new anthropic:ModelProvider(apiKey, anthropic:CLAUDE_SONNET_4_20250514, maxTokens = 64000, temperature = 0.4d, timeout = 300);
-
-    ai:ChatMessage[] messages = [
-        {role: "user", content: prompt}
-    ];
-
-    ai:ChatAssistantMessage|error response = anthropicModel->chat(messages);
-    if (response is error) {
-        return error("Failed to generate code fixes", response);
-    }
-
-    string? fixedCode = response.content;
-    if (fixedCode is ()) {
-        return error("Empty response from LLM");
-    }
-
-    return fixedCode;
 }
 
 // Apply fix to file
@@ -197,9 +179,17 @@ public function applyFix(string projectPath, string filePath, string fixedCode, 
 }
 
 // Main function to fix all errors in a project
-public function fixAllErrors(string projectPath, boolean quietMode = true, boolean autoYes = false) returns FixResult|error {
+public function fixAllErrors(string projectPath, boolean quietMode = true, boolean autoYes = false) returns FixResult|BallerinaFixerError {
     if !quietMode {
         log:printInfo("Starting error fixing process", projectPath = projectPath);
+    }
+
+    // Initialize AI service if not already initialized
+    if !utils:isAIServiceInitialized() {
+        error? initResult = utils:initAIService(quietMode);
+        if initResult is error {
+            return error BallerinaFixerError("Failed to initialize AI service", initResult);
+        }
     }
 
     FixResult result = {
@@ -221,7 +211,7 @@ public function fixAllErrors(string projectPath, boolean quietMode = true, boole
         }
 
         // Build the project and get diagnostics
-        utils:CommandResult buildResult = utils:executeBalBuild(projectPath);
+        utils:CommandResult buildResult = utils:executeBalBuild(projectPath, quietMode);
 
         if utils:isCommandSuccessfull(buildResult) {
             if !quietMode {
@@ -322,12 +312,12 @@ public function fixAllErrors(string projectPath, boolean quietMode = true, boole
             // Ask user for confirmation
             boolean shouldApplyFix = false;
             if autoYes {
-                io:println(string `\n=== Iteration ${iteration} - Fix for ${filePath} ===`);
-                io:println("Errors to fix:");
-                foreach CompilationError err in fileErrors {
-                    io:println(string `  Line ${err.line}: ${err.message}`);
-                }
                 if !quietMode {
+                    io:println(string `\n=== Iteration ${iteration} - Fix for ${filePath} ===`);
+                    io:println("Errors to fix:");
+                    foreach CompilationError err in fileErrors {
+                        io:println(string `  Line ${err.line}: ${err.message}`);
+                    }
                     io:println("\nProposed fix:");
                     io:println("```ballerina");
                     io:println(fixResponse.fixedCode);
@@ -336,16 +326,17 @@ public function fixAllErrors(string projectPath, boolean quietMode = true, boole
                 io:println("\nApply this fix? (y/n): y [auto-confirmed]");
                 shouldApplyFix = true;
             } else {
-                io:println(string `\n=== Iteration ${iteration} - Fix for ${filePath} ===`);
-                io:println("Errors to fix:");
-                foreach CompilationError err in fileErrors {
-                    io:println(string `  Line ${err.line}: ${err.message}`);
+                if !quietMode {
+                    io:println(string `\n=== Iteration ${iteration} - Fix for ${filePath} ===`);
+                    io:println("Errors to fix:");
+                    foreach CompilationError err in fileErrors {
+                        io:println(string `  Line ${err.line}: ${err.message}`);
+                    }
+                    io:println("\nProposed fix:");
+                    io:println("```ballerina");
+                    io:println(fixResponse.fixedCode);
+                    io:println("```");
                 }
-                io:println("\nProposed fix:");
-                io:println("```ballerina");
-                io:println(fixResponse.fixedCode);
-                io:println("```");
-
                 io:print(string `\nApply this fix? (y/n): `);
                 string|io:Error userInput = io:readln();
                 if userInput is io:Error {
@@ -404,7 +395,7 @@ public function fixAllErrors(string projectPath, boolean quietMode = true, boole
     }
 
     // Final build check
-    utils:CommandResult finalBuildResult = utils:executeBalBuild(projectPath);
+    utils:CommandResult finalBuildResult = utils:executeBalBuild(projectPath, quietMode);
     if utils:isCommandSuccessfull(finalBuildResult) {
         result.success = true;
         result.errorsRemaining = 0;
@@ -456,4 +447,3 @@ function checkIfErrorsAreSame(CompilationError[] current, CompilationError[] pre
 
     return true;
 }
-

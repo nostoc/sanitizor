@@ -1,0 +1,138 @@
+```ballerina
+import ballerina/io;
+import ballerinax/apple.music;
+
+configurable string authorization = ?;
+configurable string musicUserToken = ?;
+configurable string storefront = "us";
+
+public function main() returns error? {
+    
+    music:ApiKeysConfig config = {
+        authorization: authorization,
+        musicUserToken: musicUserToken
+    };
+    
+    music:Client appleMusic = check new (config);
+    
+    // Step 1: Search for artists in a specific genre to discover new music
+    io:println("=== Step 1: Discovering Artists in Electronic Genre ===");
+    
+    music:GetSearchResponseFromCatalogQueries searchQueries = {
+        term: "electronic",
+        types: ["artists"],
+        'limit: 10
+    };
+    
+    music:SearchResponse searchResults = check appleMusic->/catalog/[storefront]/search(queries = searchQueries);
+    
+    if searchResults.results.artists is () {
+        io:println("No artists found in search results");
+        return;
+    }
+    
+    music:ArtistsResponse artistsResponse = <music:ArtistsResponse>searchResults.results.artists;
+    io:println(string `Found ${artistsResponse.data.length()} artists for discovery`);
+    
+    string[] discoveredArtistIds = [];
+    foreach music:Artists artist in artistsResponse.data {
+        io:println(string `Discovered artist: ${artist.attributes?.name ?: "Unknown"} (ID: ${artist.id})`);
+        discoveredArtistIds.push(artist.id);
+    }
+    
+    // Step 2: Get detailed information for the first discovered artist
+    if discoveredArtistIds.length() > 0 {
+        string selectedArtistId = discoveredArtistIds[0];
+        io:println(string `\n=== Step 2: Getting Top Songs for Artist ID: ${selectedArtistId} ===`);
+        
+        music:GetArtistViewFromCatalogQueries topSongsQueries = {
+            'limit: 5
+        };
+        
+        music:AlbumsResponse topSongs = check appleMusic->/catalog/[storefront]/artists/[selectedArtistId]/view/["top-songs"](queries = topSongsQueries);
+        
+        io:println(string `Found ${topSongs.data.length()} top albums/songs for the artist`);
+        foreach music:Albums album in topSongs.data {
+            io:println(string `  - ${album.attributes?.name ?: "Unknown Album"} (${album.attributes?.releaseDate ?: "Unknown Date"})`);
+        }
+        
+        // Get similar artists for better recommendations
+        io:println(string `\n=== Step 2b: Finding Similar Artists ===`);
+        
+        music:GetArtistViewFromCatalogQueries similarArtistsQueries = {
+            'limit: 8
+        };
+        
+        music:AlbumsResponse|error similarArtistsResult = appleMusic->/catalog/[storefront]/artists/[selectedArtistId]/view/["similar-artists"](queries = similarArtistsQueries);
+        
+        if similarArtistsResult is music:AlbumsResponse {
+            io:println(string `Found ${similarArtistsResult.data.length()} similar artists`);
+            foreach music:Albums similarArtist in similarArtistsResult.data {
+                io:println(string `  Similar: ${similarArtist.attributes?.name ?: "Unknown Artist"}`);
+            }
+        } else {
+            io:println("Could not fetch similar artists for this artist");
+        }
+    }
+    
+    // Step 3: Check user's library to avoid duplicate recommendations
+    io:println("\n=== Step 3: Checking User's Library Artists ===");
+    
+    music:GetArtistsFromLibraryQueries libraryQueries = {
+        'limit: 20
+    };
+    
+    music:LibraryArtistsResponse|error libraryResult = appleMusic->/me/library/artists(queries = libraryQueries);
+    
+    if libraryResult is music:LibraryArtistsResponse {
+        io:println(string `User has ${libraryResult.data.length()} artists in their library`);
+        
+        string[] libraryArtistNames = [];
+        foreach music:LibraryArtists libraryArtist in libraryResult.data {
+            string artistName = libraryArtist.attributes?.name ?: "Unknown";
+            libraryArtistNames.push(artistName.toLowerAscii());
+            io:println(string `  Library artist: ${artistName}`);
+        }
+        
+        // Step 4: Generate filtered recommendations
+        io:println("\n=== Step 4: Generating Filtered Recommendations ===");
+        
+        string[] recommendations = [];
+        foreach music:Artists discoveredArtist in artistsResponse.data {
+            string artistName = discoveredArtist.attributes?.name ?: "Unknown";
+            string artistNameLower = artistName.toLowerAscii();
+            
+            boolean alreadyInLibrary = false;
+            foreach string libraryName in libraryArtistNames {
+                if libraryName.includes(artistNameLower) || artistNameLower.includes(libraryName) {
+                    alreadyInLibrary = true;
+                    break;
+                }
+            }
+            
+            if !alreadyInLibrary {
+                recommendations.push(artistName);
+            }
+        }
+        
+        io:println("\n🎵 NEW ARTIST RECOMMENDATIONS FOR YOUR DISCOVERY:");
+        if recommendations.length() == 0 {
+            io:println("No new recommendations - you already have similar artists in your library!");
+        } else {
+            foreach int i in 0..<recommendations.length() {
+                io:println(string `${i + 1}. ${recommendations[i]}`);
+            }
+        }
+        
+        io:println(string `\nSummary: Found ${discoveredArtistIds.length()} discovery candidates, you have ${libraryResult.data.length()} artists in library, recommending ${recommendations.length()} new artists`);
+        
+    } else {
+        io:println("Could not access user's library - showing all discovered artists as recommendations");
+        io:println("\n🎵 DISCOVERY RECOMMENDATIONS:");
+        foreach int i in 0..<discoveredArtistIds.length() {
+            music:Artists artist = artistsResponse.data[i];
+            io:println(string `${i + 1}. ${artist.attributes?.name ?: "Unknown Artist"}`);
+        }
+    }
+}
+```

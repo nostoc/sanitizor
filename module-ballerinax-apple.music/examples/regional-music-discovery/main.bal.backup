@@ -1,0 +1,150 @@
+import ballerina/io;
+import ballerinax/apple.music;
+
+configurable string developerToken = ?;
+configurable string userToken = "";
+
+public function main() returns error? {
+    
+    music:ApiKeysConfig apiConfig = {
+        token: developerToken
+    };
+    
+    music:Client appleMusic = check new (apiConfig);
+    
+    io:println("=== Music Discovery Engine ===");
+    io:println("Discovering trending artists and analyzing their catalogs...\n");
+    
+    string storefront = "us";
+    
+    // Step 1: Find trending artists in the region
+    io:println("Step 1: Finding trending artists in region: " + storefront);
+    
+    music:GetArtistsFromCatalogQueries artistQueries = {
+        ids: ["178834", "1419227", "73406786", "909253", "472499167"],
+        include: ["albums"]
+    };
+    
+    music:ArtistsResponse artistsResponse = check appleMusic->/catalog/[storefront]/artists(queries = artistQueries);
+    
+    io:println("Found " + artistsResponse.data.length().toString() + " artists for analysis");
+    
+    // Step 2: Analyze catalog depth by examining album collections
+    io:println("\nStep 2: Analyzing catalog depth for each artist");
+    
+    foreach music:Artists artist in artistsResponse.data {
+        string artistName = artist.attributes?.name ?: "Unknown";
+        io:println("\n--- Artist: " + artistName + " ---");
+        io:println("Artist ID: " + artist.id);
+        
+        music:AlbumsResponse? artistAlbums = artist.relationships?.albums;
+        if artistAlbums is music:AlbumsResponse {
+            int albumCount = artistAlbums.data.length();
+            
+            io:println("Album Count: " + albumCount.toString());
+            
+            if albumCount > 5 {
+                io:println("✓ Substantial catalog - Good for curation");
+            } else if albumCount > 2 {
+                io:println("◐ Moderate catalog - Emerging artist");
+            } else {
+                io:println("○ Limited catalog - Very new artist");
+            }
+            
+            // Analyze genres from album data
+            string[] genres = [];
+            foreach music:Albums album in artistAlbums.data {
+                string[]? albumGenres = album.attributes?.genreNames;
+                if albumGenres is string[] {
+                    foreach string genre in albumGenres {
+                        if genres.indexOf(genre) == () {
+                            genres.push(genre);
+                        }
+                    }
+                }
+            }
+            
+            io:println("Genres: " + genres.toString());
+            
+            if genres.length() > 2 {
+                io:println("✓ Multi-genre artist - High collaboration potential");
+            }
+            
+        } else {
+            io:println("No album data available for analysis");
+        }
+    }
+    
+    // Step 3: Identify cross-genre collaborations
+    io:println("\n\nStep 3: Cross-Genre Collaboration Analysis");
+    
+    map<string[]> artistGenreMap = {};
+    
+    foreach music:Artists artist in artistsResponse.data {
+        string artistName = artist.attributes?.name ?: "Unknown";
+        string[] artistGenres = [];
+        
+        music:AlbumsResponse? artistAlbums = artist.relationships?.albums;
+        if artistAlbums is music:AlbumsResponse {
+            foreach music:Albums album in artistAlbums.data {
+                string[]? albumGenres = album.attributes?.genreNames;
+                if albumGenres is string[] {
+                    foreach string genre in albumGenres {
+                        if artistGenres.indexOf(genre) == () {
+                            artistGenres.push(genre);
+                        }
+                    }
+                }
+            }
+        }
+        
+        artistGenreMap[artistName] = artistGenres;
+    }
+    
+    io:println("\n--- Collaboration Potential Matrix ---");
+    string[] artistNames = artistGenreMap.keys();
+    
+    foreach int i in 0..<artistNames.length() {
+        foreach int j in (i + 1)..<artistNames.length() {
+            string artist1 = artistNames[i];
+            string artist2 = artistNames[j];
+            string[] genres1 = artistGenreMap[artist1] ?: [];
+            string[] genres2 = artistGenreMap[artist2] ?: [];
+            
+            string[] commonGenres = [];
+            foreach string genre in genres1 {
+                if genres2.indexOf(genre) != () {
+                    commonGenres.push(genre);
+                }
+            }
+            
+            if commonGenres.length() > 0 {
+                io:println(artist1 + " ↔ " + artist2);
+                io:println("  Common genres: " + commonGenres.toString());
+                io:println("  Collaboration score: " + (commonGenres.length() * 10).toString() + "/100");
+            }
+        }
+    }
+    
+    // Step 4: Generate discovery recommendations
+    io:println("\n\n=== Music Discovery Recommendations ===");
+    
+    foreach music:Artists artist in artistsResponse.data {
+        string artistName = artist.attributes?.name ?: "Unknown";
+        
+        music:AlbumsResponse? artistAlbums = artist.relationships?.albums;
+        if artistAlbums is music:AlbumsResponse {
+            int albumCount = artistAlbums.data.length();
+            string[] genres = artistGenreMap[artistName] ?: [];
+            
+            if albumCount >= 3 && genres.length() >= 2 {
+                io:println("🌟 RECOMMENDED: " + artistName);
+                io:println("   Reason: Substantial catalog (" + albumCount.toString() + " albums) with genre diversity");
+                io:println("   Curator Value: High - suitable for multiple playlist types");
+                io:println("   Genres: " + genres.toString());
+            }
+        }
+    }
+    
+    io:println("\nMusic discovery analysis complete!");
+}
