@@ -322,7 +322,15 @@ function handleTestGeneration() returns error? {
         return error("Failed to read openAPI spec path");
     }
 
+    // Add quiet mode confirmation 
+    boolean quietMode = getUserConfirmation("Enable quiet mode (reduced logging)?");
+
     string[] args = [connectorPath.trim(), specPath.trim()];
+    
+    // Add quiet mode flag if selected
+    if quietMode {
+        args.push("quiet");
+    }
 
     return test_generator:main(...args);
 }
