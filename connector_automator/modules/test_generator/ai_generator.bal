@@ -47,7 +47,6 @@ function callAI(string prompt) returns string|error {
         return error("AI generation failed: " + response.message());
 
     }
-
     string? content = response.content;
     if content is string {
         //io:println(content);
