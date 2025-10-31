@@ -19,7 +19,7 @@ import ballerina/test;
 import apple.music.mock.server as _;
 
 configurable boolean isLiveServer = os:getEnv("IS_LIVE_SERVER") == "true";
-configurable string authorization = isLiveServer ? os:getEnv("APPLE_MUSIC_AUTHORIZATION") : "test_token";
+configurable string authorization = isLiveServer ? os:getEnv("APPLE_MUSIC_JWT") : "test_jwt_token";
 configurable string musicUserToken = isLiveServer ? os:getEnv("APPLE_MUSIC_USER_TOKEN") : "test_user_token";
 configurable string serviceUrl = isLiveServer ? "https://api.music.apple.com/v1" : "http://localhost:9090/v1";
 
@@ -27,6 +27,7 @@ ApiKeysConfig apiKeyConfig = {
     authorization: authorization,
     musicUserToken: musicUserToken
 };
+
 ConnectionConfig config = {};
 final Client appleMusicClient = check new Client(apiKeyConfig, config, serviceUrl);
 
@@ -34,7 +35,7 @@ final Client appleMusicClient = check new Client(apiKeyConfig, config, serviceUr
     groups: ["live_tests", "mock_tests"]
 }
 isolated function testGetMultipleCatalogAlbums() returns error? {
-    AlbumsResponse response = check appleMusicClient->/catalog/["us"]/albums(ids = ["1440857781"]);
+    AlbumsResponse response = check appleMusicClient->/catalog/us/albums(ids = ["1440857781"]);
     test:assertTrue(response.data.length() > 0, "Expected a non-empty albums array");
 }
 
@@ -42,7 +43,7 @@ isolated function testGetMultipleCatalogAlbums() returns error? {
     groups: ["live_tests", "mock_tests"]
 }
 isolated function testGetCatalogAlbum() returns error? {
-    AlbumsResponse response = check appleMusicClient->/catalog/["us"]/albums/["1440857781"]();
+    AlbumsResponse response = check appleMusicClient->/catalog/us/albums/["1440857781"]();
     test:assertTrue(response.data.length() > 0, "Expected a non-empty albums array");
 }
 
@@ -50,15 +51,15 @@ isolated function testGetCatalogAlbum() returns error? {
     groups: ["live_tests", "mock_tests"]
 }
 isolated function testGetCatalogAlbumRelationship() returns error? {
-    ArtistsResponse response = check appleMusicClient->/catalog/["us"]/albums/["1440857781"]/["artists"]();
+    ArtistsResponse response = check appleMusicClient->/catalog/us/albums/["1440857781"]/artists();
     test:assertTrue(response.data.length() > 0, "Expected a non-empty artists array");
 }
 
 @test:Config {
     groups: ["live_tests", "mock_tests"]
 }
-isolated function testGetCatalogAlbumView() returns error? {
-    MusicVideosResponse response = check appleMusicClient->/catalog/["us"]/albums/["1440857781"]/view/["related-videos"]();
+isolated function testGetCatalogAlbumRelationshipView() returns error? {
+    MusicVideosResponse response = check appleMusicClient->/catalog/us/albums/["1440857781"]/view/["related-videos"]();
     test:assertTrue(response.data.length() > 0, "Expected a non-empty music videos array");
 }
 
@@ -66,7 +67,7 @@ isolated function testGetCatalogAlbumView() returns error? {
     groups: ["live_tests", "mock_tests"]
 }
 isolated function testGetMultipleCatalogArtists() returns error? {
-    ArtistsResponse response = check appleMusicClient->/catalog/["us"]/artists(ids = ["159260351"]);
+    ArtistsResponse response = check appleMusicClient->/catalog/us/artists(ids = ["909253"]);
     test:assertTrue(response.data.length() > 0, "Expected a non-empty artists array");
 }
 
@@ -74,7 +75,7 @@ isolated function testGetMultipleCatalogArtists() returns error? {
     groups: ["live_tests", "mock_tests"]
 }
 isolated function testGetCatalogArtist() returns error? {
-    ArtistsResponse response = check appleMusicClient->/catalog/["us"]/artists/["159260351"]();
+    ArtistsResponse response = check appleMusicClient->/catalog/us/artists/["909253"]();
     test:assertTrue(response.data.length() > 0, "Expected a non-empty artists array");
 }
 
@@ -82,15 +83,15 @@ isolated function testGetCatalogArtist() returns error? {
     groups: ["live_tests", "mock_tests"]
 }
 isolated function testGetCatalogArtistRelationship() returns error? {
-    AlbumsResponse response = check appleMusicClient->/catalog/["us"]/artists/["159260351"]/["albums"]();
+    AlbumsResponse response = check appleMusicClient->/catalog/us/artists/["909253"]/albums();
     test:assertTrue(response.data.length() > 0, "Expected a non-empty albums array");
 }
 
 @test:Config {
     groups: ["live_tests", "mock_tests"]
 }
-isolated function testGetCatalogArtistView() returns error? {
-    AlbumsResponse response = check appleMusicClient->/catalog/["us"]/artists/["159260351"]/view/["full-albums"]();
+isolated function testGetCatalogArtistRelationshipView() returns error? {
+    AlbumsResponse response = check appleMusicClient->/catalog/us/artists/["909253"]/view/["full-albums"]();
     test:assertTrue(response.data.length() > 0, "Expected a non-empty albums array");
 }
 
@@ -98,7 +99,7 @@ isolated function testGetCatalogArtistView() returns error? {
     groups: ["live_tests", "mock_tests"]
 }
 isolated function testSearchCatalogResources() returns error? {
-    SearchResponse response = check appleMusicClient->/catalog/["us"]/search(term = "taylor+swift");
+    SearchResponse response = check appleMusicClient->/catalog/us/search(term = "taylor+swift");
     SearchResponseResults? searchResults = response?.results;
     test:assertTrue(searchResults !is (), "Expected search results to be present");
 }
@@ -107,7 +108,7 @@ isolated function testSearchCatalogResources() returns error? {
     groups: ["live_tests", "mock_tests"]
 }
 isolated function testGetMultipleCatalogSongs() returns error? {
-    SongsResponse response = check appleMusicClient->/catalog/["us"]/songs(ids = ["1440857829"]);
+    SongsResponse response = check appleMusicClient->/catalog/us/songs(ids = ["1440857786"]);
     test:assertTrue(response.data.length() > 0, "Expected a non-empty songs array");
 }
 
@@ -115,7 +116,7 @@ isolated function testGetMultipleCatalogSongs() returns error? {
     groups: ["live_tests", "mock_tests"]
 }
 isolated function testGetCatalogSong() returns error? {
-    SongsResponse response = check appleMusicClient->/catalog/["us"]/songs/["1440857829"]();
+    SongsResponse response = check appleMusicClient->/catalog/us/songs/["1440857786"]();
     test:assertTrue(response.data.length() > 0, "Expected a non-empty songs array");
 }
 
@@ -123,7 +124,7 @@ isolated function testGetCatalogSong() returns error? {
     groups: ["live_tests", "mock_tests"]
 }
 isolated function testGetCatalogSongRelationship() returns error? {
-    SongsResponse response = check appleMusicClient->/catalog/["us"]/songs/["1440857829"]/["albums"]();
+    SongsResponse response = check appleMusicClient->/catalog/us/songs/["1440857786"]/albums();
     test:assertTrue(response.data.length() > 0, "Expected a non-empty songs array");
 }
 
@@ -139,7 +140,7 @@ isolated function testGetAllLibraryAlbums() returns error? {
     groups: ["live_tests", "mock_tests"]
 }
 isolated function testGetLibraryAlbum() returns error? {
-    LibraryAlbumsResponse response = check appleMusicClient->/me/library/albums/["l.1440857781"]();
+    LibraryAlbumsResponse response = check appleMusicClient->/me/library/albums/["i.1440857788"]();
     test:assertTrue(response.data.length() > 0, "Expected a non-empty library albums array");
 }
 
@@ -147,7 +148,7 @@ isolated function testGetLibraryAlbum() returns error? {
     groups: ["live_tests", "mock_tests"]
 }
 isolated function testGetLibraryAlbumRelationship() returns error? {
-    LibraryArtistsResponse response = check appleMusicClient->/me/library/albums/["l.1440857781"]/["artists"]();
+    LibraryArtistsResponse response = check appleMusicClient->/me/library/albums/["i.1440857788"]/artists();
     test:assertTrue(response.data.length() > 0, "Expected a non-empty library artists array");
 }
 
@@ -163,7 +164,7 @@ isolated function testGetAllLibraryArtists() returns error? {
     groups: ["live_tests", "mock_tests"]
 }
 isolated function testGetLibraryArtist() returns error? {
-    LibraryArtistsResponse response = check appleMusicClient->/me/library/artists/["l.159260351"]();
+    LibraryArtistsResponse response = check appleMusicClient->/me/library/artists/["i.909253"]();
     test:assertTrue(response.data.length() > 0, "Expected a non-empty library artists array");
 }
 
@@ -171,7 +172,7 @@ isolated function testGetLibraryArtist() returns error? {
     groups: ["live_tests", "mock_tests"]
 }
 isolated function testGetLibraryArtistRelationship() returns error? {
-    LibraryAlbumsResponse response = check appleMusicClient->/me/library/artists/["l.159260351"]/["albums"]();
+    LibraryAlbumsResponse response = check appleMusicClient->/me/library/artists/["i.909253"]/albums();
     test:assertTrue(response.data.length() > 0, "Expected a non-empty library albums array");
 }
 
@@ -187,7 +188,7 @@ isolated function testGetAllLibrarySongs() returns error? {
     groups: ["live_tests", "mock_tests"]
 }
 isolated function testGetLibrarySong() returns error? {
-    LibrarySongsResponse response = check appleMusicClient->/me/library/songs/["l.1440857829"]();
+    LibrarySongsResponse response = check appleMusicClient->/me/library/songs/["i.1440857790"]();
     test:assertTrue(response.data.length() > 0, "Expected a non-empty library songs array");
 }
 
@@ -195,7 +196,7 @@ isolated function testGetLibrarySong() returns error? {
     groups: ["live_tests", "mock_tests"]
 }
 isolated function testGetLibrarySongRelationship() returns error? {
-    LibrarySongsResponse response = check appleMusicClient->/me/library/songs/["l.1440857829"]/["albums"]();
+    LibrarySongsResponse response = check appleMusicClient->/me/library/songs/["i.1440857790"]/albums();
     test:assertTrue(response.data.length() > 0, "Expected a non-empty library songs array");
 }
 
