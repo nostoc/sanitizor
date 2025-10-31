@@ -1,8 +1,7 @@
-import ballerina/ai;
+import connector_automator.utils;
 
 public function generateDescriptionsBatch(DescriptionRequest[] requests, string apiContext) returns BatchDescriptionResponse[]|LLMServiceError {
-    ai:ModelProvider? model = anthropicModel;
-    if model is () {
+    if !utils:isAIServiceInitialized() {
         return error LLMServiceError("LLM service not initialized");
     }
 
@@ -62,50 +61,39 @@ REQUIRED RESPONSE FORMAT (JSON):
   ]
 }`;
 
-    ai:ChatMessage[] messages = [
-        {role: "user", content: prompt}
-    ];
-
-    ai:ChatAssistantMessage|error response = model->chat(messages);
+    string|error response = utils:callAI(prompt);
     if response is error {
         return error LLMServiceError("Failed to generate batch descriptions", response);
     }
 
-    string? content = response.content;
-    if content is string {
-        // Parse JSON response
-        json|error jsonResult = content.fromJsonString();
-        if jsonResult is error {
-            return error LLMServiceError("Failed to parse batch response JSON", jsonResult);
-        }
+    // Parse JSON response
+    json|error jsonResult = response.fromJsonString();
+    if jsonResult is error {
+        return error LLMServiceError("Failed to parse batch response JSON", jsonResult);
+    }
 
-        if jsonResult is map<json> && jsonResult.hasKey("descriptions") {
-            json descriptionsJson = jsonResult.get("descriptions");
-            if descriptionsJson is json[] {
-                BatchDescriptionResponse[] results = [];
-                foreach json desc in descriptionsJson {
-                    if desc is map<json> {
-                        string? id = desc.get("id") is string ? <string>desc.get("id") : ();
-                        string? description = desc.get("description") is string ? <string>desc.get("description") : ();
-                        if id is string && description is string {
-                            results.push({id: id, description: description.trim()});
-                        }
+    if jsonResult is map<json> && jsonResult.hasKey("descriptions") {
+        json descriptionsJson = jsonResult.get("descriptions");
+        if descriptionsJson is json[] {
+            BatchDescriptionResponse[] results = [];
+            foreach json desc in descriptionsJson {
+                if desc is map<json> {
+                    string? id = desc.get("id") is string ? <string>desc.get("id") : ();
+                    string? description = desc.get("description") is string ? <string>desc.get("description") : ();
+                    if id is string && description is string {
+                        results.push({id: id, description: description.trim()});
                     }
                 }
-                return results;
             }
+            return results;
         }
-        return error LLMServiceError("Invalid batch response format");
-    } else {
-        return error LLMServiceError("Empty response from LLM");
     }
+    return error LLMServiceError("Invalid batch response format");
 }
 
 // Process multiple operationId requests in a single LLM call
-
 public function generateOperationIdsBatch(OperationIdRequest[] requests, string apiContext, string[] existingOperationIds) returns BatchOperationIdResponse[]|LLMServiceError {
-    ai:ModelProvider? model = anthropicModel;
-    if model is () {
+    if !utils:isAIServiceInitialized() {
         return error LLMServiceError("LLM service not initialized");
     }
 
@@ -162,47 +150,37 @@ REQUIRED RESPONSE FORMAT (JSON):
   ]
 }`;
 
-    ai:ChatMessage[] messages = [
-        {role: "user", content: prompt}
-    ];
-
-    ai:ChatAssistantMessage|error response = model->chat(messages);
+    string|error response = utils:callAI(prompt);
     if response is error {
         return error LLMServiceError("Failed to generate batch operationIds", response);
     }
 
-    string? content = response.content;
-    if content is string {
-        json|error jsonResult = content.fromJsonString();
-        if jsonResult is error {
-            return error LLMServiceError("Failed to parse batch operationId response JSON", jsonResult);
-        }
+    json|error jsonResult = response.fromJsonString();
+    if jsonResult is error {
+        return error LLMServiceError("Failed to parse batch operationId response JSON", jsonResult);
+    }
 
-        if jsonResult is map<json> && jsonResult.hasKey("operationIds") {
-            json operationIdsJson = jsonResult.get("operationIds");
-            if operationIdsJson is json[] {
-                BatchOperationIdResponse[] results = [];
-                foreach json opId in operationIdsJson {
-                    if opId is map<json> {
-                        string? id = opId.get("id") is string ? <string>opId.get("id") : ();
-                        string? operationId = opId.get("operationId") is string ? <string>opId.get("operationId") : ();
-                        if id is string && operationId is string {
-                            results.push({id: id, operationId: operationId.trim()});
-                        }
+    if jsonResult is map<json> && jsonResult.hasKey("operationIds") {
+        json operationIdsJson = jsonResult.get("operationIds");
+        if operationIdsJson is json[] {
+            BatchOperationIdResponse[] results = [];
+            foreach json opId in operationIdsJson {
+                if opId is map<json> {
+                    string? id = opId.get("id") is string ? <string>opId.get("id") : ();
+                    string? operationId = opId.get("operationId") is string ? <string>opId.get("operationId") : ();
+                    if id is string && operationId is string {
+                        results.push({id: id, operationId: operationId.trim()});
                     }
                 }
-                return results;
             }
+            return results;
         }
-        return error LLMServiceError("Invalid batch operationId response format");
-    } else {
-        return error LLMServiceError("Empty response from LLM");
     }
+    return error LLMServiceError("Invalid batch operationId response format");
 }
 
 public function generateSchemaNamesBatch(SchemaRenameRequest[] requests, string apiContext, string[] existingNames) returns BatchRenameResponse[]|LLMServiceError {
-    ai:ModelProvider? model = anthropicModel;
-    if model is () {
+    if !utils:isAIServiceInitialized() {
         return error LLMServiceError("LLM service not initialized");
     }
 
@@ -254,40 +232,31 @@ REQUIRED RESPONSE FORMAT (JSON):
   ]
 }`;
 
-    ai:ChatMessage[] messages = [
-        {role: "user", content: prompt}
-    ];
-
-    ai:ChatAssistantMessage|error response = model->chat(messages);
+    string|error response = utils:callAI(prompt);
     if response is error {
         return error LLMServiceError("Failed to generate batch schema names", response);
     }
 
-    string? content = response.content;
-    if content is string {
-        json|error jsonResult = content.fromJsonString();
-        if jsonResult is error {
-            return error LLMServiceError("Failed to parse batch rename response JSON", jsonResult);
-        }
+    json|error jsonResult = response.fromJsonString();
+    if jsonResult is error {
+        return error LLMServiceError("Failed to parse batch rename response JSON", jsonResult);
+    }
 
-        if jsonResult is map<json> && jsonResult.hasKey("renames") {
-            json renamesJson = jsonResult.get("renames");
-            if renamesJson is json[] {
-                BatchRenameResponse[] results = [];
-                foreach json rename in renamesJson {
-                    if rename is map<json> {
-                        string? originalName = rename.get("originalName") is string ? <string>rename.get("originalName") : ();
-                        string? newName = rename.get("newName") is string ? <string>rename.get("newName") : ();
-                        if originalName is string && newName is string {
-                            results.push({originalName: originalName, newName: newName.trim()});
-                        }
+    if jsonResult is map<json> && jsonResult.hasKey("renames") {
+        json renamesJson = jsonResult.get("renames");
+        if renamesJson is json[] {
+            BatchRenameResponse[] results = [];
+            foreach json rename in renamesJson {
+                if rename is map<json> {
+                    string? originalName = rename.get("originalName") is string ? <string>rename.get("originalName") : ();
+                    string? newName = rename.get("newName") is string ? <string>rename.get("newName") : ();
+                    if originalName is string && newName is string {
+                        results.push({originalName: originalName, newName: newName.trim()});
                     }
                 }
-                return results;
             }
+            return results;
         }
-        return error LLMServiceError("Invalid batch rename response format");
-    } else {
-        return error LLMServiceError("Empty response from LLM");
     }
+    return error LLMServiceError("Invalid batch rename response format");
 }

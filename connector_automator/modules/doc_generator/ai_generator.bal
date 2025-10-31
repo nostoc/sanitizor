@@ -1,27 +1,12 @@
-import ballerina/ai;
+import connector_automator.utils;
+
 import ballerina/file;
 import ballerina/io;
-import ballerina/log;
-import ballerinax/ai.anthropic;
-
-ai:ModelProvider? anthropicModel = ();
-configurable string apiKey = ?;
 
 const string TEMPLATES_PATH = "/home/hansika/dev/connector_automation/connector_automator/modules/doc_generator/templates";
 
 public function initDocumentationGenerator() returns error? {
-
-    ai:ModelProvider|error modelProvider = new anthropic:ModelProvider(
-        apiKey,
-        anthropic:CLAUDE_SONNET_4_20250514,
-        maxTokens = 60000,
-        timeout = 300
-    );
-    if modelProvider is error {
-        return error("Failed to initialize Anthropic model provider", modelProvider);
-    }
-    anthropicModel = modelProvider;
-    log:printInfo("LLM service initialized successfully");
+    return utils:initAIService();
 }
 
 public function generateAllDocumentation(string connectorPath) returns error? {
@@ -211,24 +196,7 @@ function generateMainContent(ConnectorMetadata metadata) returns map<string>|err
 }
 
 function callAI(string prompt) returns string|error {
-    ai:ModelProvider? model = anthropicModel;
-
-    if model is () {
-        return error("AI model not initialized. Please call initDocumentationGenerator() first.");
-    }
-    ai:ChatMessage[] messages = [{role: "user", content: prompt}];
-    ai:ChatAssistantMessage|error response = model->chat(messages);
-    //messages.push({role: "assistant", content: response is ai:ChatAssistantMessage ? response.content : ""});
-    //io:println(messages);
-    if response is error {
-        return error("AI generation failed: " + response.message());
-    }
-    string? content = response.content;
-    if content is string {
-        return content;
-    } else {
-        return error("AI response content is empty.");
-    }
+    return utils:callAI(prompt);
 }
 
 function ensureDirectoryExists(string dirPath) returns error? {

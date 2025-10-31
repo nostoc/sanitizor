@@ -1,16 +1,11 @@
 import connector_automator.code_fixer;
+import connector_automator.utils;
 
-import ballerina/ai;
 import ballerina/file;
 import ballerina/io;
 import ballerina/lang.'string as strings;
-import ballerina/log;
-import ballerinax/ai.anthropic;
 
 const int MAX_OPERATIONS = 30;
-
-ai:ModelProvider? anthropicModel = ();
-configurable string apiKey = ?;
 
 function completeMockServer(string mockServerPath, string typesPath) returns error? {
     // Read the generated mock server template
@@ -19,41 +14,10 @@ function completeMockServer(string mockServerPath, string typesPath) returns err
 
     // generate completed mock server using LLM
     string prompt = createMockServerPrompt(mockServerContent, typesContent);
-    string completeMockServer = check callAI(prompt);
+    string completeMockServer = check utils:callAI(prompt);
 
     check io:fileWriteString(mockServerPath, completeMockServer);
     return;
-}
-
-function callAI(string prompt) returns string|error {
-
-    ai:ModelProvider|error modelProvider = new anthropic:ModelProvider(
-        apiKey,
-        anthropic:CLAUDE_SONNET_4_20250514,
-        maxTokens = 64000,
-        timeout = 400
-    );
-    if modelProvider is error {
-        return error("Failed to initialize model provider");
-    }
-    anthropicModel = modelProvider;
-    log:printInfo("LLM service initialized successfully");
-
-    ai:ChatMessage[] messages = [{role: "user", content: prompt}];
-    //io:println(prompt);
-    ai:ChatAssistantMessage|error response = modelProvider->chat(messages);
-    io:println(response);
-    if response is error {
-        return error("AI generation failed: " + response.message());
-
-    }
-    string? content = response.content;
-    if content is string {
-        //io:println(content);
-        return content;
-    } else {
-        return error("AI response content is empty.");
-    }
 }
 
 function generateTestFile(string connectorPath) returns error? {
@@ -75,7 +39,7 @@ function generateTestsWithAI(ConnectorAnalysis analysis) returns string|error {
     string prompt = createTestGenerationPrompt(analysis);
     // io:println(analysis.initMethodSignature);
     // io:println(analysis.referencedTypeDefinitions);
-    return callAI(prompt);
+    return utils:callAI(prompt);
 }
 
 function fixTestFileErrors(string connectorPath) returns error? {
@@ -145,7 +109,7 @@ function selectOperationsUsingAI(string specPath) returns string|error {
     string[] allOperationIds = check extractOperationIdsFromSpec(specPath);
 
     string prompt = createOperationSelectionPrompt(allOperationIds, MAX_OPERATIONS);
-    string aiResponse = check callAI(prompt);
+    string aiResponse = check utils:callAI(prompt);
 
     // Clean up the AI response - simple string operations
     string cleanedResponse = strings:trim(aiResponse);

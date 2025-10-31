@@ -1,84 +1,39 @@
-import ballerina/ai;
-import ballerina/log;
-import ballerinax/ai.anthropic;
-
-//import connectorautomation/fixer;
-
-configurable string apiKey = ?;
-ai:ModelProvider? anthropicModel = ();
+import connector_automator.utils;
 
 public function initExampleGenerator() returns error? {
-
-    ai:ModelProvider|error modelProvider = new anthropic:ModelProvider(
-        apiKey,
-        anthropic:CLAUDE_SONNET_4_20250514,
-        maxTokens = 64000,
-        timeout = 300
-    );
-    if modelProvider is error {
-        return error("Failed to initialize Anthropic model provider", modelProvider);
-    }
-    anthropicModel = modelProvider;
-    log:printInfo("LLM service initialized successfully");
+    return utils:initAIService();
 }
 
 public function generateUseCaseAndFunctions(ConnectorDetails details, string[] usedFunctions) returns json|error {
-    //io:println("\n -------Function SIgnatures ----------");
-    // io:println(details.functionSignatures);
-    // io:println("\n ---------- Types ------");
-    //io:println(details.typeNames);
     string prompt = getUsecasePrompt(details, usedFunctions);
-    ai:ModelProvider? model = anthropicModel;
-    if model is () {
-        return error("AI model not initialized. Please call initDocumentationGenerator() first.");
-    }
-    ai:ChatMessage[] messages = [{role: "user", content: prompt}];
-    ai:ChatAssistantMessage|error response = model->chat(messages);
-    // io:println("Usecase generation response: ", response);
 
-    if response is error {
-        return error("Failed to generate use case", response);
-    }
-    string? content = response.content;
-    if content is () {
-        return error("Empty use case response from LLM");
+    if !utils:isAIServiceInitialized() {
+        return error("AI model not initialized. Please call initExampleGenerator() first.");
     }
 
-    // Parse the JSON response
-    json|error jsonResponse = content.fromJsonString();
-    if jsonResponse is error {
-        return error("Failed to parse JSON response from LLM", jsonResponse);
-    }
-    return jsonResponse;
+    return (check utils:callAI(prompt)).fromJsonString();
 }
 
 public function generateExampleCode(ConnectorDetails details, string useCase, string targetedContext) returns string|error {
     string prompt = getExampleCodegenerationPrompt(details, useCase, targetedContext);
-    ai:ModelProvider? model = anthropicModel;
-    if model is () {
-        return error("AI model not initialized. Please call initDocumentationGenerator() first.");
-    }
-    ai:ChatMessage[] messages = [{role: "user", content: prompt}];
-    ai:ChatAssistantMessage|error response = model->chat(messages);
 
-    if response is error {
-        return error("Failed to generate example code", response);
+    if !utils:isAIServiceInitialized() {
+        return error("AI model not initialized. Please call initExampleGenerator() first.");
     }
-    return response.content ?: error("Empty code response from LLM");
+
+    return utils:callAI(prompt);
 }
 
 public function generateExampleName(string useCase) returns string|error {
     string prompt = getExampleNamePrompt(useCase);
-    ai:ModelProvider? model = anthropicModel;
-    if model is () {
+
+    if !utils:isAIServiceInitialized() {
         return error("AI model not initialized. Please call initExampleGenerator() first.");
     }
-    ai:ChatMessage[] messages = [{role: "user", content: prompt}];
-    ai:ChatAssistantMessage|error response = model->chat(messages);
 
-    if response is error {
-        return error("Failed to generate example name", response);
+    string|error result = utils:callAI(prompt);
+    if result is error {
+        return error("Failed to generate example name", result);
     }
-    string exampleName = response.content ?: "Example-1";
-    return exampleName;
+    return result == "" ? "example-1" : result;
 }

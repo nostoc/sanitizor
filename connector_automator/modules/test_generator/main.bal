@@ -1,3 +1,5 @@
+import connector_automator.utils;
+
 import ballerina/io;
 
 public function main(string... args) returns error? {
@@ -7,6 +9,7 @@ public function main(string... args) returns error? {
 
     io:println("=== Test Generator ===");
     io:println(string `Processing connector: ${connectorPath}`);
+    check utils:initAIService();
 
     // Step 1: Setup mock server module
     check setupMockServerModule(connectorPath);
