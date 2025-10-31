@@ -2,6 +2,9 @@ import ballerina/io;
 import ballerina/lang.runtime;
 import ballerina/log;
 
+configurable RetryConfig retryConfig = {};
+
+
 // Process multiple description requests with retry and exponential backoff
 public function generateDescriptionsBatchWithRetry(DescriptionRequest[] requests, string apiContext, boolean quietMode = false, RetryConfig? config = ()) returns BatchDescriptionResponse[]|LLMServiceError {
     RetryConfig retryConf = config ?: retryConfig;
@@ -91,6 +94,7 @@ public function generateOperationIdsBatchWithRetry(OperationIdRequest[] requests
     // This should never be reached, but just in case
     return error LLMServiceError("Unexpected error in retry logic");
 }
+
 
 public function generateSchemaNamesBatchWithRetry(SchemaRenameRequest[] requests, string apiContext, string[] existingNames, boolean quietMode = false, RetryConfig? config = ()) returns BatchRenameResponse[]|LLMServiceError {
     RetryConfig retryConf = config ?: retryConfig;

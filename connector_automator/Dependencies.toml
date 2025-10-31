@@ -456,6 +456,7 @@ modules = [
 	{org = "hansika", packageName = "connector_automator", moduleName = "connector_automator.doc_generator"},
 	{org = "hansika", packageName = "connector_automator", moduleName = "connector_automator.example_generator"},
 	{org = "hansika", packageName = "connector_automator", moduleName = "connector_automator.sanitizor"},
-	{org = "hansika", packageName = "connector_automator", moduleName = "connector_automator.test_generator"}
+	{org = "hansika", packageName = "connector_automator", moduleName = "connector_automator.test_generator"},
+	{org = "hansika", packageName = "connector_automator", moduleName = "connector_automator.utils"}
 ]
 
