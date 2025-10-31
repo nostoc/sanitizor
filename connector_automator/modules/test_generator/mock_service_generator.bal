@@ -14,7 +14,7 @@ function setupMockServerModule(string connectorPath, boolean quietMode = false) 
 
     string command = string `bal add mock.server`;
 
-    utils:CommandResult addResult = utils:executeCommand(command, ballerinaDir,quietMode);
+    utils:CommandResult addResult = utils:executeCommand(command, ballerinaDir, quietMode);
     if !addResult.success {
         return error("Failed to add mock.server module" + addResult.stderr);
     }

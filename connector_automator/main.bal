@@ -326,7 +326,7 @@ function handleTestGeneration() returns error? {
     boolean quietMode = getUserConfirmation("Enable quiet mode (reduced logging)?");
 
     string[] args = [connectorPath.trim(), specPath.trim()];
-    
+
     // Add quiet mode flag if selected
     if quietMode {
         args.push("quiet");
