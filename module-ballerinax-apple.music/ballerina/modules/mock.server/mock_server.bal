@@ -27,36 +27,35 @@ service /v1 on ep0 {
                     "type": "albums",
                     "href": "/v1/catalog/us/albums/1440857781",
                     "attributes": {
-                        "artistName": "Taylor Swift",
-                        "name": "1989 (Taylor's Version)",
-                        "genreNames": ["Pop"],
-                        "releaseDate": "2023-10-27",
-                        "trackCount": 21,
-                        "copyright": "℗ 2023 Taylor Swift",
-                        "recordLabel": "Taylor Swift",
-                        "isCompilation": false,
-                        "isSingle": false,
-                        "isComplete": true,
-                        "isMasteredForItunes": true,
-                        "upc": "602455691781",
-                        "url": "https://music.apple.com/us/album/1989-taylors-version/1440857781",
                         "artwork": {
-                            "width": 3000,
-                            "height": 3000,
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/8b/5c/8a/8b5c8a1a-8b5c-8a1a-8b5c-8a1a8b5c8a1a/{w}x{h}bb.jpg",
-                            "bgColor": "f8f8f8",
-                            "textColor1": "000000",
-                            "textColor2": "333333",
-                            "textColor3": "666666",
-                            "textColor4": "999999"
+                            "width": 1400,
+                            "height": 1400,
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/a8/d3/7f/a8d37f5b-8b3e-4e5d-9a2a-2c7e1c8a9b5c/cover.jpg/{w}x{h}bb.jpeg",
+                            "bgColor": "1a1a1a",
+                            "textColor1": "ffffff",
+                            "textColor2": "f0f0f0",
+                            "textColor3": "cccccc",
+                            "textColor4": "b8b8b8"
                         },
+                        "artistName": "Taylor Swift",
+                        "isSingle": false,
+                        "url": "https://music.apple.com/us/album/folklore/1440857781",
+                        "isComplete": true,
+                        "genreNames": ["Alternative", "Music"],
+                        "trackCount": 16,
+                        "releaseDate": "2020-07-24",
+                        "name": "folklore",
+                        "recordLabel": "Republic Records",
+                        "copyright": "℗ 2020 Taylor Swift",
                         "playParams": {
                             "id": "1440857781",
                             "kind": "album"
                         },
+                        "isCompilation": false,
+                        "isMasteredForItunes": true,
+                        "contentRating": "clean",
                         "editorialNotes": {
-                            "standard": "Taylor Swift's re-recorded version of her iconic 1989 album.",
-                            "short": "The re-recorded 1989 album."
+                            "standard": "Taylor Swift's surprise eighth studio album finds the pop superstar collaborating with Aaron Dessner and Jack Antonoff on a collection of indie folk songs."
                         }
                     }
                 }
@@ -84,33 +83,27 @@ service /v1 on ep0 {
                     "type": "albums",
                     "href": "/v1/catalog/" + storefront + "/albums/" + id,
                     "attributes": {
-                        "artistName": "The Beatles",
-                        "name": "Abbey Road",
-                        "genreNames": ["Rock"],
-                        "releaseDate": "1969-09-26",
-                        "trackCount": 17,
-                        "copyright": "℗ 1969 Apple Records",
-                        "recordLabel": "Apple Records",
-                        "isCompilation": false,
-                        "isSingle": false,
-                        "isComplete": true,
-                        "isMasteredForItunes": true,
-                        "upc": "094638241720",
-                        "url": "https://music.apple.com/" + storefront + "/album/abbey-road/" + id,
                         "artwork": {
-                            "width": 3000,
-                            "height": 3000,
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/8b/5c/8a/8b5c8a1a-8b5c-8a1a-8b5c-8a1a8b5c8a1a/{w}x{h}bb.jpg",
-                            "bgColor": "ffffff",
-                            "textColor1": "000000",
-                            "textColor2": "333333",
-                            "textColor3": "666666",
-                            "textColor4": "999999"
+                            "width": 1400,
+                            "height": 1400,
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/a8/d3/7f/a8d37f5b-8b3e-4e5d-9a2a-2c7e1c8a9b5c/cover.jpg/{w}x{h}bb.jpeg"
                         },
+                        "artistName": "The Beatles",
+                        "isSingle": false,
+                        "url": "https://music.apple.com/us/album/abbey-road/" + id,
+                        "isComplete": true,
+                        "genreNames": ["Rock", "Music"],
+                        "trackCount": 17,
+                        "releaseDate": "1969-09-26",
+                        "name": "Abbey Road",
+                        "recordLabel": "Apple Records",
+                        "copyright": "℗ 1969 Apple Corps Ltd.",
                         "playParams": {
                             "id": id,
                             "kind": "album"
-                        }
+                        },
+                        "isCompilation": false,
+                        "isMasteredForItunes": true
                     }
                 }
             ]
@@ -138,9 +131,9 @@ service /v1 on ep0 {
                     "type": "artists",
                     "href": "/v1/catalog/" + storefront + "/artists/136975",
                     "attributes": {
+                        "genreNames": ["Rock", "Music"],
                         "name": "The Beatles",
-                        "genreNames": ["Rock"],
-                        "url": "https://music.apple.com/" + storefront + "/artist/the-beatles/136975"
+                        "url": "https://music.apple.com/us/artist/the-beatles/136975"
                     }
                 }
             ]
@@ -165,30 +158,30 @@ service /v1 on ep0 {
         return {
             "data": [
                 {
-                    "id": "1440857782",
+                    "id": "1234567890",
                     "type": "music-videos",
-                    "href": "/v1/catalog/" + storefront + "/music-videos/1440857782",
+                    "href": "/v1/catalog/" + storefront + "/music-videos/1234567890",
                     "attributes": {
-                        "artistName": "The Beatles",
-                        "name": "Come Together",
-                        "genreNames": ["Rock"],
-                        "releaseDate": "1969-09-26",
-                        "durationInMillis": 259000,
-                        "url": "https://music.apple.com/" + storefront + "/music-video/come-together/1440857782",
-                        "has4K": true,
-                        "hasHDR": false,
                         "artwork": {
                             "width": 1920,
                             "height": 1080,
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Video/v4/8b/5c/8a/8b5c8a1a-8b5c-8a1a-8b5c-8a1a8b5c8a1a/{w}x{h}bb.jpg"
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Video124/v4/a8/d3/7f/a8d37f5b-8b3e-4e5d-9a2a-2c7e1c8a9b5c/video.jpg/{w}x{h}bb.jpeg"
                         },
+                        "artistName": "Taylor Swift",
+                        "url": "https://music.apple.com/us/music-video/cardigan/1234567890",
+                        "genreNames": ["Alternative", "Music"],
+                        "durationInMillis": 240000,
+                        "releaseDate": "2020-07-24",
+                        "name": "cardigan",
                         "playParams": {
-                            "id": "1440857782",
+                            "id": "1234567890",
                             "kind": "musicVideo"
                         },
+                        "has4K": true,
+                        "hasHDR": false,
                         "previews": [
                             {
-                                "url": "https://video-ssl.itunes.apple.com/itunes-assets/Video/preview.m4v"
+                                "url": "https://video-ssl.itunes.apple.com/itunes-assets/Video124/v4/preview.m4v"
                             }
                         ]
                     }
@@ -218,12 +211,11 @@ service /v1 on ep0 {
                     "type": "artists",
                     "href": "/v1/catalog/" + storefront + "/artists/159260351",
                     "attributes": {
+                        "genreNames": ["Pop", "Music"],
                         "name": "Taylor Swift",
-                        "genreNames": ["Pop", "Country"],
-                        "url": "https://music.apple.com/" + storefront + "/artist/taylor-swift/159260351",
+                        "url": "https://music.apple.com/us/artist/taylor-swift/159260351",
                         "editorialNotes": {
-                            "standard": "Grammy-winning singer-songwriter known for her narrative songwriting.",
-                            "short": "Pop and country superstar."
+                            "standard": "With her songwriting talent and musical versatility, Taylor Swift has become one of the most successful artists of all time."
                         }
                     }
                 }
@@ -251,9 +243,9 @@ service /v1 on ep0 {
                     "type": "artists",
                     "href": "/v1/catalog/" + storefront + "/artists/" + id,
                     "attributes": {
-                        "name": "Ed Sheeran",
-                        "genreNames": ["Pop", "Singer/Songwriter"],
-                        "url": "https://music.apple.com/" + storefront + "/artist/ed-sheeran/" + id
+                        "genreNames": ["Rock", "Music"],
+                        "name": "Radiohead",
+                        "url": "https://music.apple.com/us/artist/radiohead/" + id
                     }
                 }
             ]
@@ -277,31 +269,30 @@ service /v1 on ep0 {
         return {
             "data": [
                 {
-                    "id": "1440857781",
+                    "id": "1097439572",
                     "type": "albums",
-                    "href": "/v1/catalog/" + storefront + "/albums/1440857781",
+                    "href": "/v1/catalog/" + storefront + "/albums/1097439572",
                     "attributes": {
-                        "artistName": "Ed Sheeran",
-                        "name": "÷ (Deluxe)",
-                        "genreNames": ["Pop"],
-                        "releaseDate": "2017-03-03",
-                        "trackCount": 16,
-                        "copyright": "℗ 2017 Asylum Records UK",
-                        "recordLabel": "Asylum Records UK",
-                        "isCompilation": false,
-                        "isSingle": false,
-                        "isComplete": true,
-                        "isMasteredForItunes": true,
-                        "url": "https://music.apple.com/" + storefront + "/album/divide-deluxe/1440857781",
                         "artwork": {
-                            "width": 3000,
-                            "height": 3000,
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/8b/5c/8a/8b5c8a1a-8b5c-8a1a-8b5c-8a1a8b5c8a1a/{w}x{h}bb.jpg"
+                            "width": 1400,
+                            "height": 1400,
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/ok-computer.jpg/{w}x{h}bb.jpeg"
                         },
+                        "artistName": "Radiohead",
+                        "isSingle": false,
+                        "url": "https://music.apple.com/us/album/ok-computer/1097439572",
+                        "isComplete": true,
+                        "genreNames": ["Alternative", "Music"],
+                        "trackCount": 12,
+                        "releaseDate": "1997-06-16",
+                        "name": "OK Computer",
+                        "recordLabel": "Parlophone Records",
                         "playParams": {
-                            "id": "1440857781",
+                            "id": "1097439572",
                             "kind": "album"
-                        }
+                        },
+                        "isCompilation": false,
+                        "isMasteredForItunes": true
                     }
                 }
             ]
@@ -326,31 +317,30 @@ service /v1 on ep0 {
         return {
             "data": [
                 {
-                    "id": "1440857783",
+                    "id": "1440857781",
                     "type": "albums",
-                    "href": "/v1/catalog/" + storefront + "/albums/1440857783",
+                    "href": "/v1/catalog/" + storefront + "/albums/1440857781",
                     "attributes": {
-                        "artistName": "Various Artists",
-                        "name": "Greatest Hits Collection",
-                        "genreNames": ["Pop"],
-                        "releaseDate": "2023-01-15",
-                        "trackCount": 20,
-                        "copyright": "℗ 2023 Various Labels",
-                        "recordLabel": "Universal Music",
-                        "isCompilation": true,
-                        "isSingle": false,
-                        "isComplete": true,
-                        "isMasteredForItunes": false,
-                        "url": "https://music.apple.com/" + storefront + "/album/greatest-hits-collection/1440857783",
                         "artwork": {
-                            "width": 3000,
-                            "height": 3000,
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/8b/5c/8a/8b5c8a1a-8b5c-8a1a-8b5c-8a1a8b5c8a1a/{w}x{h}bb.jpg"
+                            "width": 1400,
+                            "height": 1400,
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/latest-album.jpg/{w}x{h}bb.jpeg"
                         },
+                        "artistName": "Arctic Monkeys",
+                        "isSingle": false,
+                        "url": "https://music.apple.com/us/album/the-car/1440857781",
+                        "isComplete": true,
+                        "genreNames": ["Alternative", "Music"],
+                        "trackCount": 10,
+                        "releaseDate": "2022-10-21",
+                        "name": "The Car",
+                        "recordLabel": "Domino Recording Co",
                         "playParams": {
-                            "id": "1440857783",
+                            "id": "1440857781",
                             "kind": "album"
-                        }
+                        },
+                        "isCompilation": false,
+                        "isMasteredForItunes": true
                     }
                 }
             ]
@@ -376,31 +366,30 @@ service /v1 on ep0 {
                 "albums": {
                     "data": [
                         {
-                            "id": "1440857784",
+                            "id": "1440857781",
                             "type": "albums",
-                            "href": "/v1/catalog/" + storefront + "/albums/1440857784",
+                            "href": "/v1/catalog/" + storefront + "/albums/1440857781",
                             "attributes": {
-                                "artistName": "Search Result Artist",
-                                "name": "Search Result Album",
-                                "genreNames": ["Pop"],
-                                "releaseDate": "2023-06-01",
-                                "trackCount": 12,
-                                "copyright": "℗ 2023 Search Records",
-                                "recordLabel": "Search Records",
-                                "isCompilation": false,
-                                "isSingle": false,
-                                "isComplete": true,
-                                "isMasteredForItunes": true,
-                                "url": "https://music.apple.com/" + storefront + "/album/search-result-album/1440857784",
                                 "artwork": {
-                                    "width": 3000,
-                                    "height": 3000,
-                                    "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/8b/5c/8a/8b5c8a1a-8b5c-8a1a-8b5c-8a1a8b5c8a1a/{w}x{h}bb.jpg"
+                                    "width": 1400,
+                                    "height": 1400,
+                                    "url": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/search-result.jpg/{w}x{h}bb.jpeg"
                                 },
+                                "artistName": "Taylor Swift",
+                                "isSingle": false,
+                                "url": "https://music.apple.com/us/album/folklore/1440857781",
+                                "isComplete": true,
+                                "genreNames": ["Alternative", "Music"],
+                                "trackCount": 16,
+                                "releaseDate": "2020-07-24",
+                                "name": "folklore",
+                                "recordLabel": "Republic Records",
                                 "playParams": {
-                                    "id": "1440857784",
+                                    "id": "1440857781",
                                     "kind": "album"
-                                }
+                                },
+                                "isCompilation": false,
+                                "isMasteredForItunes": true
                             }
                         }
                     ]
@@ -408,13 +397,13 @@ service /v1 on ep0 {
                 "artists": {
                     "data": [
                         {
-                            "id": "159260352",
+                            "id": "159260351",
                             "type": "artists",
-                            "href": "/v1/catalog/" + storefront + "/artists/159260352",
+                            "href": "/v1/catalog/" + storefront + "/artists/159260351",
                             "attributes": {
-                                "name": "Search Result Artist",
-                                "genreNames": ["Pop"],
-                                "url": "https://music.apple.com/" + storefront + "/artist/search-result-artist/159260352"
+                                "genreNames": ["Pop", "Music"],
+                                "name": "Taylor Swift",
+                                "url": "https://music.apple.com/us/artist/taylor-swift/159260351"
                             }
                         }
                     ]
@@ -440,35 +429,37 @@ service /v1 on ep0 {
         return {
             "data": [
                 {
-                    "id": "1440857785",
+                    "id": "1440857829",
                     "type": "songs",
-                    "href": "/v1/catalog/" + storefront + "/songs/1440857785",
+                    "href": "/v1/catalog/" + storefront + "/songs/1440857829",
                     "attributes": {
-                        "albumName": "Midnights",
-                        "artistName": "Taylor Swift",
-                        "name": "Anti-Hero",
-                        "genreNames": ["Pop"],
-                        "releaseDate": "2022-10-21",
-                        "durationInMillis": 200560,
-                        "trackNumber": 3,
-                        "discNumber": 1,
-                        "hasLyrics": true,
-                        "isrc": "USUG12204578",
-                        "url": "https://music.apple.com/" + storefront + "/song/anti-hero/1440857785",
+                        "albumName": "folklore",
+                        "genreNames": ["Alternative", "Music"],
+                        "trackNumber": 1,
+                        "durationInMillis": 211466,
+                        "releaseDate": "2020-07-24",
+                        "isrc": "USUG12008291",
                         "artwork": {
-                            "width": 3000,
-                            "height": 3000,
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/8b/5c/8a/8b5c8a1a-8b5c-8a1a-8b5c-8a1a8b5c8a1a/{w}x{h}bb.jpg"
+                            "width": 1400,
+                            "height": 1400,
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/folklore.jpg/{w}x{h}bb.jpeg"
                         },
                         "playParams": {
-                            "id": "1440857785",
+                            "id": "1440857829",
                             "kind": "song"
                         },
+                        "url": "https://music.apple.com/us/album/the-1/1440857781?i=1440857829",
+                        "discNumber": 1,
+                        "hasLyrics": true,
+                        "artistUrl": "https://music.apple.com/us/artist/taylor-swift/159260351",
+                        "name": "the 1",
                         "previews": [
                             {
-                                "url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview/preview.m4a"
+                                "url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview124/v4/preview.m4a"
                             }
-                        ]
+                        ],
+                        "artistName": "Taylor Swift",
+                        "contentRating": "clean"
                     }
                 }
             ]
@@ -494,31 +485,31 @@ service /v1 on ep0 {
                     "type": "songs",
                     "href": "/v1/catalog/" + storefront + "/songs/" + id,
                     "attributes": {
-                        "albumName": "Folklore",
-                        "artistName": "Taylor Swift",
-                        "name": "Cardigan",
-                        "genreNames": ["Alternative", "Indie Folk"],
-                        "releaseDate": "2020-07-24",
-                        "durationInMillis": 239000,
-                        "trackNumber": 2,
-                        "discNumber": 1,
-                        "hasLyrics": true,
-                        "isrc": "USUG12004567",
-                        "url": "https://music.apple.com/" + storefront + "/song/cardigan/" + id,
+                        "albumName": "Bohemian Rhapsody (The Original Soundtrack)",
+                        "genreNames": ["Rock", "Music"],
+                        "trackNumber": 11,
+                        "durationInMillis": 355213,
+                        "releaseDate": "1975-10-31",
+                        "isrc": "GBUM71505078",
                         "artwork": {
-                            "width": 3000,
-                            "height": 3000,
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/8b/5c/8a/8b5c8a1a-8b5c-8a1a-8b5c-8a1a8b5c8a1a/{w}x{h}bb.jpg"
+                            "width": 1400,
+                            "height": 1400,
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/bohemian-rhapsody.jpg/{w}x{h}bb.jpeg"
                         },
                         "playParams": {
                             "id": id,
                             "kind": "song"
                         },
+                        "url": "https://music.apple.com/us/album/bohemian-rhapsody/" + id,
+                        "discNumber": 1,
+                        "hasLyrics": true,
+                        "name": "Bohemian Rhapsody",
                         "previews": [
                             {
-                                "url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview/preview.m4a"
+                                "url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview124/v4/bohemian-preview.m4a"
                             }
-                        ]
+                        ],
+                        "artistName": "Queen"
                     }
                 }
             ]
@@ -542,34 +533,35 @@ service /v1 on ep0 {
         return {
             "data": [
                 {
-                    "id": "1440857786",
+                    "id": "1440857830",
                     "type": "songs",
-                    "href": "/v1/catalog/" + storefront + "/songs/1440857786",
+                    "href": "/v1/catalog/" + storefront + "/songs/1440857830",
                     "attributes": {
-                        "albumName": "Related Album",
-                        "artistName": "Related Artist",
-                        "name": "Related Song",
-                        "genreNames": ["Pop"],
-                        "releaseDate": "2023-05-15",
-                        "durationInMillis": 180000,
-                        "trackNumber": 1,
-                        "discNumber": 1,
-                        "hasLyrics": false,
-                        "url": "https://music.apple.com/" + storefront + "/song/related-song/1440857786",
+                        "albumName": "folklore",
+                        "genreNames": ["Alternative", "Music"],
+                        "trackNumber": 2,
+                        "durationInMillis": 239200,
+                        "releaseDate": "2020-07-24",
                         "artwork": {
-                            "width": 3000,
-                            "height": 3000,
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/8b/5c/8a/8b5c8a1a-8b5c-8a1a-8b5c-8a1a8b5c8a1a/{w}x{h}bb.jpg"
+                            "width": 1400,
+                            "height": 1400,
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/cardigan.jpg/{w}x{h}bb.jpeg"
                         },
                         "playParams": {
-                            "id": "1440857786",
+                            "id": "1440857830",
                             "kind": "song"
                         },
+                        "url": "https://music.apple.com/us/album/cardigan/1440857781?i=1440857830",
+                        "discNumber": 1,
+                        "hasLyrics": true,
+                        "name": "cardigan",
                         "previews": [
                             {
-                                "url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview/preview.m4a"
+                                "url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview124/v4/cardigan-preview.m4a"
                             }
-                        ]
+                        ],
+                        "artistName": "Taylor Swift",
+                        "contentRating": "clean"
                     }
                 }
             ]
@@ -593,25 +585,26 @@ service /v1 on ep0 {
         return {
             "data": [
                 {
-                    "id": "i.123456789",
+                    "id": "l.1440857781",
                     "type": "library-albums",
-                    "href": "/v1/me/library/albums/i.123456789",
+                    "href": "/v1/me/library/albums/l.1440857781",
                     "attributes": {
-                        "artistName": "My Library Artist",
-                        "name": "My Library Album",
-                        "genreNames": ["Pop", "Rock"],
-                        "releaseDate": "2023-01-01",
-                        "trackCount": 14,
-                        "dateAdded": "2023-02-15",
+                        "trackCount": 16,
+                        "genreNames": ["Alternative", "Music"],
+                        "releaseDate": "2020-07-24",
+                        "name": "folklore",
+                        "artistName": "Taylor Swift",
                         "artwork": {
-                            "width": 3000,
-                            "height": 3000,
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/8b/5c/8a/8b5c8a1a-8b5c-8a1a-8b5c-8a1a8b5c8a1a/{w}x{h}bb.jpg"
+                            "width": 1400,
+                            "height": 1400,
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/folklore-library.jpg/{w}x{h}bb.jpeg"
                         },
+                        "dateAdded": "2020-07-25",
                         "playParams": {
-                            "id": "i.123456789",
+                            "id": "l.1440857781",
                             "kind": "album"
-                        }
+                        },
+                        "contentRating": "clean"
                     }
                 }
             ]
@@ -637,17 +630,17 @@ service /v1 on ep0 {
                     "type": "library-albums",
                     "href": "/v1/me/library/albums/" + id,
                     "attributes": {
-                        "artistName": "Library Album Artist",
-                        "name": "My Favorite Album",
-                        "genreNames": ["Indie", "Alternative"],
-                        "releaseDate": "2022-08-12",
-                        "trackCount": 11,
-                        "dateAdded": "2022-09-01",
+                        "trackCount": 12,
+                        "genreNames": ["Alternative", "Music"],
+                        "releaseDate": "1997-06-16",
+                        "name": "OK Computer",
+                        "artistName": "Radiohead",
                         "artwork": {
-                            "width": 3000,
-                            "height": 3000,
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/8b/5c/8a/8b5c8a1a-8b5c-8a1a-8b5c-8a1a8b5c8a1a/{w}x{h}bb.jpg"
+                            "width": 1400,
+                            "height": 1400,
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/ok-computer-lib.jpg/{w}x{h}bb.jpeg"
                         },
+                        "dateAdded": "2023-05-15",
                         "playParams": {
                             "id": id,
                             "kind": "album"
@@ -675,11 +668,11 @@ service /v1 on ep0 {
         return {
             "data": [
                 {
-                    "id": "i.987654321",
+                    "id": "l.159260351",
                     "type": "library-artists",
-                    "href": "/v1/me/library/artists/i.987654321",
+                    "href": "/v1/me/library/artists/l.159260351",
                     "attributes": {
-                        "name": "Library Artist Name"
+                        "name": "Taylor Swift"
                     }
                 }
             ]
@@ -703,11 +696,37 @@ service /v1 on ep0 {
         return {
             "data": [
                 {
-                    "id": "i.111222333",
+                    "id": "l.159260351",
                     "type": "library-artists",
-                    "href": "/v1/me/library/artists/i.111222333",
+                    "href": "/v1/me/library/artists/l.159260351",
                     "attributes": {
-                        "name": "My Library Artist"
+                        "name": "Taylor Swift"
+                    },
+                    "relationships": {
+                        "albums": {
+                            "data": [
+                                {
+                                    "id": "l.1440857781",
+                                    "type": "library-albums",
+                                    "href": "/v1/me/library/albums/l.1440857781",
+                                    "attributes": {
+                                        "trackCount": 16,
+                                        "genreNames": ["Alternative", "Music"],
+                                        "name": "folklore",
+                                        "artistName": "Taylor Swift",
+                                        "artwork": {
+                                            "width": 1400,
+                                            "height": 1400,
+                                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/lib-folklore.jpg/{w}x{h}bb.jpeg"
+                                        },
+                                        "playParams": {
+                                            "id": "l.1440857781",
+                                            "kind": "album"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
                     }
                 }
             ]
@@ -733,7 +752,7 @@ service /v1 on ep0 {
                     "type": "library-artists",
                     "href": "/v1/me/library/artists/" + id,
                     "attributes": {
-                        "name": "Selected Library Artist"
+                        "name": "Radiohead"
                     }
                 }
             ]
@@ -757,23 +776,23 @@ service /v1 on ep0 {
         return {
             "data": [
                 {
-                    "id": "i.444555666",
+                    "id": "l.1097439572",
                     "type": "library-albums",
-                    "href": "/v1/me/library/albums/i.444555666",
+                    "href": "/v1/me/library/albums/l.1097439572",
                     "attributes": {
-                        "artistName": "Artist Related Album",
-                        "name": "Related Library Album",
-                        "genreNames": ["Jazz"],
-                        "releaseDate": "2021-03-20",
-                        "trackCount": 8,
-                        "dateAdded": "2021-04-01",
+                        "trackCount": 12,
+                        "genreNames": ["Alternative", "Music"],
+                        "releaseDate": "1997-06-16",
+                        "name": "OK Computer",
+                        "artistName": "Radiohead",
                         "artwork": {
-                            "width": 3000,
-                            "height": 3000,
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/8b/5c/8a/8b5c8a1a-8b5c-8a1a-8b5c-8a1a8b5c8a1a/{w}x{h}bb.jpg"
+                            "width": 1400,
+                            "height": 1400,
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/ok-computer-library.jpg/{w}x{h}bb.jpeg"
                         },
+                        "dateAdded": "2023-03-10",
                         "playParams": {
-                            "id": "i.444555666",
+                            "id": "l.1097439572",
                             "kind": "album"
                         }
                     }
@@ -799,26 +818,27 @@ service /v1 on ep0 {
         return {
             "data": [
                 {
-                    "id": "i.777888999",
+                    "id": "l.1440857829",
                     "type": "library-songs",
-                    "href": "/v1/me/library/songs/i.777888999",
+                    "href": "/v1/me/library/songs/l.1440857829",
                     "attributes": {
-                        "albumName": "My Library Song Album",
-                        "artistName": "My Library Song Artist",
-                        "name": "My Favorite Song",
-                        "genreNames": ["Rock", "Alternative"],
-                        "durationInMillis": 215000,
-                        "trackNumber": 5,
+                        "albumName": "folklore",
                         "discNumber": 1,
+                        "genreNames": ["Alternative", "Music"],
                         "hasLyrics": true,
-                        "releaseDate": "2022-11-10",
+                        "trackNumber": 1,
+                        "durationInMillis": 211466,
+                        "releaseDate": "2020-07-24",
+                        "name": "the 1",
+                        "artistName": "Taylor Swift",
+                        "contentRating": "clean",
                         "artwork": {
-                            "width": 3000,
-                            "height": 3000,
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/8b/5c/8a/8b5c8a1a-8b5c-8a1a-8b5c-8a1a8b5c8a1a/{w}x{h}bb.jpg"
+                            "width": 1400,
+                            "height": 1400,
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/the-1-lib.jpg/{w}x{h}bb.jpeg"
                         },
                         "playParams": {
-                            "id": "i.777888999",
+                            "id": "l.1440857829",
                             "kind": "song"
                         }
                     }
@@ -846,19 +866,19 @@ service /v1 on ep0 {
                     "type": "library-songs",
                     "href": "/v1/me/library/songs/" + id,
                     "attributes": {
-                        "albumName": "Selected Library Song Album",
-                        "artistName": "Selected Library Song Artist",
-                        "name": "Selected Library Song",
-                        "genreNames": ["Electronic", "Dance"],
-                        "durationInMillis": 195000,
-                        "trackNumber": 2,
+                        "albumName": "OK Computer",
                         "discNumber": 1,
-                        "hasLyrics": false,
-                        "releaseDate": "2023-07-18",
+                        "genreNames": ["Alternative", "Music"],
+                        "hasLyrics": true,
+                        "trackNumber": 3,
+                        "durationInMillis": 263000,
+                        "releaseDate": "1997-06-16",
+                        "name": "Paranoid Android",
+                        "artistName": "Radiohead",
                         "artwork": {
-                            "width": 3000,
-                            "height": 3000,
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/8b/5c/8a/8b5c8a1a-8b5c-8a1a-8b5c-8a1a8b5c8a1a/{w}x{h}bb.jpg"
+                            "width": 1400,
+                            "height": 1400,
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/paranoid-android.jpg/{w}x{h}bb.jpeg"
                         },
                         "playParams": {
                             "id": id,
@@ -887,26 +907,27 @@ service /v1 on ep0 {
         return {
             "data": [
                 {
-                    "id": "i.101112131",
+                    "id": "l.1440857830",
                     "type": "library-songs",
-                    "href": "/v1/me/library/songs/i.101112131",
+                    "href": "/v1/me/library/songs/l.1440857830",
                     "attributes": {
-                        "albumName": "Related Library Song Album",
-                        "artistName": "Related Library Song Artist",
-                        "name": "Related Library Song",
-                        "genreNames": ["Country"],
-                        "durationInMillis": 230000,
-                        "trackNumber": 1,
+                        "albumName": "folklore",
                         "discNumber": 1,
+                        "genreNames": ["Alternative", "Music"],
                         "hasLyrics": true,
-                        "releaseDate": "2020-05-22",
+                        "trackNumber": 2,
+                        "durationInMillis": 239200,
+                        "releaseDate": "2020-07-24",
+                        "name": "cardigan",
+                        "artistName": "Taylor Swift",
+                        "contentRating": "clean",
                         "artwork": {
-                            "width": 3000,
-                            "height": 3000,
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/8b/5c/8a/8b5c8a1a-8b5c-8a1a-8b5c-8a1a8b5c8a1a/{w}x{h}bb.jpg"
+                            "width": 1400,
+                            "height": 1400,
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/cardigan-lib.jpg/{w}x{h}bb.jpeg"
                         },
                         "playParams": {
-                            "id": "i.101112131",
+                            "id": "l.1440857830",
                             "kind": "song"
                         }
                     }
