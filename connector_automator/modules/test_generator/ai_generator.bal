@@ -1,7 +1,6 @@
 import connector_automator.code_fixer;
 import connector_automator.utils;
 
-import ballerina/file;
 import ballerina/io;
 import ballerina/lang.'string as strings;
 
@@ -91,32 +90,6 @@ function fixTestFileErrors(string connectorPath, boolean quietMode = false) retu
         return error("Failed to fix compilation errors in the project", fixResult);
     }
 
-    return;
-}
-
-function createTestConfig(string connectorPath, boolean quietMode = false) returns error? {
-    string testsDir = connectorPath + "/ballerina/tests";
-
-    // Create tests directory if it doesn't exist
-    if !(check file:test(testsDir, file:EXISTS)) {
-        check file:createDir(testsDir, file:RECURSIVE);
-        if !quietMode {
-            io:println("Created tests directory");
-        }
-    }
-
-    // Create Config.toml content
-    string configContent = string `# Test configuration
-# Set to false to use mock server (default for testing)
-# Set to true to test against live API (requires valid credentials)
-isLiveServer = false`;
-
-    string configFilePath = testsDir + "/Config.toml";
-    check io:fileWriteString(configFilePath, configContent);
-
-    if !quietMode {
-        io:println("✓ Test Config.toml created successfully");
-    }
     return;
 }
 

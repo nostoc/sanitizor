@@ -56,13 +56,7 @@ public function main(string... args) returns error? {
     }
     check generateTestFile(connectorPath, quietMode);
 
-    // Step 5: Create test configuration file
-    if !quietMode {
-        io:println("Step 5: Creating test configuration...");
-    }
-    check createTestConfig(connectorPath, quietMode);
-
-    // Step 6: Fix all compilation errors related to tests
+    // Step 5: Fix all compilation errors related to tests
     if !quietMode {
         io:println("Step 6: Building and fixing compilation errors...");
     }
