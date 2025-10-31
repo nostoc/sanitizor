@@ -211,7 +211,7 @@ public function fixAllErrors(string projectPath, boolean quietMode = true, boole
         }
 
         // Build the project and get diagnostics
-        utils:CommandResult buildResult = utils:executeBalBuild(projectPath);
+        utils:CommandResult buildResult = utils:executeBalBuild(projectPath,quietMode);
 
         if utils:isCommandSuccessfull(buildResult) {
             if !quietMode {
@@ -312,12 +312,12 @@ public function fixAllErrors(string projectPath, boolean quietMode = true, boole
             // Ask user for confirmation
             boolean shouldApplyFix = false;
             if autoYes {
-                io:println(string `\n=== Iteration ${iteration} - Fix for ${filePath} ===`);
-                io:println("Errors to fix:");
-                foreach CompilationError err in fileErrors {
-                    io:println(string `  Line ${err.line}: ${err.message}`);
-                }
                 if !quietMode {
+                    io:println(string `\n=== Iteration ${iteration} - Fix for ${filePath} ===`);
+                    io:println("Errors to fix:");
+                    foreach CompilationError err in fileErrors {
+                        io:println(string `  Line ${err.line}: ${err.message}`);
+                    }
                     io:println("\nProposed fix:");
                     io:println("```ballerina");
                     io:println(fixResponse.fixedCode);
@@ -326,6 +326,7 @@ public function fixAllErrors(string projectPath, boolean quietMode = true, boole
                 io:println("\nApply this fix? (y/n): y [auto-confirmed]");
                 shouldApplyFix = true;
             } else {
+                if !quietMode {
                 io:println(string `\n=== Iteration ${iteration} - Fix for ${filePath} ===`);
                 io:println("Errors to fix:");
                 foreach CompilationError err in fileErrors {
@@ -335,7 +336,7 @@ public function fixAllErrors(string projectPath, boolean quietMode = true, boole
                 io:println("```ballerina");
                 io:println(fixResponse.fixedCode);
                 io:println("```");
-
+                }
                 io:print(string `\nApply this fix? (y/n): `);
                 string|io:Error userInput = io:readln();
                 if userInput is io:Error {
@@ -394,7 +395,7 @@ public function fixAllErrors(string projectPath, boolean quietMode = true, boole
     }
 
     // Final build check
-    utils:CommandResult finalBuildResult = utils:executeBalBuild(projectPath);
+    utils:CommandResult finalBuildResult = utils:executeBalBuild(projectPath,quietMode);
     if utils:isCommandSuccessfull(finalBuildResult) {
         result.success = true;
         result.errorsRemaining = 0;
