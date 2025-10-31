@@ -87,7 +87,7 @@ public type SongsAttributes record {
     string attribution?;
     # The localized name of the song
     string name;
-    # Collection of preview clips available for the song
+    # Array of audio preview clips available for the song
     Preview[] previews;
     # The artist's name
     string artistName;
@@ -332,7 +332,7 @@ public type SongsRelationships record {
     AlbumsResponse albums?;
     # Composers who created the song
     record {} composers?;
-    # Reference to the song in the user's personal library
+    # Reference to the corresponding library song resource
     record {} library?;
     # The response to an artists request
     ArtistsResponse artists?;
@@ -396,7 +396,7 @@ public type ArtistsRelationships record {
     record {} musicVideos?;
     # Playlists related to the artist
     record {} playlists?;
-    # Apple Music station for the artist
+    # Apple Music station associated with the artist
     record {} station?;
 };
 
@@ -693,9 +693,9 @@ public type GetArtistsFromLibraryQueries record {
 
 # The relationships for the artist
 public type LibraryArtistsRelationships record {
-    # Response containing albums from the user's personal library
+    # Response containing library albums from the user's personal collection
     LibraryAlbumsResponse albums?;
-    # Reference to the corresponding artist in the Apple Music Catalog
+    # Reference to the corresponding catalog artist resource
     record {} catalog?;
 };
 
@@ -798,7 +798,7 @@ public type ArtistsAttributes record {
 
 public type AddToLibraryQueriesIdsItemsString string;
 
-# Response containing albums from the user's personal library
+# Response containing library albums from the user's personal collection
 public type LibraryAlbumsResponse record {
     # A relative cursor to fetch the next paginated collection of resources, if more exist
     string next?;
@@ -822,7 +822,7 @@ public type LibraryArtistsAttributes record {
     string name;
 };
 
-# Response containing artists from user's iCloud Music Library
+# Response containing artists from the user's personal iCloud Music Library
 public type LibraryArtistsResponse record {
     # A relative cursor to fetch the next paginated collection of resources, if more exist
     string next?;

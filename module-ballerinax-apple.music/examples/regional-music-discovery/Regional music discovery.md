@@ -1,6 +1,6 @@
-# Artist Discovery Recommendations
+# Regional Music Discovery
 
-This example demonstrates how to discover and retrieve music recommendations using the Apple Music API to search for artists and get related music content.
+This example demonstrates how to discover regional music content using the Apple Music API, showcasing how to search for and retrieve music data from different regions.
 
 ## Prerequisites
 
@@ -10,8 +10,6 @@ This example demonstrates how to discover and retrieve music recommendations usi
 2. For this example, create a `Config.toml` file with your credentials:
 
 ```toml
-# Apple Music API configuration
-# Add your Apple Music API credentials here
 token = "<Your Apple Music API Token>"
 ```
 
@@ -22,5 +20,3 @@ Execute the following command to run the example. The script will print its prog
 ```shell
 bal run
 ```
-
-The application will search for artists and display music recommendations based on the Apple Music catalog.

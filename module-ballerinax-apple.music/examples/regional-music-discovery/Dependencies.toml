@@ -311,16 +311,18 @@ dependencies = [
 	{org = "ballerina", name = "constraint"},
 	{org = "ballerina", name = "data.jsondata"},
 	{org = "ballerina", name = "http"},
+	{org = "ballerina", name = "os"},
 	{org = "ballerina", name = "url"},
 	{org = "ballerinai", name = "observe"}
 ]
 modules = [
-	{org = "ballerinax", packageName = "apple.music", moduleName = "apple.music"}
+	{org = "ballerinax", packageName = "apple.music", moduleName = "apple.music"},
+	{org = "ballerinax", packageName = "apple.music", moduleName = "apple.music.mock.server"}
 ]
 
 [[package]]
 org = "wso2"
-name = "artist_discovery_recommendations"
+name = "regional_music_discovery"
 version = "0.1.0"
 dependencies = [
 	{org = "ballerina", name = "io"},
@@ -328,6 +330,6 @@ dependencies = [
 	{org = "ballerinax", name = "apple.music"}
 ]
 modules = [
-	{org = "wso2", packageName = "artist_discovery_recommendations", moduleName = "artist_discovery_recommendations"}
+	{org = "wso2", packageName = "regional_music_discovery", moduleName = "regional_music_discovery"}
 ]
 

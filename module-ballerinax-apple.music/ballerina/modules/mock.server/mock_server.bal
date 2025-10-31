@@ -32,20 +32,32 @@ service /v1 on ep0 {
                         "genreNames": ["Pop"],
                         "releaseDate": "2023-10-27",
                         "trackCount": 21,
+                        "copyright": "℗ 2023 Taylor Swift",
+                        "recordLabel": "Taylor Swift",
+                        "isCompilation": false,
                         "isSingle": false,
                         "isComplete": true,
-                        "isCompilation": false,
                         "isMasteredForItunes": true,
+                        "upc": "602455691781",
+                        "url": "https://music.apple.com/us/album/1989-taylors-version/1440857781",
                         "artwork": {
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/f4/5e/8d/f45e8d2a-8b5e-4c8e-9b1a-2b8c6d4e5f8a/cover.jpg/{w}x{h}bb.jpg",
                             "width": 3000,
-                            "height": 3000
+                            "height": 3000,
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/8b/5c/8a/8b5c8a1a-8b5c-8a1a-8b5c-8a1a8b5c8a1a/{w}x{h}bb.jpg",
+                            "bgColor": "f8f8f8",
+                            "textColor1": "000000",
+                            "textColor2": "333333",
+                            "textColor3": "666666",
+                            "textColor4": "999999"
                         },
                         "playParams": {
                             "id": "1440857781",
                             "kind": "album"
                         },
-                        "url": "https://music.apple.com/us/album/1989-taylors-version/1440857781"
+                        "editorialNotes": {
+                            "standard": "Taylor Swift's re-recorded version of her iconic 1989 album.",
+                            "short": "The re-recorded 1989 album."
+                        }
                     }
                 }
             ]
@@ -77,20 +89,28 @@ service /v1 on ep0 {
                         "genreNames": ["Rock"],
                         "releaseDate": "1969-09-26",
                         "trackCount": 17,
+                        "copyright": "℗ 1969 Apple Records",
+                        "recordLabel": "Apple Records",
+                        "isCompilation": false,
                         "isSingle": false,
                         "isComplete": true,
-                        "isCompilation": false,
                         "isMasteredForItunes": true,
+                        "upc": "094638241720",
+                        "url": "https://music.apple.com/" + storefront + "/album/abbey-road/" + id,
                         "artwork": {
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/a3/b2/c1/a3b2c1d4-e5f6-7890-abcd-ef1234567890/cover.jpg/{w}x{h}bb.jpg",
                             "width": 3000,
-                            "height": 3000
+                            "height": 3000,
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/8b/5c/8a/8b5c8a1a-8b5c-8a1a-8b5c-8a1a8b5c8a1a/{w}x{h}bb.jpg",
+                            "bgColor": "ffffff",
+                            "textColor1": "000000",
+                            "textColor2": "333333",
+                            "textColor3": "666666",
+                            "textColor4": "999999"
                         },
                         "playParams": {
                             "id": id,
                             "kind": "album"
-                        },
-                        "url": "https://music.apple.com/" + storefront + "/album/abbey-road/" + id
+                        }
                     }
                 }
             ]
@@ -145,28 +165,32 @@ service /v1 on ep0 {
         return {
             "data": [
                 {
-                    "id": "1234567890",
+                    "id": "1440857782",
                     "type": "music-videos",
-                    "href": "/v1/catalog/" + storefront + "/music-videos/1234567890",
+                    "href": "/v1/catalog/" + storefront + "/music-videos/1440857782",
                     "attributes": {
                         "artistName": "The Beatles",
                         "name": "Come Together",
                         "genreNames": ["Rock"],
                         "releaseDate": "1969-09-26",
                         "durationInMillis": 259000,
+                        "url": "https://music.apple.com/" + storefront + "/music-video/come-together/1440857782",
                         "has4K": true,
-                        "hasHDR": true,
+                        "hasHDR": false,
                         "artwork": {
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Video124/v4/a3/b2/c1/a3b2c1d4-e5f6-7890-abcd-ef1234567890/frame.jpg/{w}x{h}bb.jpg",
                             "width": 1920,
-                            "height": 1080
+                            "height": 1080,
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Video/v4/8b/5c/8a/8b5c8a1a-8b5c-8a1a-8b5c-8a1a8b5c8a1a/{w}x{h}bb.jpg"
                         },
                         "playParams": {
-                            "id": "1234567890",
+                            "id": "1440857782",
                             "kind": "musicVideo"
                         },
-                        "url": "https://music.apple.com/" + storefront + "/music-video/come-together/1234567890",
-                        "previews": []
+                        "previews": [
+                            {
+                                "url": "https://video-ssl.itunes.apple.com/itunes-assets/Video/preview.m4v"
+                            }
+                        ]
                     }
                 }
             ]
@@ -196,7 +220,11 @@ service /v1 on ep0 {
                     "attributes": {
                         "name": "Taylor Swift",
                         "genreNames": ["Pop", "Country"],
-                        "url": "https://music.apple.com/" + storefront + "/artist/taylor-swift/159260351"
+                        "url": "https://music.apple.com/" + storefront + "/artist/taylor-swift/159260351",
+                        "editorialNotes": {
+                            "standard": "Grammy-winning singer-songwriter known for her narrative songwriting.",
+                            "short": "Pop and country superstar."
+                        }
                     }
                 }
             ]
@@ -223,9 +251,9 @@ service /v1 on ep0 {
                     "type": "artists",
                     "href": "/v1/catalog/" + storefront + "/artists/" + id,
                     "attributes": {
-                        "name": "Adele",
-                        "genreNames": ["Pop", "Soul"],
-                        "url": "https://music.apple.com/" + storefront + "/artist/adele/" + id
+                        "name": "Ed Sheeran",
+                        "genreNames": ["Pop", "Singer/Songwriter"],
+                        "url": "https://music.apple.com/" + storefront + "/artist/ed-sheeran/" + id
                     }
                 }
             ]
@@ -253,25 +281,27 @@ service /v1 on ep0 {
                     "type": "albums",
                     "href": "/v1/catalog/" + storefront + "/albums/1440857781",
                     "attributes": {
-                        "artistName": "Adele",
-                        "name": "30",
+                        "artistName": "Ed Sheeran",
+                        "name": "÷ (Deluxe)",
                         "genreNames": ["Pop"],
-                        "releaseDate": "2021-11-19",
-                        "trackCount": 12,
+                        "releaseDate": "2017-03-03",
+                        "trackCount": 16,
+                        "copyright": "℗ 2017 Asylum Records UK",
+                        "recordLabel": "Asylum Records UK",
+                        "isCompilation": false,
                         "isSingle": false,
                         "isComplete": true,
-                        "isCompilation": false,
                         "isMasteredForItunes": true,
+                        "url": "https://music.apple.com/" + storefront + "/album/divide-deluxe/1440857781",
                         "artwork": {
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/b1/a2/c3/b1a2c3d4-e5f6-7890-abcd-ef1234567890/cover.jpg/{w}x{h}bb.jpg",
                             "width": 3000,
-                            "height": 3000
+                            "height": 3000,
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/8b/5c/8a/8b5c8a1a-8b5c-8a1a-8b5c-8a1a8b5c8a1a/{w}x{h}bb.jpg"
                         },
                         "playParams": {
                             "id": "1440857781",
                             "kind": "album"
-                        },
-                        "url": "https://music.apple.com/" + storefront + "/album/30/1440857781"
+                        }
                     }
                 }
             ]
@@ -296,29 +326,31 @@ service /v1 on ep0 {
         return {
             "data": [
                 {
-                    "id": "1584791094",
+                    "id": "1440857783",
                     "type": "albums",
-                    "href": "/v1/catalog/" + storefront + "/albums/1584791094",
+                    "href": "/v1/catalog/" + storefront + "/albums/1440857783",
                     "attributes": {
-                        "artistName": "Ed Sheeran",
-                        "name": "= (Equals)",
+                        "artistName": "Various Artists",
+                        "name": "Greatest Hits Collection",
                         "genreNames": ["Pop"],
-                        "releaseDate": "2021-10-29",
-                        "trackCount": 14,
+                        "releaseDate": "2023-01-15",
+                        "trackCount": 20,
+                        "copyright": "℗ 2023 Various Labels",
+                        "recordLabel": "Universal Music",
+                        "isCompilation": true,
                         "isSingle": false,
                         "isComplete": true,
-                        "isCompilation": false,
-                        "isMasteredForItunes": true,
+                        "isMasteredForItunes": false,
+                        "url": "https://music.apple.com/" + storefront + "/album/greatest-hits-collection/1440857783",
                         "artwork": {
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/c2/d3/e4/c2d3e4f5-a6b7-8901-cdef-234567890abc/cover.jpg/{w}x{h}bb.jpg",
                             "width": 3000,
-                            "height": 3000
+                            "height": 3000,
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/8b/5c/8a/8b5c8a1a-8b5c-8a1a-8b5c-8a1a8b5c8a1a/{w}x{h}bb.jpg"
                         },
                         "playParams": {
-                            "id": "1584791094",
+                            "id": "1440857783",
                             "kind": "album"
-                        },
-                        "url": "https://music.apple.com/" + storefront + "/album/equals/1584791094"
+                        }
                     }
                 }
             ]
@@ -344,29 +376,31 @@ service /v1 on ep0 {
                 "albums": {
                     "data": [
                         {
-                            "id": "1440857781",
+                            "id": "1440857784",
                             "type": "albums",
-                            "href": "/v1/catalog/" + storefront + "/albums/1440857781",
+                            "href": "/v1/catalog/" + storefront + "/albums/1440857784",
                             "attributes": {
-                                "artistName": "Taylor Swift",
-                                "name": "1989 (Taylor's Version)",
+                                "artistName": "Search Result Artist",
+                                "name": "Search Result Album",
                                 "genreNames": ["Pop"],
-                                "releaseDate": "2023-10-27",
-                                "trackCount": 21,
+                                "releaseDate": "2023-06-01",
+                                "trackCount": 12,
+                                "copyright": "℗ 2023 Search Records",
+                                "recordLabel": "Search Records",
+                                "isCompilation": false,
                                 "isSingle": false,
                                 "isComplete": true,
-                                "isCompilation": false,
                                 "isMasteredForItunes": true,
+                                "url": "https://music.apple.com/" + storefront + "/album/search-result-album/1440857784",
                                 "artwork": {
-                                    "url": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/f4/5e/8d/f45e8d2a-8b5e-4c8e-9b1a-2b8c6d4e5f8a/cover.jpg/{w}x{h}bb.jpg",
                                     "width": 3000,
-                                    "height": 3000
+                                    "height": 3000,
+                                    "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/8b/5c/8a/8b5c8a1a-8b5c-8a1a-8b5c-8a1a8b5c8a1a/{w}x{h}bb.jpg"
                                 },
                                 "playParams": {
-                                    "id": "1440857781",
+                                    "id": "1440857784",
                                     "kind": "album"
-                                },
-                                "url": "https://music.apple.com/" + storefront + "/album/1989-taylors-version/1440857781"
+                                }
                             }
                         }
                     ]
@@ -374,13 +408,13 @@ service /v1 on ep0 {
                 "artists": {
                     "data": [
                         {
-                            "id": "159260351",
+                            "id": "159260352",
                             "type": "artists",
-                            "href": "/v1/catalog/" + storefront + "/artists/159260351",
+                            "href": "/v1/catalog/" + storefront + "/artists/159260352",
                             "attributes": {
-                                "name": "Taylor Swift",
-                                "genreNames": ["Pop", "Country"],
-                                "url": "https://music.apple.com/" + storefront + "/artist/taylor-swift/159260351"
+                                "name": "Search Result Artist",
+                                "genreNames": ["Pop"],
+                                "url": "https://music.apple.com/" + storefront + "/artist/search-result-artist/159260352"
                             }
                         }
                     ]
@@ -406,30 +440,35 @@ service /v1 on ep0 {
         return {
             "data": [
                 {
-                    "id": "1440857907",
+                    "id": "1440857785",
                     "type": "songs",
-                    "href": "/v1/catalog/" + storefront + "/songs/1440857907",
+                    "href": "/v1/catalog/" + storefront + "/songs/1440857785",
                     "attributes": {
-                        "albumName": "1989 (Taylor's Version)",
+                        "albumName": "Midnights",
                         "artistName": "Taylor Swift",
-                        "name": "Shake It Off (Taylor's Version)",
+                        "name": "Anti-Hero",
                         "genreNames": ["Pop"],
-                        "releaseDate": "2023-10-27",
-                        "durationInMillis": 219000,
-                        "trackNumber": 6,
+                        "releaseDate": "2022-10-21",
+                        "durationInMillis": 200560,
+                        "trackNumber": 3,
                         "discNumber": 1,
                         "hasLyrics": true,
+                        "isrc": "USUG12204578",
+                        "url": "https://music.apple.com/" + storefront + "/song/anti-hero/1440857785",
                         "artwork": {
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/f4/5e/8d/f45e8d2a-8b5e-4c8e-9b1a-2b8c6d4e5f8a/cover.jpg/{w}x{h}bb.jpg",
                             "width": 3000,
-                            "height": 3000
+                            "height": 3000,
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/8b/5c/8a/8b5c8a1a-8b5c-8a1a-8b5c-8a1a8b5c8a1a/{w}x{h}bb.jpg"
                         },
                         "playParams": {
-                            "id": "1440857907",
+                            "id": "1440857785",
                             "kind": "song"
                         },
-                        "url": "https://music.apple.com/" + storefront + "/song/shake-it-off-taylors-version/1440857907",
-                        "previews": []
+                        "previews": [
+                            {
+                                "url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview/preview.m4a"
+                            }
+                        ]
                     }
                 }
             ]
@@ -455,26 +494,31 @@ service /v1 on ep0 {
                     "type": "songs",
                     "href": "/v1/catalog/" + storefront + "/songs/" + id,
                     "attributes": {
-                        "albumName": "Abbey Road",
-                        "artistName": "The Beatles",
-                        "name": "Come Together",
-                        "genreNames": ["Rock"],
-                        "releaseDate": "1969-09-26",
-                        "durationInMillis": 259000,
-                        "trackNumber": 1,
+                        "albumName": "Folklore",
+                        "artistName": "Taylor Swift",
+                        "name": "Cardigan",
+                        "genreNames": ["Alternative", "Indie Folk"],
+                        "releaseDate": "2020-07-24",
+                        "durationInMillis": 239000,
+                        "trackNumber": 2,
                         "discNumber": 1,
                         "hasLyrics": true,
+                        "isrc": "USUG12004567",
+                        "url": "https://music.apple.com/" + storefront + "/song/cardigan/" + id,
                         "artwork": {
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/a3/b2/c1/a3b2c1d4-e5f6-7890-abcd-ef1234567890/cover.jpg/{w}x{h}bb.jpg",
                             "width": 3000,
-                            "height": 3000
+                            "height": 3000,
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/8b/5c/8a/8b5c8a1a-8b5c-8a1a-8b5c-8a1a8b5c8a1a/{w}x{h}bb.jpg"
                         },
                         "playParams": {
                             "id": id,
                             "kind": "song"
                         },
-                        "url": "https://music.apple.com/" + storefront + "/song/come-together/" + id,
-                        "previews": []
+                        "previews": [
+                            {
+                                "url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview/preview.m4a"
+                            }
+                        ]
                     }
                 }
             ]
@@ -498,30 +542,34 @@ service /v1 on ep0 {
         return {
             "data": [
                 {
-                    "id": "1440857907",
+                    "id": "1440857786",
                     "type": "songs",
-                    "href": "/v1/catalog/" + storefront + "/songs/1440857907",
+                    "href": "/v1/catalog/" + storefront + "/songs/1440857786",
                     "attributes": {
-                        "albumName": "Abbey Road",
-                        "artistName": "The Beatles",
-                        "name": "Something",
-                        "genreNames": ["Rock"],
-                        "releaseDate": "1969-09-26",
-                        "durationInMillis": 183000,
-                        "trackNumber": 2,
+                        "albumName": "Related Album",
+                        "artistName": "Related Artist",
+                        "name": "Related Song",
+                        "genreNames": ["Pop"],
+                        "releaseDate": "2023-05-15",
+                        "durationInMillis": 180000,
+                        "trackNumber": 1,
                         "discNumber": 1,
-                        "hasLyrics": true,
+                        "hasLyrics": false,
+                        "url": "https://music.apple.com/" + storefront + "/song/related-song/1440857786",
                         "artwork": {
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/a3/b2/c1/a3b2c1d4-e5f6-7890-abcd-ef1234567890/cover.jpg/{w}x{h}bb.jpg",
                             "width": 3000,
-                            "height": 3000
+                            "height": 3000,
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/8b/5c/8a/8b5c8a1a-8b5c-8a1a-8b5c-8a1a8b5c8a1a/{w}x{h}bb.jpg"
                         },
                         "playParams": {
-                            "id": "1440857907",
+                            "id": "1440857786",
                             "kind": "song"
                         },
-                        "url": "https://music.apple.com/" + storefront + "/song/something/1440857907",
-                        "previews": []
+                        "previews": [
+                            {
+                                "url": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview/preview.m4a"
+                            }
+                        ]
                     }
                 }
             ]
@@ -545,23 +593,23 @@ service /v1 on ep0 {
         return {
             "data": [
                 {
-                    "id": "l.1440857781",
+                    "id": "i.123456789",
                     "type": "library-albums",
-                    "href": "/v1/me/library/albums/l.1440857781",
+                    "href": "/v1/me/library/albums/i.123456789",
                     "attributes": {
-                        "artistName": "Taylor Swift",
-                        "name": "1989 (Taylor's Version)",
-                        "genreNames": ["Pop"],
-                        "releaseDate": "2023-10-27",
-                        "trackCount": 21,
-                        "dateAdded": "2023-10-27",
+                        "artistName": "My Library Artist",
+                        "name": "My Library Album",
+                        "genreNames": ["Pop", "Rock"],
+                        "releaseDate": "2023-01-01",
+                        "trackCount": 14,
+                        "dateAdded": "2023-02-15",
                         "artwork": {
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/f4/5e/8d/f45e8d2a-8b5e-4c8e-9b1a-2b8c6d4e5f8a/cover.jpg/{w}x{h}bb.jpg",
                             "width": 3000,
-                            "height": 3000
+                            "height": 3000,
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/8b/5c/8a/8b5c8a1a-8b5c-8a1a-8b5c-8a1a8b5c8a1a/{w}x{h}bb.jpg"
                         },
                         "playParams": {
-                            "id": "l.1440857781",
+                            "id": "i.123456789",
                             "kind": "album"
                         }
                     }
@@ -589,16 +637,16 @@ service /v1 on ep0 {
                     "type": "library-albums",
                     "href": "/v1/me/library/albums/" + id,
                     "attributes": {
-                        "artistName": "The Beatles",
-                        "name": "Abbey Road",
-                        "genreNames": ["Rock"],
-                        "releaseDate": "1969-09-26",
-                        "trackCount": 17,
-                        "dateAdded": "2023-01-15",
+                        "artistName": "Library Album Artist",
+                        "name": "My Favorite Album",
+                        "genreNames": ["Indie", "Alternative"],
+                        "releaseDate": "2022-08-12",
+                        "trackCount": 11,
+                        "dateAdded": "2022-09-01",
                         "artwork": {
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/a3/b2/c1/a3b2c1d4-e5f6-7890-abcd-ef1234567890/cover.jpg/{w}x{h}bb.jpg",
                             "width": 3000,
-                            "height": 3000
+                            "height": 3000,
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/8b/5c/8a/8b5c8a1a-8b5c-8a1a-8b5c-8a1a8b5c8a1a/{w}x{h}bb.jpg"
                         },
                         "playParams": {
                             "id": id,
@@ -627,11 +675,11 @@ service /v1 on ep0 {
         return {
             "data": [
                 {
-                    "id": "l.136975",
+                    "id": "i.987654321",
                     "type": "library-artists",
-                    "href": "/v1/me/library/artists/l.136975",
+                    "href": "/v1/me/library/artists/i.987654321",
                     "attributes": {
-                        "name": "The Beatles"
+                        "name": "Library Artist Name"
                     }
                 }
             ]
@@ -655,11 +703,11 @@ service /v1 on ep0 {
         return {
             "data": [
                 {
-                    "id": "l.159260351",
+                    "id": "i.111222333",
                     "type": "library-artists",
-                    "href": "/v1/me/library/artists/l.159260351",
+                    "href": "/v1/me/library/artists/i.111222333",
                     "attributes": {
-                        "name": "Taylor Swift"
+                        "name": "My Library Artist"
                     }
                 }
             ]
@@ -685,7 +733,7 @@ service /v1 on ep0 {
                     "type": "library-artists",
                     "href": "/v1/me/library/artists/" + id,
                     "attributes": {
-                        "name": "Adele"
+                        "name": "Selected Library Artist"
                     }
                 }
             ]
@@ -709,23 +757,23 @@ service /v1 on ep0 {
         return {
             "data": [
                 {
-                    "id": "l.1440857781",
+                    "id": "i.444555666",
                     "type": "library-albums",
-                    "href": "/v1/me/library/albums/l.1440857781",
+                    "href": "/v1/me/library/albums/i.444555666",
                     "attributes": {
-                        "artistName": "Adele",
-                        "name": "30",
-                        "genreNames": ["Pop"],
-                        "releaseDate": "2021-11-19",
-                        "trackCount": 12,
-                        "dateAdded": "2021-11-19",
+                        "artistName": "Artist Related Album",
+                        "name": "Related Library Album",
+                        "genreNames": ["Jazz"],
+                        "releaseDate": "2021-03-20",
+                        "trackCount": 8,
+                        "dateAdded": "2021-04-01",
                         "artwork": {
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/b1/a2/c3/b1a2c3d4-e5f6-7890-abcd-ef1234567890/cover.jpg/{w}x{h}bb.jpg",
                             "width": 3000,
-                            "height": 3000
+                            "height": 3000,
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/8b/5c/8a/8b5c8a1a-8b5c-8a1a-8b5c-8a1a8b5c8a1a/{w}x{h}bb.jpg"
                         },
                         "playParams": {
-                            "id": "l.1440857781",
+                            "id": "i.444555666",
                             "kind": "album"
                         }
                     }
@@ -751,26 +799,26 @@ service /v1 on ep0 {
         return {
             "data": [
                 {
-                    "id": "l.1440857907",
+                    "id": "i.777888999",
                     "type": "library-songs",
-                    "href": "/v1/me/library/songs/l.1440857907",
+                    "href": "/v1/me/library/songs/i.777888999",
                     "attributes": {
-                        "albumName": "1989 (Taylor's Version)",
-                        "artistName": "Taylor Swift",
-                        "name": "Shake It Off (Taylor's Version)",
-                        "genreNames": ["Pop"],
-                        "releaseDate": "2023-10-27",
-                        "durationInMillis": 219000,
-                        "trackNumber": 6,
+                        "albumName": "My Library Song Album",
+                        "artistName": "My Library Song Artist",
+                        "name": "My Favorite Song",
+                        "genreNames": ["Rock", "Alternative"],
+                        "durationInMillis": 215000,
+                        "trackNumber": 5,
                         "discNumber": 1,
                         "hasLyrics": true,
+                        "releaseDate": "2022-11-10",
                         "artwork": {
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/f4/5e/8d/f45e8d2a-8b5e-4c8e-9b1a-2b8c6d4e5f8a/cover.jpg/{w}x{h}bb.jpg",
                             "width": 3000,
-                            "height": 3000
+                            "height": 3000,
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/8b/5c/8a/8b5c8a1a-8b5c-8a1a-8b5c-8a1a8b5c8a1a/{w}x{h}bb.jpg"
                         },
                         "playParams": {
-                            "id": "l.1440857907",
+                            "id": "i.777888999",
                             "kind": "song"
                         }
                     }
@@ -798,19 +846,19 @@ service /v1 on ep0 {
                     "type": "library-songs",
                     "href": "/v1/me/library/songs/" + id,
                     "attributes": {
-                        "albumName": "Abbey Road",
-                        "artistName": "The Beatles",
-                        "name": "Come Together",
-                        "genreNames": ["Rock"],
-                        "releaseDate": "1969-09-26",
-                        "durationInMillis": 259000,
-                        "trackNumber": 1,
+                        "albumName": "Selected Library Song Album",
+                        "artistName": "Selected Library Song Artist",
+                        "name": "Selected Library Song",
+                        "genreNames": ["Electronic", "Dance"],
+                        "durationInMillis": 195000,
+                        "trackNumber": 2,
                         "discNumber": 1,
-                        "hasLyrics": true,
+                        "hasLyrics": false,
+                        "releaseDate": "2023-07-18",
                         "artwork": {
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/a3/b2/c1/a3b2c1d4-e5f6-7890-abcd-ef1234567890/cover.jpg/{w}x{h}bb.jpg",
                             "width": 3000,
-                            "height": 3000
+                            "height": 3000,
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/8b/5c/8a/8b5c8a1a-8b5c-8a1a-8b5c-8a1a8b5c8a1a/{w}x{h}bb.jpg"
                         },
                         "playParams": {
                             "id": id,
@@ -839,26 +887,26 @@ service /v1 on ep0 {
         return {
             "data": [
                 {
-                    "id": "l.1440857908",
+                    "id": "i.101112131",
                     "type": "library-songs",
-                    "href": "/v1/me/library/songs/l.1440857908",
+                    "href": "/v1/me/library/songs/i.101112131",
                     "attributes": {
-                        "albumName": "Abbey Road",
-                        "artistName": "The Beatles",
-                        "name": "Something",
-                        "genreNames": ["Rock"],
-                        "releaseDate": "1969-09-26",
-                        "durationInMillis": 183000,
-                        "trackNumber": 2,
+                        "albumName": "Related Library Song Album",
+                        "artistName": "Related Library Song Artist",
+                        "name": "Related Library Song",
+                        "genreNames": ["Country"],
+                        "durationInMillis": 230000,
+                        "trackNumber": 1,
                         "discNumber": 1,
                         "hasLyrics": true,
+                        "releaseDate": "2020-05-22",
                         "artwork": {
-                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/a3/b2/c1/a3b2c1d4-e5f6-7890-abcd-ef1234567890/cover.jpg/{w}x{h}bb.jpg",
                             "width": 3000,
-                            "height": 3000
+                            "height": 3000,
+                            "url": "https://is1-ssl.mzstatic.com/image/thumb/Music/v4/8b/5c/8a/8b5c8a1a-8b5c-8a1a-8b5c-8a1a8b5c8a1a/{w}x{h}bb.jpg"
                         },
                         "playParams": {
-                            "id": "l.1440857908",
+                            "id": "i.101112131",
                             "kind": "song"
                         }
                     }
