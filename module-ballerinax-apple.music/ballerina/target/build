@@ -1,14 +1,14 @@
 {
-  "last_build_time": 1761900090880,
+  "last_build_time": 1761912609511,
   "last_update_time": 1761879172927,
   "distribution_version": "2201.13.0-20250927-204700-7b3ef131",
   "last_modified_time": {
-    "apple.music": 1761900056436
+    "apple.music": 1761912600781
   },
   "last_build_options": {
-    "skipTests": false,
     "compilationOptions": {
       "observabilityIncluded": true,
+      "dumpBir": false,
       "cloud": "",
       "dumpGraph": false,
       "dumpRawGraphs": false
@@ -43,19 +43,19 @@
       "file": "/home/hansika/dev/connector_automation/module-ballerinax-apple.music/ballerina/modules/mock.server/utils.bal",
       "hash": "f878df9462bf9d508da310a1cf91c43b2c4583db3215e94bf17e275a8aaf7d83",
       "size": 7964,
-      "lastModifiedTime": 1761899878791
+      "lastModifiedTime": 1761912388180
     },
     {
       "file": "/home/hansika/dev/connector_automation/module-ballerinax-apple.music/ballerina/modules/mock.server/types.bal",
       "hash": "45b78e176252a681696c5351bbe9e9713b8788b9ed25f3d6764bd1ec3e4646a6",
       "size": 39268,
-      "lastModifiedTime": 1761899878793
+      "lastModifiedTime": 1761912388181
     },
     {
       "file": "/home/hansika/dev/connector_automation/module-ballerinax-apple.music/ballerina/modules/mock.server/mock_server.bal",
-      "hash": "31ffe5348aa6a0ee2a7dc7e449d8e684208d1e0aff83ab0422e960f9d670a7db",
-      "size": 50561,
-      "lastModifiedTime": 1761900000394
+      "hash": "8d948ba93e9ffd35ba40004bb5f4ce265e07e0ce5d0ffdd8beb0701ec569b985",
+      "size": 63581,
+      "lastModifiedTime": 1761912543650
     }
   ],
   "test_src_meta_info": [
@@ -68,9 +68,9 @@
   ],
   "target_exec_meta_info": {
     "file": "/home/hansika/dev/connector_automation/module-ballerinax-apple.music/ballerina/target/backup/bin/apple.music.jar",
-    "hash": "afdc028034889bc2e687720e62eb301a6adf8de3e1d9790b04b9e9784ac6381e",
-    "size": 46993736,
-    "lastModifiedTime": 1761900069902
+    "hash": "c453b4615c75b0eb7d14a04774d75e2257008436b5a2a4a8f729b29dcbacac12",
+    "size": 47007180,
+    "lastModifiedTime": 1761912610387
   },
   "settings_meta_info": {
     "file": "/home/hansika/.ballerina/Settings.toml",
