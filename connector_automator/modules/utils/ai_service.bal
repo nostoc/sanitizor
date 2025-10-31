@@ -1,6 +1,7 @@
 import ballerina/ai;
 import ballerina/log;
 import ballerinax/ai.anthropic;
+import ballerina/io;
 
 ai:ModelProvider? anthropicModel = ();
 configurable string apiKey = ?;
@@ -34,7 +35,8 @@ public function callAI(string prompt) returns string|error {
     if response is error {
         return error("AI generation failed: " + response.message());
     }
-
+    io:println(response);
+    
     string? content = response.content;
     if content is string {
         return content;

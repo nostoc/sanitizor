@@ -453,6 +453,7 @@ modules = [
 	{org = "hansika", packageName = "connector_automator", moduleName = "connector_automator"},
 	{org = "hansika", packageName = "connector_automator", moduleName = "connector_automator.client_generator"},
 	{org = "hansika", packageName = "connector_automator", moduleName = "connector_automator.code_fixer"},
+	{org = "hansika", packageName = "connector_automator", moduleName = "connector_automator.cost_calculator"},
 	{org = "hansika", packageName = "connector_automator", moduleName = "connector_automator.doc_generator"},
 	{org = "hansika", packageName = "connector_automator", moduleName = "connector_automator.example_generator"},
 	{org = "hansika", packageName = "connector_automator", moduleName = "connector_automator.sanitizor"},

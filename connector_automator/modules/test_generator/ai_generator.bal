@@ -1,5 +1,6 @@
 import connector_automator.code_fixer;
 import connector_automator.utils;
+import connector_automator.cost_calculator;
 
 import ballerina/io;
 import ballerina/lang.'string as strings;
@@ -13,7 +14,14 @@ function completeMockServer(string mockServerPath, string typesPath, boolean qui
 
     // generate completed mock server using LLM
     string prompt = createMockServerPrompt(mockServerContent, typesContent);
+    
+    // Track cost before AI call
+    cost_calculator:trackUsageFromText("test_generator_mock", prompt, "", "claude-3-sonnet");
+    
     string completeMockServer = check utils:callAI(prompt);
+    
+    // Track output cost
+    cost_calculator:trackUsageFromText("test_generator_mock", "", completeMockServer, "claude-3-sonnet");
 
     check io:fileWriteString(mockServerPath, completeMockServer);
 
@@ -42,7 +50,16 @@ function generateTestFile(string connectorPath, boolean quietMode = false) retur
 
 function generateTestsWithAI(ConnectorAnalysis analysis) returns string|error {
     string prompt = createTestGenerationPrompt(analysis);
-    return utils:callAI(prompt);
+    
+    // Track input cost
+    cost_calculator:trackUsageFromText("test_generator", prompt, "", "claude-4-sonnet");
+    
+    string result = check utils:callAI(prompt);
+    
+    // Track output cost
+    cost_calculator:trackUsageFromText("test_generator", "", result, "claude-4-sonnet");
+    
+    return result;
 }
 
 function fixTestFileErrors(string connectorPath, boolean quietMode = false) returns error? {
@@ -97,7 +114,14 @@ function selectOperationsUsingAI(string specPath, boolean quietMode = false) ret
     string[] allOperationIds = check extractOperationIdsFromSpec(specPath);
 
     string prompt = createOperationSelectionPrompt(allOperationIds, MAX_OPERATIONS);
+    
+    // Track input cost
+    cost_calculator:trackUsageFromText("test_generator_selection", prompt, "", "claude-4-sonnet");
+    
     string aiResponse = check utils:callAI(prompt);
+    
+    // Track output cost
+    cost_calculator:trackUsageFromText("test_generator_selection", "", aiResponse, "claude-4-sonnet");
 
     // Clean up the AI response - simple string operations
     string cleanedResponse = strings:trim(aiResponse);
