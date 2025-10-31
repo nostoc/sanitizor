@@ -5,43 +5,6 @@ import ballerina/os;
 import ballerina/regex;
 import ballerina/time;
 
-public type CommandExecutorError distinct error;
-
-# Compilation error from a `bal build` output
-
-public type CompilationError record {|
-    # name of the file where error occured
-    string fileName;
-    # Line number of the error
-    int line;
-    # Column number of the error
-    int column;
-    # Error message description
-    string message;
-    # Type of error (ERROR, WARNING)
-    string errorType;
-    # file path
-    string filePath?;
-|};
-
-# result of executing a `bal` command
-public type CommandResult record {|
-    # The command that was executed
-    string command;
-    # Whether the command executed successfully
-    boolean success;
-    # Exit code returned by the command
-    int exitCode;
-    # Standard output from the command
-    string stdout;
-    # Standard error output from the command
-    string stderr;
-    # Parsed compilation errors from the output
-    CompilationError[] compilationErrors;
-    # Execution time 
-    decimal executionTime;
-|};
-
 # Execute shell commands and capture results
 #
 # + command - Command to execute
@@ -153,9 +116,9 @@ public function executeCommand(string command, string workingDir) returns Comman
     }
 
     // Parse compilation errors from stderr if it contains error messages
-    CompilationError[] compilationErrors = [];
+    CmdCompilationError[] compilationErrors = [];
     if stderr.includes("ERROR [") || stderr.includes("WARNING [") {
-        compilationErrors = parseCompilationErrors(stderr);
+        compilationErrors = parseCmdCompilationErrors(stderr);
     }
 
     return {
@@ -181,8 +144,8 @@ public function getDirectoryPath(string filePath) returns string {
     return ".";
 }
 
-public function parseCompilationErrors(string output) returns CompilationError[] {
-    CompilationError[] errors = [];
+public function parseCmdCompilationErrors(string output) returns CmdCompilationError[] {
+    CmdCompilationError[] errors = [];
 
     string[] lines = regex:split(output, "\n");
 
@@ -219,7 +182,7 @@ public function parseCompilationErrors(string output) returns CompilationError[]
                             string message = line.substring(endBracket + 2).trim();
 
                             if lineNum is int && col is int {
-                                CompilationError compilationError = {
+                                CmdCompilationError compilationError = {
                                     fileName: fileName,
                                     line: lineNum,
                                     errorType: errorType,
@@ -245,14 +208,14 @@ public function isCommandSuccessfull(CommandResult result) returns boolean {
     return result.success && result.exitCode == 0 && result.compilationErrors.length() == 0;
 }
 
-public function getErrorSummary(CompilationError[] errors) returns string {
+public function getErrorSummary(CmdCompilationError[] errors) returns string {
     if errors.length() == 0 {
         return "No compilation errors";
     }
 
     map<int> errorByFile = {};
 
-    foreach CompilationError err in errors {
+    foreach CmdCompilationError err in errors {
         int currentCount = errorByFile[err.fileName] ?: 0;
         errorByFile[err.fileName] = currentCount + 1;
     }
@@ -306,7 +269,7 @@ public function executeBalBuild(string projectPath) returns CommandResult {
 
     // Parse compilation errors from output
     string combinedOutput = result.stdout + "\n" + result.stderr;
-    result.compilationErrors = parseCompilationErrors(combinedOutput);
+    result.compilationErrors = parseCmdCompilationErrors(combinedOutput);
 
     // Override success if there are compilation errors
     if result.compilationErrors.length() > 0 {
