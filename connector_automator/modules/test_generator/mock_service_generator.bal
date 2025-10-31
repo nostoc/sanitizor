@@ -1,4 +1,4 @@
-import connector_automator.sanitizor;
+import connector_automator.utils;
 
 import ballerina/file;
 import ballerina/io;
@@ -10,7 +10,7 @@ function setupMockServerModule(string connectorPath) returns error? {
 
     string command = string `bal add mock.server`;
 
-    sanitizor:CommandResult addResult = sanitizor:executeCommand(command, ballerinaDir);
+    utils:CommandResult addResult = utils:executeCommand(command, ballerinaDir);
     if !addResult.success {
         return error("Failed to add mock.server module" + addResult.stderr);
     }
@@ -51,7 +51,7 @@ function generateMockServer(string connectorPath, string specPath) returns error
     }
 
     // generate mock service template using openapi tool
-    sanitizor:CommandResult result = sanitizor:executeCommand(command, ballerinaDir);
+    utils:CommandResult result = utils:executeCommand(command, ballerinaDir);
     if !result.success {
         return error("Failed to generate mock server using ballerina openAPI tool" + result.stderr);
     }

@@ -1,3 +1,5 @@
+import connector_automator.utils;
+
 import ballerina/file;
 import ballerina/io;
 import ballerina/log;
@@ -81,8 +83,8 @@ public function main(string... args) returns error? {
     // Step 1: Execute OpenAPI flatten
     io:println("\n=== Step 1: Flattening OpenAPI Specification ===");
     string flattenedSpecPath = outputDir + "/docs/spec";
-    CommandResult flattenResult = executeBalFlatten(inputSpecPath, flattenedSpecPath);
-    if !isCommandSuccessfull(flattenResult) {
+    utils:CommandResult flattenResult = utils:executeBalFlatten(inputSpecPath, flattenedSpecPath);
+    if !utils:isCommandSuccessfull(flattenResult) {
         if !quietMode {
             log:printError("OpenAPI flatten failed", result = flattenResult);
         }
@@ -131,8 +133,8 @@ public function main(string... args) returns error? {
         flattenedSpec = flattenedSpecPath + "/flattened_openapi.json";
     }
 
-    CommandResult alignResult = executeBalAlign(flattenedSpec, alignedSpecPath);
-    if !isCommandSuccessfull(alignResult) {
+    utils:CommandResult alignResult = utils:executeBalAlign(flattenedSpec, alignedSpecPath);
+    if !utils:isCommandSuccessfull(alignResult) {
         if !quietMode {
             log:printError("OpenAPI align failed", result = alignResult);
         }
@@ -332,7 +334,7 @@ function getUserConfirmation(string message, boolean autoYes = false) returns bo
 }
 
 // Helper function to show operation summary
-function showOperationSummary(string operationName, CommandResult result) {
+function showOperationSummary(string operationName, utils:CommandResult result) {
     io:println(string `Execution time: ${result.executionTime} seconds`);
     if result.stdout.length() > 0 {
         io:println("Output summary:");

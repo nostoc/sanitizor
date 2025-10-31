@@ -1,3 +1,5 @@
+import connector_automator.utils;
+
 import ballerina/ai;
 import ballerina/file;
 import ballerina/io;
@@ -77,7 +79,6 @@ public function groupErrorsByFile(CompilationError[] errors) returns map<Compila
     }
     return grouped;
 }
-
 
 // Prepare error context string
 function prepareErrorContext(CompilationError[] errors) returns string {
@@ -220,9 +221,9 @@ public function fixAllErrors(string projectPath, boolean quietMode = true, boole
         }
 
         // Build the project and get diagnostics
-        CommandResult buildResult = executeBalBuild(projectPath);
+        utils:CommandResult buildResult = utils:executeBalBuild(projectPath);
 
-        if isCommandSuccessfull(buildResult) {
+        if utils:isCommandSuccessfull(buildResult) {
             if !quietMode {
                 log:printInfo("Build successful! All errors fixed.", iteration = iteration);
             }
@@ -403,8 +404,8 @@ public function fixAllErrors(string projectPath, boolean quietMode = true, boole
     }
 
     // Final build check
-    CommandResult finalBuildResult = executeBalBuild(projectPath);
-    if isCommandSuccessfull(finalBuildResult) {
+    utils:CommandResult finalBuildResult = utils:executeBalBuild(projectPath);
+    if utils:isCommandSuccessfull(finalBuildResult) {
         result.success = true;
         result.errorsRemaining = 0;
         result.errorsFixed = initialErrorCount; // All initial errors were fixed

@@ -20,7 +20,7 @@ public function generateDescriptionsBatch(DescriptionRequest[] requests, string 
         } else if req.schemaPath.startsWith("paths.") && !req.schemaPath.includes(".properties.") {
             requestType = "operation";
         }
-        
+
         requestsSection += string `
 ${i + 1}. ID: ${req.id}
    Type: ${requestType}
@@ -199,7 +199,6 @@ REQUIRED RESPONSE FORMAT (JSON):
         return error LLMServiceError("Empty response from LLM");
     }
 }
-
 
 public function generateSchemaNamesBatch(SchemaRenameRequest[] requests, string apiContext, string[] existingNames) returns BatchRenameResponse[]|LLMServiceError {
     ai:ModelProvider? model = anthropicModel;

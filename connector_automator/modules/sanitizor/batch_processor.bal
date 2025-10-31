@@ -1,6 +1,6 @@
-import ballerina/log;
-import ballerina/lang.runtime;
 import ballerina/io;
+import ballerina/lang.runtime;
+import ballerina/log;
 
 // Process multiple description requests with retry and exponential backoff
 public function generateDescriptionsBatchWithRetry(DescriptionRequest[] requests, string apiContext, boolean quietMode = false, RetryConfig? config = ()) returns BatchDescriptionResponse[]|LLMServiceError {
@@ -133,7 +133,6 @@ public function generateSchemaNamesBatchWithRetry(SchemaRenameRequest[] requests
     return error LLMServiceError("Unexpected error in retry logic");
 }
 
-
 // Batch processing to include parameters and operations
 public function addMissingDescriptionsBatchWithRetry(string specFilePath, int batchSize = 20, boolean quietMode = false, RetryConfig? config = ()) returns int|LLMServiceError {
     if !quietMode {
@@ -207,7 +206,7 @@ public function addMissingDescriptionsBatchWithRetry(string specFilePath, int ba
                     string? location = requestToLocationMap[response.id];
                     if location is string {
                         error? updateResult = ();
-                        
+
                         // Determine update method based on location type
                         if location.startsWith("paths.") && location.includes("parameters[name=") {
                             // Parameter description
@@ -237,7 +236,7 @@ public function addMissingDescriptionsBatchWithRetry(string specFilePath, int ba
                                 }
                             }
                         }
-                        
+
                         if updateResult is () {
                             descriptionsAdded += 1;
                             if !quietMode {
@@ -266,6 +265,7 @@ public function addMissingDescriptionsBatchWithRetry(string specFilePath, int ba
 
     return descriptionsAdded;
 }
+
 // Batch version of renameInlineResponseSchemas with retry and configurable batch size
 public function renameInlineResponseSchemasBatchWithRetry(string specFilePath, int batchSize = 10, boolean quietMode = false, RetryConfig? config = ()) returns int|LLMServiceError {
     if !quietMode {

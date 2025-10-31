@@ -1,24 +1,3 @@
-public type CommandExecutorError distinct error;
-
-public type CompilationError record {|
-    string fileName;
-    int line;
-    int column;
-    string message;
-    string errorType;
-    string filePath?;
-|};
-
-public type CommandResult record {|
-    string command;
-    boolean success;
-    int exitCode;
-    string stdout;
-    string stderr;
-    CompilationError[] compilationErrors;
-    decimal executionTime;
-|};
-
 public type LLMServiceError distinct error; // custom error type for LLM related failures
 
 // Batch processing types

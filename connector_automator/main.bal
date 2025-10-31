@@ -62,6 +62,7 @@ function handleCommandLineMode(string[] args) returns error? {
         }
     }
 }
+
 function handleInteractiveMode() returns error? {
     while true {
         showMainMenu();
@@ -508,10 +509,10 @@ function runFullPipeline(string... args) returns error? {
         io:println("Continuing with pipeline...");
     }
 
-   // Step 3: Build and validate client (check for compilation errors)
+    // Step 3: Build and validate client (check for compilation errors)
     io:println("\n=== Step 3: Building and Validating Client ===");
     io:println("Checking for compilation errors in generated client...");
-    string[] buildArgs = [clientPath];  
+    string[] buildArgs = [clientPath];
     buildArgs.push(...pipelineOptions);
     error? buildResult = code_fixer:main(...buildArgs);
     if buildResult is error {
@@ -555,7 +556,6 @@ function runFullPipeline(string... args) returns error? {
     io:println("Generated files are available in: " + outputDir);
     return;
 }
-
 
 function printUsage() {
     io:println("Connector Automation CLI");

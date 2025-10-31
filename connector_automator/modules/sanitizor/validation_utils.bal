@@ -8,7 +8,6 @@ function generateRequestId(string schemaName, string path, string requestType) r
     return string `${schemaName}_${requestType}_${cleanPath}`;
 }
 
-
 // Helper function to validate if a generated name is safe for schema naming
 function isValidSchemaName(string name) returns boolean {
     // Check basic requirements for a valid schema name
@@ -55,7 +54,6 @@ function isNameTaken(string name, string[] existingNames, map<string> nameMappin
 
     return false;
 }
-
 
 // Helper function to generate unique request IDs for operationId requests
 function generateOperationRequestId(string path, string method) returns string {

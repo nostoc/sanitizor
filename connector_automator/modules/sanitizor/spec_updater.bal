@@ -1,5 +1,5 @@
-import ballerina/regex;
 import ballerina/log;
+import ballerina/regex;
 
 // Helper function to update description in spec using location path
 function updateDescriptionInSpec(map<json> schemas, string location, string description) returns error? {
@@ -86,6 +86,7 @@ function updateParameterDescriptionInSpec(map<json> paths, string location, stri
 
     return error("Could not find parameter at location: " + location);
 }
+
 // Helper function to update operation description in spec
 function updateOperationDescriptionInSpec(map<json> paths, string location, string description) returns error? {
     // Parse location: paths.{path}.{method}
@@ -116,6 +117,7 @@ function updateOperationDescriptionInSpec(map<json> paths, string location, stri
 
     return error("Could not find operation at location: " + location);
 }
+
 // Recursive helper to safely update nested descriptions
 function updateNestedDescription(map<json> current, string[] pathParts, int index, string description) returns error? {
     if index == pathParts.length() {
@@ -230,47 +232,46 @@ function updateSchemaReferences(json jsonData, map<string> nameMapping, boolean 
     }
 }
 
-
 // Helper function to update response description in spec
 function updateResponseDescriptionInSpec(map<json> paths, string location, string description) returns error? {
     // Parse location: paths.{path}.{method}.responses.{responseCode}.description
     if location.startsWith("paths.") {
         string locationWithoutPrefix = location.substring(6); // Remove "paths."
-        
+
         // Split by dots, but be careful with path segments that might contain dots
         string[] locationParts = regex:split(locationWithoutPrefix, "\\.");
-        
+
         if locationParts.length() >= 5 { // minimum: path, method, "responses", responseCode, "description"
             // Last three parts are always "responses", responseCode, "description"
             int responsesIndex = locationParts.length() - 3;
-            int responseCodeIndex = locationParts.length() - 2; 
+            int responseCodeIndex = locationParts.length() - 2;
             int descriptionIndex = locationParts.length() - 1;
-            
+
             if locationParts[responsesIndex] == "responses" && locationParts[descriptionIndex] == "description" {
                 string responseCode = locationParts[responseCodeIndex];
-                
+
                 // Reconstruct path and method (everything before "responses")
                 string[] pathAndMethodParts = locationParts.slice(0, responsesIndex);
-                
+
                 // Last part is method, rest is path
                 string method = pathAndMethodParts[pathAndMethodParts.length() - 1];
                 string[] pathParts = pathAndMethodParts.slice(0, pathAndMethodParts.length() - 1);
                 string path = string:'join(".", ...pathParts);
-                
+
                 json|error pathItem = paths.get(path);
                 if pathItem is map<json> {
                     map<json> pathItemMap = <map<json>>pathItem;
-                    
+
                     if pathItemMap.hasKey(method) {
                         json|error operation = pathItemMap.get(method);
                         if operation is map<json> {
                             map<json> operationMap = <map<json>>operation;
-                            
+
                             if operationMap.hasKey("responses") {
                                 json|error responsesResult = operationMap.get("responses");
                                 if responsesResult is map<json> {
                                     map<json> responses = <map<json>>responsesResult;
-                                    
+
                                     if responses.hasKey(responseCode) {
                                         json|error responseResult = responses.get(responseCode);
                                         if responseResult is map<json> {
@@ -287,6 +288,6 @@ function updateResponseDescriptionInSpec(map<json> paths, string location, strin
             }
         }
     }
-    
+
     return error("Could not find response at location: " + location);
 }

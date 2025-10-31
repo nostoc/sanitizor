@@ -331,28 +331,28 @@ function collectParameterDescriptionRequests(json spec, DescriptionRequest[] req
             if pathResult is map<json> {
                 map<json> pathItem = <map<json>>pathResult;
                 string[] httpMethods = ["get", "post", "put", "delete", "patch", "head", "options", "trace"];
-                
+
                 foreach string method in httpMethods {
                     if pathItem.hasKey(method) {
                         json|error operationResult = pathItem.get(method);
                         if operationResult is map<json> {
                             map<json> operation = <map<json>>operationResult;
-                            
+
                             // Process parameters array if it exists and is not empty
                             if operation.hasKey("parameters") {
                                 json|error parametersResult = operation.get("parameters");
                                 if parametersResult is json[] {
                                     json[] parametersArray = parametersResult;
-                                    
+
                                     // Only process if parameters array has content
                                     if parametersArray.length() > 0 {
                                         foreach json param in parametersArray {
                                             if param is map<json> {
                                                 map<json> paramMap = <map<json>>param;
-                                                
+
                                                 // Only check if parameter completely lacks description
                                                 boolean needsDescription = false;
-                                                
+
                                                 if !paramMap.hasKey("description") {
                                                     needsDescription = true;
                                                 } else {
@@ -365,15 +365,15 @@ function collectParameterDescriptionRequests(json spec, DescriptionRequest[] req
                                                         }
                                                     }
                                                 }
-                                                
+
                                                 if needsDescription && paramMap.hasKey("name") {
                                                     string paramName = <string>paramMap.get("name");
                                                     string paramIn = paramMap.hasKey("in") ? <string>paramMap.get("in") : "query";
                                                     string operationId = operation.hasKey("operationId") ? <string>operation.get("operationId") : string `${method.toUpperAscii()} ${path}`;
-                                                    
+
                                                     string requestId = generateRequestId("param", string `${path}_${method}_${paramName}`, "parameter");
                                                     string context = string `${paramIn} parameter '${paramName}' for operation: ${operationId}. Parameter definition: ${paramMap.toString()}`;
-                                                    
+
                                                     // Add schema type info for better context
                                                     if paramMap.hasKey("schema") {
                                                         json|error schemaResult = paramMap.get("schema");
@@ -398,11 +398,11 @@ function collectParameterDescriptionRequests(json spec, DescriptionRequest[] req
                                                             }
                                                         }
                                                     }
-                                                    
+
                                                     // Add required/optional info
                                                     boolean isRequired = paramMap.hasKey("required") && paramMap.get("required") == true;
                                                     context += string ` Required: ${isRequired}.`;
-                                                    
+
                                                     requests.push({
                                                         id: requestId,
                                                         name: paramName,
@@ -423,6 +423,7 @@ function collectParameterDescriptionRequests(json spec, DescriptionRequest[] req
         }
     }
 }
+
 // Helper function to collect operation description requests (for client return parameters)
 function collectOperationDescriptionRequests(json spec, DescriptionRequest[] requests, map<string> locationMap) {
     json|error pathsResult = spec.paths;
@@ -432,25 +433,25 @@ function collectOperationDescriptionRequests(json spec, DescriptionRequest[] req
             if pathResult is map<json> {
                 map<json> pathItem = <map<json>>pathResult;
                 string[] httpMethods = ["get", "post", "put", "delete", "patch", "head", "options", "trace"];
-                
+
                 foreach string method in httpMethods {
                     if pathItem.hasKey(method) {
                         json|error operationResult = pathItem.get(method);
                         if operationResult is map<json> {
                             map<json> operation = <map<json>>operationResult;
-                            
+
                             // Check if operation needs description (this becomes return parameter description)
                             if !operation.hasKey("description") {
                                 string operationId = operation.hasKey("operationId") ? <string>operation.get("operationId") : string `${method.toUpperAscii()} ${path}`;
                                 string summary = operation.hasKey("summary") ? <string>operation.get("summary") : "";
-                                
+
                                 string requestId = generateRequestId("operation", string `${path}_${method}`, "description");
                                 string context = string `Operation '${operationId}' (${method.toUpperAscii()} ${path})`;
                                 if summary.length() > 0 {
                                     context += string `. Summary: ${summary}`;
                                 }
                                 context += ". This description will be used for the return parameter documentation in the generated client.";
-                                
+
                                 // Add response info for context
                                 if operation.hasKey("responses") {
                                     json|error responsesResult = operation.get("responses");
@@ -464,7 +465,7 @@ function collectOperationDescriptionRequests(json spec, DescriptionRequest[] req
                                         }
                                     }
                                 }
-                                
+
                                 requests.push({
                                     id: requestId,
                                     name: operationId,
@@ -473,30 +474,30 @@ function collectOperationDescriptionRequests(json spec, DescriptionRequest[] req
                                 });
                                 locationMap[requestId] = string `paths.${path}.${method}`;
                             }
-                            
+
                             // NEW: Check for empty response descriptions
                             if operation.hasKey("responses") {
                                 json|error responsesResult = operation.get("responses");
                                 if responsesResult is map<json> {
                                     map<json> responses = <map<json>>responsesResult;
-                                    
+
                                     foreach string responseCode in responses.keys() {
                                         json|error responseResult = responses.get(responseCode);
                                         if responseResult is map<json> {
                                             map<json> response = <map<json>>responseResult;
-                                            
+
                                             // Check if response has empty description
                                             if response.hasKey("description") {
                                                 json|error descResult = response.get("description");
                                                 if descResult is string && (<string>descResult).trim().length() == 0 {
                                                     // Found empty description, try to get from referenced schema
                                                     string? schemaDescription = getReferencedSchemaDescription(response, spec);
-                                                    
+
                                                     if schemaDescription is string {
                                                         // We have a schema description to use, create AI request for better response-specific description
                                                         string operationId = operation.hasKey("operationId") ? <string>operation.get("operationId") : string `${method.toUpperAscii()} ${path}`;
                                                         string summary = operation.hasKey("summary") ? <string>operation.get("summary") : "";
-                                                        
+
                                                         string requestId = generateRequestId("response", string `${path}_${method}_${responseCode}`, "description");
                                                         string context = string `Response description for ${responseCode} status in operation '${operationId}' (${method.toUpperAscii()} ${path}).`;
                                                         if summary.length() > 0 {
@@ -504,7 +505,7 @@ function collectOperationDescriptionRequests(json spec, DescriptionRequest[] req
                                                         }
                                                         context += string ` Referenced schema description: "${schemaDescription}".`;
                                                         context += " Generate a response-specific description that explains what this HTTP response represents.";
-                                                        
+
                                                         requests.push({
                                                             id: requestId,
                                                             name: string `${operationId}_${responseCode}_Response`,
@@ -533,7 +534,7 @@ function getReferencedSchemaDescription(map<json> response, json spec) returns s
         json|error contentResult = response.get("content");
         if contentResult is map<json> {
             map<json> content = <map<json>>contentResult;
-            
+
             // Check common content types
             string[] contentTypes = ["application/json", "application/xml", "text/plain", "*/*"];
             foreach string contentType in contentTypes {
@@ -541,12 +542,12 @@ function getReferencedSchemaDescription(map<json> response, json spec) returns s
                     json|error mediaTypeResult = content.get(contentType);
                     if mediaTypeResult is map<json> {
                         map<json> mediaType = <map<json>>mediaTypeResult;
-                        
+
                         if mediaType.hasKey("schema") {
                             json|error schemaResult = mediaType.get("schema");
                             if schemaResult is map<json> {
                                 map<json> schema = <map<json>>schemaResult;
-                                
+
                                 if schema.hasKey("$ref") {
                                     string? refValue = schema.get("$ref") is string ? <string>schema.get("$ref") : ();
                                     if refValue is string && refValue.startsWith("#/components/schemas/") {
