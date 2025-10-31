@@ -87,7 +87,7 @@ public type SongsAttributes record {
     string attribution?;
     # The localized name of the song
     string name;
-    # Array of preview clips available for the song
+    # Collection of preview clips available for the song
     Preview[] previews;
     # The artist's name
     string artistName;
@@ -330,13 +330,13 @@ public type LibrarySongsAttributes record {
 public type SongsRelationships record {
     # The response to an albums request
     AlbumsResponse albums?;
-    # Composers associated with the song
+    # Composers who created the song
     record {} composers?;
-    # Library version of the song resource
+    # Reference to the song in the user's personal library
     record {} library?;
     # The response to an artists request
     ArtistsResponse artists?;
-    # Genres associated with the song
+    # Musical genres associated with the song
     record {} genres?;
     # Music videos associated with the song
     @jsondata:Name {value: "music-videos"}
@@ -389,14 +389,14 @@ public type GetArtistFromCatalogQueries record {
 public type ArtistsRelationships record {
     # The response to an albums request
     AlbumsResponse albums?;
-    # Genres associated with the artist
+    # Musical genres associated with the artist
     record {} genres?;
     # Music videos associated with the artist
     @jsondata:Name {value: "music-videos"}
     record {} musicVideos?;
     # Playlists related to the artist
     record {} playlists?;
-    # Apple Music station associated with the artist
+    # Apple Music station for the artist
     record {} station?;
 };
 
@@ -693,9 +693,9 @@ public type GetArtistsFromLibraryQueries record {
 
 # The relationships for the artist
 public type LibraryArtistsRelationships record {
-    # Response containing library albums from user's personal collection
+    # Response containing albums from the user's personal library
     LibraryAlbumsResponse albums?;
-    # Reference to the corresponding catalog artist resource
+    # Reference to the corresponding artist in the Apple Music Catalog
     record {} catalog?;
 };
 
@@ -758,7 +758,7 @@ public type MusicVideosAttributes record {
     boolean hasHDR;
     # The localized name of the music video
     string name;
-    # Array of preview clips for the music video
+    # Array of preview clips available for the music video
     Preview[] previews;
     # The artist's name
     string artistName;
@@ -798,7 +798,7 @@ public type ArtistsAttributes record {
 
 public type AddToLibraryQueriesIdsItemsString string;
 
-# Response containing library albums from user's personal collection
+# Response containing albums from the user's personal library
 public type LibraryAlbumsResponse record {
     # A relative cursor to fetch the next paginated collection of resources, if more exist
     string next?;
