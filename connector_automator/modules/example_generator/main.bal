@@ -1,3 +1,5 @@
+import connector_automator.cost_calculator;
+
 import ballerina/io;
 import ballerina/lang.runtime;
 import ballerina/log;
@@ -8,6 +10,8 @@ public function main(string... args) returns error? {
         return;
     }
 
+    cost_calculator:resetCostTracking();
+
     string connectorPath = args[0];
     // 1. analyze the connector
     ConnectorDetails|error details = analyzeConnector(connectorPath);
@@ -16,7 +20,7 @@ public function main(string... args) returns error? {
         return;
     }
 
-    // Initialize ai ai_generator
+    // Initialize ai_generator
     error? initResult = initExampleGenerator();
     if initResult is error {
 
@@ -124,8 +128,42 @@ public function main(string... args) returns error? {
             // Continue with other examples even if one fails to fix
         }
 
-        io:println(string `✓ Example ${i} (${exampleName}) completed successfully!`);
+        // Show individual example cost
+        decimal exampleCost = cost_calculator:getStageCost("example_generator_usecase") +
+                            cost_calculator:getStageCost("example_generator_code") +
+                            cost_calculator:getStageCost("example_generator_name");
+        io:println(string `✓ Example ${i} (${exampleName}) completed! Cost: $${(exampleCost / <decimal>i).toString()}`);
     }
 
+    // Show final cost summary
+    repeat();
+    io:println("EXAMPLE GENERATION COST SUMMARY");
+    repeat();
+
+    decimal usecaseCost = cost_calculator:getStageCost("example_generator_usecase");
+    decimal codeCost = cost_calculator:getStageCost("example_generator_code");
+    decimal nameCost = cost_calculator:getStageCost("example_generator_name");
+    decimal totalCost = cost_calculator:getTotalCost();
+
+    io:println(string `Use Case Generation: $${usecaseCost.toString()}`);
+    io:println(string `Code Generation: $${codeCost.toString()}`);
+    io:println(string `Name Generation: $${nameCost.toString()}`);
+    repeat();
+    io:println(string `Total Cost: $${totalCost.toString()}`);
+    io:println(string `Average per Example: $${(totalCost / <decimal>numExamples).toString()}`);
+    repeat();
+
+    io:println(string ` Generated ${numExamples} examples successfully!`);
+
     //io:println("Example generation completed successfully!");
+}
+
+function repeat() {
+    string sep = "";
+    int i = 0;
+    while i < 80 {
+        sep += "=";
+        i += 1;
+    }
+    io:println(sep);
 }
