@@ -1,6 +1,7 @@
 import ballerina/io;
 import ballerina/log;
 import ballerina/regex;
+import connector_automator.utils;
 
 public function main(string... args) returns error? {
     if args.length() < 2 {
@@ -129,9 +130,9 @@ public function generateBallerinaClient(string specPath, string outputDir, Clien
 
     io:println("Generating Ballerina client code...");
 
-    CommandResult generateResult = executeBalClientGenerate(specPath, outputDir, config.toolOptions);
+    utils:CommandResult generateResult = executeBalClientGenerate(specPath, outputDir, config.toolOptions);
 
-    if !isCommandSuccessfull(generateResult) {
+    if !utils:isCommandSuccessfull(generateResult) {
         if !config.quietMode {
             log:printError("Client generation failed", result = generateResult);
         }
@@ -140,7 +141,7 @@ public function generateBallerinaClient(string specPath, string outputDir, Clien
 
         if generateResult.compilationErrors.length() > 0 {
             io:println("\nCompilation errors found:");
-            foreach CompilationError err in generateResult.compilationErrors {
+            foreach utils:CmdCompilationError err in generateResult.compilationErrors {
                 io:println(string `  • ${err.fileName}:${err.line}:${err.column} - ${err.message}`);
             }
         }
