@@ -67,15 +67,15 @@ public function main(string... args) returns error? {
         io:println("✓ Test generation completed successfully!");
     }
 
-    repeat();
+    utils:repeat();
     io:println("COST SUMMARY");
-    repeat();
+    utils:repeat();
     io:println(string `Mock Server Generation: $${cost_calculator:getStageCost("test_generator_mock").toString()}`);
     io:println(string `Test Generation: $${cost_calculator:getStageCost("test_generator").toString()}`);
     io:println(string `Selection (if used): $${cost_calculator:getStageCost("test_generator_selection").toString()}`);
-    repeat();
+    utils:repeat();
     io:println(string `Total Test Generation Cost: $${cost_calculator:getTotalCost().toString()}`);
-    repeat();
+    utils:repeat();
 
 }
 
@@ -89,12 +89,3 @@ function printUsage() {
     io:println("  test_generator /path/to/connector /path/to/spec.yaml --quiet");
 }
 
-function repeat() {
-    string sep = "";
-    int i = 0;
-    while i < 80 {
-        sep += "=";
-        i += 1;
-    }
-    io:println(sep);
-}

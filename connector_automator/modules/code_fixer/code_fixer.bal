@@ -445,9 +445,9 @@ public function fixAllErrors(string projectPath, boolean quietMode = true, boole
     decimal finalCost = cost_calculator:getTotalCost();
     if finalCost > 0.0d {
         if !quietMode {
-            repeat();
+            utils:repeat();
             io:println("CODE FIXING COST SUMMARY");
-            repeat();
+            utils:repeat();
             io:println(string `Total Iterations: ${iteration - 1}`);
             io:println(string `Fixes Applied: ${result.appliedFixes.length()}`);
             io:println(string `Total Cost: $${finalCost.toString()}`);
@@ -459,14 +459,14 @@ public function fixAllErrors(string projectPath, boolean quietMode = true, boole
             }
 
             if result.success {
-                io:println("✅ Status: All compilation errors resolved");
+                io:println(" Status: All compilation errors resolved");
             } else {
-                io:println(string `⚠️  Status: ${result.errorsRemaining} errors remaining`);
+                io:println(string `  Status: ${result.errorsRemaining} errors remaining`);
             }
-            repeat();
+            utils:repeat();
         } else {
             // Even in quiet mode, show final cost
-            io:println(string `💰 Code fixing completed. Total cost: $${finalCost.toString()}`);
+            io:println(string ` Code fixing completed. Total cost: $${finalCost.toString()}`);
         }
     }
 
@@ -502,15 +502,5 @@ function checkIfErrorsAreSame(CompilationError[] current, CompilationError[] pre
     }
 
     return true;
-}
-
-function repeat() {
-    string sep = "";
-    int i = 0;
-    while i < 80 {
-        sep += "=";
-        i += 1;
-    }
-    io:println(sep);
 }
 

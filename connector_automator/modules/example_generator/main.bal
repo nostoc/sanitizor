@@ -1,4 +1,5 @@
 import connector_automator.cost_calculator;
+import connector_automator.utils;
 
 import ballerina/io;
 import ballerina/lang.runtime;
@@ -136,9 +137,9 @@ public function main(string... args) returns error? {
     }
 
     // Show final cost summary
-    repeat();
+    utils:repeat();
     io:println("EXAMPLE GENERATION COST SUMMARY");
-    repeat();
+    utils:repeat();
 
     decimal usecaseCost = cost_calculator:getStageCost("example_generator_usecase");
     decimal codeCost = cost_calculator:getStageCost("example_generator_code");
@@ -148,22 +149,13 @@ public function main(string... args) returns error? {
     io:println(string `Use Case Generation: $${usecaseCost.toString()}`);
     io:println(string `Code Generation: $${codeCost.toString()}`);
     io:println(string `Name Generation: $${nameCost.toString()}`);
-    repeat();
+    utils:repeat();
     io:println(string `Total Cost: $${totalCost.toString()}`);
     io:println(string `Average per Example: $${(totalCost / <decimal>numExamples).toString()}`);
-    repeat();
+    utils:repeat();
 
     io:println(string ` Generated ${numExamples} examples successfully!`);
 
     //io:println("Example generation completed successfully!");
 }
 
-function repeat() {
-    string sep = "";
-    int i = 0;
-    while i < 80 {
-        sep += "=";
-        i += 1;
-    }
-    io:println(sep);
-}

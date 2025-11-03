@@ -1,3 +1,4 @@
+import ballerina/lang.regexp;
 import ballerina/time;
 
 public type StageMetrics record {|
@@ -30,6 +31,9 @@ public type CostReport record {|
 
 // Utility function to estimate tokens from text
 public function estimateTokens(string text) returns int {
-    // Approximate: 1 token ≈ 4 characters
-    return text.length() / 4;
+    // Account for whitespace, punctuation, Unicode
+    int words = regexp:split(re `\s+`, text.trim()).length();
+    int chars = text.length();
+    // More sophisticated heuristic based on tokenization patterns
+    return int:max(words + chars / 6, chars / 4);
 }

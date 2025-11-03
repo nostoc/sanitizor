@@ -13,11 +13,6 @@ public type OpenAPIToolOptions record {|
 # Default OpenAPI tool options - can be overridden via configuration
 configurable OpenAPIToolOptions options = {};
 
-# Configuration for client generation
-#
-# + autoYes - field description  
-# + quietMode - field description  
-# + toolOptions - field description
 public type ClientGeneratorConfig record {|
     boolean autoYes = false;
     boolean quietMode = false;

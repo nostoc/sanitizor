@@ -313,9 +313,9 @@ public function main(string... args) returns error? {
 
     decimal totalCost = cost_calculator:getTotalCost();
     if totalCost > 0.0d {
-        repeat();
+        utils:repeat();
         io:println("SANITIZATION COST SUMMARY");
-        repeat();
+        utils:repeat();
 
         decimal operationIdCost = cost_calculator:getStageCost("sanitizor_operationids");
         decimal schemaRenameCost = cost_calculator:getStageCost("sanitizor_schema_names");
@@ -324,7 +324,7 @@ public function main(string... args) returns error? {
         io:println(string `OperationId Generation: $${operationIdCost.toString()}`);
         io:println(string `Schema Renaming: $${schemaRenameCost.toString()}`);
         io:println(string `Documentation Enhancement: $${descriptionsCost.toString()}`);
-        repeat();
+        utils:repeat();
         io:println(string `Total AI Cost: $${totalCost.toString()}`);
 
         io:println("\n=== OpenAPI Sanitization Completed Successfully! ===");
@@ -459,12 +459,3 @@ function fileExists(string filePath) returns boolean {
     return exists is boolean ? exists : false;
 }
 
-function repeat() {
-    string sep = "";
-    int i = 0;
-    while i < 80 {
-        sep += "=";
-        i += 1;
-    }
-    io:println(sep);
-}

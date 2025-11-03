@@ -21,9 +21,9 @@ public function generateAllDocumentation(string connectorPath) returns error? {
     check generateIndividualExampleReadmes(connectorPath);
     check generateMainReadme(connectorPath);
 
-    repeat();
+    utils:repeat();
     io:println("DOCUMENTATION GENERATION COST SUMMARY");
-    repeat();
+    utils:repeat();
 
     decimal overviewCost = cost_calculator:getStageCost("doc_generator_overview");
     decimal setupCost = cost_calculator:getStageCost("doc_generator_setup");
@@ -41,9 +41,9 @@ public function generateAllDocumentation(string connectorPath) returns error? {
     io:println(string `Test READMEs: $${testsCost.toString()}`);
     io:println(string `Individual Example READMEs: $${individualCost.toString()}`);
     io:println(string `Main Examples READMEs: $${mainExamplesCost.toString()}`);
-    repeat();
+    utils:repeat();
     io:println(string `Total Documentation Cost: $${totalCost.toString()}`);
-    repeat();
+    utils:repeat();
 
     io:println("All documentation generated successfully!");
 }
@@ -458,12 +458,3 @@ function mergeAIContent(TemplateData baseData, map<string> aiContent) returns Te
     return merged;
 }
 
-function repeat() {
-    string sep = "";
-    int i = 0;
-    while i < 80 {
-        sep += "=";
-        i += 1;
-    }
-    io:println(sep);
-}
