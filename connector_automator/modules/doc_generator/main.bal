@@ -1,3 +1,5 @@
+import connector_automator.cost_calculator;
+
 import ballerina/io;
 import ballerina/os;
 
@@ -113,6 +115,9 @@ function getUserConfirmation(string message, boolean autoYes = false) returns bo
 }
 
 function generateAllReadmes(string connectorPath, boolean autoYes = false, boolean quietMode = false) returns error? {
+
+    cost_calculator:resetCostTracking();
+
     io:println(string `Connector path: ${connectorPath}`);
     io:println("\nREADMEs to be generated:");
     io:println("1. Ballerina module README (/ballerina/README.md)");
@@ -160,6 +165,10 @@ function generateAllReadmes(string connectorPath, boolean autoYes = false, boole
         }
     } else {
         io:println("✓ All READMEs generated successfully!");
+
+        decimal totalCost = cost_calculator:getTotalCost();
+        io:println(string ` Total Documentation Generation Cost: $${totalCost.toString()}`);
+
         if !quietMode {
             io:println("Generated files can be found in the respective directories under: " + connectorPath);
             io:println("\n IMPORTANT: All content is AI-generated and requires manual review!");
@@ -175,6 +184,8 @@ function generateAllReadmes(string connectorPath, boolean autoYes = false, boole
 }
 
 function genBallerinaReadme(string connectorPath, boolean autoYes = false, boolean quietMode = false) returns error? {
+    cost_calculator:resetCostTracking();
+
     io:println("=== Ballerina Module README Generation ===");
     io:println(string `Connector path: ${connectorPath}`);
     io:println("This will generate the core Ballerina module README file with:");
@@ -211,7 +222,10 @@ function genBallerinaReadme(string connectorPath, boolean autoYes = false, boole
         return error("Ballerina README generation failed: " + result.message());
     }
 
+    decimal totalCost = cost_calculator:getTotalCost();
     io:println("✓ Ballerina README generated successfully!");
+    io:println(string ` Cost: $${totalCost.toString()}`);
+
     if !quietMode {
         io:println(string `Generated file: ${connectorPath}/ballerina/README.md`);
         io:println(" Note: This is AI-generated content. Please review and verify all information, especially:");
@@ -222,6 +236,8 @@ function genBallerinaReadme(string connectorPath, boolean autoYes = false, boole
 }
 
 function genTestsReadme(string connectorPath, boolean autoYes = false, boolean quietMode = false) returns error? {
+    cost_calculator:resetCostTracking();
+
     io:println("=== Tests README Generation ===");
     io:println(string `Connector path: ${connectorPath}`);
     io:println("This will generate the Tests README file with:");
@@ -258,7 +274,9 @@ function genTestsReadme(string connectorPath, boolean autoYes = false, boolean q
         return error("Tests README generation failed: " + result.message());
     }
 
+    decimal totalCost = cost_calculator:getTotalCost();
     io:println("✓ Tests README generated successfully!");
+    io:println(string ` Cost: $${totalCost.toString()}`);
     if !quietMode {
         io:println(string `Generated file: ${connectorPath}/tests/README.md`);
         io:println(" Note: This is AI-generated content. Please review and verify:");
@@ -269,6 +287,8 @@ function genTestsReadme(string connectorPath, boolean autoYes = false, boolean q
 }
 
 function genIndividualExampleReadmes(string connectorPath, boolean autoYes = false, boolean quietMode = false) returns error? {
+    cost_calculator:resetCostTracking();
+
     io:println("=== Individual Example READMEs Generation ===");
     io:println(string `Connector path: ${connectorPath}`);
     io:println("This will generate individual README files for each example with:");
@@ -305,7 +325,10 @@ function genIndividualExampleReadmes(string connectorPath, boolean autoYes = fal
         return error("Individual Example READMEs generation failed: " + result.message());
     }
 
+    decimal totalCost = cost_calculator:getTotalCost();
     io:println("✓ Individual Example READMEs generated successfully!");
+    io:println(string ` Cost: $${totalCost.toString()}`);
+
     if !quietMode {
         io:println(string `Generated files in: ${connectorPath}/examples/*/README.md`);
         io:println(" Note: This is AI-generated content. Please review each example README for:");
@@ -317,6 +340,8 @@ function genIndividualExampleReadmes(string connectorPath, boolean autoYes = fal
 }
 
 function genExamplesReadme(string connectorPath, boolean autoYes = false, boolean quietMode = false) returns error? {
+    cost_calculator:resetCostTracking();
+
     io:println("=== Main Examples README Generation ===");
     io:println(string `Connector path: ${connectorPath}`);
     io:println("This will generate the main Examples README file with:");
@@ -353,7 +378,9 @@ function genExamplesReadme(string connectorPath, boolean autoYes = false, boolea
         return error("Examples README generation failed: " + result.message());
     }
 
+    decimal totalCost = cost_calculator:getTotalCost();
     io:println("✓ Examples README generated successfully!");
+    io:println(string ` Cost: $${totalCost.toString()}`);
     if !quietMode {
         io:println(string `Generated file: ${connectorPath}/examples/README.md`);
         io:println(" Note: This is AI-generated content. Please verify:");
@@ -364,6 +391,8 @@ function genExamplesReadme(string connectorPath, boolean autoYes = false, boolea
 }
 
 function genMainReadme(string connectorPath, boolean autoYes = false, boolean quietMode = false) returns error? {
+    cost_calculator:resetCostTracking();
+
     io:println("=== Root Module README Generation ===");
     io:println(string `Connector path: ${connectorPath}`);
     io:println("This will generate the root README file with:");
@@ -400,7 +429,10 @@ function genMainReadme(string connectorPath, boolean autoYes = false, boolean qu
         return error("Main README generation failed: " + result.message());
     }
 
+    decimal totalCost = cost_calculator:getTotalCost();
     io:println("✓ Main README generated successfully!");
+    io:println(string ` Cost: $${totalCost.toString()}`);
+
     if !quietMode {
         io:println(string `Generated file: ${connectorPath}/README.md`);
         io:println(" Note: This is AI-generated content. Please review and verify:");
