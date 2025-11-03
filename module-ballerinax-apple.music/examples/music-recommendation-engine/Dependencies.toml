@@ -316,13 +316,12 @@ dependencies = [
 	{org = "ballerinai", name = "observe"}
 ]
 modules = [
-	{org = "ballerinax", packageName = "apple.music", moduleName = "apple.music"},
-	{org = "ballerinax", packageName = "apple.music", moduleName = "apple.music.mock.server"}
+	{org = "ballerinax", packageName = "apple.music", moduleName = "apple.music"}
 ]
 
 [[package]]
 org = "wso2"
-name = "music_discovery_recommendations"
+name = "music_recommendation_engine"
 version = "0.1.0"
 dependencies = [
 	{org = "ballerina", name = "io"},
@@ -330,6 +329,6 @@ dependencies = [
 	{org = "ballerinax", name = "apple.music"}
 ]
 modules = [
-	{org = "wso2", packageName = "music_discovery_recommendations", moduleName = "music_discovery_recommendations"}
+	{org = "wso2", packageName = "music_recommendation_engine", moduleName = "music_recommendation_engine"}
 ]
 

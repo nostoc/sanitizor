@@ -71,7 +71,7 @@ public type SongsAttributes record {
     string attribution?;
     # The localized name of the song
     string name;
-    # Array of audio preview clips available for the song
+    # Collection of audio preview clips available for the song
     Preview[] previews;
     # The artist's name
     string artistName;
@@ -91,7 +91,7 @@ public type GetArtistFromLibraryQueries record {
     string l?;
 };
 
-# Response object containing error information when request processing fails
+# Response containing error information when request processing fails
 public type ErrorsResponse record {
     # The collection of errors that occurred while processing the request
     ErrorInformation[] data;
@@ -340,7 +340,7 @@ public type SongsRelationships record {
     AlbumsResponse albums?;
     # Composers who created the song
     record {} composers?;
-    # Reference to the corresponding library song resource
+    # User's personal library version of the song
     record {} library?;
     # The response to an artists request
     ArtistsResponse artists?;
@@ -402,7 +402,7 @@ public type ArtistsRelationships record {
     # Music videos associated with the artist
     @jsondata:Name {value: "music-videos"}
     record {} musicVideos?;
-    # Playlists related to the artist
+    # Playlists associated with the artist
     record {} playlists?;
     # Apple Music station associated with the artist
     record {} station?;
@@ -717,9 +717,9 @@ public type GetArtistsFromLibraryQueries record {
 
 # The relationships for the artist
 public type LibraryArtistsRelationships record {
-    # Response containing library albums from the user's personal collection
+    # Response containing user's personal library albums with pagination support
     LibraryAlbumsResponse albums?;
-    # Reference to the corresponding catalog artist resource
+    # Related Apple Music Catalog artist information
     record {} catalog?;
 };
 
@@ -782,7 +782,7 @@ public type MusicVideosAttributes record {
     boolean hasHDR;
     # The localized name of the music video
     string name;
-    # Array of preview clips available for the music video
+    # Collection of preview clips for the music video
     Preview[] previews;
     # The artist's name
     string artistName;
@@ -822,7 +822,7 @@ public type ArtistsAttributes record {
 
 public type AddToLibraryQueriesIdsItemsString string;
 
-# Response containing library albums from the user's personal collection
+# Response containing user's personal library albums with pagination support
 public type LibraryAlbumsResponse record {
     # A relative cursor to fetch the next paginated collection of resources, if more exist
     string next?;
@@ -846,7 +846,7 @@ public type LibraryArtistsAttributes record {
     string name;
 };
 
-# Response containing artists from the user's personal iCloud Music Library
+# Response containing artists from the user's iCloud Music Library
 public type LibraryArtistsResponse record {
     # A relative cursor to fetch the next paginated collection of resources, if more exist
     string next?;

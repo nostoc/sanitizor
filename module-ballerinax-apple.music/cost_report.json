@@ -1,0 +1,73 @@
+{
+    "sessionId": "2025-11-03T07:40:10.624497418Z",
+    "startTime": "2025-11-03T07:40:10.624497418Z",
+    "endTime": "2025-11-03T07:41:22.919614565Z",
+    "duration": 72.295117147,
+    "totalCost": 0.181386,
+    "summary": {
+        "totalInputTokens": 44282,
+        "totalOutputTokens": 3236,
+        "totalCalls": 12,
+        "averageCostPerCall": 0.0151155,
+        "mostExpensiveStage": "doc_generator_quickstart",
+        "stageCount": 7
+    },
+    "stageBreakdown": {
+        "doc_generator_overview": {
+            "inputTokens": 1192,
+            "outputTokens": 250,
+            "cost": 0.007326,
+            "calls": 2,
+            "model": "claude-4-sonnet",
+            "lastUpdated": "2025-11-03T07:41:03.442041906Z"
+        },
+        "doc_generator_setup": {
+            "inputTokens": 1456,
+            "outputTokens": 649,
+            "cost": 0.014103,
+            "calls": 2,
+            "model": "claude-4-sonnet",
+            "lastUpdated": "2025-11-03T07:41:09.793714520Z"
+        },
+        "doc_generator_quickstart": {
+            "inputTokens": 36654,
+            "outputTokens": 515,
+            "cost": 0.117687,
+            "calls": 2,
+            "model": "claude-4-sonnet",
+            "lastUpdated": "2025-11-03T07:41:18.903689634Z"
+        },
+        "doc_generator_examples": {
+            "inputTokens": 1234,
+            "outputTokens": 368,
+            "cost": 0.009222,
+            "calls": 2,
+            "model": "claude-4-sonnet",
+            "lastUpdated": "2025-11-03T07:41:22.898853905Z"
+        },
+        "doc_generator_tests": {
+            "inputTokens": 917,
+            "outputTokens": 612,
+            "cost": 0.011931,
+            "calls": 1,
+            "model": "claude-4-sonnet",
+            "lastUpdated": "2025-11-03T07:40:41.956505384Z"
+        },
+        "doc_generator_main_examples": {
+            "inputTokens": 849,
+            "outputTokens": 349,
+            "cost": 0.007782,
+            "calls": 1,
+            "model": "claude-4-sonnet",
+            "lastUpdated": "2025-11-03T07:40:47.674003739Z"
+        },
+        "doc_generator_individual": {
+            "inputTokens": 1980,
+            "outputTokens": 493,
+            "cost": 0.013335,
+            "calls": 2,
+            "model": "claude-4-sonnet",
+            "lastUpdated": "2025-11-03T07:40:59.933937547Z"
+        }
+    }
+}
