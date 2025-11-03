@@ -1,7 +1,8 @@
+import connector_automator.utils;
+
 import ballerina/io;
 import ballerina/log;
 import ballerina/regex;
-import connector_automator.utils;
 
 public function main(string... args) returns error? {
     if args.length() < 2 {

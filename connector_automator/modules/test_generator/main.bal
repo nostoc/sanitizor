@@ -1,3 +1,4 @@
+import connector_automator.cost_calculator;
 import connector_automator.utils;
 
 import ballerina/io;
@@ -65,6 +66,17 @@ public function main(string... args) returns error? {
     if !quietMode {
         io:println("✓ Test generation completed successfully!");
     }
+
+    repeat();
+    io:println("COST SUMMARY");
+    repeat();
+    io:println(string `Mock Server Generation: $${cost_calculator:getStageCost("test_generator_mock").toString()}`);
+    io:println(string `Test Generation: $${cost_calculator:getStageCost("test_generator").toString()}`);
+    io:println(string `Selection (if used): $${cost_calculator:getStageCost("test_generator_selection").toString()}`);
+    repeat();
+    io:println(string `Total Test Generation Cost: $${cost_calculator:getTotalCost().toString()}`);
+    repeat();
+
 }
 
 function printUsage() {
@@ -75,4 +87,14 @@ function printUsage() {
     io:println("Examples:");
     io:println("  test_generator /path/to/connector /path/to/spec.yaml");
     io:println("  test_generator /path/to/connector /path/to/spec.yaml --quiet");
+}
+
+function repeat() {
+    string sep = "";
+    int i = 0;
+    while i < 80 {
+        sep += "=";
+        i += 1;
+    }
+    io:println(sep);
 }

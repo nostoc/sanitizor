@@ -1,7 +1,7 @@
 import ballerina/log;
 
 // Global cost calculator instance
-CostCalculator costCalculator = new();
+CostCalculator costCalculator = new ();
 
 // Public functions for modules to use
 public function trackUsage(string stageName, int inputTokens, int outputTokens, string model = "claude-4-sonnet") {
@@ -31,6 +31,6 @@ public function exportCostReport(string filePath) returns error? {
 }
 
 public function resetCostTracking() {
-    costCalculator = new();
+    costCalculator = new ();
     log:printInfo("Cost tracking reset");
 }
