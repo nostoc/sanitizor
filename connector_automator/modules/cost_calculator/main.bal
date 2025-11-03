@@ -51,6 +51,21 @@ public class CostCalculator {
         return 0.0d;
     }
 
+    public function getStageMetrics(string stageName) returns StageMetrics {
+        if self.stageMetrics.hasKey(stageName) {
+            return self.stageMetrics.get(stageName);
+        }
+        // Return empty metrics if stage doesn't exist
+        return {
+            inputTokens: 0,
+            outputTokens: 0,
+            cost: 0.0d,
+            calls: 0,
+            model: "claude-4-sonnet",
+            lastUpdated: time:utcNow()
+        };
+    }
+
     public function getTotalCost() returns decimal {
         return self.totalCost;
     }

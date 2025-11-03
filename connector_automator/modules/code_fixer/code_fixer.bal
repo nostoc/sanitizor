@@ -1,3 +1,4 @@
+import connector_automator.cost_calculator;
 import connector_automator.utils;
 
 import ballerina/file;
@@ -117,7 +118,7 @@ public function fixFileWithLLM(string projectPath, string filePath, CompilationE
     // Create fix prompt
     string prompt = createFixPrompt(fileContent, errors, filePath);
     if !quietMode {
-        io:println(prompt);
+        //io:println(prompt);
         log:printInfo("Sending fix request to LLM");
     }
 
@@ -128,6 +129,18 @@ public function fixFileWithLLM(string projectPath, string filePath, CompilationE
             log:printError("LLM failed to generate fix", 'error = llmResponse);
         }
         return error(string `LLM failed to generate fix: ${llmResponse.message()}`);
+    }
+
+    // ✅ Track cost for code fixing
+    cost_calculator:trackUsageFromText("code_fixer", prompt, llmResponse, "claude-4-sonnet");
+
+    // ✅ Show fix cost per file (optional - can be disabled in quiet mode)
+    if !quietMode {
+        decimal fixCost = cost_calculator:getStageCost("code_fixer");
+        // Calculate cost for just this fix (rough estimation)
+        int fixCount = cost_calculator:getStageMetrics("code_fixer").calls;
+        decimal avgCostPerFix = fixCount > 0 ? fixCost / <decimal>fixCount : 0.0d;
+        io:println(string ` Fix cost for ${filePath}: ~$${avgCostPerFix.toString()}`);
     }
 
     // Return the response
@@ -184,6 +197,8 @@ public function fixAllErrors(string projectPath, boolean quietMode = true, boole
         log:printInfo("Starting error fixing process", projectPath = projectPath);
     }
 
+    cost_calculator:resetCostTracking();
+
     // Initialize AI service if not already initialized
     if !utils:isAIServiceInitialized() {
         error? initResult = utils:initAIService(quietMode);
@@ -225,6 +240,10 @@ public function fixAllErrors(string projectPath, boolean quietMode = true, boole
             } else {
                 result.errorsFixed = initialErrorCount; // All initial errors were fixed
             }
+            decimal totalCost = cost_calculator:getTotalCost();
+            if !quietMode && totalCost > 0.0d {
+                io:println(string ` All errors fixed! Total fixing cost: $${totalCost.toString()}`);
+            }
             return result;
         }
 
@@ -247,6 +266,11 @@ public function fixAllErrors(string projectPath, boolean quietMode = true, boole
             result.success = true;
             result.errorsRemaining = 0;
             result.errorsFixed = initialErrorCountSet ? initialErrorCount : 0;
+
+            decimal totalCost = cost_calculator:getTotalCost();
+            if !quietMode && totalCost > 0.0d {
+                io:println(string ` No compilation errors found! Total cost: $${totalCost.toString()}`);
+            }
             return result;
         }
 
@@ -382,6 +406,10 @@ public function fixAllErrors(string projectPath, boolean quietMode = true, boole
             result.remainingFixes.push(string `Iteration ${iteration}: No fixes applied - stopping iterations`);
 
         }
+        if !quietMode {
+            decimal iterationCost = cost_calculator:getTotalCost();
+            io:println(string `Iteration ${iteration} total cost so far: $${iterationCost.toString()}`);
+        }
 
         iteration += 1;
     }
@@ -411,6 +439,34 @@ public function fixAllErrors(string projectPath, boolean quietMode = true, boole
             log:printInfo("Some errors remain after iterations",
                     count = remainingErrors.length(),
                     totalIterations = iteration - 1);
+        }
+    }
+
+    decimal finalCost = cost_calculator:getTotalCost();
+    if finalCost > 0.0d {
+        if !quietMode {
+            repeat();
+            io:println("CODE FIXING COST SUMMARY");
+            repeat();
+            io:println(string `Total Iterations: ${iteration - 1}`);
+            io:println(string `Fixes Applied: ${result.appliedFixes.length()}`);
+            io:println(string `Total Cost: $${finalCost.toString()}`);
+
+            int totalCalls = cost_calculator:getStageMetrics("code_fixer").calls;
+            if totalCalls > 0 {
+                decimal avgCostPerFix = finalCost / <decimal>totalCalls;
+                io:println(string `Average Cost per Fix: $${avgCostPerFix.toString()}`);
+            }
+
+            if result.success {
+                io:println("✅ Status: All compilation errors resolved");
+            } else {
+                io:println(string `⚠️  Status: ${result.errorsRemaining} errors remaining`);
+            }
+            repeat();
+        } else {
+            // Even in quiet mode, show final cost
+            io:println(string `💰 Code fixing completed. Total cost: $${finalCost.toString()}`);
         }
     }
 
@@ -447,3 +503,14 @@ function checkIfErrorsAreSame(CompilationError[] current, CompilationError[] pre
 
     return true;
 }
+
+function repeat() {
+    string sep = "";
+    int i = 0;
+    while i < 80 {
+        sep += "=";
+        i += 1;
+    }
+    io:println(sep);
+}
+

@@ -1,3 +1,4 @@
+import connector_automator.cost_calculator;
 import connector_automator.utils;
 
 public function generateDescriptionsBatch(DescriptionRequest[] requests, string apiContext) returns BatchDescriptionResponse[]|LLMServiceError {
@@ -65,6 +66,8 @@ REQUIRED RESPONSE FORMAT (JSON):
     if response is error {
         return error LLMServiceError("Failed to generate batch descriptions", response);
     }
+
+    cost_calculator:trackUsageFromText("sanitizor_descriptions", prompt, response, "claude-4-sonnet");
 
     // Parse JSON response
     json|error jsonResult = response.fromJsonString();
@@ -155,6 +158,8 @@ REQUIRED RESPONSE FORMAT (JSON):
         return error LLMServiceError("Failed to generate batch operationIds", response);
     }
 
+    cost_calculator:trackUsageFromText("sanitizor_operationids", prompt, response, "claude-4-sonnet");
+
     json|error jsonResult = response.fromJsonString();
     if jsonResult is error {
         return error LLMServiceError("Failed to parse batch operationId response JSON", jsonResult);
@@ -236,6 +241,8 @@ REQUIRED RESPONSE FORMAT (JSON):
     if response is error {
         return error LLMServiceError("Failed to generate batch schema names", response);
     }
+
+    cost_calculator:trackUsageFromText("sanitizor_schema_names", prompt, response, "claude-4-sonnet");
 
     json|error jsonResult = response.fromJsonString();
     if jsonResult is error {

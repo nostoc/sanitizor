@@ -1,3 +1,5 @@
+import connector_automator.cost_calculator;
+
 import ballerina/io;
 import ballerina/log;
 
@@ -54,15 +56,35 @@ public function main(string... args) returns error? {
     FixResult|BallerinaFixerError result = fixAllErrors(projectPath, quietMode, autoYes);
 
     if result is FixResult {
+        decimal totalCost = cost_calculator:getTotalCost();
         if result.success {
             io:println("\nAll compilation errors fixed successfully!");
             io:println(string `✓ Fixed ${result.errorsFixed} errors`);
             io:println("✓ All Ballerina files compile without errors!");
+
+            if totalCost > 0.0d {
+                io:println(string ` Total cost: $${totalCost.toString()}`);
+
+                int totalCalls = cost_calculator:getStageMetrics("code_fixer").calls;
+                if totalCalls > 0 {
+                    decimal avgCostPerFix = totalCost / <decimal>totalCalls;
+                    io:println(string ` Average cost per fix: $${avgCostPerFix.toString()}`);
+                }
+            }
         } else {
             io:println("\n⚠ Partial success:");
             io:println(string `✓ Fixed ${result.errorsFixed} errors`);
             io:println(string `${result.errorsRemaining} errors remain`);
             io:println("⚠ Some errors may require manual intervention");
+
+            if totalCost > 0.0d {
+                io:println(string `Total cost: $${totalCost.toString()}`);
+
+                if result.errorsFixed > 0 {
+                    decimal costPerFixedError = totalCost / <decimal>result.errorsFixed;
+                    io:println(string ` Cost per fixed error: $${costPerFixedError.toString()}`);
+                }
+            }
         }
 
         if result.appliedFixes.length() > 0 {
@@ -75,6 +97,11 @@ public function main(string... args) returns error? {
     } else {
         log:printError("Code fixer failed", 'error = result);
         io:println("Code fixing failed. Please check logs for details.");
+
+        decimal totalCost = cost_calculator:getTotalCost();
+        if totalCost > 0.0d {
+            io:println(string `Cost incurred before failure: $${totalCost.toString()}`);
+        }
         return result;
     }
 }

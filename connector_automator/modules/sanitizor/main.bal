@@ -1,3 +1,4 @@
+import connector_automator.cost_calculator;
 import connector_automator.utils;
 
 import ballerina/file;
@@ -40,6 +41,8 @@ public function main(string... args) returns error? {
         }
         io:println("Quiet mode enabled - minimal logging output");
     }
+
+    cost_calculator:resetCostTracking();
 
     if !quietMode {
         log:printInfo("Processing OpenAPI spec", inputSpec = inputSpecPath, outputDir = outputDir);
@@ -207,7 +210,8 @@ public function main(string... args) returns error? {
             if !quietMode {
                 log:printInfo("Batch operationId generation completed", operationIdsAdded = operationIdResult);
             }
-            io:println(string `✓ Added ${operationIdResult} missing operationIds`);
+            decimal operationIdCost = cost_calculator:getStageCost("sanitizor_operationids");
+            io:println(string `✓ Added ${operationIdResult} missing operationIds (Cost: $${operationIdCost.toString()})`);
 
             if operationIdResult > 0 {
                 if getUserConfirmation("Review the generated operationIds in the spec file?", autoYes) {
@@ -249,7 +253,8 @@ public function main(string... args) returns error? {
             if !quietMode {
                 log:printInfo("Batch schema renaming completed", schemasRenamed = schemaRenameResult);
             }
-            io:println(string `✓ Renamed ${schemaRenameResult} InlineResponse schemas to meaningful names`);
+            decimal schemaRenameCost = cost_calculator:getStageCost("sanitizor_schema_names");
+            io:println(string `✓ Renamed ${schemaRenameResult} InlineResponse schemas to meaningful names (Cost: $${schemaRenameCost.toString()})`);
 
             if schemaRenameResult > 0 {
                 if getUserConfirmation("Review the renamed schemas in the spec file?", autoYes) {
@@ -291,7 +296,8 @@ public function main(string... args) returns error? {
             if !quietMode {
                 log:printInfo("Batch documentation fix completed", descriptionsAdded = descriptionsResult);
             }
-            io:println(string `✓ Added ${descriptionsResult} missing field descriptions`);
+            decimal descriptionsCost = cost_calculator:getStageCost("sanitizor_descriptions");
+            io:println(string `✓ Added ${descriptionsResult} missing field descriptions (Cost: $${descriptionsCost.toString()})`);
 
             if descriptionsResult > 0 {
                 if getUserConfirmation("Review the enhanced documentation in the spec file?", autoYes) {
@@ -305,15 +311,32 @@ public function main(string... args) returns error? {
         }
     }
 
-    io:println("\n=== OpenAPI Sanitization Completed Successfully! ===");
-    io:println(string `Sanitized OpenAPI specification: ${alignedSpec}`);
-    io:println("\nNext Steps:");
-    io:println("1. Generate Ballerina client using the client_generator module");
-    io:println("2. Or run the full pipeline to complete the entire workflow");
-    io:println("\nCommands:");
-    io:println(string `  bal run client_generator -- ${alignedSpec} ${outputDir}/ballerina`);
-    io:println(string `  bal run -- pipeline ${inputSpecPath} ${outputDir}`);
+    decimal totalCost = cost_calculator:getTotalCost();
+    if totalCost > 0.0d {
+        repeat();
+        io:println("SANITIZATION COST SUMMARY");
+        repeat();
 
+        decimal operationIdCost = cost_calculator:getStageCost("sanitizor_operationids");
+        decimal schemaRenameCost = cost_calculator:getStageCost("sanitizor_schema_names");
+        decimal descriptionsCost = cost_calculator:getStageCost("sanitizor_descriptions");
+
+        io:println(string `OperationId Generation: $${operationIdCost.toString()}`);
+        io:println(string `Schema Renaming: $${schemaRenameCost.toString()}`);
+        io:println(string `Documentation Enhancement: $${descriptionsCost.toString()}`);
+        repeat();
+        io:println(string `Total AI Cost: $${totalCost.toString()}`);
+
+        io:println("\n=== OpenAPI Sanitization Completed Successfully! ===");
+        io:println(string `Sanitized OpenAPI specification: ${alignedSpec}`);
+        io:println("\nNext Steps:");
+        io:println("1. Generate Ballerina client using the client_generator module");
+        io:println("2. Or run the full pipeline to complete the entire workflow");
+        io:println("\nCommands:");
+        io:println(string `  bal run client_generator -- ${alignedSpec} ${outputDir}/ballerina`);
+        io:println(string `  bal run -- pipeline ${inputSpecPath} ${outputDir}`);
+
+    }
 }
 
 // Helper function to get user confirmation
@@ -434,4 +457,14 @@ function convertAlignedYamlToJson(string alignedSpecPath, boolean quietMode = fa
 function fileExists(string filePath) returns boolean {
     boolean|file:Error exists = file:test(filePath, file:EXISTS);
     return exists is boolean ? exists : false;
+}
+
+function repeat() {
+    string sep = "";
+    int i = 0;
+    while i < 80 {
+        sep += "=";
+        i += 1;
+    }
+    io:println(sep);
 }

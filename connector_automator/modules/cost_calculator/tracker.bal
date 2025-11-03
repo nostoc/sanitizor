@@ -18,6 +18,10 @@ public function getStageCost(string stageName) returns decimal {
     return costCalculator.getStageCost(stageName);
 }
 
+public function getStageMetrics(string stageName) returns StageMetrics {
+    return costCalculator.getStageMetrics(stageName);
+}
+
 public function getTotalCost() returns decimal {
     return costCalculator.getTotalCost();
 }

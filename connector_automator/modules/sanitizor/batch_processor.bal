@@ -1,3 +1,5 @@
+import connector_automator.cost_calculator;
+
 import ballerina/io;
 import ballerina/lang.runtime;
 import ballerina/log;
@@ -203,6 +205,13 @@ public function addMissingDescriptionsBatchWithRetry(string specFilePath, int ba
 
             BatchDescriptionResponse[]|LLMServiceError batchResult = generateDescriptionsBatchWithRetry(batch, apiContext, quietMode, config);
             if batchResult is BatchDescriptionResponse[] {
+
+                if !quietMode {
+                    decimal batchCost = cost_calculator:getStageCost("sanitizor_descriptions");
+                    int totalCalls = cost_calculator:getStageMetrics("sanitizor_descriptions").calls;
+                    decimal avgCostPerBatch = totalCalls > 0 ? batchCost / <decimal>totalCalls : 0.0d;
+                    io:println(string `💰 Batch ${(startIdx / batchSize) + 1} description cost: ~$${avgCostPerBatch.toString()}`);
+                }
                 // Apply the generated descriptions
                 foreach BatchDescriptionResponse response in batchResult {
                     string? location = requestToLocationMap[response.id];
@@ -229,7 +238,7 @@ public function addMissingDescriptionsBatchWithRetry(string specFilePath, int ba
                                 updateResult = updateOperationDescriptionInSpec(<map<json>>pathsResult, location, response.description);
                             }
                         } else {
-                            // Schema/property description (existing logic)
+                            // Schema/property description 
                             json|error componentsResult2 = specMap.get("components");
                             if componentsResult2 is map<json> {
                                 json|error schemasResult2 = componentsResult2.get("schemas");
@@ -362,6 +371,13 @@ public function renameInlineResponseSchemasBatchWithRetry(string specFilePath, i
 
         BatchRenameResponse[]|LLMServiceError batchResult = generateSchemaNamesBatchWithRetry(batch, apiContext, allExistingNames, quietMode, config);
         if batchResult is BatchRenameResponse[] {
+
+            if !quietMode {
+                decimal batchCost = cost_calculator:getStageCost("sanitizor_schema_names");
+                int totalCalls = cost_calculator:getStageMetrics("sanitizor_schema_names").calls;
+                decimal avgCostPerBatch = totalCalls > 0 ? batchCost / <decimal>totalCalls : 0.0d;
+                io:println(string `💰 Batch ${(startIdx / batchSize) + 1} schema renaming cost: ~$${avgCostPerBatch.toString()}`);
+            }
             // Process the generated names
             foreach BatchRenameResponse response in batchResult {
                 string newName = response.newName;
@@ -522,6 +538,13 @@ public function addMissingOperationIdsBatchWithRetry(string specFilePath, int ba
 
         BatchOperationIdResponse[]|LLMServiceError batchResult = generateOperationIdsBatchWithRetry(batch, apiContext, existingOperationIds, quietMode, config);
         if batchResult is BatchOperationIdResponse[] {
+
+            if !quietMode {
+                decimal batchCost = cost_calculator:getStageCost("sanitizor_operationids");
+                int totalCalls = cost_calculator:getStageMetrics("sanitizor_operationids").calls;
+                decimal avgCostPerBatch = totalCalls > 0 ? batchCost / <decimal>totalCalls : 0.0d;
+                io:println(string `💰 Batch ${(startIdx / batchSize) + 1} operationId cost: ~$${avgCostPerBatch.toString()}`);
+            }
             // Apply the generated operationIds
             foreach BatchOperationIdResponse response in batchResult {
                 string? location = requestToLocationMap[response.id];

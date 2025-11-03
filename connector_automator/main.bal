@@ -1,5 +1,6 @@
 import connector_automator.client_generator;
 import connector_automator.code_fixer;
+import connector_automator.cost_calculator;
 import connector_automator.doc_generator;
 import connector_automator.example_generator;
 import connector_automator.sanitizor;
@@ -479,6 +480,8 @@ function runFullPipeline(string... args) returns error? {
     string outputDir = args[1];
     string[] pipelineOptions = args.slice(2);
 
+    cost_calculator:resetCostTracking();
+
     io:println("=== Connector Automation Pipeline ===");
     io:println(string `OpenAPI Spec: ${openApiSpec}`);
     io:println(string `Output Directory: ${outputDir}`);
@@ -495,6 +498,12 @@ function runFullPipeline(string... args) returns error? {
         return;
     }
 
+    decimal sanitizationCost = 0.0d;
+    decimal exampleGenCost = 0.0d;
+    decimal testGenCost = 0.0d;
+    decimal docGenCost = 0.0d;
+    decimal codeFixCost = 0.0d;
+
     // Step 1: Sanitize OpenAPI spec
     io:println("\n=== Step 1: Sanitizing OpenAPI Specification ===");
     string[] sanitizeArgs = [openApiSpec, outputDir];
@@ -502,8 +511,15 @@ function runFullPipeline(string... args) returns error? {
     error? sanitizeResult = sanitizor:main(...sanitizeArgs);
     if sanitizeResult is error {
         io:println("Pipeline failed at sanitization step: " + sanitizeResult.message());
+        decimal partialCost = cost_calculator:getTotalCost();
+        if partialCost > 0.0d {
+            io:println(string `Cost incurred before failure: $${partialCost.toString()}`);
+        }
         return sanitizeResult;
     }
+
+    sanitizationCost = cost_calculator:getTotalCost();
+    io:println(string `✓ Sanitization completed (Cost: $${sanitizationCost.toString()})`);
 
     // Step 2: Generate Ballerina client
     io:println("\n=== Step 2: Generating Ballerina Client ===");
@@ -515,6 +531,8 @@ function runFullPipeline(string... args) returns error? {
     if clientResult is error {
         io:println("Warning: Client generation failed: " + clientResult.message());
         io:println("Continuing with pipeline...");
+    } else {
+        io:println("✓ Client generation completed successfully");
     }
 
     // Step 3: Build and validate client (check for compilation errors)
@@ -526,42 +544,167 @@ function runFullPipeline(string... args) returns error? {
     if buildResult is error {
         io:println("Pipeline failed: Generated client has compilation errors.");
         io:println("Error details: " + buildResult.message());
+        decimal partialCost = cost_calculator:getTotalCost();
+        io:println(string ` Cost incurred before pipeline termination: $${partialCost.toString()}`);
         io:println("\nThe pipeline has been terminated due to client compilation errors.");
         io:println("Please review the generated client code and fix the compilation errors manually.");
         return buildResult;
     }
-    io:println("✓ Client built successfully without compilation errors");
+    decimal totalAfterFixing = cost_calculator:getTotalCost();
+    codeFixCost = totalAfterFixing - sanitizationCost;
+    if codeFixCost > 0.0d {
+        io:println(string `✓ Code fixing completed (Cost: $${codeFixCost.toString()})`);
+    } else {
+        io:println("✓ Client built successfully without compilation errors");
+    }
 
     // Step 4: Generate examples
     io:println("\n=== Step 4: Generating Examples ===");
+    decimal beforeExamples = cost_calculator:getTotalCost();
     string[] exampleArgs = [outputDir];
     error? exampleResult = example_generator:main(...exampleArgs);
     if exampleResult is error {
         io:println("Warning: Example generation failed: " + exampleResult.message());
         io:println("Continuing with pipeline...");
+    } else {
+
+        decimal afterExamples = cost_calculator:getTotalCost();
+        exampleGenCost = afterExamples - beforeExamples;
+        io:println(string `✓ Example generation completed (Cost: $${exampleGenCost.toString()})`);
     }
 
     // Step 5: Generate tests
     io:println("\n=== Step 5: Generating Tests ===");
+    decimal beforeTests = cost_calculator:getTotalCost();
     string[] testArgs = [outputDir, sanitizedSpec];
     testArgs.push(...pipelineOptions);
     error? testResult = test_generator:main(...testArgs);
     if testResult is error {
         io:println("Warning: Test generation failed: " + testResult.message());
         io:println("Continuing with pipeline...");
+    } else {
+        decimal afterTests = cost_calculator:getTotalCost();
+        testGenCost = afterTests - beforeTests;
+        io:println(string `✓ Test generation completed (Cost: $${testGenCost.toString()})`);
     }
 
     // Step 6: Generate documentation
     io:println("\n=== Step 6: Generating Documentation ===");
+    decimal beforeDocs = cost_calculator:getTotalCost();
     string[] docArgs = ["generate-all", outputDir];
     docArgs.push(...pipelineOptions);
     error? docResult = doc_generator:main(...docArgs);
     if docResult is error {
         io:println("Warning: Documentation generation failed: " + docResult.message());
+    } else {
+        decimal afterDocs = cost_calculator:getTotalCost();
+        docGenCost = afterDocs - beforeDocs;
+        io:println(string `✓ Documentation generation completed (Cost: $${docGenCost.toString()})`);
+    }
+
+    decimal totalPipelineCost = cost_calculator:getTotalCost();
+
+    repeat();
+    io:println("CONNECTOR AUTOMATION PIPELINE - FINAL COST SUMMARY");
+    repeat();
+
+    // Stage-by-stage breakdown
+    io:println("COST BREAKDOWN BY PIPELINE STAGE:");
+    repeat();
+    io:println(string `1. OpenAPI Sanitization: $${sanitizationCost.toString()}`);
+    if codeFixCost > 0.0d {
+        io:println(string `2. Client Generation & Fixing: $${codeFixCost.toString()}`);
+    } else {
+        io:println("2. Client Generation & Fixing: $0.00 (no fixes needed)");
+    }
+    io:println(string `3. Example Generation: $${exampleGenCost.toString()}`);
+    io:println(string `4. Test Generation: $${testGenCost.toString()}`);
+    io:println(string `5. Documentation Generation: $${docGenCost.toString()}`);
+    repeat();
+    io:println(string `TOTAL PIPELINE COST: $${totalPipelineCost.toString()}`);
+
+    // ✅ Detailed AI usage breakdown by operation type
+    io:println("\nDETAILED AI OPERATION COSTS:");
+    repeat();
+
+    // Sanitization operations
+    decimal operationIdCost = cost_calculator:getStageCost("sanitizor_operationids");
+    decimal schemaRenameCost = cost_calculator:getStageCost("sanitizor_schema_names");
+    decimal descriptionsCost = cost_calculator:getStageCost("sanitizor_descriptions");
+
+    if sanitizationCost > 0.0d {
+        io:println("Sanitization Operations:");
+        io:println(string `  • OperationId Generation: $${operationIdCost.toString()}`);
+        io:println(string `  • Schema Renaming: $${schemaRenameCost.toString()}`);
+        io:println(string `  • Documentation Enhancement: $${descriptionsCost.toString()}`);
+    }
+
+    // Example generation operations
+    decimal useCaseCost = cost_calculator:getStageCost("example_generator_usecase");
+    decimal codeCost = cost_calculator:getStageCost("example_generator_code");
+    decimal nameCost = cost_calculator:getStageCost("example_generator_name");
+
+    if exampleGenCost > 0.0d {
+        io:println("Example Generation Operations:");
+        io:println(string `  • Use Case Generation: $${useCaseCost.toString()}`);
+        io:println(string `  • Code Generation: $${codeCost.toString()}`);
+        io:println(string `  • Name Generation: $${nameCost.toString()}`);
+    }
+
+    // Test generation operations
+    decimal mockCost = cost_calculator:getStageCost("test_generator_mock");
+    decimal testCost = cost_calculator:getStageCost("test_generator");
+    decimal selectionCost = cost_calculator:getStageCost("test_generator_selection");
+
+    if testGenCost > 0.0d {
+        io:println("Test Generation Operations:");
+        io:println(string `  • Mock Server Generation: $${mockCost.toString()}`);
+        io:println(string `  • Test Code Generation: $${testCost.toString()}`);
+        if selectionCost > 0.0d {
+            io:println(string `  • Operation Selection: $${selectionCost.toString()}`);
+        }
+    }
+
+    // Documentation generation operations  
+    decimal overviewCost = cost_calculator:getStageCost("doc_generator_overview");
+    decimal setupCost = cost_calculator:getStageCost("doc_generator_setup");
+    decimal quickstartCost = cost_calculator:getStageCost("doc_generator_quickstart");
+    decimal exampleDocsCost = cost_calculator:getStageCost("doc_generator_examples");
+    decimal testDocsCost = cost_calculator:getStageCost("doc_generator_tests");
+    decimal individualCost = cost_calculator:getStageCost("doc_generator_individual");
+    decimal mainExamplesCost = cost_calculator:getStageCost("doc_generator_main_examples");
+
+    if docGenCost > 0.0d {
+        io:println("Documentation Generation Operations:");
+        io:println(string `  • Overview Sections: $${overviewCost.toString()}`);
+        io:println(string `  • Setup Guides: $${setupCost.toString()}`);
+        io:println(string `  • Quickstart Sections: $${quickstartCost.toString()}`);
+        io:println(string `  • Example Documentation: $${exampleDocsCost.toString()}`);
+        io:println(string `  • Test Documentation: $${testDocsCost.toString()}`);
+        io:println(string `  • Individual Example READMEs: $${individualCost.toString()}`);
+        io:println(string `  • Main Examples READMEs: $${mainExamplesCost.toString()}`);
+    }
+
+    // Code fixing operations (if any)
+    decimal fixingCost = cost_calculator:getStageCost("code_fixer");
+    if fixingCost > 0.0d {
+        io:println("Code Fixing Operations:");
+        io:println(string `  • Compilation Error Fixes: $${fixingCost.toString()}`);
     }
 
     io:println("\n=== Pipeline Completed Successfully! ===");
     io:println("Generated files are available in: " + outputDir);
+
+    if totalPipelineCost > 0.0d {
+        string costReportPath = outputDir + "/cost_report.json";
+        error? exportResult = cost_calculator:exportCostReport(costReportPath);
+        if exportResult is error {
+            io:println("Warning: Failed to export detailed cost report");
+        } else {
+            io:println(string `📊 Detailed cost report exported to: ${costReportPath}`);
+        }
+    }
+
     return;
 }
 
@@ -609,3 +752,12 @@ function printUsage() {
     io:println("  ANTHROPIC_API_KEY    Required for AI-powered features");
 }
 
+function repeat() {
+    string sep = "";
+    int i = 0;
+    while i < 80 {
+        sep += "=";
+        i += 1;
+    }
+    io:println(sep);
+}
