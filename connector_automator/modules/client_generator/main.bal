@@ -11,10 +11,10 @@ public function main(string... args) returns error? {
     }
 
     string inputSpecPath = args[0]; // Path to OpenAPI spec (aligned)
-    string outputDir = args[1]; // Output directory for client
+    string outputDir = args[1]; // Output directory for client(ballerina dir)
 
     ClientGeneratorConfig config = parseCommandLineArgs(args.slice(2));
-
+    
     if !config.quietMode {
         log:printInfo("Starting Ballerina client generation",
                 inputSpec = inputSpecPath,

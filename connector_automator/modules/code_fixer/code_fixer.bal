@@ -503,4 +503,3 @@ function checkIfErrorsAreSame(CompilationError[] current, CompilationError[] pre
 
     return true;
 }
-
