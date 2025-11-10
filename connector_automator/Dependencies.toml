@@ -10,7 +10,7 @@ distribution-version = "2201.13.0-20250927-204700-7b3ef131"
 [[package]]
 org = "ballerina"
 name = "ai"
-version = "1.7.0"
+version = "1.6.1"
 dependencies = [
 	{org = "ballerina", name = "constraint"},
 	{org = "ballerina", name = "data.jsondata"},
@@ -26,7 +26,6 @@ dependencies = [
 	{org = "ballerina", name = "math.vector"},
 	{org = "ballerina", name = "mcp"},
 	{org = "ballerina", name = "mime"},
-	{org = "ballerina", name = "observe"},
 	{org = "ballerina", name = "time"},
 	{org = "ballerina", name = "url"},
 	{org = "ballerina", name = "uuid"},
@@ -34,8 +33,7 @@ dependencies = [
 ]
 modules = [
 	{org = "ballerina", packageName = "ai", moduleName = "ai"},
-	{org = "ballerina", packageName = "ai", moduleName = "ai.intelligence"},
-	{org = "ballerina", packageName = "ai", moduleName = "ai.observe"}
+	{org = "ballerina", packageName = "ai", moduleName = "ai.intelligence"}
 ]
 
 [[package]]
@@ -279,7 +277,7 @@ version = "1.2.0"
 [[package]]
 org = "ballerina"
 name = "mcp"
-version = "1.0.2"
+version = "1.0.1"
 dependencies = [
 	{org = "ballerina", name = "http"},
 	{org = "ballerina", name = "jballerina.java"},
@@ -366,7 +364,7 @@ modules = [
 [[package]]
 org = "ballerina"
 name = "url"
-version = "2.6.1"
+version = "2.6.0"
 dependencies = [
 	{org = "ballerina", name = "jballerina.java"}
 ]
@@ -419,7 +417,7 @@ modules = [
 [[package]]
 org = "ballerinax"
 name = "ai.anthropic"
-version = "1.2.0"
+version = "1.1.2"
 dependencies = [
 	{org = "ballerina", name = "ai"},
 	{org = "ballerina", name = "constraint"},
@@ -432,7 +430,7 @@ modules = [
 ]
 
 [[package]]
-org = "wso2"
+org = "hansika"
 name = "connector_automator"
 version = "0.1.0"
 dependencies = [
@@ -452,13 +450,14 @@ dependencies = [
 	{org = "ballerinax", name = "ai.anthropic"}
 ]
 modules = [
-	{org = "wso2", packageName = "connector_automator", moduleName = "connector_automator"},
-	{org = "wso2", packageName = "connector_automator", moduleName = "connector_automator.client_generator"},
-	{org = "wso2", packageName = "connector_automator", moduleName = "connector_automator.code_fixer"},
-	{org = "wso2", packageName = "connector_automator", moduleName = "connector_automator.doc_generator"},
-	{org = "wso2", packageName = "connector_automator", moduleName = "connector_automator.example_generator"},
-	{org = "wso2", packageName = "connector_automator", moduleName = "connector_automator.sanitizor"},
-	{org = "wso2", packageName = "connector_automator", moduleName = "connector_automator.test_generator"},
-	{org = "wso2", packageName = "connector_automator", moduleName = "connector_automator.utils"}
+	{org = "hansika", packageName = "connector_automator", moduleName = "connector_automator"},
+	{org = "hansika", packageName = "connector_automator", moduleName = "connector_automator.client_generator"},
+	{org = "hansika", packageName = "connector_automator", moduleName = "connector_automator.code_fixer"},
+	{org = "hansika", packageName = "connector_automator", moduleName = "connector_automator.cost_calculator"},
+	{org = "hansika", packageName = "connector_automator", moduleName = "connector_automator.doc_generator"},
+	{org = "hansika", packageName = "connector_automator", moduleName = "connector_automator.example_generator"},
+	{org = "hansika", packageName = "connector_automator", moduleName = "connector_automator.sanitizor"},
+	{org = "hansika", packageName = "connector_automator", moduleName = "connector_automator.test_generator"},
+	{org = "hansika", packageName = "connector_automator", moduleName = "connector_automator.utils"}
 ]
 

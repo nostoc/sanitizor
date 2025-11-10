@@ -488,7 +488,7 @@ function runFullPipeline(string... args) returns error? {
     if quietMode {
         io:println("ℹ  Quiet mode enabled");
     }
-    if licenseFile.length() > 8 && licenseFile.startsWith("license=") {
+    if licenseFile is string {
         string licensePath = licenseFile.substring(8); // Remove "license=" prefix
         if !quietMode {
             io:println(string `ℹ  License file: ${licensePath}`);
@@ -540,6 +540,8 @@ function runFullPipeline(string... args) returns error? {
         
         return error(string `Client build failed: ${buildResult.stderr}`);
     }
+    
+    io:println("✓ Client built and validated successfully");
 
     // Step 4: Generate examples
     printStepHeader(4, "Generating Examples", quietMode);
