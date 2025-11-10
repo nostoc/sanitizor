@@ -4,17 +4,17 @@ import ballerina/io;
 import ballerina/log;
 import ballerina/regex;
 
-public function main(string... args) returns error? {
+public function executeClientGen(string... args) returns error? {
     if args.length() < 2 {
         printUsage();
         return;
     }
 
     string inputSpecPath = args[0]; // Path to OpenAPI spec (aligned)
-    string outputDir = args[1]; // Output directory for client(ballerina dir)
+    string outputDir = args[1]; // Output directory for client
 
     ClientGeneratorConfig config = parseCommandLineArgs(args.slice(2));
-    
+
     if !config.quietMode {
         log:printInfo("Starting Ballerina client generation",
                 inputSpec = inputSpecPath,
@@ -61,8 +61,8 @@ function parseCommandLineArgs(string[] args) returns ClientGeneratorConfig {
 
                         match key {
                             "license" => {
-                                toolOptions.license = value;
-                                hasToolOptions = true;
+                                 toolOptions.license = value;
+                                 hasToolOptions = true;
                             }
                             "tags" => {
                                 toolOptions.tags = regex:split(value, ",").map(tag => tag.trim());
@@ -112,9 +112,9 @@ public function generateBallerinaClient(string specPath, string outputDir, Clien
         OpenAPIToolOptions options = <OpenAPIToolOptions>config.toolOptions;
         io:println("\nConfiguration Options:");
         io:println(string `• Client method type: ${options.clientMethod}`);
-        if options.license is string {
-            io:println(string `• License file: ${options.license}`);
-        }
+        // if options.license is string {
+        //     io:println(string `• License file: ${options.license}`);
+        // }
         if options.tags is string[] {
             io:println(string `• Filtered tags: ${string:'join(", ", ...options.tags ?: [])}`);
         }
