@@ -2,23 +2,24 @@ import connector_automator.utils;
 
 import ballerina/file;
 import ballerina/io;
+import ballerina/lang.regexp;
 
-const string TEMPLATES_PATH = "/home/hansika/dev/connector_automation/connector_automator/modules/doc_generator/templates";
+const string TEMPLATES_PATH = "./modules/doc_generator/templates";
 
 public function initDocumentationGenerator() returns error? {
     return utils:initAIService();
 }
 
 public function generateAllDocumentation(string connectorPath) returns error? {
+    io:println("Starting documentation generation...");
 
-    io:println(" Starting Document generation...");
     check generateBallerinaReadme(connectorPath);
     check generateTestsReadme(connectorPath);
     check generateExamplesReadme(connectorPath);
     check generateIndividualExampleReadmes(connectorPath);
     check generateMainReadme(connectorPath);
 
-    io:println("All documentation generated successfully!");
+    io:println("✓ All documentation generated successfully!");
 }
 
 public function generateBallerinaReadme(string connectorPath) returns error? {
@@ -40,7 +41,8 @@ public function generateBallerinaReadme(string connectorPath) returns error? {
         check ensureDirectoryExists(parentPath);
     }
     check writeOutput(content, outputPath);
-    io:println("Generated: " + outputPath);
+
+    io:println(string `  ✓ ${outputPath}`);
 }
 
 public function generateTestsReadme(string connectorPath) returns error? {
@@ -62,10 +64,10 @@ public function generateTestsReadme(string connectorPath) returns error? {
         check ensureDirectoryExists(parentPath);
     }
     check writeOutput(content, outputPath);
-    io:println("Generated: " + outputPath);
+
+    io:println(string `  ✓ ${outputPath}`);
 }
 
-// Generate Examples README
 public function generateIndividualExampleReadmes(string connectorPath) returns error? {
     ConnectorMetadata metadata = check analyzeConnector(connectorPath);
 
@@ -73,26 +75,43 @@ public function generateIndividualExampleReadmes(string connectorPath) returns e
 
     // Check if examples directory exists
     if !check file:test(examplesPath, file:EXISTS) {
-        io:println("No examples directory found at: " + examplesPath);
+        io:println("  ⚠  No examples directory found - skipping individual READMEs");
         return;
     }
 
     // Get all example directories
     file:MetaData[] examples = check file:readDir(examplesPath);
+    int exampleCount = 0;
+    int successCount = 0;
 
     foreach file:MetaData example in examples {
         if example.dir {
-            string exampleDirName = example.absPath.substring(examplesPath.length() + 1);
+            string exampleDirName = extractDirectoryName(example.absPath);
             string exampleDirPath = examplesPath + "/" + exampleDirName;
 
             error? result = generateSingleExampleReadme(example.absPath, exampleDirName, metadata);
             if result is error {
-                io:println("Failed to generate README for " + exampleDirName + ": " + result.message());
+                io:println(string `  ✗ Failed: ${exampleDirName} - ${result.message()}`);
             } else {
-                io:println("Generated: " + exampleDirPath);
+                successCount += 1;
+                io:println(string `  ✓ ${exampleDirPath}/README.md`);
             }
+            exampleCount += 1;
         }
     }
+
+    if exampleCount > 0 {
+        io:println(string `  Generated ${successCount}/${exampleCount} individual example READMEs`);
+    }
+}
+
+function extractDirectoryName(string fullPath) returns string {
+    // Get the last segment of the path
+    string[] pathParts = regexp:split(re `/`, fullPath);
+    if pathParts.length() > 0 {
+        return pathParts[pathParts.length() - 1];
+    }
+    return fullPath;
 }
 
 function generateSingleExampleReadme(string examplePath, string exampleDirName, ConnectorMetadata metadata) returns error? {
@@ -119,7 +138,10 @@ function generateSingleExampleReadme(string examplePath, string exampleDirName, 
 
 function generateIndividualExampleContent(ExampleData exampleData, ConnectorMetadata connectorMetadata) returns map<string>|error {
     map<string> content = {};
-    content["individual_readme"] = check callAI(createIndividualExamplePrompt(exampleData, connectorMetadata));
+    string prompt = createIndividualExamplePrompt(exampleData, connectorMetadata);
+    string result = check callAI(prompt);
+
+    content["individual_readme"] = result;
     return content;
 }
 
@@ -139,7 +161,8 @@ public function generateExamplesReadme(string connectorPath) returns error? {
         check ensureDirectoryExists(parentPath);
     }
     check writeOutput(content, outputPath);
-    io:println("Generated: " + outputPath);
+
+    io:println(string `  ✓ ${outputPath}`);
 }
 
 public function generateMainReadme(string connectorPath) returns error? {
@@ -158,28 +181,47 @@ public function generateMainReadme(string connectorPath) returns error? {
         check ensureDirectoryExists(parentPath);
     }
     check writeOutput(content, outputPath);
-    io:println("Generated: " + outputPath);
+
+    io:println(string `  ✓ ${outputPath}`);
 }
 
 function generateBallerinaContent(ConnectorMetadata metadata) returns map<string>|error {
     map<string> content = {};
-    content["overview"] = check callAI(createBallerinaOverviewPrompt(metadata));
-    content["setup"] = check callAI(createBallerinaSetupPrompt(metadata));
-    content["quickstart"] = check callAI(createBallerinaQuickstartPrompt(metadata));
-    content["examples"] = check callAI(createBallerinaExamplesPrompt(metadata));
+
+    string overviewPrompt = createBallerinaOverviewPrompt(metadata);
+    string overviewResult = check callAI(overviewPrompt);
+    content["overview"] = overviewResult;
+
+    string setupPrompt = createBallerinaSetupPrompt(metadata);
+    string setupResult = check callAI(setupPrompt);
+    content["setup"] = setupResult;
+
+    string quickstartPrompt = createBallerinaQuickstartPrompt(metadata);
+    string quickstartResult = check callAI(quickstartPrompt);
+    content["quickstart"] = quickstartResult;
+
+    string examplesPrompt = createBallerinaExamplesPrompt(metadata);
+    string examplesResult = check callAI(examplesPrompt);
+    content["examples"] = examplesResult;
 
     return content;
 }
 
 function generateTestsContent(ConnectorMetadata metadata) returns map<string>|error {
     map<string> content = {};
-    content["testing_approach"] = check callAI(createTestReadmePrompt(metadata));
+    string testsPrompt = createTestReadmePrompt(metadata);
+    string testsResult = check callAI(testsPrompt);
+    content["testing_approach"] = testsResult;
+
     return content;
 }
 
 function generateExamplesContent(ConnectorMetadata metadata) returns map<string>|error {
     map<string> content = {};
-    content["main_examples_readme"] = check callAI(createMainExampleReadmePrompt(metadata));
+    string mainExamplesPrompt = createMainExampleReadmePrompt(metadata);
+    string mainExamplesResult = check callAI(mainExamplesPrompt);
+    content["main_examples_readme"] = mainExamplesResult;
+
     return content;
 }
 
@@ -187,11 +229,24 @@ function generateMainContent(ConnectorMetadata metadata) returns map<string>|err
     map<string> content = {};
 
     content["header_and_badges"] = createHeaderAndBadges(metadata);
-    content["overview"] = check callAI(createBallerinaOverviewPrompt(metadata));
-    content["setup"] = check callAI(createBallerinaSetupPrompt(metadata));
-    content["quickstart"] = check callAI(createBallerinaQuickstartPrompt(metadata));
-    content["examples"] = check callAI(createBallerinaExamplesPrompt(metadata));
     content["useful_links"] = createUsefulLinksSection(metadata);
+
+    string overviewPrompt = createBallerinaOverviewPrompt(metadata);
+    string overviewResult = check callAI(overviewPrompt);
+    content["overview"] = overviewResult;
+
+    string setupPrompt = createBallerinaSetupPrompt(metadata);
+    string setupResult = check callAI(setupPrompt);
+    content["setup"] = setupResult;
+
+    string quickstartPrompt = createBallerinaQuickstartPrompt(metadata);
+    string quickstartResult = check callAI(quickstartPrompt);
+    content["quickstart"] = quickstartResult;
+
+    string examplesPrompt = createBallerinaExamplesPrompt(metadata);
+    string examplesResult = check callAI(examplesPrompt);
+    content["examples"] = examplesResult;
+
     return content;
 }
 
@@ -285,14 +340,17 @@ function substituteVariables(string template, TemplateData data) returns string 
     if usefulLinks != "" {
         result = simpleReplace(result, "{{AI_GENERATED_USEFUL_LINKS}}", usefulLinks);
     }
+
     string individualReadme = data.AI_GENERATED_INDIVIDUAL_README ?: "";
     if individualReadme != "" {
         result = simpleReplace(result, "{{AI_GENERATED_INDIVIDUAL_README}}", individualReadme);
     }
+
     string mainExamplesReadme = data.AI_GENERATED_MAIN_EXAMPLES_README ?: "";
     if mainExamplesReadme != "" {
         result = simpleReplace(result, "{{AI_GENERATED_MAIN_EXAMPLES_README}}", mainExamplesReadme);
     }
+
     return result;
 }
 
@@ -316,7 +374,6 @@ function createTemplateData(ConnectorMetadata metadata) returns TemplateData {
     return {
         CONNECTOR_NAME: metadata.connectorName,
         VERSION: metadata.version
-
     };
 }
 
@@ -364,7 +421,6 @@ function mergeAIContent(TemplateData baseData, map<string> aiContent) returns Te
             "main_examples_readme" => {
                 merged.AI_GENERATED_MAIN_EXAMPLES_README = value;
             }
-
         }
     }
 

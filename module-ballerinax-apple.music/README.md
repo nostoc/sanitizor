@@ -9,30 +9,30 @@
 
 ## Overview
 
-[Apple Music](https://www.apple.com/apple-music/) is a music streaming service that offers access to over 100 million songs, curated playlists, radio stations, and exclusive content, providing users with a comprehensive music discovery and listening experience across all their devices.
+[Apple Music](https://www.apple.com/apple-music/) is Apple's music streaming service that offers access to millions of songs, curated playlists, and exclusive content, providing users with personalized music experiences across all their devices.
 
-The `ballerinax/apple.music` package offers APIs to connect and interact with [Apple Music API](https://developer.apple.com/documentation/applemusicapi) endpoints, specifically based on [Apple Music API v1](https://developer.apple.com/documentation/applemusicapi).
+The `ballerinax/apple.music` package offers APIs to connect and interact with [Apple Music API](https://developer.apple.com/documentation/applemusicapi) endpoints, specifically based on a recent version of the API.
 ## Setup guide
 
-To use the Apple Music connector, you must have access to the Apple Music API through an [Apple Developer account](https://developer.apple.com/) and obtain API credentials including a private key and key ID. If you do not have an Apple ID, you can sign up for one [here](https://appleid.apple.com/account).
+To use the Apple Music connector, you must have access to the Apple Music API through an [Apple Developer account](https://developer.apple.com/apple-music/) and obtain API credentials including a private key and key ID. If you do not have an Apple Developer account, you can sign up for one [here](https://developer.apple.com/programs/enroll/).
 
 ### Step 1: Create an Apple Developer Account
 
 1. Navigate to the [Apple Developer website](https://developer.apple.com/) and sign up for an account or log in if you already have one.
 
-2. Ensure you have an active Apple Developer Program membership ($99/year), as the Apple Music API requires enrollment in the Apple Developer Program.
+2. Ensure you have a paid Apple Developer Program membership ($99/year), as the Apple Music API requires an active membership to generate the necessary credentials.
 
 ### Step 2: Generate API Credentials
 
 1. Log in to your Apple Developer account.
 
-2. Navigate to Certificates, Identifiers & Profiles, then select Keys from the sidebar.
+2. Navigate to Certificates, Identifiers & Profiles, then select Keys from the left sidebar.
 
-3. Click the "+" button to create a new key, provide a name for your key, and select "MusicKit" from the list of services.
+3. Click the "+" button to create a new key, then check the "MusicKit" checkbox under Key Services.
 
-4. Click Continue, then Register to generate your private key file (.p8) and obtain your Key ID.
+4. Enter a key name and click Continue, then click Register to generate your key.
 
-5. Note your Team ID from your Apple Developer account membership details, as this will be required along with your Key ID and private key for authentication.
+5. Download the private key file (.p8) and note your Key ID and Team ID, as you'll need all three for authentication.
 
 > **Tip:** You must copy and store this key somewhere safe. It won't be visible again in your account settings for security reasons.
 ## Quickstart
@@ -47,14 +47,14 @@ import ballerinax/apple.music as appleMusic;
 
 ### Step 2: Instantiate a new connector
 
-1. Create a `Config.toml` file and configure the obtained access token:
+1. Create a `Config.toml` file and configure the obtained access tokens:
 
 ```toml
 authorization = "<Your_Apple_Music_JWT_Token>"
 musicUserToken = "<Your_Apple_Music_User_Token>"
 ```
 
-2. Create a `appleMusic:ApiKeysConfig` and initialize the client:
+2. Create an `appleMusic:ApiKeysConfig` and initialize the client:
 
 ```ballerina
 configurable string authorization = ?;
@@ -70,12 +70,12 @@ final appleMusic:Client appleMusicClient = check new({
 
 Now, utilize the available connector operations.
 
-#### Add a resource to library
+#### Add songs to library
 
 ```ballerina
 public function main() returns error? {
     check appleMusicClient->/me/library.post({
-        ids: ["1441164494"]
+        ids: ["songs:123456789", "songs:987654321"]
     });
 }
 ```
@@ -89,9 +89,8 @@ bal run
 
 The `apple.music` connector provides practical examples illustrating usage in various scenarios. Explore these [examples](https://github.com/ballerina-platform/module-ballerinax-apple.music/tree/main/examples), covering the following use cases:
 
-1. [Regional music discovery](https://github.com/ballerina-platform/module-ballerinax-apple.music/tree/main/examples/regional-music-discovery) - Demonstrates how to discover music content based on regional preferences and availability.
-2. [Music discovery dashboard](https://github.com/ballerina-platform/module-ballerinax-apple.music/tree/main/examples/music-discovery-dashboard) - Illustrates creating a dashboard for exploring and discovering new music content.
-3. [Music discovery recommendations](https://github.com/ballerina-platform/module-ballerinax-apple.music/tree/main/examples/music-discovery-recommendations) - Shows how to generate personalized music recommendations for users.
+1. [Music discovery workflow](https://github.com/ballerina-platform/module-ballerinax-apple.music/tree/main/examples/music-discovery-workflow) - Demonstrates how to implement automated music discovery and recommendation workflows using the Apple Music API.
+2. [Album performance analytics](https://github.com/ballerina-platform/module-ballerinax-apple.music/tree/main/examples/album-performance-analytics) - Illustrates retrieving and analyzing album performance data and metrics from Apple Music.
 ## Build from the source
 
 ### Setting up the prerequisites

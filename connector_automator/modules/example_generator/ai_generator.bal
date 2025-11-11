@@ -11,7 +11,9 @@ public function generateUseCaseAndFunctions(ConnectorDetails details, string[] u
         return error("AI model not initialized. Please call initExampleGenerator() first.");
     }
 
-    return (check utils:callAI(prompt)).fromJsonString();
+    string result = check utils:callAI(prompt);
+
+    return result.fromJsonString();
 }
 
 public function generateExampleCode(ConnectorDetails details, string useCase, string targetedContext) returns string|error {
@@ -21,7 +23,9 @@ public function generateExampleCode(ConnectorDetails details, string useCase, st
         return error("AI model not initialized. Please call initExampleGenerator() first.");
     }
 
-    return utils:callAI(prompt);
+    string result = check utils:callAI(prompt);
+
+    return result;
 }
 
 public function generateExampleName(string useCase) returns string|error {
@@ -35,5 +39,6 @@ public function generateExampleName(string useCase) returns string|error {
     if result is error {
         return error("Failed to generate example name", result);
     }
+
     return result == "" ? "example-1" : result;
 }
