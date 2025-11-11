@@ -1,0 +1,136 @@
+import ballerina/io;
+import ballerinax/apple.music;
+
+configurable string developerToken = ?;
+
+public function main() returns error? {
+    
+    music:Client appleMusic = check new (developerToken);
+
+    string[] storefronts = ["us", "gb", "jp", "de", "fr", "au"];
+    string[] albumIds = ["1440857781", "1440857782", "1440857783"];
+    
+    io:println("=== Music Discovery: Album Popularity Analysis Across Markets ===\n");
+
+    map<music:AlbumsResponse> marketData = {};
+
+    foreach string storefront in storefronts {
+        io:println(string `Fetching album data for ${storefront} market...`);
+        
+        music:GetAlbumsFromCatalogQueries queries = {
+            ids: albumIds
+        };
+
+        music:AlbumsResponse|error albumResponse = appleMusic->/catalog/[storefront]/albums.get(queries = queries);
+        
+        if albumResponse is music:AlbumsResponse {
+            marketData[storefront] = albumResponse;
+            music:Albums[]? albumData = albumResponse.data;
+            int albumCount = 0;
+            if albumData is music:Albums[] {
+                albumCount = albumData.length();
+            }
+            io:println(string `Successfully retrieved ${albumCount} albums for ${storefront}`);
+        } else {
+            io:println(string `Error fetching data for ${storefront}: ${albumResponse.message()}`);
+        }
+    }
+
+    io:println("\n=== Market Analysis Results ===");
+
+    foreach string storefront in storefronts {
+        if marketData.hasKey(storefront) {
+            music:AlbumsResponse response = marketData.get(storefront);
+            io:println(string `\n--- ${storefront.toUpperAscii()} Market Analysis ---`);
+            
+            music:Albums[]? responseData = response.data;
+            if responseData is music:Albums[] {
+                foreach music:Albums album in responseData {
+                    music:AlbumsAttributes? albumAttributes = album.attributes;
+                    string albumName = "Unknown";
+                    string artistName = "Unknown";
+                    string releaseDate = "Unknown";
+                    int trackCount = 0;
+                    string genreNames = "Unknown";
+                    
+                    if albumAttributes is music:AlbumsAttributes {
+                        string? nameValue = albumAttributes.name;
+                        if nameValue is string {
+                            albumName = nameValue;
+                        }
+                        string? artistValue = albumAttributes.artistName;
+                        if artistValue is string {
+                            artistName = artistValue;
+                        }
+                        string? releaseValue = albumAttributes.releaseDate;
+                        if releaseValue is string {
+                            releaseDate = releaseValue;
+                        }
+                        int? trackValue = albumAttributes.trackCount;
+                        if trackValue is int {
+                            trackCount = trackValue;
+                        }
+                        string[]? genreValue = albumAttributes.genreNames;
+                        if genreValue is string[] {
+                            genreNames = genreValue.toString();
+                        }
+                    }
+                    
+                    io:println(string `Album: ${albumName}`);
+                    io:println(string `Artist: ${artistName}`);
+                    io:println(string `Release Date: ${releaseDate}`);
+                    io:println(string `Track Count: ${trackCount}`);
+                    io:println(string `Genre: ${genreNames}`);
+                    
+                    if albumAttributes is music:AlbumsAttributes {
+                        music:PlayParameters? playParams = albumAttributes.playParams;
+                        if playParams is music:PlayParameters {
+                            io:println("Status: Available for streaming");
+                        } else {
+                            io:println("Status: Limited availability");
+                        }
+                    }
+                    io:println("---");
+                }
+            }
+        }
+    }
+
+    io:println("\n=== Regional Availability Summary ===");
+    map<int> availabilityCount = {};
+    
+    foreach string storefront in storefronts {
+        if marketData.hasKey(storefront) {
+            music:AlbumsResponse response = marketData.get(storefront);
+            music:Albums[]? responseData = response.data;
+            int albumCount = 0;
+            if responseData is music:Albums[] {
+                albumCount = responseData.length();
+            }
+            availabilityCount[storefront] = albumCount;
+        }
+    }
+
+    foreach var [market, count] in availabilityCount.entries() {
+        string availability = count > 0 ? "Available" : "Not Available";
+        io:println(string `${market.toUpperAscii()}: ${count} albums - ${availability}`);
+    }
+
+    io:println("\n=== Market Penetration Insights ===");
+    int totalMarkets = storefronts.length();
+    int successfulMarkets = availabilityCount.length();
+    float penetrationRate = (<float>successfulMarkets / <float>totalMarkets) * 100.0;
+    
+    io:println(string `Market Penetration Rate: ${penetrationRate}%`);
+    io:println(string `Successful Markets: ${successfulMarkets}/${totalMarkets}`);
+    
+    if penetrationRate >= 80.0 {
+        io:println("Recommendation: Strong global presence - maintain current strategy");
+    } else if penetrationRate >= 50.0 {
+        io:println("Recommendation: Moderate presence - consider expanding to missing markets");
+    } else {
+        io:println("Recommendation: Limited presence - focus on market expansion strategy");
+    }
+
+    io:println("\n=== Analysis Complete ===");
+}
